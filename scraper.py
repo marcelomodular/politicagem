@@ -20,10 +20,38 @@ SOURCES = [
     ("https://revistaforum.com.br/feed/",                   "Revista Fórum"),
     ("https://jornalggn.com.br/feed/",                      "Jornal GGN"),
     ("https://cartacapital.com.br/feed/",                   "Carta Capital"),
+    ("https://www.brasildefato.com.br/rss.xml",             "Brasil de Fato"),
+    ("https://www.redebrasilatual.com.br/rss.xml",          "Rede Brasil Atual"),
+    ("https://www.juventuderebelde.uol.com.br/feed/",       "Juventude Rebelde"),
+    ("https://resistir.info/feed/",                         "Resistência"),
+    ("https://www.esquerdaonline.com.br/feed/",             "Esquerda.net"),
+    ("https://www.criteriohoy.com/feed/",                   "Crítica HN"),
+    ("https://consultasocialista.com.br/feed/",             "Consulta Socialista"),
 
     # ── Partidos / organizações ──
     ("https://fpabramo.org.br/feed/",                       "Fundação Perseu Abramo"),
     ("https://pcb.org.br/feed/",                            "PCB"),
+    ("https://www.psol.org.br/feed/",                       "PSOL"),
+    ("https://www.pstu.org.br/feed/",                       "PSTU"),
+    ("https://www.pcdob.org.br/feed/",                      "PCdoB"),
+    ("https://www.pt.org.br/feed/",                         "Partido dos Trabalhadores"),
+    ("https://www.cut.org.br/feed/",                        "CUT - Central Única dos Trabalhadores"),
+    ("https://www.ctb.org.br/feed/",                        "CTB - Central dos Trabalhadores e Trabalhadoras"),
+    ("https://www.nova.org.br/feed/",                       "Nova Central Sindical"),
+    ("https://www.csb.org.br/feed/",                        "CSB - Central dos Sindicatos Brasileiros"),
+
+    # ── Embaixadas e organizações internacionais ──
+    ("https://embaixadacuba.org.br/feed/",                  "Embaixada de Cuba"),
+    ("https://embaixadavenezuela.org.br/feed/",             "Embaixada da Venezuela"),
+    ("https://embaixadabolivia.org.br/feed/",               "Embaixada da Bolívia"),
+    ("https://embaixadanicaragua.org.br/feed/",             "Embaixada da Nicarágua"),
+    ("https://embaixadaequador.org.br/feed/",               "Embaixada do Equador"),
+    ("https://embaixadachile.org.br/feed/",                 "Embaixada do Chile"),
+    ("https://embaixadaargentina.org.br/feed/",             "Embaixada da Argentina"),
+    ("https://embaixadamexico.org.br/feed/",                "Embaixada do México"),
+    ("https://embaixadauruguai.org.br/feed/",               "Embaixada do Uruguai"),
+    ("https://embaixadaparaguai.org.br/feed/",              "Embaixada do Paraguai"),
+    ("https://embaixadaperu.org.br/feed/",                  "Embaixada do Peru"),
 
     # ── Outros ──
     ("https://revistaopera.com.br/feed/",                   "Revista Opera"),
