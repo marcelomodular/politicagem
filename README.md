@@ -98,6 +98,18 @@ python main.py
 
 ---
 
+## Versão desktop (Electron)
+
+Também existe uma versão desktop em `electron-app/`.
+
+```bash
+cd electron-app
+npm install
+npm start
+```
+
+---
+
 ## Estrutura do projeto
 
 ```
