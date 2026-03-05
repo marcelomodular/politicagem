@@ -9,36 +9,28 @@ SOURCES = [
     ("https://theintercept.com/brasil/feed/",               "Intercept Brasil"),
     ("https://ponte.org/feed/",                             "Ponte Jornalismo"),
     ("https://observatoriodaimprensa.com.br/feed/",         "Observatório da Imprensa"),
+    ("https://outraspalavras.net/feed",                     "Outras Palavras"),
+    ("https://www.brasildefato.com.br/feed/",               "Brasil de Fato"),
+    ("https://ojoioeotrigo.com.br/feed/",                   "O Joio e o Trigo"),
+    ("https://www.nucleo.jor.br/rss/",                      "Núcleo Jornalismo"),
+    ("https://agenciasportlight.com.br/index.php/feed/",    "Agência Sportlight"),
+    ("https://passapalavra.info/feed/",                     "Passa Palavra"),
+    ("https://www.nexojornal.com.br/rss.xml",               "Nexo Jornal"),
+    
 
     # ── Imprensa de esquerda / progressista ──
     ("https://vermelho.org.br/feed/",                       "Vermelho"),
-    ("https://operamundi.uol.com.br/feed/",                 "Opera Mundi"),
     ("https://jacobin.com.br/feed/",                        "Jacobin Brasil"),
-    ("https://diplomatique.org.br/feed/",                   "Le Monde Diplomatique"),
     ("https://mst.org.br/feed/",                            "MST"),
     ("https://iclnoticias.com.br/feed/",                    "ICL Notícias"),
-    ("https://revistaforum.com.br/feed/",                   "Revista Fórum"),
-    ("https://jornalggn.com.br/feed/",                      "Jornal GGN"),
-    ("https://cartacapital.com.br/feed/",                   "Carta Capital"),
-    ("https://www.brasildefato.com.br/rss.xml",             "Brasil de Fato"),
-    ("https://www.redebrasilatual.com.br/rss.xml",          "Rede Brasil Atual"),
-    ("https://www.juventuderebelde.uol.com.br/feed/",       "Juventude Rebelde"),
-    ("https://resistir.info/feed/",                         "Resistência"),
-    ("https://www.esquerdaonline.com.br/feed/",             "Esquerda.net"),
-    ("https://www.criteriohoy.com/feed/",                   "Crítica HN"),
-    ("https://consultasocialista.com.br/feed/",             "Consulta Socialista"),
+    ("https://consultapopularoficial.org/feed/",            "Consulta Popular"),
+    ("https://piaui.uol.com.br/feed/",                      "Piauí"),
 
-    # ── Partidos / organizações ──
-    ("https://fpabramo.org.br/feed/",                       "Fundação Perseu Abramo"),
-    ("https://pcb.org.br/feed/",                            "PCB"),
-    ("https://www.psol.org.br/feed/",                       "PSOL"),
-    ("https://www.pstu.org.br/feed/",                       "PSTU"),
-    ("https://www.pcdob.org.br/feed/",                      "PCdoB"),
-    ("https://www.pt.org.br/feed/",                         "Partido dos Trabalhadores"),
-    ("https://www.cut.org.br/feed/",                        "CUT - Central Única dos Trabalhadores"),
-    ("https://www.ctb.org.br/feed/",                        "CTB - Central dos Trabalhadores e Trabalhadoras"),
-    ("https://www.nova.org.br/feed/",                       "Nova Central Sindical"),
-    ("https://www.csb.org.br/feed/",                        "CSB - Central dos Sindicatos Brasileiros"),
+    # ── Imprensa de guerra ──
+    ("https://noticiabrasil.net.br/export/rss2/archive/index.xml", "Sputnik Brasil"),
+    ("https://www.aljazeera.com/xml/rss/all.xml",            "Al Jazeera"),
+    ("https://operamundi.uol.com.br/rss",                    "Opera Mundi"),
+    ("https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada", "El País Mundo"),
 
     # ── Embaixadas e organizações internacionais ──
     ("https://embaixadacuba.org.br/feed/",                  "Embaixada de Cuba"),
@@ -53,9 +45,12 @@ SOURCES = [
     ("https://embaixadaparaguai.org.br/feed/",              "Embaixada do Paraguai"),
     ("https://embaixadaperu.org.br/feed/",                  "Embaixada do Peru"),
 
+
+
+
+
     # ── Outros ──
     ("https://revistaopera.com.br/feed/",                   "Revista Opera"),
-    ("https://jonesmanoel.com.br/feed/",                    "Jones Manoel"),
     ("https://subverta.com.br/feed/",                       "Subverta"),
     ("https://ominhocario.com.br/feed/",                    "O Minhocário"),
 ]

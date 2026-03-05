@@ -90,6 +90,7 @@ def visualizar_noticia():
 @app.route('/extrair_conteudo')
 def extrair_conteudo():
     from urllib.parse import unquote_plus
+    from readability import Document
     
     url = request.args.get('url', '')
     
@@ -106,106 +107,97 @@ def extrair_conteudo():
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=15)
         response.raise_for_status()
         
-        soup = BeautifulSoup(response.content, 'html.parser')
+        # Parse do HTML original para buscar imagem (decode para string)
+        html_text = response.content.decode('utf-8', errors='ignore')
+        original_soup = BeautifulSoup(html_text, 'html.parser')
         
-        # Remover elementos indesejados
-        for element in soup(['script', 'style', 'nav', 'header', 'footer', 'aside', 'menu', 'advertisement', 'sidebar', '.sidebar', '.related', '.comments']):
-            element.decompose()
+        # Extrair imagem principal (og:image, twitter:image, ou primeira img do artigo)
+        image_url = None
         
-        # Estratégia 1: Procurar por elementos article que contenham h1
-        articles_with_h1 = []
-        for article in soup.find_all('article'):
-            if article.find('h1') or article.find('h2'):
-                articles_with_h1.append(article)
+        # 1. Tentar og:image
+        og_image = original_soup.find('meta', property='og:image')
+        if og_image:
+            image_url = og_image.get('content')
         
-        if articles_with_h1:
-            # Pegar o artigo com mais texto
-            content = max(articles_with_h1, key=lambda x: len(x.get_text()))
-            print(f"DEBUG: Encontrado article com h1/h2")
+        # 2. Se não tiver, tentar twitter:image
+        if not image_url:
+            twitter_image = original_soup.find('meta', attrs={'name': 'twitter:image'})
+            if twitter_image:
+                image_url = twitter_image.get('content')
         
-        else:
-            # Estratégia 2: Procurar por elementos com classes de conteúdo
-            content_selectors = [
-                '.post-content',
-                '.entry-content', 
-                '.article-content',
-                '.content-main',
-                '.post-body',
-                '.entry-body',
-                '.article-body',
-                'main .content',
-                '.single-content',
-                '.post-inner',
-                '.entry',
-                '[role="article"]',
-                'main'
-            ]
-            
-            content = None
-            for selector in content_selectors:
-                elements = soup.select(selector)
-                if elements:
-                    # Pegar o elemento com mais texto (provavelmente o conteúdo principal)
-                    content = max(elements, key=lambda x: len(x.get_text()))
-                    print(f"DEBUG: Encontrado conteúdo com seletor: {selector}")
-                    break
+        # 3. Se não tiver, tentar primeira img no article
+        if not image_url:
+            article_img = original_soup.find('article')
+            if article_img:
+                img = article_img.find('img')
+                if img and img.get('src'):
+                    image_url = img.get('src')
         
-        if not content:
-            # Estratégia 3: Procurar por divs com muita texto
-            all_divs = soup.find_all('div')
-            text_divs = [div for div in all_divs if len(div.get_text()) > 200]
-            if text_divs:
-                content = max(text_divs, key=lambda x: len(x.get_text()))
-                print(f"DEBUG: Usando div com mais texto como fallback")
+        # 4. Última tentativa: qualquer img com src válida
+        if not image_url:
+            any_img = original_soup.find('img', src=True)
+            if any_img:
+                src = any_img.get('src')
+                # Ignorar logos, ícones, trackers
+                if src and not any(x in src.lower() for x in ['logo', 'icon', 'banner', 'ads', 'pixel', 'tracking']):
+                    image_url = src
         
-        if not content:
-            # Fallback final para o body
-            content = soup.find('body')
-            print(f"DEBUG: Usando body como último fallback")
+        # Usar readability-lxml para extrair o conteúdo principal
+        doc = Document(html_text)
         
-        if content:
-            # Limpar o conteúdo
-            text_content = content.get_text(separator='\n', strip=True)
-            
-            # Remover linhas em branco excessivas
-            lines = [line.strip() for line in text_content.split('\n') if line.strip()]
-            text_content = '\n'.join(lines)
-            
-            # Limitar tamanho para não sobrecarregar
-            text_content = text_content[:5000] + '...' if len(text_content) > 5000 else text_content
-            
-            # Validar se o conteúdo faz sentido (não é muito curto)
-            if len(text_content.strip()) < 50:
-                return jsonify({'error': 'Conteúdo muito curto ou inválido'}), 404
-            
-            # Obter o título da página
-            page_title = soup.title.string if soup.title else 'Título não encontrado'
-            
-            # Verificar se há h1 ou h2 no conteúdo para validar
-            content_h1 = content.find('h1')
-            content_h2 = content.find('h2')
-            
-            print(f"DEBUG: Título da página: {page_title}")
-            print(f"DEBUG: H1 no conteúdo: {content_h1.get_text() if content_h1 else 'Nenhum'}")
-            print(f"DEBUG: H2 no conteúdo: {content_h2.get_text() if content_h2 else 'Nenhum'}")
-            print(f"DEBUG: Primeiros 200 chars do conteúdo: {text_content[:200]}...")
-            
+        title = doc.title()
+        content_html = doc.summary()
+        
+        # Garantir que content_html seja string
+        if isinstance(content_html, bytes):
+            content_html = content_html.decode('utf-8', errors='ignore')
+        
+        # Converter HTML para texto com parágrafos
+        soup = BeautifulSoup(content_html, 'html.parser')
+        
+        # Limpar elementos indesejados dentro do conteúdo
+        for elem in soup(['script', 'style', 'aside', 'nav', 'footer', 'header']):
+            elem.decompose()
+        
+        # Usar o HTML diretamente para manter parágrafos
+        text_content = str(soup)
+        
+        # Limitar tamanho
+        if len(text_content) > 15000:
+            text_content = text_content[:15000] + '...'
+        
+        # Limitar tamanho
+        text_content = text_content[:8000] + '...' if len(text_content) > 8000 else text_content
+        
+        # Validar conteúdo
+        if len(text_content.strip()) < 100:
             return jsonify({
                 'conteudo': text_content,
-                'titulo': page_title,
-                'h1': content_h1.get_text() if content_h1 else None,
-                'h2': content_h2.get_text() if content_h2 else None,
-                'sucesso': True
+                'titulo': title,
+                'sucesso': True,
+                'aviso': 'Conteúdo curto, pode não ter extraído bem'
             })
-        else:
-            return jsonify({'error': 'Conteúdo não encontrado'}), 404
+        
+        print(f"DEBUG: Título extraído: {title}")
+        print(f"DEBUG: Imagem extraída: {image_url}")
+        print(f"DEBUG: Primeiros 200 chars: {text_content[:200]}...")
+        
+        return jsonify({
+            'conteudo': text_content,
+            'titulo': title,
+            'imagem': image_url,
+            'sucesso': True
+        })
             
     except Exception as e:
+        import traceback
+        print(f"DEBUG: Erro: {str(e)}")
+        print(f"DEBUG: Traceback: {traceback.format_exc()}")
         return jsonify({'error': f'Erro ao extrair conteúdo: {str(e)}'}), 500
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5002)

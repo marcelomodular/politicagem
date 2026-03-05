@@ -76,6 +76,22 @@
             margin-bottom: 8px;
         }
 
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
         .viewer-meta {
             display: flex;
             justify-content: space-between;
@@ -161,11 +177,38 @@
 
         .content-text {
             font-family: 'Libre Baskerville', Georgia, serif;
-            font-size: 0.9rem;
-            line-height: 1.7;
+            font-size: 0.95rem;
+            line-height: 1.8;
             color: var(--ink);
             text-align: justify;
             white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
         }
 
         .iframe-container {
@@ -216,11 +259,17 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 700px) {
+
             .viewer-header,
             .viewer-controls,
             .viewer-content {
@@ -251,6 +300,7 @@
         <div class="top-rule-thin"></div>
 
         <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
             <h1 class="viewer-title">{{ titulo }}</h1>
             <div class="viewer-meta">
                 <span class="source-tag">{{ fonte }}</span>
@@ -261,7 +311,7 @@
         <div class="viewer-controls">
             <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
             <a href="{{ url }}" target="_blank" class="btn">Abrir no Site Original →</a>
-            
+
             <div class="view-toggle">
                 <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
                 <button class="toggle-btn" onclick="showIframe()">Site Original</button>
@@ -276,10 +326,11 @@
                 </div>
                 <div id="extracted-content" class="content-text" style="display: none;"></div>
             </div>
-            
+
             <div id="iframe-view" style="display: none;">
                 <div class="iframe-container">
-                    <iframe src="{{ url }}" sandbox="allow-same-origin allow-scripts allow-forms" onload="hideIframeLoading()"></iframe>
+                    <iframe src="{{ url }}" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
                 </div>
             </div>
         </div>
@@ -287,57 +338,67 @@
 
     <script>
         let currentView = 'extracted';
-        
+
         function showExtracted() {
             currentView = 'extracted';
             document.getElementById('extracted-view').style.display = 'block';
             document.getElementById('iframe-view').style.display = 'none';
-            
+
             // Atualizar botões
             document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.toggle-btn')[0].classList.add('active');
-            
+
             // Carregar conteúdo se ainda não carregado
-            if (!document.getElementById('extracted-content').style.display || 
+            if (!document.getElementById('extracted-content').style.display ||
                 document.getElementById('extracted-content').style.display === 'none') {
                 loadExtractedContent();
             }
         }
-        
+
         function showIframe() {
             currentView = 'iframe';
             document.getElementById('extracted-view').style.display = 'none';
             document.getElementById('iframe-view').style.display = 'block';
-            
+
             // Atualizar botões
             document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.toggle-btn')[1].classList.add('active');
         }
-        
+
         function loadExtractedContent() {
             // Usar a URL diretamente sem codificação dupla
             const url = '{{ url }}';
-            
+
             console.log('Carregando conteúdo da URL:', url);
-            
+
             fetch(`/extrair_conteudo?url=${encodeURIComponent(url)}`)
                 .then(response => response.json())
                 .then(data => {
                     const loadingDiv = document.querySelector('.content-loading');
                     const contentDiv = document.getElementById('extracted-content');
-                    
+
                     console.log('Resposta recebida:', data);
-                    
+
                     if (data.sucesso) {
                         loadingDiv.style.display = 'none';
-                        
-                        // Mostrar informações de debug
-                        let debugInfo = '';
-                        if (data.h1) debugInfo += `<p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 8px;"><strong>H1 encontrado:</strong> ${data.h1}</p>`;
-                        if (data.h2) debugInfo += `<p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 8px;"><strong>H2 encontrado:</strong> ${data.h2}</p>`;
-                        debugInfo += `<p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;"><strong>Título da página:</strong> ${data.titulo}</p>`;
-                        
+
+                        // Mostrar imagem se disponível
+                        const articleImage = document.getElementById('article-image');
+                        if (data.imagem) {
+                            articleImage.src = data.imagem;
+                            articleImage.style.display = 'block';
+                        }
+
+                        // Mostrar título da página
+                        let debugInfo = `<p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;"><strong>Título:</strong> ${data.titulo || 'N/A'}</p>`;
+
                         contentDiv.innerHTML = debugInfo + `<div class="content-text">${data.conteudo}</div>`;
+                        // Converter quebras de linha em parágrafos se necessário
+                        const contentTextDiv = contentDiv.querySelector('.content-text');
+                        if (contentTextDiv && contentTextDiv.innerHTML.includes('\n')) {
+                            const paragraphs = contentTextDiv.innerHTML.split('\n\n').filter(p => p.trim());
+                            contentTextDiv.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+                        }
                         contentDiv.style.display = 'block';
                     } else {
                         loadingDiv.innerHTML = `
@@ -368,11 +429,11 @@
                     `;
                 });
         }
-        
+
         function hideIframeLoading() {
             // O iframe já carrega visualmente, não precisamos de loading adicional
         }
-        
+
         // Carregar conteúdo extraído ao iniciar
         document.addEventListener('DOMContentLoaded', loadExtractedContent);
     </script>
