@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clima: Quando a desinformação captura a fé - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Clima: Quando a desinformação captura a fé</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://outraspalavras.net/terraeantropoceno/clima-quando-a-desinformacao-captura-a-fe/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/09/img_8789.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Clima: Quando a desinformação captura a fé
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/09/img_8789-1500x750.jpg"/>Foto:  Coletivo Sargento Perifa 
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Em novembro do ano passado, chegando em Belém para a COP 30, fui recebida por um outdoor enorme logo na saída do aeroporto: “Em 100 anos, as mortes decorrentes pelo clima caíram 96%”, acompanhado de um gráfico sem contexto e uma fonte de dados aleatória. Nenhuma explicação, nenhuma interpretação, apenas a mensagem crua, insinuando que a crise climática não é tão grave quanto afirmamos. Naquele instante, antes mesmo de entrar nos debates ou nas atividades da sociedade civil, percebi o tamanho do desafio que tínhamos pela frente. Ficou evidente que o negacionismo, e suas formas mais sofisticadas de desinformação, continua sendo uma das barreiras mais poderosas para qualquer avanço real.</p>
+<p>E é dentro desse cenário conflituoso que se desenrola a disputa entre a indústria do petróleo, as comunidades que protegem seus territórios e as pessoas de fé que resistem para manter viva a esperança de um futuro justo. Temos uma indústria global construída sobre a concentração extrema de lucros e poder, mas também temos povos e culturas que há séculos mantêm relações de cuidado e reciprocidade com seus territórios. Entre esses mundos, pessoas de fé e suas comunidades têm se levantado como pontes, lembrando que enfrentar a crise climática não é apenas uma questão técnica, mas também ética, moral e espiritual.</p>
+<p>A indústria de óleo e gás e as Big Techs não disputam apenas políticas públicas; disputam também percepções, narrativas e imaginários. Um exemplo disso é que, às vésperas da COP30, anúncios de petroleiras no Google Ads aumentaram 218% em relação ao mês anterior, segundo o Instituto Climainfo. São campanhas que não vendem apenas combustíveis, vendem dúvida, manipulam dados, constroem discursos que relativizam a urgência climática.</p>
+<p>Essa é a diferença entre informação falsa e desinformação: a desinformação tem intenção. O conteúdo é criado ou utilizado intencionalmente para manipular opiniões, influenciar interesses e desmobilizar movimentos. E nem sempre é preciso inventar uma informação. Um dado pode ser verdadeiro e ainda assim ser apresentado sem contexto ou de forma manipulada para produzir uma interpretação falsa da realidade. A desinformação climática acontece quando esses conteúdos são utilizados para confundir as pessoas sobre a crise climática e os problemas socioambientais. Combater essa avalanche de narrativas é condição básica para que a justiça climática possa, um dia, deixar de ser promessa e se tornar realidade concreta.</p>
+<h3><strong>Quando a fé se torna resistência</strong></h3>
+<p>Foi nesse contexto que planejamos nossas ações em 2026, um ano de eleições que exige um compromisso e uma comunicação ainda mais atenta. Sabemos que períodos eleitorais intensificam a disputa por narrativas e que temas como exploração de petróleo, transição energética, mudanças climáticas e proteção dos territórios também fazem parte dessa disputa. A desinformação não ameaça apenas o avanço das políticas climáticas, mas a própria capacidade das pessoas de tomarem decisões informadas sobre o futuro do país e de seus territórios.</p>
+<p>Foi também a partir desse cenário que construímos a cartilha <em>Nossa fé contra a desinformação climática</em>. O material não nasceu apenas de uma pesquisa sobre desinformação, mas principalmente da escuta. Ao longo do primeiro semestre de 2026, o GreenFaith, em parceria com diferentes organizações, realizou quatro encontros com comunidades e lideranças religiosas no Rio de Janeiro, em Pernambuco, no Acre, e no Maranhão ouvindo pessoas de diferentes tradições religiosas e contextos sociais.</p>
+<p>Nesses encontros, ouvimos como as mudanças climáticas já fazem parte do cotidiano das comunidades, mas também como diferentes narrativas chegam até elas. Frases como “Deus está no controle” ou a ideia de que falar sobre crise climática significa falta de fé aparecem em relatos de lideranças que tentam construir outros caminhos dentro de suas próprias comunidades.</p>
+<p>O problema aparece quando essas crenças são utilizadas para justificar a inação diante de problemas que são resultado de escolhas humanas, políticas e econômicas. Quando uma narrativa religiosa é utilizada para dizer que não temos responsabilidade sobre a destruição ambiental ou que questionar determinados interesses econômicos seria questionar a própria fé, existe ali uma disputa de narrativa que precisa ser enfrentada.</p>
+<h3><strong>Quando a linguagem sagrada é sequestrada</strong></h3>
+<p>A desinformação climática também pode usar símbolos religiosos, valores espirituais e discursos de fé para confundir as pessoas e justificar a destruição ambiental. É o que chamamos na cartilha de “sequestro da linguagem sagrada”.</p>
+<p>Isso acontece quando ideias ligadas ao cuidado, à criação, à espiritualidade e à responsabilidade coletiva são distorcidas para defender interesses econômicos e desacreditar a ciência climática. E se a desinformação consegue dialogar com valores religiosos para chegar às pessoas, o enfrentamento a ela também precisa ser capaz de fazer com que dados, ciência e informação dialoguem com os fundamentos da fé.</p>
+<p>É justamente nesse ponto que as lideranças religiosas têm um papel fundamental. É preciso reconhecer que as comunidades de fé ocupam espaços onde muitas vezes outros atores não chegam. Lideranças religiosas e comunitárias têm um papel fundamental, pois constroem relações de confiança, conhecem seus territórios, acompanham suas comunidades e conseguem dialogar a partir de valores que fazem parte da vida das pessoas.</p>
+<p>Por isso, fortalecer essas lideranças para reconhecer e enfrentar a desinformação significa também fortalecer redes comunitárias inteiras. Em tempos de desinformação, comunidades de fé podem ser guardiãs da verdade, vozes éticas diante do poder econômico e pontes entre mundos que raramente se escutam, podem aproximar ciência e fé sem que uma precise negar a outra.</p>
+<p>Em diferentes partes do Brasil, comunidades tradicionais convivem diretamente com as consequências de decisões tomadas em nome do desenvolvimento. No Rio de Janeiro, comunidades da Baía de Guanabara vivem há décadas os impactos da indústria de óleo e gás. Em São Luís, a expansão da logística ligada ao Porto do Itaqui acontece ao mesmo tempo em que populações tradicionais lutam para proteger seus territórios e seus direitos, em um estado diretamente atravessado pelo debate sobre a exploração de petróleo na Margem Equatorial.</p>
+<p>Nesses lugares, discutir sobre a expansão da exploração do petróleo, transição energética e crise climática não é uma discussão abstrata, estamos falando sobre modos de vida, sobre quem pode permanecer em seus territórios e sobre quem assume os impactos de um modelo econômico enquanto outros concentram seus benefícios. Se a transição energética ainda não aconteceu, não é por falta de tecnologia, é por falta de interesse coletivo em prol do desenvolvimento e proteção de territórios mais vulneráveis. Enquanto a coragem emerge, forte e diversa, nas comunidades religiosas, dos povos tradicionais, nas juventudes e nos movimentos por justiça climática.</p>
+<p>Em 2026, quando o Brasil volta às urnas e decisões fundamentais sobre petróleo, energia, clima e territórios estão em disputa, defender a integridade da informação é também defender a democracia. A luta contra a desinformação climática é uma luta pela verdade, pela justiça e pela vida, e por isso a fé pode trazer tantas contribuições. Se a linguagem sagrada pode ser sequestrada para justificar a inação, ela também pode ser recuperada para lembrar que cuidar da criação, proteger a vida e não aceitar a mentira como instrumento de poder são compromissos profundamente espirituais.</p>
+<p>A cartilha Nossa Fé contra a desinformação climática é uma das campanhas do GreenFaith que une fé, informação e defesa do meio ambiente. O documento representa um processo de construção coletiva que fortalece lideranças, amplia capacidades locais e promove uma resposta enraizada na realidade e nos valores das comunidades de fé. Desde 2013, o GreenFaith atua no Brasil por meio de campanhas e treinamentos com comunidades locais que reúnem mulheres, pescadores, educadores, jovens, ativistas e lideranças religiosas, fortalecendo a fé como instrumento de resistência, cuidado e enfrentamento à emergência climática. Acesse aqui a cartilha<a href="https://latin.greenfaith.org/resource/nova-cartilha-mostra-como-a-desinformacao-climatica-se-apropria-da-linguagem-religiosa/" rel="noopener noreferrer" target="_blank"> Nossa fé contra a desinformação climática</a>. <br/></p>
+<p></p>
+<p><a href="https://latin.greenfaith.org/resource/nova-cartilha-mostra-como-a-desinformacao-climatica-se-apropria-da-linguagem-religiosa/" rel="noopener noreferrer" target="_blank"></a></p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleça o jornalismo crítico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/terraeantropoceno/clima-quando-a-desinformacao-captura-a-fe/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

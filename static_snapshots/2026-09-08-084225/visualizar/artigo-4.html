@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>‘Limit overshoot, peak, decline’: A new global goal for climate change? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">‘Limit overshoot, peak, decline’: A new global goal for climate change?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Al Jazeera</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://www.aljazeera.com/features/2026/9/8/limit-overshoot-peak-decline-a-new-global-goal-for-climate-change?traffic_source=rss" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.aljazeera.com/wp-content/uploads/2026/09/2026-09-08T054922Z_2032712739_RC2PENAW9W1S_RTRMADP_3_NEPAL-FLOODS-1788861701.jpg?resize=1920%2C1440" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: ‘Limit overshoot, peak, decline’: A new global goal for climate change?
+                            </p>
+                            <p>The signing of the Paris Agreement by 200 countries in 2015 was a rare moment of global unity, and the euphoria was real.</p><p>To cheers and tears, the international climate treaty was approved by nearly every country in the world. Fundamental to the agreement was a commitment to keeping temperatures from rising beyond 1.5C (2.7F) above the pre-industrial levels of the mid 19th-century.</p><p>But 11 years on, it is evident that the Earth is soon going to exceed that threshold because of the continued record burning of fossil fuels.</p><p>A report from the United Nations Environment Programme (UNEP) in Nairobi, Kenya – called Limiting Overshoot – has found that even under the most optimistic scenario, the Earth will heat up by 1.8C (3.2F) above pre-industrial levels. It adds that the best hope for the planet is an “overshoot, peak and decline” pathway.</p><p>That would mean it is still possible, and essential, to bring temperatures down and achieve the Paris goals, but a course correction is required to get there.</p><p>The UNEP report envisions that the global temperature rise will pass the 1.5C threshold “within the next few years”, continue to increase, then gradually cool to below the 1.5-mark, hopefully by the end of the century.</p><h2>Limiting the shock</h2><p>The report makes it clear that the impact of rising temperatures will intensify with every year spent above the 1.5C threshold. Extreme weather will <a href="https://www.aljazeera.com/news/2026/8/27/nepal-tibet-floods-what-happened-what-caused-them-and-who-is-missing" rel="noopener noreferrer" target="_blank">get more extreme</a>; the danger of small island states and coastal cities being submerged will be more likely, while biodiversity loss will accelerate.</p><p>That means disasters such as the recent catastrophic Nepal flash floods – in which more than 1,300 people have died and thousands are still missing – which were caused by melting glaciers, could become more frequent.</p><p>Tom Rivett-Carnac, who helped shape the architecture of the Paris Agreement, told Al Jazeera that this overshoot looks increasingly locked in.</p><p>“Overshooting is extremely dangerous and raises the risks of runaway tipping points,” Rivett-Carnac told Al Jazeera. “If it has to happen, our task is to make it as small and as short as possible.”</p><p>But to ensure the temperature rise threshold returns to 1.5C in the future, the world needs to act now, the report warns, with sustained cuts to greenhouse gas emissions.</p><p>Mohammed Adow of the think tank Power Shift Africa told Al Jazeera that every fraction of a degree above 1.5C means more lives lost, more crops failing and more damage to economies.</p><p>“If exceeding 1.5C can no longer be avoided then of course we must keep that overshoot in check and bring temperatures back down as soon as possible,” he said. “Giving up because 1.5C is temporarily breached would be a catastrophic, unforgivable mistake.”</p><p> </p><p> </p><h2>‘We need political courage’</h2><p>Despite the extraordinary momentum the Paris Agreement prompted, as it reduced the scale of projected warming and supercharged clean energy growth, the political will to see it through has failed to emerge, Rivett-Carnac said.</p><p>“Temperature projections have fallen from 3-3.5C in 2015 to roughly 2.3-2.5C now, so the progress from Paris has been real,” he said.</p><p>“However, the 2015 assumption was that politics would follow economics, that falling costs in renewable energy would pull political ambition with them. That has not proved to be constantly the case.”</p><p>Most notably, the United States has proved entirely inconsistent. Under both presidencies of Donald Trump, it has withdrawn from the Paris Agreement altogether while the Trump administration remains heavily invested in touting US – and now Venezuelan – oil to international consumers.</p><p>Since 2015, global fossil fuel consumption has only increased. According to the International Energy Agency, carbon dioxide emissions rose by about 145 million tonnes in 2025, reaching a new record high of 38.4 billion tonnes, 5 percent above 2019 levels.</p><p>This is happening despite extraordinary declines in the cost of producing renewable energy. According to the International Renewable Energy Agency (IRENA), solar power is now 90 percent cheaper than it was in 2010.</p><p>Furthermore, renewables surpass fossil fuels as the most cost-competitive source of new electricity generation, the agency says. More than 90 percent of utility-scale projects commissioned in 2025 delivered power below the cost of the cheapest new fossil fuel plant built in their market.</p><p>“The tragedy is our technological progress has outrun our political progress,” said Mohammed Adow. “What we lack is governments willing to deploy renewable technology at the necessary speed, to phase out fossil fuels and to provide developing countries with the finance to make that transition.</p><p>“The route out of this crisis is clearer than it was in 2015. We now need the political courage to take it.”</p><p> </p><p> </p><h2>Climate rollbacks and AI data centres</h2><p>US climate policy rollbacks under President Trump and his withdrawal from the Paris Agreement have undoubtedly slowed the momentum for change at the level of global governance. Global energy demands, particularly from artificial intelligence, continue to rise.</p><p>In 2024, AI data centres were estimated to have consumed approximately 1.5 percent of global electricity. That consumption is projected to double by 2030.</p><p>Many believe it is incumbent upon Big Tech like Apple and Meta to make use of new technologies to reverse the direction of travel with AI emissions.</p><p>“The demand for data centres is rising sharply,” Jan Rosenow, professor of energy and climate policy at the University of Oxford, told Al Jazeera. “And too many being built are powered by fossil fuels. Tech companies need to do the right thing.”</p><p>Rosenow pointed to the use of circular energy systems as one means of reducing emissions. “The waste heat from data centres can and should be recovered – this is something that has been happening in Sweden for years.”</p><p>The explosive demand for electricity to power AI means Big Tech is struggling to meet its climate pledges. In July this year, British daily The Guardian reported that Microsoft, Amazon and Google’s collective carbon emissions have increased by nearly 20 percent in a year, an increase equivalent to about one-third of the CO2 emissions of France.</p><p>In its annual sustainability report, Amazon said: “We recognise the path to being a more sustainable company is not a straight line. Though our emissions increased in 2025, we remain steadfast in our commitment to sustainability.”</p><p>The AI-fuelled demand in the US, in particular, is increasingly being met by fossil fuels. The Environmental Integrity Project <a href="https://rb.gy/kyewfq" rel="noopener noreferrer" target="_blank">reports</a> that there are plans for at least 74 gas-fired power plants to cater for data centres, which could emit upwards of 660 million tonnes of greenhouse gas per year, equivalent to Australia’s pollution annually.</p><p> </p><p> </p><h2>Removing carbon</h2><p>To help bring the world back to its 1.5C threshold course, the UNEP report points to the need for the implementation of large-scale carbon dioxide removal (CDR) projects.</p><p>These include conventional methods, such as planting trees and restoring ecosystems, and more controversial ones such as carbon capture and storage, where emissions are collected, cleaned and stored deep underground, a technology hard to implement at scale.</p><p>Rosenow said carbon removal technologies have their place but not as a primary route to decarbonisation.</p><p>“Why? Because it is far cheaper to avoid emitting in the first place,” he said.</p><p> </p><p> </p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.aljazeera.com/features/2026/9/8/limit-overshoot-peak-decline-a-new-global-goal-for-climate-change?traffic_source=rss" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

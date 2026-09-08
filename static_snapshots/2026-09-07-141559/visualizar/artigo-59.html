@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrancar alegria ao futuro - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Arrancar alegria ao futuro</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://outraspalavras.net/alemdamercadoria/arrancar-alegria-ao-futuro/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/09/55506665917_29fbea97bb_c-720x480-2.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Arrancar alegria ao futuro
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/09/55506665917_29fbea97bb_c-720x480-2.jpg"/>JoÃ£o Carlos Salles assume terceiro mandato como reitor da UFBA. Foto: Victor Mota (ASCOM/UFBA)
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p><strong>1.</strong> Discursos deveriam ter horror ao vazio. PorÃ©m, em um tempo que banalizou as palavras, o que mais se pede deles hoje em dia Ã© que sejam breves. NÃ£o pude lapidar meu texto como gostaria; temo, assim, que meu discurso nÃ£o seja o melhor exemplo dessa virtude, a da brevidade, mas fiz um esforÃ§o sincero para manter o foco e traduzir todo um conjunto de problemas em uma pergunta de fundo, em uma questÃ£o nÃ£o pode cair no vazio: Podemos pensar o mundo sem a Universidade Federal da Bahia?</p>
+<p>Para alguns, parece que sim. Esse absurdo parece possÃ­vel a aventureiros de ocasiÃ£o ou a pragmÃ¡ticos oportunistas, que fingem ser polÃ­ticos sagazes e atÃ© simulam interesse pÃºblico. Dizem, afinal, sem refletir sobre responsabilidades e escolhas: as universidades pÃºblicas estÃ£o em crise. Qual, porÃ©m, o sentido desse lugar comum, dessa banalidade quase inconteste, que muitos dados favorecem?</p>
+<p>Ã verdade: salta aos olhos a precariedade da manutenÃ§Ã£o de muitos dos nossos espaÃ§os acadÃªmicos (por vezes, ao lado de construÃ§Ãµes novas e vultosas); Ã© nÃ­tido o esgarÃ§amento de relaÃ§Ãµes interpessoais, com o registro de mÃºltiplos casos de adoecimento, sofrimento, bem como de assÃ©dio, preconceito e discriminaÃ§Ã£o (em um espaÃ§o todavia privilegiado para o combate a essas mesmas situaÃ§Ãµes); Ã© dramÃ¡tico o esquecimento de valores Ã­nsitos Ã  universidade, bem como sua dificuldade de afirmaÃ§Ã£o perante a sociedade como um projeto inteiro â quando a sabemos, contudo, um lugar Ãºnico de ciÃªncia, cultura e arte.</p>
+<p>Ora, crises se dizem em vÃ¡rios sentidos e possuem graus distintos, conquanto interligados. Para alÃ©m da verdade desse truÃ­smo, cabe refletir sobre seu sentido, tendo em conta especificamente nÃ£o sermos uma empresa nem uma mera repartiÃ§Ã£o pÃºblica, que seriam avaliadas em sua crise por critÃ©rios externos Ã  sua natureza â por exemplo, pela eventual insuficiÃªncia de suas entregas, para nos servirmos de um vocabulÃ¡rio do mercado que passou a dominar todo o imaginÃ¡rio da polÃ­tica.</p>
+<p><strong>2.</strong> Nas universidades, terÃ­amos, em primeiro lugar, uma crise orÃ§amentÃ¡ria (que seria a mais saliente e quiÃ§Ã¡ a responsÃ¡vel mais direta pelo agravamento de todas as outras). Ou seja, apÃ³s termos superado o maior ataque jamais sofrido pela universidade pÃºblica, perpetrado de 2016 a 2022, nÃ£o tivemos revertido a contento um quadro de restriÃ§Ã£o orÃ§amentÃ¡ria, de sorte que a educaÃ§Ã£o superior nÃ£o tem sido uma prioridade nacional.</p>
+<p>Ã verdade que retornaram os investimentos de capital, praticamente anulados no perÃ­odo anterior do mais abjeto obscurantismo, mas sem que nos sejam fornecidas as condiÃ§Ãµes adequadas para a manutenÃ§Ã£o de nossas edificaÃ§Ãµes e a cobertura adequada de nossas demais despesas discricionÃ¡rias.</p>
+<p>Ademais, ao lado do crescimento insuficiente dos recursos inscritos na Lei OrÃ§amentÃ¡ria Anual e da ameaÃ§a posta pelo arcabouÃ§o fiscal, vemos prosperar o expediente vicioso de uma precÃ¡ria compensaÃ§Ã£o do orÃ§amento por meio de Termos de ExecuÃ§Ã£o Descentralizada e emendas parlamentares â recursos que, ao nos socorrerem (mesmo quando legÃ­timas, acadÃªmicas e boas as intenÃ§Ãµes), conspiram seletivamente contra nossa autonomia.</p>
+<p>Em sentido singularÃ­ssimo, podemos reconhecer uma crise que atÃ© dirÃ­amos ideolÃ³gica â como uma neblina que nos oculta a essÃªncia, porquanto nos afeta a identidade e o sucesso do projeto de uma instituiÃ§Ã£o autÃ´noma de produÃ§Ã£o do conhecimento e de reproduÃ§Ã£o pelo conhecimento. Oferecendo-nos uma realidade apartada da imagem mais elevada da universidade e alimentando-se de uma persistente incompreensÃ£o dos laÃ§os entre educaÃ§Ã£o bÃ¡sica e educaÃ§Ã£o superior, tal crise traduz-se amiÃºde em obstÃ¡culos Ã  produÃ§Ã£o interna de consensos e dissensos qualificados, mas tambÃ©m compromete a capacidade de a universidade cumprir o papel de uma espÃ©cie de instÃ¢ncia moderadora do uso pÃºblico da razÃ£o â instÃ¢ncia que, decerto, nÃ£o substitui a sociedade em suas decisÃµes, mas pode estabelecer os limites do razoÃ¡vel a aÃ§Ãµes e argumentos.</p>
+<p>Rebaixada a instituiÃ§Ã£o, desafiada a ligaÃ§Ã£o entre sua imagem e sua natureza, descolada de seu destino de coincidir na longa duraÃ§Ã£o com um estado democrÃ¡tico, nÃ£o raro vemos a universidade instrumentalizada ou desconsiderada, inclusive quando seria obrigatÃ³rio e sensato ouvir seu parecer â em especial, no prÃ³prio caso da criaÃ§Ã£o de novas universidades, pois um emudecimento deletÃ©rio pode nos engolfar em jogos de baixa polÃ­tica.</p>
+<p>Nesse sentido, nossa crise seria, enfim, uma crise de significaÃ§Ã£o, inclusive de natureza moral, por lhe comprometer a prÃ³pria legitimidade social, ou seja, sua aura. Crises dessa ordem ocorrem com o declÃ­nio da vontade coletiva, eventualmente assaltada por iniciativas particulares que restringem os projetos caracterÃ­sticos do comum, comprometendo um solo de acolhimento e a desiderabilidade da cooperaÃ§Ã£o, para recuperarmos aqui uma das definiÃ§Ãµes clÃ¡ssicas da moral.</p>
+<p>DestituÃ­da, pois, a universidade desse lugar, temos uma crise conjugada, que, ao fim e ao cabo, pode afetar a prÃ³pria capacidade de a universidade pÃºblica justificar seu direito Ã  existÃªncia. Dessa forma, a forte restriÃ§Ã£o orÃ§amentÃ¡ria que continuamos a sofrer pode atÃ© ser vista como causa e reflexo de uma crise ainda mais grave â a saber, uma crise de relevÃ¢ncia.</p>
+<p><strong>3.</strong> Certas instituiÃ§Ãµes, quando padecem uma crise, sentem logo ameaÃ§ada sua existÃªncia e passam a contar os dias. Toda crise Ã©, para elas, profunda e indesejÃ¡vel. Se acaso tÃªm forÃ§a econÃ´mica ou polÃ­tica, podem arrastar-se desenganadas por dÃ©cadas atÃ© a hora final. Tais instituiÃ§Ãµes seriam, assim, infelizes a seu modo, definidas que o sÃ£o por metas a elas extrÃ­nsecas â e bem podemos pensar o mundo sem elas.</p>
+<p>EstÃ¡ longe de ser esse o caso das universidades pÃºblicas, nas quais a crise nÃ£o Ã© um acontecimento adventÃ­cio. De certo modo, a crise faz parte de nossa natureza e, pensando bem, pode ser atÃ© um sinal perene de vitalidade, porquanto nÃ£o impede nosso crescimento nem compromete nosso sentido mais profundo, antes alimentando nossa unidade e capacidade de reaÃ§Ã£o.</p>
+<p>Essa Ã© a grande diferenÃ§a: uma vez existentes, jamais deverÃ­amos poder pensar o mundo sem universidades. As universidades sÃ£o, por assim dizer, nosso destino, e este Ã© exatamente o tema de fundo deste discurso: pensar a crise da universidade pÃºblica sem recusar sua carga de ambiguidades e, com isso, interna e externamente, fazer o devido enfrentamento da crise.</p>
+<p>A primeira ambiguidade Ã© esta. A universidade pÃºblica Ã© a maior aposta da sociedade no conhecimento e uma recusa da ignorÃ¢ncia. No Brasil, em particular, Ã© condiÃ§Ã£o essencial Ã  soberania nacional, ou seja, um equipamento estratÃ©gico da democracia, quer pela produÃ§Ã£o de conhecimentos, quer pela ampliaÃ§Ã£o de direitos individuais e coletivos.</p>
+<p>O conjunto das universidades pÃºblicas espalhadas Brasil afora (algo que devemos em grande parte aos governos Lula) diminui desigualdades estruturais entre nossas regiÃµes e estabelece bases discursivas racionais comensurÃ¡veis, em cuja funÃ§Ã£o podem ser estabelecidos pactos democrÃ¡ticos e legÃ­timos acordos profundos. No Brasil, portanto, a universidade Ã© tanto um instrumento de formaÃ§Ã£o cientÃ­fica quanto de justiÃ§a social.</p>
+<p>Por que, entÃ£o (eis o paradoxo!), nossas universidades sÃ£o hoje alvo de ataques e vivem em estado de relativa penÃºria â aquÃ©m, portanto, do necessÃ¡rio Ã  sua missÃ£o e com recursos insuficientes para manter sua pujanÃ§a e fazer jus Ã  sua beleza? Por que razÃ£o, muita vez, parecem largadas Ã  prÃ³pria sorte, como se suspensa essa aposta coletiva no conhecimento e em nossas melhores promessas democrÃ¡ticas?</p>
+<p>TerÃ¡ a universidade pÃºblica deixado de fazer sua parte e, por causa disso, representantes das elites jÃ¡ a apresentam como um projeto caro e irrelevante? Ora, tudo indica que nÃ£o. Mesmo nos momentos mais adversos, ela nÃ£o deixou de produzir conhecimento nem de favorecer o talento de nossa gente, de cujo brilho se vale e se socorre. Quem entÃ£o estÃ¡ disposto a lhe voltar as costas? Quem hÃ¡ de pactuar com o absurdo de vÃª-la privada material e simbolicamente dos recursos necessÃ¡rios e agora urgentes para sua realizaÃ§Ã£o cotidiana e plena?</p>
+<p><strong>4.</strong> Indaguemos mais a fundo algumas de nossas tensÃµes constitutivas. Pensando bem, as universidades sÃ£o talvez um projeto intrinsecamente cindido e sempre inacabado. Afinal, porque universidades, conjugam mÃºltiplas vocaÃ§Ãµes, confrontam geraÃ§Ãµes e saberes, nÃ£o dispondo de uma unidade prÃ©via capaz de unificar mÃ©todos, habilidades ou temas. Porque universidades, comportam diferentes critÃ©rios de competÃªncia, envolvendo diÃ¡logos locais e internacionais.</p>
+<p>Nesse caso, serem fragmentadas, antes que um mal, Ã© um sinal de uma tarefa permanente: a da produÃ§Ã£o de unidade e diÃ¡logo. Esse dado de realidade sÃ³ se transformaria em dano profundo, caso desprovida a instituiÃ§Ã£o de uma polÃ­tica de agregaÃ§Ã£o, ou seja, caso sua autonomia, que Ã© do conjunto, se veja esmigalhada por interesses separados, em funÃ§Ã£o dos quais a competiÃ§Ã£o por recursos ou por poder suprime uma colaboraÃ§Ã£o autÃªntica.</p>
+<p>Algumas divisÃµes sÃ£o constitutivas. NÃ£o podemos negar que, no interior da universidade, culturas distintas e talvez imiscÃ­veis se vejam desafiadas ao diÃ¡logo. A produÃ§Ã£o de condiÃ§Ãµes para um convÃ­vio (um forte exercÃ­cio interdisciplinar, por exemplo) nÃ£o lhes eliminarÃ¡ a diferenÃ§a, mas pode resultar em uma unidade benfazeja. E tal unidade nÃ£o se farÃ¡ pela imposiÃ§Ã£o de uma cultura cientÃ­fica a uma cultura humanÃ­stica, ou vice-versa, mas comeÃ§a pelo reconhecimento de que ambas as culturas solicitam refinamentos e esforÃ§os de natureza elevada.</p>
+<p>Versados em humanidades ignoram amiÃºde conceitos bÃ¡sicos das ciÃªncias, enquanto os cientistas propriamente ditos soem ignorar as dimensÃµes culturais ou mesmo Ã©ticas dos problemas cientÃ­ficos. Com efeito, deixada a si mesma, âqualquer pessoa moderna inteligente e articulada provavelmente adotarÃ¡ uma cultura com a exclusÃ£o da outra. EstarÃ¡ interessada em documentos diferentes, tÃ©cnicas diferentes, problemas diferentes; falarÃ¡ numa lÃ­ngua diferenteâ (Sontag, Susan. <em>Contra a InterpretaÃ§Ã£o</em>. SÃ£o Paulo: Companhia das Letras, 2020, p. 261). NÃ£o obstante essa tendÃªncia, incontornÃ¡vel distributivamente, a universidade enquanto tal nÃ£o deixa de ser um esforÃ§o coletivo por superar essa cisÃ£o histÃ³rica da sensibilidade, bem como por recursar o vezo ideolÃ³gico da hierarquia suposta entre essas dimensÃµes.</p>
+<p>Em sendo assim, ignoram e ferem a natureza da universidade os gestores pragmÃ¡ticos que, para fins de fomento, optam por modelos de financiamento baseados no reforÃ§o unilateral de algumas Ã¡reas (ciÃªncia, tecnologia, engenharias e matemÃ¡tica), como se fossem as Ãºnicas necessÃ¡rias a uma formaÃ§Ã£o bem sucedida, e desprezam com isso o papel das artes e das humanidades, indispensÃ¡veis a uma formaÃ§Ã£o qualificada.</p>
+<p>O fomento funciona muitas vezes como se nossos dirigentes acreditassem que o desenvolvimento da tÃ©cnica fosse suficiente para a construÃ§Ã£o de padrÃµes humanÃ­sticos elevados, como se nÃ£o devessem ter lugar no interesse pÃºblico, por assim dizer, tanto o pensamento que calcula quanto o pensamento que medita â dimensÃµes que se harmonizam e podem conviver exatamente em autÃªnticas universidades.</p>
+<p><strong>5.</strong> As universidades precisam sempre refletir sobre o paradoxo Ã³bvio de que o desenvolvimento cientÃ­fico e tecnolÃ³gico nÃ£o Ã© incompatÃ­vel com a mais patente degradaÃ§Ã£o cultural. Outrora, encantado com a sincronicidade das informaÃ§Ãµes e os avanÃ§os cientÃ­ficos extraordinÃ¡rios do seu tempo, mas tambÃ©m horrorizado com as atrocidades da guerra e a ascensÃ£o brutal do nazismo, Stefan Zweig sintetizou esse paradoxo em uma fÃ³rmula, escrevendo em 1942: âNunca atÃ© a hora presente a humanidade como um todo se mostrou mais diabÃ³lica e nunca produziu de maneira tÃ£o semelhante a Deusâ (Zweig, Stefan. <em>O mundo que eu vi</em>, Rio de Janeiro: Delta, 1953, p. 8).</p>
+<p>Os avanÃ§os cientÃ­ficos sÃ£o ainda mais extraordinÃ¡rios em nossos dias, nÃ£o sendo menos brutal o cenÃ¡rio de degradaÃ§Ã£o humanitÃ¡ria que vivemos, a ponto de uma palavra como âgenocÃ­dioâ, que parece forte, mal agarrar a realidade de Gaza, que, de tÃ£o cruel, conseguiu ultrapassÃ¡-la. A palavra tornou-se insuficiente; mostrou-se fraca, inane, incapaz de dar conta dos contornos da situaÃ§Ã£o, de circunscrever esse extremo limite ao qual chegamos todos juntos, uma vez que acompanhamos em tempo real a barbÃ¡rie e, desse modo, estivemos comprometidos com o massacre. âGenocÃ­dioâ jÃ¡ nÃ£o dÃ¡ conta da cumplicidade dos governantes, do espetÃ¡culo, da chaga aberta.</p>
+<p>Por que as universidades precisam se preocupar com isso? Simples: porque assim nos ensina a histÃ³ria. A inteligÃªncia universitÃ¡ria nÃ£o nos protege por si do absurdo; menos ainda o volume avassalador de informaÃ§Ãµes ora disponÃ­vel. Esse estado de informaÃ§Ã£o plena, de multiplicaÃ§Ã£o infinita dos dados, nÃ£o nos cura da indigÃªncia intelectual.</p>
+<p>Na universidade, assim como nas redes sociais, podemos ter situaÃ§Ãµes nas quais âindivÃ­duos ofuscados e privados da sua subjetividade se veem Ã  solta como sujeitosâ (Adorno, Th. &amp; Horkheimer, Max. <em>DialÃ©tica do Esclarecimento</em>. Rio de Janeiro: Jorge Zahar, 1985, p. 160). NÃ£o subestimemos a forÃ§a desse uso da inteligÃªncia. AliÃ¡s, esse Ã© o testemunho terrÃ­vel de Ernst Cassirer, que denunciou um embrutecimento da humanidade colado ao prÃ³prio corpo do iluminismo, quando âhomens de educaÃ§Ã£o e inteligÃªncia, honestos e decentes, (…) subitamente renunciam ao mais alto privilÃ©gio humanoâ e deixam âde ser agentes pessoais e livresâ (Cassirer, Ernst. <em>O Mito do Estado</em>. Rio de Janeiro: Zahar, 1976, p. 304).</p>
+<p>O espectro do obscurantismo ronda as redes sociais. As universidades nÃ£o estÃ£o imunes Ã  sua seduÃ§Ã£o, que Ã© mais perigosa do que os ataques fascistÃ³ides que temos repelido. Diante disso, nossa tarefa Ã© polÃ­tica e comporta o diÃ¡logo com formas distintas de organizar a experiÃªncia. Mais ainda, nossa tarefa Ã© primordialmente poÃ©tica, como espero mostrar em seguida.</p>
+<p>A UFBA, sabemos, Ã© bem mais que uma boa prosa, Ã© mais que o domÃ­nio de uma tÃ©cnica: a UFBA Ã© poesia. Na UFBA, sabemos bem que o binÃ´mio de Newton Ã© tÃ£o belo como a VÃªnus de Milo â ou seja, que o binÃ´mio de Newton Ã© tÃ£o belo (nÃ£o Ã© mais nem menos belo), e Ã© tÃ£o belo como (nÃ£o apenas quanto) a VÃªnus de Milo. E isso Ã© assim porque nÃ³s somos exatamente o lugar em que podem conviver os diversos tipos de pensamento, todos eles legÃ­timos e necessÃ¡rios Ã  sua maneira.</p>
+<p>Em particular, aqui devem conviver bem esses aparentes antÃ­podas: âo pensamento que calcula e a reflexÃ£o que meditaâ, cabendo-nos, portanto, confrontar essas interrogaÃ§Ãµes muito distintas: o pensamento que faz cÃ¡lculos com possibilidades continuamente novas e corre de oportunidade em oportunidade, e o pensamento âsobre o sentido que reina em tudo o que existeâ. (Heidegger, Martin, <em>Serenidade</em>. Lisboa: Instituto Piaget, 2000, p. 13.)</p>
+<p><strong>6.</strong> Nossa reflexÃ£o sobre a universidade nÃ£o pode hoje ser abstrata. Seria irresponsÃ¡vel desconhecer que estamos em pleno perÃ­odo eleitoral, com a obrigaÃ§Ã£o de falar a partir das universidades pÃºblicas federais.</p>
+<p>Universidades sÃ£o o lugar da produÃ§Ã£o de ciÃªncia e tecnologia, indispensÃ¡veis ao Brasil como uma naÃ§Ã£o soberana, alÃ©m de serem, como insistimos, espaÃ§o especial de renovaÃ§Ã£o cultural e formaÃ§Ã£o artÃ­stica. Nesse sentido, a construÃ§Ã£o dos saberes ligados a ciÃªncias, culturas e artes nÃ£o pode ser separada da tarefa geral da educaÃ§Ã£o. Por isso mesmo Ã© tÃ£o danosa a retÃ³rica fÃ¡cil da prioridade da educaÃ§Ã£o bÃ¡sica, caso descolada de uma prioridade concomitante para a educaÃ§Ã£o superior.</p>
+<p>Em sendo assim, qualquer programa de governo, se realmente sÃ©rio, nÃ£o pode deixar de ter em conta dois aspectos fundamentais, contemplando-os de forma positiva: (1) a ligaÃ§Ã£o interna entre toda a cadeia da educaÃ§Ã£o nacional, de sorte que, em projetos de formaÃ§Ã£o e cooperaÃ§Ã£o, educaÃ§Ã£o bÃ¡sica e educaÃ§Ã£o superior se fortaleÃ§am conjuntamente; (2) a prioridade da educaÃ§Ã£o bÃ¡sica nÃ£o se fazer em detrimento do investimento em educaÃ§Ã£o superior.</p>
+<p>Dados esses dois aspectos, nÃ£o podemos deixar de alertar para a grave ameaÃ§a contida em um dos programas apresentados Ã  naÃ§Ã£o, pois revela um profundo desprezo pelo conhecimento elaborado nas universidades e um claro descompromisso com a garantia de seu funcionamento como instituiÃ§Ãµes autÃ´nomas e propriamente universitÃ¡rias.</p>
+<p>Esse programa chega ao extremo de propor o deslocamento das universidades federais para o MinistÃ©rio da CiÃªncia, Tecnologia e InovaÃ§Ã£o â o que, em primeiro lugar, implicaria a quebra de laÃ§os essenciais do sistema de educaÃ§Ã£o e aprofundaria uma divisÃ£o que, ao contrÃ¡rio, Ã© nossa tarefa diminuir. O contrassenso Ã© tamanho que, em segundo lugar, em vez de fazer crescer o projeto natural das universidades, a proposta as amesquinha, subordinando-as a um interesse mais prÃ³prio de um ensino tÃ©cnico voltado ao mercado e Ã  indÃºstria. Longe da pesquisa, longe da formaÃ§Ã£o cultural mais ampla, sÃ£o os estudantes eles prÃ³prios que se tornariam instrumentos dessa visÃ£o estreita. Em terceiro lugar, tal proposta provocaria extrema reordenaÃ§Ã£o na esfera dos ministÃ©rios, provocando danos tanto ao MinistÃ©rio da EducaÃ§Ã£o quanto ao MCTI, compelidos que o seriam a se desfazerem das missÃµes para as quais estÃ£o preparados, ao tempo que assumiriam tarefas contrÃ¡rias a toda experiÃªncia jÃ¡ adquirida.</p>
+<p>NÃ£o Ã© de estranhar tal formulaÃ§Ã£o, pois o desprezo pela educaÃ§Ã£o tem outras mostras nesse mesmo programa, que tem o desplante de propor a imposiÃ§Ã£o de um mÃ©todo fÃ´nico de alfabetizaÃ§Ã£o â mÃ©todo bastante rejeitado pela Ã¡rea de educaÃ§Ã£o, que obviamente repele o mero domÃ­nio de uma tÃ©cnica mecÃ¢nica, em detrimento da experiÃªncia e do uso social da leitura. NÃ£o satisfeito, pugna pela ampliaÃ§Ã£o de um modelo deveras questionÃ¡vel, o de escolas cÃ­vico-militares. NÃ£o precisamos nos estender mais para dizer o Ã³bvio: tal programa daria lugar, sim, a um mundo sem universidades pÃºblicas.</p>
+<p><strong>7.</strong> Com o outro programa de governo, apresenta-se a possibilidade de uma disputa (ou melhor, de muita disputa) no campo progressista â Ãºnico que tem relaÃ§Ã£o intrÃ­nseca com as universidades como um projeto de estado de longa duraÃ§Ã£o. A formulaÃ§Ã£o Ã© tÃ­mida, porÃ©m. Os dois pontos que enfatizamos sÃ£o contemplados, mas as formulaÃ§Ãµes comportam lacunas, como se indicassem para nÃ³s um campo que tÃ£o somente a luta polÃ­tica pode preencher.</p>
+<p>Estando presentes aqueles dois aspectos, podemos manifestar o otimismo de que podem (porquanto precisam) ser desenvolvidos e mais bem detalhados. Universidades nÃ£o podem depender dos humores do mercado, nem do parlamento. Nesse programa, o fomento ao ensino superior prenuncia um novo ciclo de expansÃ£o, embora nos preocupe o silÃªncio sobre a garantia na Lei OrÃ§amentÃ¡ria Anual do necessÃ¡rio ao funcionamento das universidades existentes, de sorte que se proteja sua qualidade e se favoreÃ§a uma verdadeira inclusÃ£o, alÃ©m de ensino, pesquisa e extensÃ£o de qualidade.</p>
+<p>Com a vitÃ³ria deste programa, nÃ³s nos veremos convocados a uma luta decidida e comum em defesa da educaÃ§Ã£o perante toda a sociedade. Somente assim poderemos servir Ã s melhores energias progressistas de quantos tÃªm compreendido a dimensÃ£o da aposta necessÃ¡ria na educaÃ§Ã£o pÃºblica.</p>
+<p>Precisaremos, entÃ£o, sempre cobrar que o interesse da educaÃ§Ã£o nÃ£o seja subordinado a interesses de empresÃ¡rios da educaÃ§Ã£o ou atÃ© de empresÃ¡rios do mercado imobiliÃ¡rio, para os quais nÃ£o somos mais do que edificaÃ§Ãµes desprovidas de sentido histÃ³rico e de memÃ³ria, que podem ser substituÃ­das ou deslocadas em funÃ§Ã£o das medidas do lucro.</p>
+<p>No caso do projeto progressista, ele se situa em um campo que nÃ£o despreza a universidade e talvez reconheÃ§a, mesmo que nas entrelinhas, nÃ£o ter sido concedida no atual governo a prioridade necessÃ¡ria para a educaÃ§Ã£o superior, em conjunto com a educaÃ§Ã£o bÃ¡sica. Assim, o texto do projeto, deveras sumÃ¡rio, tanto nos deve preocupar como nos oferece algum alento e estÃ­mulo. Em suma, a luta serÃ¡ renhida, mesmo no melhor cenÃ¡rio para a educaÃ§Ã£o, nÃ£o havendo dÃºvida de qual cenÃ¡rio devemos escolher.</p>
+<p>Temos aqui uma questÃ£o de mÃ©todo e de estratÃ©gia. Se mesmo no interior do programa mais progressista as formulaÃ§Ãµes nÃ£o podem ser mais cristalinas, se Ã© tÃ£o Ã³bvia a correlaÃ§Ã£o de forÃ§as adversa que hoje enfrentamos no paÃ­s a toda formulaÃ§Ã£o verdadeiramente democrÃ¡tica, nÃ£o podemos esperar que os frutos resultem de mera aÃ§Ã£o eleitoral ou que se prenuncie para nÃ³s algum descanso.</p>
+<p>E isso Ã© claro tanto por razÃµes externas (ou seja, pelas consabidas pressÃµes neoliberais que nos afetam a natureza pÃºblica das instituiÃ§Ãµes ou pela previsÃ­vel asfixia pelo arcabouÃ§o fiscal), quanto pela nossa indigÃªncia conflituosa â ou seja, por nossa mÃºltipla crise, cujo sentido ainda nÃ£o estÃ¡ decidido e nos convoca a decisÃµes de toda ordem e dimensÃ£o, seja no dia a dia da defesa da imagem de nossa universidade, seja na produÃ§Ã£o de condiÃ§Ãµes para uma colaboraÃ§Ã£o interna superior ao simples conflito de interesses.</p>
+<p>NÃ£o hÃ¡ dÃºvida. Nossa vida serÃ¡ um verdadeiro inferno se imperar um projeto que volta Ã s costas aos saberes elaborados por nossa comunidade acadÃªmica, se retornarmos aos tempos do mais cabal obscurantismo. O cenÃ¡rio otimista, por sua feita, nÃ£o faz cessar nossa luta. Ele nos conclama, sim, a uma luta constante, pois a verdade essencial da universidade nÃ£o brotarÃ¡ por si sÃ³, como se estivÃ©ssemos em um poema de Orides Fontela e a universidade encontrasse naturalmente o seu tempo, seu kairÃ³s:</p>
+<p>Quando pousa<br/>o pÃ¡ssaro</p>
+<p>quando acorda<br/>o espelho</p>
+<p>quando amadurece<br/>a hora.</p>
+<p>(Fontela, Orides. <em>Poesia reunida</em>. SÃ£o Paulo: Hedra, 2015, p. 326)</p>
+<p>Longe disso, nossa elaboraÃ§Ã£o poÃ©tica, tudo indica, precisarÃ¡ ter outra matriz. Em vez da beleza tocante de Orides Fontela, precisaremos de outra aposta poÃ©tica de ressignificaÃ§Ã£o, a de MaiakÃ³vski, chamando-o a nos inspirar, por analogia, na tarefa de recomposiÃ§Ã£o de nosso tecido comum, de construÃ§Ã£o de uma unidade coletiva para alÃ©m das divisÃµes constitutivas, de sorte que nossa crise permanente, podendo alimentar-se do melhor de nÃ³s, se transforme em expressÃ£o de nossa vitalidade.</p>
+<p><strong>8.</strong> As instituiÃ§Ãµes pensam, mas nÃ£o pensam como os homens pensam; pensam como instituiÃ§Ãµes. Ao que parece, os homens tambÃ©m pensam, mas nÃ£o pensam como pensamos que os homens pensam; pensam como instituiÃ§Ãµes. Por isso mesmo, podemos escolher, exercer nossa subjetividade de modo pÃºblico, e nÃ£o como o desdobramento de algum desejo esconso.</p>
+<p>Dirigindo-me aqui, entÃ£o, a vÃ¡rios reitores, que devem sentir o mesmo em relaÃ§Ã£o a suas instituiÃ§Ãµes; dirigindo-me a representantes da sociedade baiana e a autoridades federais, tomo a liberdade de lhes atrair a atenÃ§Ã£o para este aspecto, que devemos ter em comum.</p>
+<p>A Universidade Federal da Bahia, como uma grande instituiÃ§Ã£o, Ã© capaz de pensamento e, salvo melhor juÃ­zo, tem hoje uma tarefa poÃ©tica da maior envergadura, comum a muitas outras universidades, a saber, uma tarefa de recomposiÃ§Ã£o de seu orÃ§amento, mas tambÃ©m e sobretudo a de recomposiÃ§Ã£o de sua aura, contra todos possÃ­veis ataques, externos ou internos.</p>
+<p>Precisamos aprender, entÃ£o, com MaiakÃ³vski, a responder nossas provas em versos, como aquele poeta baiano que um dia, diante deste enunciado em uma prova de quÃ­mica âTheoria: Dissertar sobre as propriedades do hydrogenio-elementoâ, assim comeÃ§ou: âDe leveza no peso sÃ£o capazes / Diversos elementos, vÃ¡rios gazes; / O hydrogenio, porÃ©m, Ã© um gaz que deve / Ter destaque, por ser o gaz mais leveâ â prova de Carlos Marighella, publicada por Antonio Carlos Mascarenhas (<em>Versos na VidraÃ§a</em>. Salvador: ediÃ§Ã£o do autor, 1993, p. 5).</p>
+<p>Urge, pois, dominarmos a arte coletiva de fazer versos. Em um texto poderosÃ­ssimo, MaiakÃ³vski detalha as condiÃ§Ãµes para uma produÃ§Ã£o poÃ©tica revolucionÃ¡ria, qual seja, uma produÃ§Ã£o na qual o mandato social reconfigura a mera expressÃ£o lÃ­rica individual.</p>
+<p>Quais sÃ£o os dados indispensÃ¡veis ao inÃ­cio do trabalho poÃ©tico? â pergunta-se. Afirma, entÃ£o: o primeiro (como se fora sua causa formal) Ã© o de existir, na sociedade, âum problema cuja soluÃ§Ã£o sÃ³ Ã© concebÃ­vel por uma obra poÃ©ticaâ â em outras palavras, o mandato social, que pode ser cifrado em uma pergunta. Segundo, enunciado como uma causa final, um conhecimento exato de quem se representa, âisto Ã©: tendÃªncia (do poema) para um fim precisoâ. Terceiro, dirÃ­amos, a causa material de toda produÃ§Ã£o poÃ©tica: âAs palavras. Um contÃ­nuo enriquecimento dos reservatÃ³rios, dos depÃ³sitos do vosso crÃ¢nio, com palavras necessÃ¡rias, expressivas, raras, inventadas, compostas e de todos os gÃªnerosâ. Enfim, como uma causa eficiente, o apetrechamento da oficina e instrumentos de trabalho â atÃ© mesmo, entre tantos, âum chapÃ©u de chuva para escrever debaixo de chuvaâ. (MaiakÃ³vski, VladÃ­mir. <em>PoÃ©tica: como fazer versos</em>. SÃ£o Paulo: Global, 1991, p. 21)</p>
+<p>A analogia salta aos olhos â em especial, no mandato social e na tarefa de produzir um repertÃ³rio de palavras. Esse repertÃ³rio, para nÃ³s, seria um vocabulÃ¡rio comum e o senso preciso de quem representamos, de sorte que nossa singularidade se resolve em um mandato social (a questÃ£o de fundo sobre a necessidade da Universidade Federal da Bahia) e em uma operaÃ§Ã£o poÃ©tica, que, ao fim e ao cabo, como em um cadinho, nos transforma a nÃ³s mesmos â ou melhor, nos transforma em nÃ³s mesmos.</p>
+<p>O caminho real, chÃ£o de terra, Ã© mais longo que a distÃ¢ncia da Lua. O trecho efetivo, envolvendo trabalho, Ã© mais largo que o horizonte vago do possÃ­vel. Por isso, MaiakÃ³vski precisa exemplificar sua estratÃ©gia poÃ©tica com um exemplo concretÃ­ssimo, o de sua reaÃ§Ã£o ao suicÃ­dio de SierguÃ©i IessiÃªnin, que escrevera com o sangue de seus pulsos cortados os versos:</p>
+<p>Adeus, amigo, sem mÃ£os nem palavras.<br/>NÃ£o faÃ§as um sobrolho pensativo.<br/>Se morrer, nesta vida, nÃ£o Ã© novo,</p>
+<p>Tampouco hÃ¡ novidade em estar vivo. (SierguÃ©i lessiÃªnin, in MaiakÃ³vski, V. <em>Poemas</em>. SÃ£o Paulo: Perspectiva, 2003, p. 108.)</p>
+<p>O trabalho poÃ©tico inicia-se pela tomada de consciÃªncia de um mandato social â no caso, pela recusa a essa resposta individual, que implicara uma opÃ§Ã£o pela morte e uma trivializaÃ§Ã£o da vida. Nos versos largados de IessiÃªnin, a decisÃ£o sobre a vida e a morte se tornara dependente da forÃ§a ou da fraqueza do indivÃ­duo, como se a morte voluntÃ¡ria nÃ£o pudesse ser questionada por um mandato social, sem o qual nada retira o indivÃ­duo de suas cisÃµes e indecisÃµes e se esvazia a aÃ§Ã£o de qualquer sentido.</p>
+<p>Como ser tocado de modo diferente? Ora, isso MaiakÃ³vski o demonstra pelo exemplo. Aqui, o destino individual Ã© ressignificado pela forÃ§a coletiva, assim como nossos projetos se realizam ainda mais e positivamente em uma construÃ§Ã£o coletiva, que questiona a forÃ§a mesma do negativo. Eis entÃ£o que ganham pleno sentido, pelo contraponto Ã  chaga de IessiÃªnin, os versos cÃ©lebres de MaiakÃ³vski.</p>
+<p>Para o jÃºbilo o planeta estÃ¡ imaturo.<br/>Ã preciso arrancar alegria ao futuro.<br/>Nesta vida morrer nÃ£o Ã© difÃ­cil.</p>
+<p>O difÃ­cil Ã© a vida e seu ofÃ­cio. (MaiakÃ³vski, V. <em>Poemas</em>, p. 114.)</p>
+<p><strong>9.</strong> Revolvido o sentido de um mandato social; apropriado um repertÃ³rio de imagens e palavras; renovado um vocabulÃ¡rio; e subordinada enfim a decisÃ£o sobre a morte voluntÃ¡ria a uma aposta na vida, MaiakÃ³vski pÃ´de dar uma resposta elaborada, paciente, tÃ©cnica, fazendo preceder âno lugar da fÃ¡cil beleza da morte uma outra belezaâ, que conjugaria para ele as âforÃ§as necessÃ¡rias Ã  humanidade operÃ¡riaâ (p. 35).</p>
+<p>A analogia Ã© clara. Nosso destino de universidade agora exige uma poesia ousada, irmanada de nossa coletividade. Nosso mandato social Ã© a necessidade de haver UFBA; nosso fim preciso, a aposta no conhecimento e na vida; nosso repertÃ³rio comum, o conjunto de nossos saberes, tÃ©cnicas e temas, e nÃ£o meros interesses; nosso apetrechamento, a confianÃ§a na palavra que nÃ£o cai no vazio.</p>
+<p>NÃ£o por acaso, para esta cerimÃ´nia de posse, trilhamos o caminho da visita a nossas congregaÃ§Ãµes e conselhos, com uma mensagem simples: o enunciado de um mÃ©todo democrÃ¡tico e um objetivo. Precisamos estar todos doravante unidos em defesa da Universidade Federal da Bahia, precisamos estar coligados ao sistema inteiro das universidades pÃºblicas federais e estaduais, precisamos destinar a dimensÃ£o singular de nossos saberes a uma conjugaÃ§Ã£o que Ã© acadÃªmica, polÃ­tica e poÃ©tica, de modo que, moendo no Ã¡spero, nos seja possÃ­vel ainda devanear.</p>
+<p>NÃ£o por acaso, estamos aqui reunidos. Nosso destino nÃ£o brotarÃ¡ porque chegada a hora, mas sim porque o agarramos e o fazemos nosso, como uma instituiÃ§Ã£o reflexionante que, apesar de se resolver na longa duraÃ§Ã£o, necessita justificar, a todo tempo, seu direito Ã  existÃªncia.</p>
+<p>Fazer a universidade Ã© semelhante a produzir versos. NÃ£o como quem entra em transe, mas sim como quem se assenhora de uma disciplina, tendo em comum alguns compromissos e a tarefa de construir uma dinÃ¢mica intelectual prÃ³pria e relevante.</p>
+<p>O futuro pode realizar nossas melhores promessas ou ser uma danaÃ§Ã£o. Esse, pois, nosso labor e nosso desafio. Reconhecer que hÃ¡ questÃµes que sÃ³ podem ser resolvidas pela existÃªncia de uma universidade pÃºblica. Ã, portanto, o nosso mandato social ter objetivos que se entrelaÃ§am Ã  prÃ³pria justificaÃ§Ã£o da existÃªncia da universidade.</p>
+<p>A matÃ©ria da linguagem Ã© o lugar natural da universidade, como espaÃ§o em que a palavra precede qualquer outro instrumento de poder. Enfim, o apetrechamento da oficina, a balbÃºrdia que fazemos em salas de aula e em laboratÃ³rios, em teatros e bibliotecas.</p>
+<p>TambÃ©m na universidade temos que ter problemas que nos justifiquem a existÃªncia e propÃ³sitos comuns. Assim como precisamos de uma confianÃ§a e de um domÃ­nio da linguagem, alÃ©m de condiÃ§Ãµes de trabalho, âum chapÃ©u de chuva para escrever debaixo de chuvaâ.</p>
+<p>Nenhuma crise hÃ¡ de nos destruir, nem nos redefinirÃ¡. Nossa aventura poÃ©tica Ã© agora um deslocamento das paixÃµes tristes, como o medo ou o Ã³dio, rumo Ã s paixÃµes alegres, que nos produzem por meio da solidariedade e de nossa resistÃªncia.</p>
+<p>NÃ³s somos, afinal, os que nÃ£o aceitam um Brasil sem universidades pÃºblicas. NÃ³s somos aqueles que jamais permitirÃ£o um mundo sem a Universidade Federal da Bahia. NÃ³s somos a Universidade Federal da BalbÃºrdia e haveremos de arrancar alegria ao futuro.</p>
+<p>Viva a universidade pÃºblica.<br/>Viva a Universidade Federal da Bahia!<br/>Viva a universidade inclusiva, de qualidade e de luta!<br/>Declaro encerrada esta cerimÃ´nia.</p>
+<p><em>Sem publicidade ou patrocÃ­nio, dependemos de vocÃª. FaÃ§a parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/alemdamercadoria/arrancar-alegria-ao-futuro/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

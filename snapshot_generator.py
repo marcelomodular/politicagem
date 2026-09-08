@@ -317,7 +317,9 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
         "limit_per_source": limit_per_source,
         "snapshot_version": "2.0",
         "extract_articles": extract_articles,
-        "articles_generated": len(noticias) if extract_articles else 0
+        "articles_generated": len(noticias) if extract_articles else 0,
+        "note": "Para fazer upload para IPFS, use: ipfs add -r <snapshot_dir>",
+        "correct_cid": "Será preenchido após upload para IPFS"
     }
     
     metadata_path = output_dir / "snapshot_metadata.json"

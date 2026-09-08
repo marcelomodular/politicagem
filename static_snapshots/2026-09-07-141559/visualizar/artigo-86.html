@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O lobby israelense está fora de controle - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O lobby israelense está fora de controle</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/09/o-lobby-israelense-esta-fora-de-controle/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/09/788602780370.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O lobby israelense está fora de controle
+                            </p>
+                            
+<p>UMA ENTREVISTA DE</p><p>
+
+			Seth Ackerman		</p>
+<p>Em um ano de gastos recordes em campanhas eleitorais pelo Comitê de Assuntos Públicos Israelo-Americano (AIPAC) e de ampla repulsa popular à guerra de Donald Trump contra o Irã, um estudo aprofundado sobre o lobby israelense não poderia ser mais oportuno. </p>
+<p>Seth Ackerman, da revista <em>Jacobin</em>, conversou com o jornalista investigativo Eli Clifton e o renomado acadêmico Ian Lustick sobre seu novo livro, <em>Israel’s lobby</em>: <em>America in the grip of a foreign power</em> [O lobby de Israel: Os Estados Unidos sob o domínio de uma potência estrangeira], que revela como o lobby não apenas distorceu a política em Washington, mas também acelerou a radicalização ideológica de Israel — e agora ameaça as liberdades civis dos estadunidenses em seu próprio país.</p>
+
+<p>SETH ACKERMAN</p>
+<p><strong>Há quase vinte anos, os estudiosos de relações internacionais John Mearsheimer e Stephen Walt escreveram um livro muito famoso e bastante controverso chamado <em>The Israel lobby and U.S. foreign policy </em>[O lobby de Israel e a política externa dos EUA]. O livro de vocês é, em muitos aspectos, uma sequência do deles. O que os levou a decidir que era o momento certo para um livro como este?</strong></p>
+<p>ELI CLIFTON</p>
+<p>Muita coisa mudou desde 2007. Steve Walt e John Mearsheimer identificaram alguns dos custos estratégicos globais que as atividades do lobby impunham aos estadunidenses, e esses custos continuaram a se intensificar e a se agravar. Mas alguns dos outros custos são de natureza mais doméstica, e esses foram possibilitados por mudanças em nossas leis, que Steve e John não poderiam ter previsto.</p>
+<p>Na conclusão do livro, eles argumentaram que o apoio a uma relação “sem discordância” com Israel estava diminuindo gradualmente. Identificaram que essa tendência começou por volta de 1999 ou 2000, com o fim dos Acordos de Oslo e o fechamento da janela para a solução de dois Estados. E previram que esse declínio lento seria contrabalançado pelo surgimento de outras instituições — como a J Street, a Jewish Voice for Peace e outras — que seriam capazes de defender uma relação EUA-Israel mais normal e equilibrada e possibilitar a redução da influência do lobby na política estadunidense.</p>
+<p>Mas em 2010, as decisões dos casos <em>Citizens United</em> e <em>SpeechNow</em> foram anunciadas. Isso abriu as comportas do nosso sistema de financiamento de campanhas. A partir de 2012, que foi a primeira eleição após o caso <em>Citizens United</em>, quando se observa quem eram os maiores doadores, vemos Sheldon Adelson e outros bilionários megadoadores pró-Israel. E eles afirmaram explicitamente que o faziam por Israel.</p>
+<p>Assim, diante do declínio do apoio público a Israel — que se acelerou consideravelmente após 7 de outubro em praticamente todos os grupos demográficos — isso permitiu que eles criassem uma solução provisória.</p>
+<p>Paralelamente ao dinheiro, houve também uma mudança estratégica. O lobby deixou de tentar refutar argumentos como os de Mearsheimer e Walt. Em vez disso, passou a silenciar completamente o debate, inclusive usando o poder do Estado para calar discursos críticos a Israel. Vimos isso com a retenção de centenas de milhões de dólares em financiamento federal para universidades, muitas vezes em áreas de pesquisa que nada têm a ver com Israel ou Palestina. Ou nas tentativas de deportar portadores de <em>green card</em> simplesmente por suas críticas a um país estrangeiro.</p>
+<p>Portanto, agora estamos pagando um preço interno em termos de nossas próprias liberdades civis. Essa é uma parte fundamental do que mudou desde que o livro deles foi publicado.</p>
+<p>SA</p>
+<p><strong>Um dos argumentos apresentados por Mearsheimer e Walt há vinte anos era que o fim da Guerra Fria eliminou a principal justificativa que antes servia para sustentar a relação privilegiada de Israel com os Estados Unidos. Vocês diriam que, naquela época, o lobby tentou transformar o Irã na nova União Soviética — o novo inimigo que tornaria Israel indispensável para os Estados Unidos?</strong></p>
+<p>IAN LUSTICK</p>
+<p>Israel se apresentou como um aliado crucial contra a penetração soviética no Oriente Médio, embora essa afirmação nunca tenha sido muito convincente para os especialistas. No livro, relatamos uma fascinante análise empírica que comprovou o quão vazia era essa afirmação. Em 1991, um dos principais analistas de relações internacionais, A.F.K. Organski, professor da Universidade de Michigan, publicou um livro intitulado <em>The $36 billion bargain</em> [A barganha de 36 bilhões de dólares], que argumentava que Israel era como um porta-aviões terrestre: era tão útil aos Estados Unidos em sua luta contra a União Soviética que toda a ajuda que lhe fornecíamos era uma barganha.</p>
+<p>E, como parte de seu argumento, ele perguntou: Como podemos saber que isso é verdade? Bem, se a União Soviética desaparecesse e a Guerra Fria terminasse, veríamos a ajuda cair. E foi exatamente isso que aconteceu logo após a publicação de seu livro. A União Soviética se desintegrou e a Guerra Fria terminou. E o que aconteceu com a ajuda a Israel? Absolutamente nada. Ela continuou exatamente no mesmo nível. O que demonstra que a ajuda a Israel não era resultado de cálculos estratégicos estadunidenses. Era, em grande parte, resultado do poder político interno do lobby israelense nos Estados Unidos.</p>
+<p>Mas o argumento de que Israel servia aos interesses estratégicos dos EUA era importante tanto para Israel quanto para seu lobby. Após o fim da Guerra Fria, ambos precisavam de um domínio no qual pudessem se apresentar como um aliado crucial dos Estados Unidos. Assim, durante a Guerra ao Terror, os líderes israelenses afirmavam que suas guerras contra o Hezbollah ou contra os palestinos na Cisjordânia faziam parte da guerra contra o terror liderada pelos EUA. Mas então a Guerra ao Terror terminou, e outro domínio se tornou necessário para que Israel se apresentasse como o aliado crucial da América.</p>
+<p>Benjamin Netanyahu escolheu o Irã para desempenhar o papel de inimigo mortal tanto de Israel quanto dos Estados Unidos, substituindo a guerra contra o terror, que por sua vez havia substituído a guerra contra a União Soviética. Mas Netanyahu, na realidade, teve grande dificuldade em fomentar o ataque conjunto EUA-Israel contra o Irã que ele desejava.</p>
+<p>“Isso é o que acontece a um país que tem capital político externo em excesso.”</p>
+<p>O próprio aparato de segurança de Israel se opôs a ele, argumentando que não, o Irã jamais atacaria Israel com uma arma nuclear. Ele também se deparou com uma série de presidentes estadunidenses que consideravam um ataque ao Irã uma ideia absurda. Suas exigências por uma guerra encontraram forte resistência até que, em Trump, ele encontrou um presidente tão estúpido — e uma burocracia de segurança nacional tão carente de experiência e tão incompetente — que conseguiu, essencialmente, arrastar os Estados Unidos para uma guerra com o Irã, uma guerra que até mesmo Trump provavelmente considera agora um erro terrível.</p>
+<p>Mas há uma razão mais profunda para Netanyahu, o primeiro-ministro que mais tempo serviu em Israel, estar em pé de guerra contra o Irã, Gaza, Síria e Líbano — e para, ultimamente, estar fomentando uma crise com a Turquia. A razão fundamental para essa postura belicosa é que seus governos têm sido incapazes de articular uma visão de paz para o Oriente Médio que satisfaça qualquer pessoa na região. E, como não têm nenhuma visão de paz, precisam confiar completamente em sua capacidade de usar a força militar praticamente sem risco, seja no Líbano, no Iraque, na Síria, em Gaza ou no Irã. Outro dia, vimos a Força Aérea Israelense bombardear uma base na Síria — não porque houvesse uma ameaça, mas porque havia uma ameaça <em>potencial</em>, vinda da Turquia ou do exército sírio.</p>
+<p>Isso é um retrato emblemático da situação que Israel criou para si mesmo. Se não pode contar com a diplomacia ou com compromissos negociados, precisa recorrer à força militar. Mas, para recorrer à força militar, precisa ter certeza de que pode usá-la sem o risco de baixas significativas ou de uma escalada para o uso de armas de destruição em massa. Portanto, na prática, insiste na superioridade aérea absoluta e no domínio sobre todo o Oriente Médio. E precisa insistir que somente ele tenha permissão para possuir armas de destruição em massa. Essas são exigências enormes. Lembre-se, o Irã é geograficamente maior do que a Grã-Bretanha, a França e a Alemanha juntas.</p>
+<p>A ameaça potencial do Irã não é que ele ataque Israel com armas nucleares. É que, se houver sequer 1% de possibilidade de o Irã escalar para o nível nuclear, Israel não poderá mais usar a força na região sem temer uma escalada. Isso é intolerável se não houver um plano de paz, algo que o governo Netanyahu nunca teve. Essa é a razão mais profunda pela qual ele se concentra tanto no Irã e depende tanto da força militar.</p>
+<p>SA</p>
+<p><strong>No livro, vocês argumentam que esse dilema estratégico é, em parte, resultado do poder do lobby nos Estados Unidos.</strong></p>
+<p>IL</p>
+<p>Sim. Originalmente, o lobby existia apenas para evitar pressão sobre Israel; não tinha como objetivo mudar Israel, transformá-lo nesse Estado fanático de direita. Mas, ao insistir que a ajuda a Israel fosse enorme em escopo e incondicional em sua entrega, o lobby tornou praticamente impossível, ou pelo menos extremamente difícil, para candidatos moderados vencerem eleições em Israel. Porque tudo o que eles disseram sobre o que aconteceria se Israel alienasse os Estados Unidos — que isso pressionaria Israel a aceitar um acordo pior do que aquele que conseguiria se adotasse uma posição razoável diante dessa pressão — acabou se provando falso.</p>
+<p>“Posso dizer exatamente quando ela [a guerra] terminará. É como em todas as guerras. Vai terminar quando os Estados Unidos disserem a Israel que tem que terminar.”</p>
+<p>Isso é o que acontece a um país que tem capital político externo em excesso. Se você fosse um político em Israel, aprenderia que precisava ceder às fantasias e aos medos das pessoas, sem nenhum custo real em troca. Mas havia um custo enorme em falar racionalmente sobre o dilema em que Israel acabaria se encontrando.</p>
+<p>Posso listar todos esses maravilhosos políticos israelenses — Shulamit Aloni, Haim Ramon, Yossi Sarid, Yossi Beilin — todas essas pessoas que poderiam ter sido primeiros-ministros, e queriam ser primeiros-ministros, mas não conseguiram, e não puderam conseguir, por causa do controle rígido do lobby sobre a política dos EUA em relação a Israel e aos palestinos.</p>
+<p>SA</p>
+<p><strong>Em outras palavras, muitos israelenses costumavam presumir que, se a situação se complicasse, os Estados Unidos salvariam Israel de si mesmo, intervindo e contendo-o.</strong></p>
+<p>IL</p>
+<p>Sim. E esse foi especificamente o problema com Joe Biden. Ele não desempenhou o papel que os militares israelenses sempre esperam que os Estados Unidos desempenhem.</p>
+<p>Quando a revista <em>Time</em> me entrevistou no início da guerra em Gaza, perguntaram: Quando a guerra vai terminar? Eu respondi: “Posso dizer exatamente quando ela terminará. É como em todas as guerras. Ela terminará quando os Estados Unidos disserem a Israel que precisa terminar. Até que isso aconteça, a guerra continuará”. E Biden simplesmente se recusou a dizer isso. Trump praticamente disse isso e a guerra parou (ou pelo menos, uma certa versão da guerra parou). Mas ela continuou por anos — muito, muito mais tempo do que deveria. Foi ridículo. Os militares israelenses jamais imaginaram que um presidente estadunidense permitiria que a guerra agisse de forma tão desenfreada por tanto tempo.</p>
+<p>SA</p>
+<p><strong>E quanto à ala liberal do establishment pró-Israel dos EUA? Eles parecem estar numa situação política bastante complicada agora. Você acha que eles encontraram uma solução?</strong></p>
+<p>EC</p>
+<p>Uma coisa que se vê eles fazendo é se agarrando, de forma desesperada e hipócrita, à ilusão de que o Israel com o qual gostariam de ser associados ainda existe, ou está logo ali na esquina. Então, se Netanyahu for deposto, de alguma forma essa guinada à direita chegará ao fim e Israel voltará a ser como era, suponho, antes de 1967.</p>
+<p>Na hora da verdade, políticos de todo o Partido Democrata dizem: “Eu acredito em uma solução de dois Estados”. E isso é perigoso, porque simplesmente não se baseia em fatos concretos. A janela para essa possibilidade já se fechou, por mais desejável que pudesse ter sido.</p>
+<p>Então, acho que a maneira como muitos deles estão lidando com isso, para dizer de forma bem franca, é através da ilusão e da deturpação dos fatos para seus eleitores, apresentando o que é possível e quais são as realidades no terreno.</p>
+<p>IL</p>
+<p>Permita-me aprofundar um pouco mais esse ponto. Publiquei um livro sobre isso em 2019, <em>Paradigm lost: From two-State Solution to one-State reality</em> [Paradigma perdido: Da solução de dois Estados à realidade de um Estado]. Mesmo naquela época, já era impossível imaginar cenários políticos que permitissem alcançar uma solução de dois Estados. Esses cenários deixaram de ser propostos na década de 1990, com o fim dos Acordos de Oslo. Mas tem sido um porto seguro, do ponto de vista político, <em>afirmar</em> que um acordo negociado de dois Estados ainda é possível.</p>
+<p>Tem sido um cenário seguro para os centristas israelenses que não querem admitir que preferem o apartheid à democracia. E tem sido seguro para os democratas e outros políticos nos Estados Unidos, que podem dizer: “Sou a favor da solução de dois Estados. Não me culpem, progressistas.” E, enquanto isso, também podem dizer ao lobby: “Não me critiquem — até Netanyahu já disse que era a favor da solução de dois Estados.” Como disse Eli, é uma cortina de fumaça.</p>
+<p>“[Uma proposta para uma solução de dois Estados] simplesmente não se baseia em quaisquer fatos concretos. A janela para essa possibilidade já se fechou, por mais desejável que pudesse ter sido.”</p>
+<p>Então, onde está o futuro? Eu diria que você precisa mudar o horizonte temporal da sua análise. Quando considerávamos plausível uma solução de dois Estados, estávamos pensando no que eu chamo de tempo estratégico. Tempo estratégico é algo entre dois e cinco anos, o período em que você realmente poderia realizar algo nesse tipo de cenário. Precisamos mudar do tempo estratégico para o tempo geológico. Tempo geológico na política é algo entre trinta e sessenta anos.</p>
+<p>Como um país como Israel se democratiza? Não é como a Romênia se democratizou: você atira no ditador e, no dia seguinte, é uma democracia. Não é assim que a democratização funciona em casos como, digamos, nos Estados Unidos, onde os negros foram excluídos da política por gerações, ou os católicos irlandeses na Grã-Bretanha, ou os negros na África do Sul, ou as mulheres em todas as democracias industriais ocidentais. Esse tipo de democratização leva de cinquenta a cem anos.</p>
+<p>SA</p>
+<p><strong>Mas não há o perigo de, ao adotar essa perspectiva, darmos inadvertidamente aos defensores do status quo uma desculpa para não fazerem nada? Se o progresso só pode acontecer em escala geológica, qual a urgência de fazer algo hoje?</strong></p>
+<p>IL</p>
+<p>Isso não vai acontecer amanhã. Mas devemos desmascarar aqueles em Israel que dizem querer manter os territórios ocupados em 1967. Quando analisamos os projetos de lei de anexação da Cisjordânia no Knesset, nenhum deles menciona a anexação imediata de toda a população e território. Na verdade, eles temem a anexação efetiva dos territórios. Preferem manter a ficção de que ainda não foram absorvidos permanentemente.</p>
+<p>SA</p>
+<p><strong>A curto prazo, o grupo de pressão parece esperar que, após as eleições de outubro, haja um novo governo — presumivelmente liderado por Gadi Eisenkot — que apresente uma imagem mais amena e amigável ao público estadunidense. Será que isso poderia funcionar?</strong></p>
+<p>IL</p>
+<p>Talvez. Mas não vai durar.</p>
+<p>Lembre-se de quem é Gadi Eisenkot. Comparado a Netanyahu, ele pode parecer um sujeito razoável, focado na realidade e não em fantasias, e que não se deixa levar pelos piores preconceitos de seu público. Mas ele também é o idealizador da “Doutrina Dahiya”. Essa doutrina recebeu o nome de um bairro de Beirute que Israel destruiu completamente, não apenas para matar combatentes, mas também para destruir toda a infraestrutura civil ao redor.</p>
+<p>O que vimos em Gaza foi a aplicação dessa doutrina. Portanto, não tenhamos expectativas muito ambiciosas sobre o que Eisenkot tem a oferecer.</p>
+<p>Acho que a questão mais interessante sobre as próximas eleições é se Eisenkot conseguirá formar um governo sem se aliar a partidos de maioria árabe. O partido Ra’am agora terá um membro judeu em sua chapa para o Knesset, então não será mais um partido puramente árabe, mas ainda não será um “partido sionista” como os israelenses o definem. E, na visão de Netanyahu, só traidores formariam um governo com o apoio de partidos não sionistas. (Embora, é claro, ele próprio tenha tentado fazer isso no passado).</p>
+<p>“O lobby israelense existe objetivamente. Isso não é algo que precisamos mais debater.”</p>
+<p>Mas, analisando em termos de tempo geológico, o que me interessa é o precedente da cooperação árabe-judaica — inclusive a cooperação da direita com os árabes — que prenuncia a possibilidade de que, em algum momento no futuro, um número significativo de judeus veja vantagens para si na possibilidade de palestinos da Cisjordânia e de Gaza votarem. Teremos um resultado eleitoral em que ninguém conseguirá formar um governo a menos que a coalizão inclua árabes? E como o sistema político israelense reagirá a isso?</p>
+<p>Para mim, isso é mais importante do que saber por quanto tempo Eisenkot conseguirá continuar maquiando a situação. Estou mais interessado em saber se esta eleição forçará o país a caminhar rumo a alianças políticas judaico-árabes.</p>
+<p>SA</p>
+<p><strong>Perguntei anteriormente sobre o livro de Mearsheimer e Walt. Vinte anos atrás, o livro deles se tornou uma espécie de escândalo literário. Editoras se recusaram a publicar a obra, e resenhas maldosas os acusaram de todo tipo de coisa terrível. Como comparariam isso com a reação que o livro de vocês recebeu até agora?</strong></p>
+<p>EC</p>
+<p>É muito diferente. Não vivemos mais num mundo em que era preciso debater se o lobby existia ou não. Quando se observa a reação negativa contra Steve e John, infelizmente é aí que eles travaram muitas de suas batalhas: sobre se o lobby existia de fato e se afirmar sua existência seria de alguma forma antissemita. E esse não é mais o mundo em que vivemos. Isso já está bem estabelecido.</p>
+<p>Quer dizer, eu mantenho um site — <a href="http://israelslobby.com/" rel="noopener noreferrer" target="_blank">israelslobby.com</a>  — que monitora em tempo real os registros da Comissão Eleitoral Federal sobre os Super PACs pró-Israel. No momento, acho que eles arrecadaram US$ 160 milhões neste ciclo eleitoral. Isso provavelmente significa que arrecadarão US$ 250 milhões só para estas eleições de meio de mandato. Um quarto de bilhão de dólares — é muito dinheiro para um grupo de interesse de um país estrangeiro arrecadar e gastar. Então, objetivamente, o lobby existe. Isso não é algo que precisamos mais debater.</p>
+<p>Também está nas manchetes. Tivemos sorte com o momento do lançamento do livro, porque este assunto está muito presente no debate público agora, principalmente por causa da guerra em Gaza, da guerra com o Irã e das eleições de meio de mandato. É uma questão prioritária para os eleitores, de uma forma que geralmente não acontece com questões de política externa. Claro, essa também é a desvantagem: muita gente está falando sobre isso agora. Então, estamos tentando trazer algo novo à discussão, contextualizar como chegamos a este momento.</p>
+<p>Este não é apenas um livro sobre assuntos da atualidade. Ele analisa o registro histórico de como o lobby israelense se tornou o que é hoje e o que isso significou, em termos de oportunidades diplomáticas perdidas para os Estados Unidos, em termos de recursos perdidos, mas também em termos do custo interno mensurável da repressão às liberdades civis, da caça às bruxas antissemita e dos esforços para restringir a liberdade de expressão, particularmente nas universidades. Nesse aspecto, este é um momento mais assustador do que 2007.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>é o editor executivo de Jacobin.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+			        Eli Clifton                
+</h5>
+</p>
+
+<p>Eli Clifton é jornalista investigativo e cofundador do Quincy Institute for Responsible Statecraft. Ele é coautor, com Ian Lustick, do livro <em>Israel’s Lobby</em>.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+			        Ian Lustick                
+</h5>
+</p>
+
+<p>é professor emérito de ciência política na Universidade da Pensilvânia. Especialista na política do Médio Oriente, é autor de muitos livros, incluindo <em>Paradigm Lost: From Two-State Solution to One-State Reality</em> e, mais recentemente, <em>Israel’s Lobby</em>, em co-autoria com Eli Clifton.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/09/o-lobby-israelense-esta-fora-de-controle/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Master e a República - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O Master e a República</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://piaui.uol.com.br/web/banco-master-republica-investigados/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/09/congresso-master-bergajpg_p0124435338_85social.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O Master e a República
+                            </p>
+                             <p>Há dois anos, a <strong>piauí</strong> publicou sua primeira reportagem sobre o Banco Master. Àquela altura, a instituição criada por Daniel Vorcaro era pouco conhecida fora do mercado financeiro, mas já suscitava desconfianças. Seus métodos eram agressivos, suas promessas de rendimento extrapolavam em muito o padrão da concorrência, sua estrutura societária era opaca. Não por acaso, a reportagem foi intitulada <a href="https://piaui.uol.com.br/revista/217/alta-tensao-banco-master/" rel="noopener noreferrer" target="_blank"><em>Alta tensão</em></a>. O texto de Consuelo Dieguez teve grande repercussão no mercado e, desde então, a tensão só cresceu. O que antes eram apenas suspeitas se confirmaram como uma fraude sistemática e bilionária, que deflagrou o maior escândalo bancário da história recente do Brasil.</p> <p>O Master foi liquidado em novembro de 2025, e Vorcaro hoje está preso no Complexo Penitenciário da Papuda, em Brasília. A trama, porém, está longe do fim. A investigação conduzida pela Polícia Federal revelou, que no entorno do banqueiro, gravitaram figuras poderosas da República, entre elas deputados, senadores, ex-governadores e ministros do Supremo Tribunal Federal. Alguns são suspeitos de colaborar com a fraude. Outros, de receber favores para proteger os interesses do banco e abafar a crise. A lista de investigados cresce a cada dia.</p> <p>Nesta página especial, apresentamos alguns dos protagonistas dessa história. São figuras que passaram pelas páginas da <strong>piauí</strong> e ajudam a entender o tamanho do escândalo.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/flaviobcard_ckig4xcg.gif"/></p> <h3>“Estou e estarei contigo sempre”</h3> <p> </p> <p>Flávio Bolsonaro (PL-RJ) disse essas palavras a Daniel Vorcaro. A conversa foi revelada em maio pelo Intercept Brasil, numa reportagem que mostrou como o senador, hoje candidato a presidente, pediu milhões de dólares ao banqueiro para financiar o filme <em>Dark Horse</em>, uma cinebiografia sobre seu pai. A quantia é de fazer inveja a filmes premiados internacionalmente: 24 milhões de dólares. Desde que a notícia veio à tona, Flávio caiu numa sequência de contradições, como <a href="https://piaui.uol.com.br/web/flavio-bolsonaro-o-homem-do-poco-banco-master/" rel="noopener noreferrer" target="_blank">mostrou</a> a <strong>piauí</strong>. Primeiro, negou que Vorcaro tivesse financiado o filme – e foi pego na mentira. Depois admitiu que ele havia financiado, sim, mas que não havia como saber das fraudes do Master na época – o que também não é verdade, já que elas eram notórias desde o final de 2024. Flávio também omitiu o fato de ter visitado Vorcaro quando o banqueiro já estava em prisão domiciliar, em 2025. Ao ser descoberto, saiu pela tangente: disse que foi até a casa dele para “botar um ponto final” nas tratativas sobre o filme.</p> <p>Por que Flávio escondeu todas essas informações? E que fim tiveram os milhões de dólares transferidos por Vorcaro? São perguntas que norteiam a investigação da Polícia Federal. Nesta semana, a reportagem <a href="https://piaui.uol.com.br/revista/240/caixa-preta-flavio-bolsonaro-vorcaro-dark-horse/" rel="noopener noreferrer" target="_blank"><em>Em cartaz, a caixa-preta</em></a>, publicada pela <strong>piauí</strong>, engrossou o caldo. Ela mostra, com base em um relatório do Coaf e em mensagens obtidas no celular de Vorcaro, que a relação financeira entre os dois foi maior – e mais duradoura – do que Flávio havia admitido. <img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/cardcironogueira_3iuumkps.gif"/></p> <h3>“Um dos meus grandes amigos de vida”</h3> <p> </p> <p>Assim Daniel Vorcaro se referiu ao senador Ciro Nogueira (PP-PI), ex-ministro da Casa Civil de Bolsonaro, em uma mensagem obtida pela Polícia Federal. A foto acima, revelada pela <strong>piauí</strong>, mostra o grau de intimidade entre os dois, que posam abraçados numa viagem à estação de esqui de Courchevel, nos Alpes franceses. A reportagem <a href="https://piaui.uol.com.br/revista/237/o-amigo-do-crime-ciro-nogueira/" rel="noopener noreferrer" target="_blank">O amigo do crime</a>, publicada pela <strong>piauí</strong> em junho, detalha o envolvimento de Ciro com o Master – uma trama que, segundo a investigação, envolve mesadas de 300 mil reais, transações suspeitas, favores imobiliários, viagens luxuosas e farras gastronômicas.</p> <p>A hipótese dos investigadores é que Ciro recebia esses benefícios como contrapartida por defender os interesses do Master no Congresso. Não faltam evidências de que ele o tenha feito. O maior exemplo disso é uma emenda parlamentar que propôs aumentar de 250 mil para 1 milhão de reais o limite de cobertura para investidores em caso de quebra da instituição financeira. A proposta de Ciro atendia de modo tão flagrante os interesses de Vorcaro que ganhou o apelido de “Emenda Master”. Segundo a PF, o projeto foi redigido pela assessoria do próprio banco. Por essas e outras, o senador foi alvo de uma operação de busca e apreensão em maio. Ele nega ter cometido qualquer crime.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/fabiocard_nwkccsxf.gif"/></p> <h3>“O cara do Vorcaro”</h3> <p> </p> <p>F</p> <p>ábio Faria, ex-ministro das Comunicações de Bolsonaro, foi definido nessas palavras por um político que conversou com a <strong>piauí</strong> sob condição de anonimato. O epíteto tem motivo de ser: Faria foi um dos mais importantes interlocutores de Daniel Vorcaro na política, intermediando o contato do banqueiro com parlamentares e ministros do STF. Mas não só isso: foi também seu parceiro de negócios. Em 2024, Vorcaro comprou do ex-ministro, por 67,5 milhões de reais, um projeto de energia eólica que até hoje não saiu do papel. Especialistas do setor estimam que a usina valia, no cenário mais otimista, cerca de 13 milhões de reais. Nenhum dos dois foi capaz de explicar, até hoje, o motivo para o valor ter sido tão alto.</p> <p>Essa história é contada em detalhes na reportagem <a href="https://piaui.uol.com.br/web/fabio-faria-daniel-vorcaro-lobby/" rel="noopener noreferrer" target="_blank"><em>Fábio Faria, “o cara do Vorcaro”</em></a>, publicada em agosto pela <strong>piauí</strong>. A apuração mostra como os dois se aproximaram e, juntos, percorreram gabinetes de parlamentares e ministros em Brasília. Três fontes ouvidas pela <strong>piauí</strong> afirmam que foi Faria quem apresentou Vorcaro a Alexandre de Moraes. Hoje, a relação entre o ex-banqueiro e o ministro do STF está no centro do escândalo do Master e continua a se desdobrar.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/alexandrecard_do0isb75.gif"/></p> <h3>“Uma dívida de vida”</h3> <p> </p> <p>Vorcaro resumiu assim sua relação com Alexandre de Moraes, em uma mensagem que enviou ao ministro em novembro de 2025, pouco antes de ser preso pela Polícia Federal. Os primeiros indícios de que Moraes tinha relação com Vorcaro vieram à tona no mês seguinte, quando o jornal<em> O Globo</em> revelou que o escritório de advocacia de sua mulher, Viviane Barci de Moraes, tinha assinado um contrato de três anos com o Master por 129 milhões de reais – o equivalente a 3,6 milhões por mês, honorário mais que generoso.</p> <p>O conflito de interesses, flagrante nesse caso, inspirou o título do artigo <a href="https://piaui.uol.com.br/web/129-milhoes-aberracoes-master-moraes-vorcaro/" rel="noopener noreferrer" target="_blank"><em>129 milhões de aberrações</em></a>, escrito pelo professor de direito da USP Rafael Mafei e publicado na <strong>piauí</strong>. Inspirou, também, o texto <a href="https://piaui.uol.com.br/revista/234/dr-moraes-and-mr-barci/" rel="noopener noreferrer" target="_blank"><em>Dr. Moraes and Mr. Barci</em></a>, de Fernando de Barros e Silva, sobre os métodos questionáveis do magistrado, publicado na edição de março deste ano da <strong>piauí. </strong>A situação, depois disso, se agravou ainda mais. Nesta semana, o jornal <em>Estado de S. Paulo</em> revelou que Moraes esteve com Vorcaro ao menos seis vezes entre novembro de 2024 e agosto de 2025. A troca de mensagens é ainda pior: mostra que o ministro editou o contrato de 129 milhões do escritório de sua mulher e opinou na lista de convidados de eventos do Master. Dois dias antes de ser preso, Vorcaro perguntou a Moraes: “Acha que segunda tenho que estar fora?” Não se sabe o que o ministro respondeu ao banqueiro.</p> <p>O que se sabe é que o assunto influenciará a campanha eleitoral deste ano. No texto<em> <a href="https://piaui.uol.com.br/revista/236/voltei-mane/" rel="noopener noreferrer" target="_blank">Voltei, mané</a></em>, publicado na edição de abril deste ano da <strong>piauí</strong>, Fernando de Barros e Silva alertou para o impacto que as revelações do Master podem causar nas eleições. Já no artigo <a href="https://piaui.uol.com.br/web/as-urnas-no-ritmo-da-justica/" rel="noopener noreferrer" target="_blank"><em>No ritmo da Justiça</em></a>, publicado esta semana na <strong>piauí</strong>, Mafei analisa a conjuntura e tenta dimensionar o tamanho da crise institucional no STF. “O Supremo e o Brasil têm agora apenas duas alternativas ideais: ou bem se esclarece, em apuração exaustiva, que tudo não passa de um grande mal-entendido; ou a permanência de Moraes no STF será, por muito tempo, um fardo pesado para a respeitabilidade e a legitimidade do tribunal.”</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/toffolicard_qgav6zw0.gif"/></p> <h3>O ministro do resort</h3> <p> </p> <p>A</p> <p>teia de negócios de Vorcaro com poderosos da República, descrita na reportagem <a href="https://piaui.uol.com.br/revista/233/o-banco-master-e-a-desmoralizacao-da-republica/" rel="noopener noreferrer" target="_blank"><em>A contaminação</em></a>, publicada pela <strong>piauí </strong>em fevereiro de 2026, envolveu também Dias Toffoli. No ano passado, veio à tona que o ministro do STF havia pegado carona no jatinho de um diretor do Master. Em seguida, ele foi sorteado relator do inquérito que apura as fraudes do banco – e, daí em diante, deu motivos de sobra para ser contestado. Puxou para o Supremo toda a investigação do caso, alegando a ocorrência de foro privilegiado – embora, na época, o inquérito fizesse apenas menção lateral a um deputado. Depois, decretou segredo de Justiça e impediu que a Polícia Federal fizesse a perícia do material que já havia apreendido – decisão posteriormente revogada.</p> <p>O que se descobriu depois deixou a situação ainda mais embaraçosa para Toffoli. Um primo e dois irmãos seus compraram parte do resort Tayayá, no Paraná, com financiamento do fundo Arleen, que tinha como principal cotista Fabiano Zettel, o cunhado de Vorcaro. As conexões pouco republicanas do ministro inspiraram o artigo<em> <a href="https://piaui.uol.com.br/revista/233/togados-do-tayaya/" rel="noopener noreferrer" target="_blank">Togados do Tayayá</a></em>, de Fernando de Barros e Silva, publicado na edição de fevereiro deste ano da <strong>piauí</strong>. Diante das evidências de conflito de interesses que se acumulavam, e da resistência de Toffoli em se declarar suspeito, os ministros do STF se reuniram e concordaram em fazer uma gambiarra: não declararam a suspeição de Toffoli, mas, em nome do “bom andamento dos processos” e dos “altos interesses institucionais”, decidiram sortear um novo relator – que veio a ser André Mendonça. O remendo, a que o professor de direito Rafael Mafei chamou de <a href="https://piaui.uol.com.br/web/a-solucao-toffoli-stf-master/" rel="noopener noreferrer" target="_blank"><em>Solução Toffoli</em></a>, esfriou as críticas ao ministro, que desde então saiu dos holofotes. Mas não foi suficiente para debelar a crise no STF. </p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/wagnercard_p2m4lnle.gif"/></p> <h3>A conexão baiana</h3> <p> </p> <p>E</p> <p>mbora protagonizado por políticos da direita e do Centrão, o escândalo do Master também fustigou o governo Lula. Em junho deste ano, o senador Jaques Wagner (PT-BA) foi alvo de mandados de busca e apreensão por suspeita de ter beneficiado o Master. Segundo a investigação, Jaques Wagner recebeu de gestores do banco um apartamento de 2,4 milhões de reais em Salvador e repasses de 3,5 milhões para uma empresa de sua família. A Polícia Federal tenta descobrir se o senador ofereceu alguma contrapartida.</p> <p>O que está cristalino é que Jaques Wagner tinha uma relação próxima com o empresário Augusto Lima, que foi sócio de Vorcaro e está enrolado até o pescoço na fraude do Master. Na reportagem <a href="https://piaui.uol.com.br/revista/238/o-escandalo-master-vorcaro-aliados/" rel="noopener noreferrer" target="_blank"><em>A armadilha</em></a>, publicada em julho, a <strong>piauí</strong> mostrou que a relação dos dois remonta a 2018. Na época, ocupando o cargo de secretário de Desenvolvimento Econômico da Bahia, Jaques Wagner permitiu que Lima operasse um cartão de crédito consignado chamado CredCesta, voltado para servidores do estado. E mais: que o fizesse com exclusividade, sem concorrentes. O CredCesta, com isso, se tornou uma mina de ouro – e atraiu o apetite de Vorcaro, que comprou uma parte da operação e chegou a operar o cartão em 24 estados. Essa foi uma etapa fundamental para o crescimento do Master, mas deixou muitos servidores baianos na penúria.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/ibaneiscard_d0qhfhpc.gif"/></p> <h3>O governador benevolente</h3> <p> </p> <p>Em março do ano passado, quando já dava sinais públicos de sua bancarrota, Daniel Vorcaro tentou salvar o Master com uma negociação ousada: queria vender ativos do banco ao BRB, o Banco de Brasília. A transação, que previa um pagamento de 2 bilhões de reais por 58% das ações do Master, intrigou analistas do mercado financeiro e do Banco Central, como mostrou a reportagem <a href="https://piaui.uol.com.br/revista/224/a-genese-da-operacao-para-resgatar-o-banco-master/" rel="noopener noreferrer" target="_blank"><em>O salvamento</em></a>, publicada em abril de 2025 pela <strong>piauí</strong>.</p> <p>No centro da negociação estava o então governador do Distrito Federal, Ibaneis Rocha (MDB). O que já era estranho ficou ainda pior quando se descobriu que o BRB e o Master já haviam feito uma outra operação peculiar, em que o banco estatal pagou 12,2 bilhões de reais por carteiras de crédito inexistentes. Sob o escrutínio do Banco Central, o cerco rapidamente se fechou. A operação para salvar o Master não foi para frente, e Vorcaro, que já era investigado de perto pela Polícia Federal, foi parar na prisão. Em dezembro passado, ao depor em um dos inquéritos, o ex-banqueiro admitiu que tratou da negociação Master-BRB com Ibaneis, que negou. O ex-governador diz que esteve com Vorcaro quatro vezes, mas que nunca tocaram no assunto. A reportagem <a href="https://piaui.uol.com.br/revista/233/o-banco-master-e-a-desmoralizacao-da-republica/" rel="noopener noreferrer" target="_blank"><em>A contaminação</em></a>, da <strong>piauí</strong>, mostra como a benevolência de Ibaneis abriu um rombo nas contas do BRB.</p> <p> </p> <p>*</p> <p><em>Projeto gráfico: Pedro Moro.</em></p> <p></p>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/web/banco-master-republica-investigados/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

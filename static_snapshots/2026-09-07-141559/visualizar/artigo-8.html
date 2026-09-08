@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circulando pelo furacão - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Circulando pelo furacão</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://piaui.uol.com.br/web/circulando-furacao-festival-piaui/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/09/festival-piaui-2026-04377_qj131438323_85social.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Circulando pelo furacão - revista piauí
+                            </p>
+                             <p>Enquanto o Brasil sofria as consequências do Super El Niño (no caso, o nem tão menino Daniel Vorcaro), jornalistas e estudantes compareceram à Cinemateca Brasileira neste fim de semana, em São Paulo, para prestigiar o décimo Festival <strong>piauí</strong> de Jornalismo. O evento, que comemora os vinte anos da revista brasileira mais confundida com um estado, reuniu oito jornalistas de sete países. São figuras que comandaram redações em momentos de turbulência, sob risco de golpes de Estado e, em alguns casos, censura e espionagem. Como o Brasil está passando por um pouco de tudo isso, nada mais auspicioso do que ouvir especialistas que possam nos guiar. Mas é preciso cautela. Como disse Nietzsche: quando você observa o abismo por muito tempo, o abismo faz <em>lawfare</em> contra você.</p> <p>Abaixo, um breve diário do que vi no festival.</p> <p> </p> <p><strong>Sábado, 5 de agosto</strong> </p> <p>10h05 – Luz Mely Reyes, do site Efecto Cocuyo, disse que o primeiro país onde esteve depois de sair da Venezuela foi o Brasil. O ano era 2018. Sim, 2018! Ela saiu de um país em convulsão para entrar em outro. Isso me lembrou a história de Beth Peterson, a americana que sobreviveu a um raio em 1992 e, um ano depois, sobreviveu a outro.</p> <p>11h15 – Na fila para assistir ao <em>Foro de Teresina</em> ao vivo, encontrei o jovem João Pedro Mendes. Morador de Campos dos Goytacazes (RJ) e estudante de jornalismo da UFRJ, ele veio a São Paulo pela primeira vez e já teve, logo de cara, três experiências típicas da cidade: chuva, dia cinza e fila.</p> <p>12h10 – No <em>Foro</em>, Ana Clara Costa e Celso Rocha de Barros falaram sobre a influência do Banco Master no Judiciário. Aconteceu tanta coisa nesta semana que Fernando de Barros e Silva ficou até na dúvida sobre o que perguntar a respeito do criminoso que segue dando ordens de dentro da cadeia. Está tudo dominado pelo CV (Comando do Vorcaro).</p> <p>12h25 – Celso lembrou que Jim Caviezel, o ator que interpretou Jair Bolsonaro em <em>Dark Horse</em>, foi atingido por um raio quando fez o papel de Jesus em <em>A Paixão de Cristo</em>. Dessa vez, a situação mudou: quem está queimado é o próprio filme.</p> <p>12h30 – Acertei o Kinder Ovo, só para deixar registrado.</p> <p>15h30 – Você sabe que está num festival de jornalistas quando, tirando os painéis, a fila mais longa é a do café. Nisso, a produção do evento foi muito sagaz. Se acaba o café, acaba o jornalista. Sabe o índice de pizza do Pentágono? Aquele segundo o qual é possível prever operações militares dos Estados Unidos por meio da quantidade de pizza encomendada à noite pelas autoridades? Nas redações brasileiras, o equivalente seria o índice do café. As pizzas ficam mais a critério de Brasília.</p> <p>16h50 – A jornalista indiana Manisha Pande, do Newslaundry, disse que usa humor para aliviar o efeito rascante das notícias, mas que o que está acontecendo é tão louco que nem precisa pensar em piadas. Até fiquei na dúvida sobre de que país ela estava falando.</p> <p>17h20 – Eeu acchooo qquuee ttomeei ccaaff´e dddeemaaiis.</p> <p></p> <p>17h40 – Agora é oficial: o frio chegou. Está tão gelado que tem um pinguim no pátio da Cinemateca. Inflável, mas um pinguim.</p> <img alt="" src="https://piaui.uol.com.br/media/uploads/2026/09/festival-piaui-2026-04028_9r131954188.jpg"/> Foto: Durval Litoldo  <p> </p> <p>18h35 – Dean Baquet, o primeiro e único negro a dirigir o <em>New York Times</em>, foi indagado sobre o fato de pessoas negras terem mais dificuldade de permanecer e crescer no jornal. Ele respondeu que isso se deve, em parte, a redes de contatos que elas nem sempre conseguem acessar e assimilar. Essa é mais uma prova de que nenhuma experiência é individual. Mas até que houve pequenos avanços por aqui. Há pouquíssimos anos, as redações eram tão brancas, mas tão brancas, que a expressão “preto no branco” falava só do contato da tinta com o papel mesmo.</p> <p>19h15 – Perguntaram a Baquet se era verdade a história de que, num momento de emoção intensa na redação, ele deu um soco tão forte numa parede que chegou a perfurá-la. “Foi só uma parede”, ele respondeu. Elegante como é, deve ter sido um soco com muita classe.</p> <p>19h40 – Finda o primeiro dia de festival com clima de montanha (Everest). Recolhi meus pertences e saí com os colegas para conhecer um pouco mais da típica cultura local paulistana: um bar carioca.<br/><br/><br/></p> <p><strong>Domingo, 6 de setembro</strong></p> <p>7h – Acordei e o termômetro indicava uma sensação térmica de 10ºC em São Paulo. Minha cabeça começou a tocar <em>Da ponte pra cá</em>, dos Racionais MC’s. Na sequência, minha rinite atacou, a garganta deu uma rateada, os lábios racharam e os olhos lacrimejaram. É impressionante como a gente fica mais elegante no frio.</p> <p>8h – Dropei um antialérgico e agora eu sou exatamente como a <strong>piauí</strong>: dono do meu próprio nariz.</p> <p>10h23 – O jornalista salvadorenho Carlos Dada disse, em sua mesa, que faz parte da “receita Bukele” se comunicar com os jovens. Mas o mandante de El Salvador também farma aura entre os mais velhos. Exemplo disso é uma anedota que Dada contou, e que resume bem o bukelismo: um empresário brasileiro, dizendo-se muito fã da maneira como Bukele combate o crime, perguntou ao jornalista o que o Brasil poderia fazer para implementar o mesmo modelo. Dada respondeu que bastava mapear todas as favelas do país e lançar uma bomba sobre elas. Chocado, o empresário respondeu que isso mataria muita gente inocente. Ao que Dada apenas disse: “Viu? Eis o método Bukele.”</p> <p>11h43 – Ao comentar <em>Rakudianai</em>, seu <a href="https://piaui.uol.com.br/revista/55/rakudianai/" rel="noopener noreferrer" target="_blank">artigo</a> seminal publicado em 2011, Persio Arida criticou a Lei da Anistia, que perdoou agentes e sofrentes. “Quando você apaga a memória, os fantasmas surgem novamente.” Fica a dica para a turma que subestima o Oito de Janeiro.</p> <p>12h48 – Pelas vestimentas pouco encasacadas que vejo durante o almoço, percebo que muita gente subestimou a meteorologia. Isso parece ridículo de minha parte, né? Tudo bem. O bom de ser jornalista é que você pode ficar analisando os outros e chamar de apuração.</p> <p>15h27 – O nigeriano e iorubano Musikulu Mojeed, do <em>Premium Times</em>, disse ter ficado surpreso ao constatar que as religiões de matriz africana também são perseguidas aqui no Brasil por fundamentalistas religiosos. Ah, quando ele descobrir que tem gente que já está chamando o akará (acarajé) de “bolinho de Jesus”...</p> <p>16h – Ao responder como o <em>The Kyiv Independent</em> se financia, a ucraniana Olga Rudenko disse que, embora alguns oligarcas tenham oferecido um dinheiro considerável, foi possível obter muito mais por meio de assinaturas. É realmente uma correspondente de guerra.</p> <p>18h30 – Sentindo-se praticamente em casa, o americano Jeffrey Goldberg, da revista <em>The Atlantic</em>, começou sua fala já revelando que, antes de subir ao palco, a produção havia lhe dado um <em>shot</em> de cachaça. Gente bem-humorada é assim mesmo: começa te fazendo rir e, quando você menos espera, está divulgando planos de guerra de nações imperialistas.</p> <p>19h30 – Acabou o festival e, com ele, minha inestimada perambulação. Domingou! Agora é comemorar e depois voltar ao hotel para descansar bem e conseguir acordar a tempo de fugir do trânsito, pois parece que vai ter alguma coisa mais tarde lá na Paulista, Sete de Setembro. Alô, Efecto Cocuyo! Pela movimentação de bandeirinhas ianques, parece que tem uma turma aí querendo transformar o Brasil em Venezuela.</p>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/web/circulando-furacao-festival-piaui/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

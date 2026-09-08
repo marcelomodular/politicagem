@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, política e sociedade - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Rock, política e sociedade</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://passapalavra.info/2026/08/159737/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/08/doralongobahia_CCSP_02.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Rock, política e sociedade
+                            </p>
+                            
+<h3><strong>Por Michel Goulart da Silva</strong></h3>
+<p>Embora com décadas de existência, o rock continua a ser uma das expressões musicais mais ouvidas em todo o mundo, sendo impactado pela dinâmica da sociedade e afetando comportamentos e ideologias. O rock é uma das expressões da relação intrínseca entre manifestação artística e sociedade. O rock compõe um conjunto de elementos, que passa pelas letras, pela sonoridade, pela manifestação de estilo de vida e de uma cultura compartilhada, que se manifesta em roupas, cortes de cabelo, entre outros aspectos.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/08/EnsHfbLM-scaled.jpg"/>Em sua formulação original, o rock nasce afastado do ambiente clássico ou mesmo acadêmico, em grande medida tendo sua constituição associado a populações pobres e negras, como desdobramento do <em>blues</em>. Criado na década de 1950, o rock é associado a nomes de bandas famosas, como The Beatles, Rolling Stones, The Who, Pink Floyd, Led Zeppelin, entre outras, e músicos, como John Lennon, Mick Jagger, Roger Waters, Freddie Mercury, entre outros. Em sua história, o rock:</p>
+<blockquote>
+<p>“[…] passou por inúmeras metamorfoses, que levaram a sofisticações harmônicas, melódicas e poéticas, e rupturas que o atualizaram em relação às condições sociais em que estavam inseridos seus criadores e consumidores. Esse processo levou o rock a tornar-se amplo e diversificado como gênero musical, para dar conta das diferentes expressões do comportamento jovem à medida que este ficou cada vez mais complexo”.<strong>[1]</strong></p>
+</blockquote>
+<p>Em seu desenvolvimento, o rock passou por diferentes fases, se diversificando em diálogo com outras expressões musicais e mesmo culturais de diversos países marcado em grande medida pela pluralidade de experiências da juventude. Essa diversificação se deu a diante das experimentações dos diferentes compositores e com a incorporação de diversos elementos sonoros, “fruto de um longo processo de fusões e confluências de transformações musicais, sociais e comportamentais”.<strong>[2]</strong></p>
+<p>O rock se tornou um dos gêneros musicais mais ouvidos no mundo e, por certo, um dos mais lucrativos. Observa, dessa forma, ao longo das décadas as posturas mais diversas por parte de músicos e de seus admiradores, mostrando-se plural e bastante diversificado. O rock está bastante marcado pelo desenvolvimento econômico ocorrido no século XX, seja por conta da tecnologia necessária para executar o som, seja por conta de sua inserção como produto na indústria cultural. O processo de transformações na sociedade impactou materialmente o próprio fazer artístico. Observa-se, assim, um rápido desenvolvimento dos meios de comunicação e difusão de informações ou mesmo de distribuição de produções artísticas.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/08/Cancoes-de-Amor-no-Templo-do-Rock-Newton-e-Carol-2003-acrilica-sobre-papelao.jpg"/>Esse processo associado ao rock tem como uma de suas marcas o desenvolvimento e o aprimoramento dos equipamentos eletrônicos usados em shows ou em gravações, como guitarra, baixo, bateria e teclado, entre outros. O processo de experimentação musical levou a que, com novos sons e técnicas, fosse impulsionada a criação de equipamentos como pedais de efeito, sintetizadores e consoles de mixagem avançados.</p>
+<p>Esse processo também transformou a distribuição e divulgação do rock, por meio de produtos diversos relacionados às bandas, como camisetas e cartazes, e pelo trabalho de revistas especializadas e canais de televisão. Os videoclipes se tornaram uma forma importante de divulgação, papel cumprido pela televisão, principalmente pelo trabalho da MTV, a partir da década de 1980. Esses videoclipes expressam interpretações imagéticas das letras ou mesmo permitem identificar elementos culturais relacionados.</p>
+<p>O desenvolvimento da internet e de mídias digitais permitiu uma maior dinâmica nesse processo. Plataformas como Spotify, Apple Music e YouTube permitiram uma difusão mais ampla das músicas, ainda que esse processo permaneça tendo uma grande influência das gravadoras. Redes sociais como Instagram, Facebook e Twitter facilitaram a interação entre fãs e bandas, promovendo shows, divulgação de vídeos e lançamentos de músicas. Por outro lado, o <em>streaming</em> trouxe a possibilidade a transmissão de apresentações gravadas ou ao vivo e inclusive sua disponibilização na internet.</p>
+<p>No rock, ainda que não aborde temas diretamente políticos ou procure sempre ser subversivo, a postura dos artistas, bem como suas harmonias e melodias, pretendem ser provocativas, fazendo com que possam soar apenas como “barulho” ou “distorção” para pessoas acostumadas a outras expressões musicais. Esse estranhamento, alcançado por meio de dissonância de acordes, são elementos fundamentais que caracterizam o rock. O rock também incorporou o uso de elementos eletrônicos, como os teclados.</p>
+<p>O rock vai além da música, envolvendo aspectos culturais, políticos, econômicos ou mesmo morais. O rock se desenvolve em uma sociedade capitalista em que a cultura de massas determina aspectos sociais e políticos, marcado pelo desenvolvimento tecnológico, seja na produção, seja na difusão das músicas. Trata-se de um fenômeno “reconstruído constantemente, sujeito às forças do mercado, dos vazios entre gerações, das diferentes vivências juvenis e das negociações entre a cultura mundializada e suas manifestações locais”.<strong>[3]</strong></p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/08/Escalpo-Paulista-2005-acrilica-sobre-fibrocimento-.jpg"/>Pode-se compreender o rock como uma expressão musical que se define a partir de símbolos e elementos culturais que extrapolam sua sonoridade e que, em grande medida, se remetem à juventude e à rebeldia. O rock, desde sua origem, “transitou entre os extremos de prosperar numa estrutura mercantilista convencional enquanto cultivava a ambição de implodir o próprio sistema que possibilitava sua difusão”. <strong>[4] </strong>Portanto, o rock está associado à construção de subjetividades e é uma possível expressão cultural de sua época.</p>
+<p><em>As obras que ilustram o artigo são de Dora Longo Bahia.</em></p>
+<h4><strong>Notas</strong></h4>
+<p><strong>[1]</strong> ANAZ, Sílvio. O que é rock. São Paulo: Popbooks, 2013, p. 80.</p>
+<p><strong>[2] </strong>ANAZ, Sílvio. O que é rock. São Paulo: Popbooks, 2013, p. 15.</p>
+<p><strong>[3] </strong>JANOTTI JUNIOR, Jeder. Aumenta que isso é Rock and Roll: mídia, gênero musical e identidade. Rio de Janeiro: E-Papers, 2003, p. 23.</p>
+<p><strong>[4] </strong>MERHEB, Rodrigo. O som da revolução: uma história cultural do rock (1965-1969). Rio de Janeiro: Civilização Brasileira, 2012, p. 15.</p>
+<p>
+</p>
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/08/159737/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

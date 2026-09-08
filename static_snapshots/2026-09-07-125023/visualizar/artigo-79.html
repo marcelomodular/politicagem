@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O sigilo da fonte não é absoluto: uma verdade incômoda - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O sigilo da fonte não é absoluto: uma verdade incômoda</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Observatorio da Imprensa</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://www.observatoriodaimprensa.com.br/jornalismo/o-sigilo-da-fonte-nao-e-absoluto-uma-verdade-incomoda/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/09/pexels-krista-glizdeniece-2150567376-38857613-e1788435623419.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O sigilo da fonte não é absoluto: uma verdade incômoda
+                            </p>
+                            
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/09/pexels-krista-glizdeniece-2150567376-38857613-e1788435623419.jpg"/><p>(Foto: Krista Glīzdeniece/Pexels)</p>
+<p>O principal propósito do sigilo da fonte é permitir que verdades incômodas sejam reveladas. Para isso existe. Mas talvez seja o momento de revelar outra verdade incômoda logo de cara para o nosso campo profissional: o sigilo não se trata de um princípio absoluto. Na topografia comunicacional da atualidade (com um complexo relevo de canais<b>, </b>fluxos de informação e influenciadores), o tumultuado cenário de um terreno com superfícies instáveis, revela elevações e declives que precisam ser discutidos. Há inúmeras situações em que o jornalismo pode ser manipulado para proteger crimes, viabilizar práticas criminosas ou ser instrumentalizado para encobrir ilícitos. Isso se estivermos observando apenas o jornalismo e não todas as demais práticas que simulam produzir informação sem a necessidade do contrato ético e social que caracteriza o trabalho profissional informativo. Proponho essa análise da liberdade de expressão e suas garantias a partir de três eixos que, não raro, surgem confusos e confundidos no debate que vem sendo produzido a partir da decisão do ministro do STF Alexandre de Moraes, em 11 de agosto deste ano. Ele autorizou mandados de busca e apreensão contra pessoas apontadas como fontes do jornalista Luís Pablo, que havia publicado reportagens críticas sobre o uso de veículos oficiais por familiares do ministro Flávio Dino. São eles, os eixos:</p>
+<ul>
+<li><b>Liberdade de expressão como garantia jurídica x deontologia das mídias como garantia ética</b>: aqui vamos avaliar limites legais e questões de interesse público.</li>
+</ul>
+<ul>
+<li><b>Proteção do informante x proteção do crime: </b>aqui vamos apontar quando fontes criminosas se valem do sigilo para escapar da Justiça ou quando agentes ou instituições corruptas instrumentalizam o jornalismo.</li>
+</ul>
+<ul>
+<li><b>Complexidade para conceituar e definir jornalismo: </b>aqui vamos fazer distinções entre trabalho jornalístico e produção de conteúdo e os distintos critérios éticos, técnicos e legais.</li>
+</ul>
+<p>Vamos começar pela cronologia dos fatos.</p>
+<p>O jornalista Luís Pablo publicou reportagens detalhando o uso de carros do Tribunal de Justiça do Maranhão por Flávio Dino e seus familiares. Aparelhos eletrônicos do jornalista foram apreendidos. A análise desses materiais levou a Polícia Federal a identificar nomes apontados como informantes, resultando em novas buscas, incluindo contra Raimundo Cutrim, ex-secretário de Segurança Pública do Maranhão, o que aumenta o potencial de risco para o ministro e seus familiares. A investigação apura se houve monitoramento clandestino e vazamento ilegal de dados sensíveis sobre a rotina e a segurança do ministro e de sua família. O entendimento aplicado aponta que o sigilo da fonte não constitui um salvo-conduto para acobertar crimes antecedentes, invasão de privacidade ou ameaças reais à segurança de autoridades públicas. Associações de jornalistas e de veículos argumentam que devassar os meios de apuração da imprensa para atingir informantes corrói a garantia prevista no artigo 5º, inciso XIV, da Constituição Federal, criando um efeito inibidor sobre o livre fluxo de informações de interesse público.</p>
+<p>O debate envolvendo os limites das decisões da Suprema Corte e a proteção ao sigilo profissional, incluindo a manifestação do ministro Alexandre de Moraes pelo retorno da exigência do diploma de jornalista, se instalou com uma cobertura midiática parcial e interessada. A ginástica retórica dos jornalistas da mídia corporativa para recusar a “volta do diploma” é um caso à parte que merece atenção em outro texto. Luis Pablo tem registro regular como jornalista profissional, mas não tem diploma de ensino superior em jornalismo. Ele foi qualificado de blogueiro, porque sua atuação se dá no seu próprio blog (o Blog do Luís Pablo) no Maranhão. Está amparado pela própria decisão do STF em 2009 que derrubou a obrigatoriedade do diploma para o exercício profissional. A dificuldade, contudo, de caracterizar a prática e as prerrogativas profissionais nesse caso, retoma a discussão sobre formação e garantias.  Vamos aos eixos de análise propostos.</p>
+<p><b>1.Liberdade de expressão como garantia jurídica x deontologia das mídias como garantia ética. </b>Claude-Jean Bertrand, professor (religião e mídia) nas universidades de Strasburgo e Nanterres, na França, analisa no seu precioso livro A deontologia das mídias, o papel do mercado, do direito e da deontologia para examinar os obstáculos à liberdade de imprensa. Bertrand explica que a deontologia se aplica a uma profissão, é frequentemente uma tradição não escrita, que determina, por consenso, o que se faz e o que não se faz. “Mas em todos os países do mundo, organizações corporativas julgaram útil escrever cartas (guias) dos deveres dos jornalistas”. Ele, primeiramente reconhece que a deontologia é uma zona nebulosa, que produz guias demasiado filosóficos e de linguagem obscura, muitas vezes sem nenhuma experiência prática ou, inversamente, tão práticos que mal conhecem o que foi pensado nesse campo. De todo modo, no contexto profissional, refere-se ao conjunto de princípios e normas éticas que regulam a conduta dos profissionais, estabelecendo padrões de responsabilidade, honestidade, respeito e integridade. Esses deveres e orientações morais que orientam o comportamento dos indivíduos acabam por caracterizar a conduta da atividade como um todo. </p>
+<p>Já o mercado, na visão do autor, tem a função de prover liberdade de empresa, necessária à liberdade de informar e de debater, evitando a mediocridade midiática a partir da livre concorrência. Contudo, o mercado não é suficiente para garantir uma “boa comunicação social”. No pior dos casos, a mídia põe-se a serviço da minoria rica. O mundo dos negócios, diz o autor, não se preocupa de modo nenhum com serviço público, com deontologia.  E então, entra em ação o Direito. As leis (textos votados pelos parlamentos, regulamentos impostos por agências estatais, jurisprudência dos tribunais) são necessárias para que a mídia assegure um serviço conveniente para todos os públicos e respeite determinadas obrigações. A lei não é restritiva por natureza, pode auxiliar a mídia a fazer seu trabalho, ao propor garantias, acessos e proteção especial. </p>
+<p>É muito importante observar que direito e deontologia não são campos claramente distintos. No mundo todo, muitas proibições que estão incluídas na lei nem sempre figuram nos códigos ou, ao contrário, podem estar presentes frequentemente. No geral, os códigos citam deveres do jornalista que lhes podem ser impostos pela lei. Há superposições, mas as duas áreas são distintas. E é importante que assim seja. Por quê? “Recorrer a leis em matéria de imprensa, comporta sempre perigos”, diz Bertrand. Não faltam razões, mas a principal seria que para uma lei ter eficácia depende do meio sociopolítico. Alguns campos são tão mal definidos que uma lei vaga demais ou precisa demais pode ser prejudicial. A lei corre o risco de fixar normas em breve ultrapassadas. Hoje, na topografia do terreno informacional, está cada vez mais difícil caracterizar e distinguir o que é informação jornalística e mesmo o que é verdade, meia verdade ou absoluta mentira fabricada. E mais, alguns danos estão aquém do delito. Ou seja, a lei pode punir um ato cometido, mas nada pode fazer contra uma omissão. A máquina judiciária é lenta, cara e rebarbativa. </p>
+<p>Há situações em que nem a lei, nem o mercado e nem a deontologia podem alguma coisa. Exemplo? O autor cita a <i>Rádio Mille colines</i>, que em Ruanda encorajava ao genocídio dos Tutsis. Essa não podia ser suprimida senão pelas armas. Haveria lei legítima que a protegesse? Haveria código ético que a justificasse? Poderia alguém requerer direito à liberdade de expressão?</p>
+<p>Então, este debate que hoje vivenciamos no Brasil deve ser feito apenas a partir do aspecto jurídico? Ou requer a deontologia midiática renovada e recolocada em um cenário de ameaça real à democracia e às instituições? </p>
+<p>Ainda segundo Bertrand, no momento que um código deontológico é adotado, geralmente a lei já existe, mas os redatores do código reconhecem a insuficiência do âmbito jurídico. “O que eles redigem não é um texto sagrado, mas um <i>vade mecum</i>, cuja eficácia pressupõe senso moral por parte do jornalista”, diz Bertrand. Então, liberdade de expressão, sigilo da fonte não são absolutos, podem e devem ser discutidos, especialmente em um momento de risco às instituições, de uso criminoso do ecossistema midiático e da comunicação digital para mentir, negar, lucrar, fabricar realidade e ameaçar reputações.</p>
+<p>Numa profissão qualquer, o código de deontologia visa afastar escroques e charlatães, informa o público sobre a profissão, mostra que ela tem regras de conduta. O código protege os clientes e mantém o prestígio da profissão.</p>
+<p>Então o sigilo da fonte pode ser descartado e a liberdade de expressão não está mais garantida? Ao contrário, com compreensão e compromisso dos profissionais bem formados, bem-intencionados e bem-informados é que teremos garantia de liberdade para atuar profissionalmente dentro do contrato ético e social que firmamos. E assim passamos para o eixo 2.</p>
+<ol>
+<li><b> Proteção do informante x proteção do crime</b></li>
+</ol>
+<p>Nos guias deontológicos mundo afora se repetem valores, princípios e regras morais. Respeitar a vida é o valor mais recorrente. Dentre as regras morais está, em primeiro, não mentir. Já entre os princípios jornalísticos estão competência, independência, exatidão e defesa do interesse público. Alguns setores são objeto de atenção particular: terrorismo, notícias policiais e os processos. A Dinamarca, por exemplo, tem um código restrito a reportagem de crimes. Na França, o quotidiano <i>Ouest-France</i> tem um código reservado às notícias policiais e o código <i>la Voix du Nord</i> também trata amplamente disso. Dentre as recomendações está a de não identificar parentes ou amigos de pessoas acusadas de crime, não prejudicar vítimas ou autores involuntários em casos criminais, como por exemplo ajudar cúmplices a vingar um criminoso detido ou sob investigação. Soa familiar?</p>
+<p>O sigilo da fonte deve ser exercido sempre em diálogo com o interesse público e a lei. Jurisdições ao redor do mundo discutem como estabelecer um equilíbrio justo, porque o sigilo não pode proteger ações criminosas, nem obstruir investigações legítimas. Por exemplo, em crimes graves como corrupção ativa, tráfico de drogas ou violações de direitos humanos, a revelação da fonte pode ser essencial para garantir a responsabilização. A lei deve prever exceções, mas com critérios rigorosos, evitando que autoridades abusem de seu poder para forçar jornalistas a revelar fontes apenas para intimidá-los ou censurá-los. Assim, o desafio reside em garantir o sigilo que promova o jornalismo independente, sem que ele se torne escudo para a impunidade. Simples não é.</p>
+<p>Pouco adianta esbravejar pelo sigilo, quando fontes criminosas se valem dele para escapar da justiça. Em certos casos, indivíduos envolvidos em práticas ilegais podem usar o anonimato para divulgar versões distorcidas dos fatos, desinformar ou garantir impunidade.</p>
+<p>Quando agentes ou instituições corruptos instrumentalizam o jornalismo, podem tentar manipular matérias jornalísticas para encobrir irregularidades ou direcionar narrativas favoráveis. Nessas situações, a proteção automática do sigilo pode provocar o efeito inverso ao desejado pela ética jornalística: ao invés de fortalecer a verdade, fortalece o encobrimento e perpetua danos à sociedade.</p>
+<p>Cabe ao jornalista a garantia da transparência sobre o uso do anonimato<b>.</b> Sempre que possível, explicar ao público o motivo de preservar a identidade da fonte, incluindo a relevância e o interesse público envolvido. Claro que esse compromisso, essa conduta guiada por uma deontologia constituída em atualidade e consenso só inclui os profissionais concernidos, os jornalistas. Mas quem são eles? Vamos para o eixo 3 desta análise.</p>
+<ul>
+<li><b>Complexidade para conceituar e definir jornalismo</b></li>
+</ul>
+<p>Atualmente, delimitar e conceituar o que é jornalismo e quem pode ser considerado jornalista tornou-se uma tarefa cada vez mais complexa, sobretudo diante da multiplicidade de plataformas digitais e do crescimento de produtores independentes de conteúdo. Diferentemente do modelo tradicional, em que o jornalista era um profissional com formação específica e trabalho alinhado a veículos reconhecidos, hoje a barreira entre jornalismo, blogueiros, influenciadores e cidadãos comuns foi sendo borrada. Embora qualquer pessoa possa produzir e disseminar informações, nem todo produtor de conteúdo exerce o jornalismo, que requer compromisso com apuração rigorosa, ética, verificação dos fatos e responsabilidade social. Assim, a simples produção de notícia ou opinião não qualifica automaticamente alguém como jornalista, o que demanda reflexão sobre critérios técnicos, éticos e legais para proteger a integridade da profissão e garantir a qualidade da informação.</p>
+<p>A agenda de pesquisa tem se dedicado a caracterizar e definir o jornalismo hoje, mas aborda a questão menos de maneira objetiva, com parâmetros práticos e mais com tarefas que essa atividade deveria cumprir. Promover a transparência e a responsabilização política (Schudson), 2003; adaptar-se a novas tecnologias e múltiplas plataformas, incluindo o jornalismo cidadão (Posetti, Jenkins, 2018); buscar a verdade, verificação e ética (Kovach &amp; Rosenstiel, Livingstone, 2007); executar um papel narrativo e interpretativo relevante para a sociedade (Lima Rocha, 2020) são algumas das abordagens. Bruno Lima Rocha (2020) sugere que o jornalismo é também uma forma de construção narrativa que ajuda a sociedade a entender eventos e fenômenos complexos. A própria existência do jornalismo para toda a sociedade é um desses fenômenos complexos que o jornalismo não pode se furtar a discutir, sem dogmas e prevenções. Para Sonia Livingstone (2019), o jornalismo contemporâneo é marcado por uma crise de legitimidade causada pela disseminação de desinformação, polarização política e pressões comerciais. Ela enfatiza a importância da ética, transparência e do compromisso com o interesse público para manter o jornalismo como um pilar confiável da sociedade. Nesse aspecto, a equilíbrio é essencial para que o sigilo da fonte cumpra seu papel histórico de fortalecer, e não enfraquecer, a justiça e a informação.</p>
+<p>Essa multiplicidade exige repensar conceitos tradicionais, equilibrando inovação tecnológica, ética profissional e diálogo aberto com o público. Apenas evocar a Constituição, mas recusar o debate sobre o que constitui a atividade jornalística hoje, sua perda de credibilidade, sua crise de financiamento, seu déficit de formação e controle, e o ambiente confuso em que se estabelece, não protege a saudável função democrática inerente a ele.</p>
+<p><b>Referências</b></p>
+<p>Bertrand, Claude-Jean- A deontologia das mídias; tradução de maria Leonor Loureiro- Bauru: EDUSC, 1999.</p>
+<p>Livingstone, S. (2019). <i>Lost in Translation? What Journalism Tells Us About Misinformation and Democracy</i>. Journal of Communication, 69(2), pp. 199–214.</p>
+<p>Posetti, J. (2018). <i>Journalism in the Age of Social Media</i>. Reuters Institute for the Study of Journalism.</p>
+<p>Rocha, B. L. (2020). <i>Jornalismo e Narrativa: Reflexões sobre a Construção do Sentido</i>. Comunicação &amp; Sociedade, 37, pp. 45-63.</p>
+<p>Schudson, M. (2003). <i>The Sociology of News</i>. W. W. Norton &amp; Company.</p>
+<p><strong>***</strong></p>
+<p><strong>Sandra Bitencourt</strong> é jornalista, doutora em Comunicação pela UFRGS e pesquisadora convidada do Nucop-PPGCOM UFRGS.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.observatoriodaimprensa.com.br/jornalismo/o-sigilo-da-fonte-nao-e-absoluto-uma-verdade-incomoda/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

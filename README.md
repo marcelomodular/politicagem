@@ -21,6 +21,54 @@ As notícias são buscadas em tempo real via **RSS**, sem armazenamento em banco
 - Layout responsivo com 4 colunas para desktop
 - Correção de quebra de texto em colunas
 - Popup de doação PIX configurado para 10 minutos
+- **Geração de snapshots estáticos para IPFS** (descentralização)
+
+---
+
+## Snapshots estáticos e IPFS
+
+O Politicagem agora suporta geração de snapshots estáticos que podem ser publicados no IPFS para acesso descentralizado.
+
+### Gerar snapshot estático
+
+```bash
+# Gerar snapshot com extração de artigos
+python snapshot_generator.py
+
+# Com opções personalizadas
+python snapshot_generator.py --output meu_snapshot --limit 10
+
+# Sem extração de artigos (apenas página principal)
+python snapshot_generator.py --no-extract
+```
+
+### Upload para IPFS
+
+O script `generate_snapshot.sh` automatiza todo o processo:
+
+```bash
+./generate_snapshot.sh
+```
+
+Este script:
+1. Gera o snapshot estático
+2. Faz upload para IPFS
+3. Retorna o CID para configurar seu domínio
+
+### Pré-requisitos para IPFS
+
+**Nota:** O IPFS não é uma dependência Python, mas uma ferramenta externa.
+
+- IPFS instalado e rodando: https://docs.ipfs.io/install/
+- Nó IPFS iniciado: `ipfs daemon`
+
+### Acessar via IPFS
+
+Após o upload, você pode acessar via:
+- Gateway público: `https://ipfs.io/ipfs/<CID>`
+- Gateway local: `http://localhost:8080/ipfs/<CID>`
+
+Para configurar domínios descentralizados (.eth, .tezos), use o CID retornado.
 
 ---
 
@@ -33,7 +81,8 @@ As notícias são buscadas em tempo real via **RSS**, sem armazenamento em banco
 - **python-dateutil** — manipulação de datas
 - **readability-lxml** — extração de conteúdo de páginas web
 - **lxml_html_clean** — compatibilidade com Python 3.13+
-- **Jinja2** — templates HTML
+- **Jinja2** — templates HTML (geração de snapshots estáticos)
+- **IPFS** — rede descentralizada para publicação de snapshots (instalação externa)
 - **Google Fonts** — UnifrakturMaguntia, IM Fell English, Playfair Display, Libre Baskerville
 - **HTML/CSS** — design vintage responsivo com tema escuro monocromático
 
@@ -104,16 +153,21 @@ npm start
 
 ```
 politicagem/
-├── app.py              # Servidor Flask com ordenação cronológica e seleção aleatória
-├── scraper.py          # Lógica de scraping via RSS (+40 fontes)
-├── main.py             # Modo terminal
-├── requirements.txt    # Dependências Python
-├── README.md           # Esta documentação
-├── LICENSE             # Licença MIT
-├── .gitignore          # Arquivos ignorados pelo Git
+├── app.py                    # Servidor Flask com ordenação cronológica e seleção aleatória
+├── scraper.py                # Lógica de scraping via RSS (+40 fontes)
+├── main.py                   # Modo terminal
+├── snapshot_generator.py     # Gerador de snapshots estáticos para IPFS
+├── security_utils.py         # Utilitários de segurança para URLs
+├── requirements.txt          # Dependências Python
+├── README.md                 # Esta documentação
+├── LICENSE                   # Licença MIT
+├── .gitignore                # Arquivos ignorados pelo Git
+├── generate_snapshot.sh      # Script automático para gerar e fazer upload para IPFS
+├── update_snapshot_cid.sh    # Script para atualizar metadata com CID após upload
+├── static_snapshots/         # Diretório para snapshots estáticos gerados
 └── templates/
-    ├── index.html      # Interface estilo jornal com 4 colunas
-    └── visualizar.html  # Página para visualização completa de artigos
+    ├── index.html            # Interface estilo jornal com 4 colunas
+    └── visualizar.html       # Página para visualização completa de artigos
 ```
 
 ---
@@ -155,7 +209,16 @@ Modo automatico (sem perguntas):
 python onboard_cli.py --auto
 ```
 
+Pular instalacao do IPFS (apenas Python e Electron):
+
+```bash
+python onboard_cli.py --skip-ipfs
+```
+
 O onboarding:
 - explica a proposta do projeto (agregador RSS sem armazenamento local);
-- instala dependencias Python e Electron;
+- instala dependencias Python;
+- instala e configura IPFS automaticamente (Linux, macOS, Windows);
+- torna o script de snapshot executavel;
+- instala dependencias Electron;
 - cria atalho na Area de Trabalho (Windows) usando o icone `electron-app/assets/politicagem-p.ico`.

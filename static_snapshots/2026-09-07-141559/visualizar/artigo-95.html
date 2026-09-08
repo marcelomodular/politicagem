@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A cara do Brasil - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A cara do Brasil</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://passapalavra.info/2026/08/159748/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2019/07/coluna_3.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A cara do Brasil
+                            </p>
+                            
+<p>Como sacaram os criadores de memes: o Brasil é hexa. Foi eliminado da sexta Copa do Mundo consecutivamente. Entre as eliminações consta a surra de 7 x 1 para a Alemanha, na Copa de 2014, disputada no Brasil. Mas, como o que é ruim sempre pode piorar, a eliminação para a Noruega por 2 x 1, na Copa de 2026, foi, em muitos aspectos, ainda mais vexatória. É a pior colocação brasileira em 60 anos. Igualou a 11ª posição de 1966. O grande símbolo do vexame é o sujeito apelidado pejorativamente como menino Ney, apesar de ser um veterano em franca decadência. Neymar é um ex-jogador em atividade que foi convocado e atrapalhou a seleção brasileira. O menino Ney jogou como se fosse o dono do time e da bola, e não por mérito esportivo. Deu no que deu. Foi ridículo ver Neymar brigando com os noruegueses por absoluta incapacidade de competir esportivamente. Como se não bastasse, transformou uma cobrança de pênalti em disputa particular com o goleiro adversário, como se a seleção brasileira não estivesse a poucos minutos da eliminação. Qualquer jogador que anotasse um gol e diminuísse a diferença de 2 para 1 no final de uma partida pegaria a bola e reiniciaria o jogo rapidamente, para buscar o empate. O que fez o menino Ney? Resolveu discutir com o goleiro desperdiçando tempo. Atitude típica de um rematado narcisista, que está mais preocupado com a própria imagem do que com o resultado esportivo. Sobretudo, foi ridícula a discussão que precedeu a convocação de Neymar, com muita gente – quiçá a maioria, entre os quais diversos ex-jogadores – defendendo a convocação do sujeito que não fazia uma boa partida há anos. Na canção <a href="https://www.youtube.com/watch?v=XJp24DoZ1A0&amp;list=RDXJp24DoZ1A0&amp;start_radio=1" rel="noopener noreferrer" target="_blank" title="https://www.youtube.com/watch?v=XJp24DoZ1A0&amp;list=RDXJp24DoZ1A0&amp;start_radio=1">A cara do Brasil</a>, os compositores Celso Viáfora e Vicente Barreto perguntam: “qual a cara da cara da nação?” Fiquei pensando e me ocorreu uma ideia incômoda: e se a cara do Brasil for o menino Ney?</p>
+<p>Neymar surgiu quase genial: leve, rápido, habilidoso, quase completo. Dominava quase todos os fundamentos do jogo, exceto o mais importante: nunca soube atuar coletivamente, faltou-lhe inteligência esportiva, debilidade que cresceu com o tempo. Por isso encerrou sua participação em Copas – oxalá tenha realmente encerrado – batendo boca com um goleiro, em vez de pegar a bola e reiniciar a partida o mais rápido possível. O advérbio “quase” é uma boa definição para o menino Ney. Quase foi um gênio. Na prática, tornou-se um grande desperdício, provavelmente o maior do esporte brasileiro. Eis outra boa definição para o sujeito: desperdício. Foi bisonho ver Neymar nas duas últimas Copas: superado pelo tempo, ele insistia em jogadas individuais que não era mais capaz de executar. A mania burra de prender excessivamente a bola o tornou alvo de faltas e pancadas e pode ter contribuído para as muitas contusões que teve durante a carreira. Jogadores com inteligência esportiva, como Ronaldo Fenômeno, sempre alertaram que o lugar para as jogadas individuais é perto da área, porque ali os marcadores evitam penalidades e faltas. Como o futebol é um esporte essencialmente coletivo, é na adaptação das potencialidades individuais às coletivas que se forjam os gênios e as grandes equipes. O melhor exemplo é Messi jogando no mais alto nível aos 39 anos. Perdeu as arrancadas longas, mas soube se adaptar, poupando energias para empregá-las no momento exato. Assim foi campeão mundial com a seleção argentina em 2022 e vice em 2026. Já Neymar, que é absolutamente incapaz de atuar coletivamente, atrapalhou a seleção brasileira. Foi assim nas duas últimas Copas. Em 2022, já sem a velocidade que tinha, insistiu na individualidade desperdiçando, assim, a maioria das jogadas. A eliminação contra a Croácia, nas quartas de final, foi exemplar. Após desperdiçar dezenas de jogadas insistindo em dribles que não funcionaram, o menino Ney marcou um belo gol na prorrogação. Só que, minutos depois, veio o empate croata numa falha coletiva da seleção brasileira e, na sequência, a derrota nas penalidades. Os brasileiros resolveram pressionar a saída de bola adversária quando estavam à frente no placar e bastava controlar a partida. O menino Ney, que já tinha 30 anos, participou da falha coletiva, também avançou; mas quando o movimento se mostrou errado e a equipe sofreu o gol, ele simplesmente culpou os companheiros de equipe, como se não tivesse participado do erro coletivo. Fosse um jogador genial, tivesse a inteligência esportiva de um craque, teria orientado os companheiros em campo e evitado o empate croata. É onde um craque genial se distancia de um rematado narcisista: nas vitórias, mérito dele; nas derrotas, culpa dos outros. E assim as derrotas vão se impondo sobre as vitórias. Em 2026, a seleção brasileira começou a perder para a Noruega justamente quando Neymar entrou em campo. Foi como se a equipe estivesse com um jogador a menos, porque ele não conseguia acompanhar o ritmo dos demais. Os jogadores mais rápidos e perigosos do Brasil, naquele momento da partida, Vini Jr e Endrick, tiveram que ser recuados para recompor a marcação. Como a especialidade de ambos não é marcar, a equipe perdeu qualidade no ataque e na defesa. O jogo brasileiro ficou lento e previsível porque todas as bolas tinham que passar pelos pés do menino Ney, como se ele fosse o dono da bola e do time. Estava desenhada a derrota. Não é coincidência: a seleção argentina cresceu e se encontrou quando encaixou e potencializou coletivamente o talento de Messi, que já era um veterano; já o último título da seleção brasileira veio com a Copa América de 2019, que Neymar não disputou porque estava contundido. É que o futebol é essencialmente coletivo e exige inteligência. Há cada vez menos espaço – em todos os sentidos – para narcisistas como Neymar.</p>
+<p>Muito se discute sobre a decadência do futebol brasileiro. Uma das hipóteses levantadas é que os jogadores são vendidos para o exterior muito jovens. Aos 18 anos já não atuam mais no Brasil. Endrick e Estevão, ambos negociados pelo Palmeiras, são dois exemplos. Como os melhores jogadores vão embora muito cedo, não criam vínculos com os clubes brasileiros e com a própria seleção, além de se formarem como atletas no exterior. Assim estaria se perdendo a “essência” do futebol brasileiro. Mas não foi exatamente esse o movimento de Lionel Messi, que foi para o Barcelona aos 13 anos, se formou como atleta na Espanha e só brilhou realmente na seleção argentina depois dos 30 anos? Messi foi campeão olímpico com <em>la albiceleste</em> aos 21 anos, em 2008. Mas o primeiro título com a seleção principal veio apenas na Copa América de 2021, quando tinha 34 anos. A consagração definitiva chegou um ano depois, na Copa de 2022, vencida pelos argentinos. Messi tinha 35 anos. Já o movimento do menino Ney foi diferente: seguiu para o Barcelona aos 21 anos, quase formado. Se digo quase, é porque lhe faltava o mais importante: nunca soube atuar coletivamente, nunca teve inteligência esportiva. Se é assim, a pergunta é incômoda, mas possível: como teria sido a carreira esportiva do menino Ney se ele tivesse se formado no Barcelona? Impossível saber ao certo. Mas se soubesse jogar coletivamente, com um mínimo de formação humanista, se fosse menos narcisista… São muitos “ses”, mas é razoável pensar que Neymar seria melhor como ser humano e, também, como atleta, se tivesse outra formação. Como ser humano: Neymar “é a bet encarnada, a expectativa do milagre que nunca se realiza”. A sacada é de <a href="https://jacobin.com.br/2026/07/o-salvador-messianico-que-virou-vilao/" rel="noopener noreferrer" target="_blank" title="https://jacobin.com.br/2026/07/o-salvador-messianico-que-virou-vilao/">Fabio Luis Barbosa dos Santos</a>. Como atleta: Neymar foi quase. O advérbio fica por minha conta. E fica também por minha conta uma outra impressão: Neymar é o brasileiro com muito orgulho, com muito amor, a personificação do refrão ufanista que a torcida repete exaustivamente. Impossível imaginar alguém com mais amor (próprio) que o quase craque. O menino Ney não explica a decadência do futebol brasileiro, mas, por outro lado, não é exagero dizer que ele é a maior expressão dela.</p>
+<p>A canção <a href="https://www.youtube.com/watch?v=6yiQg47H5W8&amp;list=RD6yiQg47H5W8&amp;start_radio=1" rel="noopener noreferrer" target="_blank" title="https://www.youtube.com/watch?v=6yiQg47H5W8&amp;list=RD6yiQg47H5W8&amp;start_radio=1">A cara do Brasil</a> foi lançada por Ney Matogrosso em 1997. A seleção brasileira havia sido campeã mundial três anos antes, de forma pragmática: uma defesa bem postada atrás, Romário e Bebeto decidindo na frente. <a href="https://www.youtube.com/watch?v=L7fnV_5k9CM" rel="noopener noreferrer" target="_blank" title="https://www.youtube.com/watch?v=L7fnV_5k9CM">A cara do Brasil</a> foi regravada pelo próprio Celso Viáfora em 1999. A seleção brasileira havia sido derrotada na final pela França, um ano antes, apesar de contar com Ronaldo, Rivaldo e Roberto Carlos. Lançada entre as Copas de 1994 e 1998, a canção pergunta o que é o Brasil passando pelo futebol e a encantadora equipe de 1982:</p>
+<p><em>O Brasil é o lixo que consome</em></p>
+<p><em>Ou tem nele o maná da criação?</em></p>
+<p><em>Brasil Mauro Silva, Dunga e Zinho</em></p>
+<p><em>Que é Brasil zero a zero e campeão</em></p>
+<p><em>Ou o Brasil que parou pelo caminho</em></p>
+<p><em>Zico, Sócrates, Júnior e Falcão?</em></p>
+<p>A seleção brasileira derrotada pela Itália em 1982 continua sendo lembrada justamente pelo futebol encantador. O “maná da criação”, como no verso acima. O “futebol arte”, como se costuma dizer. Desconfio que parte da confusão relacionada à decadência futebolística brasileira passa pela expressão “futebol arte”. É que a arte pode ser individual, ainda que inserida numa tradição, como ocorre com o romance; já o futebol é essencialmente coletivo. Por isso o menino Ney foi um quase craque e é, ao mesmo tempo, a personificação da decadência do futebol brasileiro, que ainda forma bons jogadores, mas não consegue potencializá-los coletivamente. A seleção de 1982 encantou porque o coletivo potencializou o talento individual e o refinamento estético. Todos os gols, especialmente os mais belos, foram construídos em jogadas coletivas. É o que pouco se viu na seleção brasileira depois, inclusive em 2002, com Ronaldo e Rivaldo. Daí a nostalgia pela equipe de Zico, Sócrates e Falcão. É verdade que a equipe de 1982 reuniu, provavelmente, o melhor meio-campo brasileiro, assim como é sabido que o futebol se ganha na meiúca, Espanha e Argentina comprovaram a tese na Copa de 2026. Tinham as melhores meiúcas. Não basta reunir craques, o coletivo precisa potencializar o talento individual, especialmente no meio-campo. A força do conjunto deve ser maior que a soma das capacidades individuais. Esse milagre do encontro aconteceu algumas vezes na seleção brasileira: 1970 com Pelé, Gerson, Rivelino e Tostão; 1982 com Zico, Sócrates, Júnior e Falcão. Outra sacada de Fabio Luis Barbosa dos Santos <strong>[1]</strong>: o Brasil derrotou a Itália em 1970 jogando o fino da bola; perdeu em 1982 para o mesmo adversário, apesar do futebol encantador; para vencer os italianos em 1994, o Brasil jogou como se fosse a Itália. A diferença é que a seleção brasileira ainda contava com craques decisivos, como Romário e Bebeto, que se potencializavam. Trinta e dois anos depois, em 2026, um técnico italiano dirigiu a seleção brasileira, e a equipe perdeu como se fosse a Itália. Não superou a Noruega nem na posse de bola. Não tinha nem talentos individuais nem um coletivo forte, sequer uma dupla de ataque genial, como em 1994.</p>
+<p>Na canção <em>A cara do Brasil</em>, a pergunta sobre o que é o Brasil surge “meio a esmo” para o compositor “esparramado na rede”, que vai desenhando a cara do país a partir das contradições nacionais, inclusive as futebolísticas. Brasil encantador de 1982? Ou Brasil precavido de 1994? Mais que isso, Celso Viáfora e Vicente Barreto cutucam um furúnculo nacional:</p>
+<p><em>A gente é torto igual Garrincha e Aleijadinho</em></p>
+<p><em>Ninguém precisa consertar</em></p>
+<p><em>Se não der certo a gente se vira sozinho</em></p>
+<p><em>De certo então nada vai dar</em></p>
+<p>A referência a Garrincha e Aleijadinho é forte. Foram gênios tortos. Penso nos Profetas e nos Passos da Paixão, do Aleijadinho, expostos no Santuário do Bom Jesus de Matosinhos, em Congonhas (MG). Estão entre as obras mais impactantes que conheço. Imagino Garrincha parafusando algum João, na lateral, como no verso de <a href="https://www.youtube.com/watch?v=qcdOtuVjaxc" rel="noopener noreferrer" target="_blank" title="https://www.youtube.com/watch?v=qcdOtuVjaxc">Chico Buarque</a>. Só que, no futebol, o talento individual separado do coletivo é cada vez menos decisivo. Aleijadinho tinha uma equipe de trabalho que quase não é lembrada. Garrincha era genial, mas jogou em equipes fortes, e não faria em 2026 o que fez em 1958 e em 1962. Isso porque o espaço é muito menor, o coletivo conta ainda mais e a capacidade física dos atletas é muito maior. Digo de passagem: uma obviedade como essa ser uma heresia no Brasil diz muito sobre a cara do país, que morre de amor e de orgulho por si próprio, e sempre precisa de reis e <a href="https://jacobin.com.br/2026/07/o-salvador-messianico-que-virou-vilao/" rel="noopener noreferrer" target="_blank" title="https://jacobin.com.br/2026/07/o-salvador-messianico-que-virou-vilao/">salvadores messiânicos</a>. <em>Messi-ânicos</em>… A discussão absurda sobre levar ou não Neymar para a Copa de 2026 passou pela crença estúpida em salvadores messiânicos. Deu no que deu: um vexame quiçá pior do que o 7 x 1. Na canção <em>A cara do Brasil</em>, a referência a Garrincha e Aleijadinho é tão forte, a ideia de que “a gente se vira sozinho” é tão entranhada, que eu não prestava atenção no verso seguinte – <em>de certo então nada vai dar</em> – que desmente a ilusão, que é um tapa na cara da nação. O vexame na Copa de 2026 me fez perceber o verso final da canção, que refuta o pachequismo ufanista.</p>
+<p>“O pior é que as tristezas voltam, e não há outro Garrincha disponível” – escreveu Drummond <strong>[2]</strong>. Acrescento: não há nenhum Garrincha, nenhum Aleijadinho, nenhum Drummond disponíveis. Mas há o menino Ney e um país que é quase a cara dele: que confunde enriquecimento pessoal com capacidade esportiva, que tem uma absurda necessidade de salvadores messiânicos e uma estúpida ilusão de que cada um deve se virar sozinho. Como cravou o poeta <a href="https://passapalavra.info/2021/10/140383/" rel="noopener noreferrer" target="_blank" title="https://passapalavra.info/2021/10/140383/">Souzalopes</a>, um craque das palavras que tive o prazer de conhecer:</p>
+<p><em>contra o tédio</em></p>
+<p><em>contra o bódi</em></p>
+<p><em>ou nóis si uni</em></p>
+<p><em>ou nóis si fódi</em></p>
+<p>Vale para o futebol e para a vida, inclusive porque um não está separado da outra. Só que é o inverso do que tem acontecido no Brasil. A discussão que precedeu a convocação do menino Ney foi ridícula porque não passou pela capacidade esportiva do sujeito para disputar uma Copa do Mundo. Estava em jogo outra questão, ainda que não declarada. Neymar é milionário, portanto, é bom e deve jogar. Eis o raciocínio curto da maioria dos defensores do menino Ney. Por isso qualquer crítica ao sujeito costuma ser associada à inveja. É que as pessoas querem enriquecer, como Neymar. Todo o resto é detalhe menor, inclusive os meios e as consequências. Nudez pornográfica da meritocracia: quem enriquece é bom, os demais são fracassados. Pior ainda: na cabeça dos defensores do menino Ney, ele não tem nenhuma responsabilidade pelas derrotas brasileiras nem é a principal expressão delas, porque a culpa é sempre dos outros. Neymar é a cara do Brasil <em>com muito orgulho e muito amor</em>: em que cada um se acha capaz de se virar sozinho, enquanto todos se lascam coletivamente.</p>
+<p>O futebol brasileiro encantava não apenas pelas conquistas, estava em jogo uma possibilidade civilizatória: como criação concreta, estética, proletária e coletiva; contra o pragmatismo, as simplificações, o tédio e o trabalho estranhado. Ao que tudo indica, o encantamento relacionado ao futebol brasileiro é passado. O que foi atestado pelo vexame na Copa de 2026, ao escalar um ex-jogador em atividade, que, além disso, é a grande expressão da decadência do futebol brasileiro: com sua falta de inteligência esportiva e, consequentemente, sua incapacidade de se potencializar e se fortalecer coletivamente. Vale para o menino Ney e para o futebol brasileiro, por isso o primeiro personifica a decadência do segundo. Se o vexame servir, pelo menos, para encerrar a participação de Neymar na seleção brasileira e, quem sabe, sepultar o refrão ufanista repetido pela torcida, já será um avanço significativo. O menino Ney e o brasileiro <em>com muito orgulho e muito amor</em> são, antes de tudo, insuportáveis.</p>
+<p><strong>Notas</strong></p>
+<p><strong>[1] </strong>Fabio Luis Barbosa dos Santos. <em>Saudade do que nunca fomos: brasileiros e o futebol</em>. São Paulo: Elefante, 2026.</p>
+<p><strong>[2] </strong>Carlos Drummond de Andrade. <em>Mané e o sonho</em>. Disponível em: <a href="https://www.blogletras.com/2014/07/mane-e-o-sonho.html" rel="noopener noreferrer" target="_blank" title="https://www.blogletras.com/2014/07/mane-e-o-sonho.html">https://www.blogletras.com/2014/07/mane-e-o-sonho.html</a></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/08/159748/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
