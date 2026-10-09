@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidades: O que fazer com os camelôs? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Cidades: O que fazer com os camelôs?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://outraspalavras.net/outras-cidades/cidades-o-que-fazer-com-os-camelos/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/photo_5062546298069781971_x.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Cidades: O que fazer com os camelôs?
+                            </p>
+                            
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/photo_5062546298069781971_x.jpg"/>Foto: Euzivaldo Queiroz
+
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Este artigo, cujo título original é <em>Espaço público em disputa: cenários para os camelôs em Juiz de Fora</em>, integra a <strong>Revista Cadernos Metrópole n.67 | Urbanização, periferias e política: formas de organização, pautas de reivindicação e lutas da população periférica hoje</strong>, publicado pelo Observatório das Metrópoles, parceiro editorial do Outras Cidades. <strong><a href="https://www.observatoriodasmetropoles.net.br/revista-cadernos-metropole-n-67-urbanizacao-periferias-e-politica-formas-de-organizacao-pautas-de-reivindicacao-e-lutas-da-populacao-periferica-hoje/" rel="noopener noreferrer" target="_blank">Leia a aqui.</a></strong></p>
+<p>De acordo com Sposito (2012), a partir da Revolução Industrial, surgiram novas tecnologias e modos de produção que influenciaram grandes transformações comerciais e urbanas, principalmente pelo modo econômico capitalista. Com essas transformações, surgiram, também, as novas tipologias comerciais, como as lojas de departamento, os supermercados e os shopping centers, proporcionando novas formas de consumo (Vargas, 2018). No entanto, Pamplona (2013) considera que, apesar das transformações econômicas e urbanas e da pressão capitalista contemporânea, o comércio popular resiste nos grandes centros, ocupando espaços públicos e remetendo aos mais antigos modos de troca.</p>
+<p>O comércio popular pode ser compreendido como atividade do setor terciário prioritariamente exercida nas ruas, composta por diversas modalidades de ocupação do espaço urbano, podendo estar inserida em pequenas lojas com aluguéis de baixo custo, em shoppings populares (Cabral, 2018) e, principalmente, efetivar-se por meio de carrinhos, tendas, bancas, camelôs e produtos expostos em lona sobre o chão (Kitamura, Miranda e Ribeiro Filho, 2007).</p>
+<p>Entre as modalidades do comércio popular, a escolhida para aprofundamento neste artigo foi a dos camelôs. De acordo com Kitamura, Miranda e Ribeiro Filho (2007), os camelôs são comerciantes fixos, pois não se encontram em movimento; sua frequência é diária, ocupando barracas para comercialização de produtos. A atividade dos camelôs tende a gerar discussões, pois, em diversas ocasiões, carrega consigo um universo de ilegalidades, como pirataria, falsificação e contrabando, além de questões espaciais como a poluição da paisagem urbana, a obstrução de calçadas e faixas para trânsito de veículos (Goularte, 2008; Moreira, 2008).</p>
+<p>A partir dos anos 1980, ocorreu, no Brasil, uma expansão dos camelôs com certa tolerância do poder público, aceitando que eles realizassem suas atividades comerciais devido à crise econômica e às altas taxas de desemprego (Mamani, 2017). No início dos anos 2000, surgiram algumas políticas de revitalização de áreas centrais, tratando com repressão a atividade dos camelôs, que, em diversas cidades, foram proibidos de atuar nas ruas, sendo transferidos para praças, camelódromos/shopping populares ou banidos definitivamente (Mamani, 2017; Moreira, 2008).</p>
+<p>Na cidade de Juiz de Fora, em Minas Gerais, os conflitos entre camelôs e agentes urbanos enfatizam a necessidade de intervenções na região central, de forma a amenizar tais conflitos, uma vez que diversas gestões municipais vêm realizando algumas intervenções, ora pontuais, ora de maior impacto, na tentativa de (re) organização dos camelôs. Porém, a maioria das intervenções tem ocorrido sem resultados efetivos e sem a participação democrática de todos os envolvidos (Silva, G., 2021).</p>
+<p>Considerando o recente contexto de debates sobre a ocupação dos camelôs no espaço público da região central, suas consequências e possíveis desdobramentos futuros, a questão de pesquisa que se apresenta é a seguinte: quais são os cenários possíveis para os camelôs na região central da cidade de Juiz de Fora?</p>
+<p>O objetivo do artigo é vislumbrar cenários futuros para a atividade dos camelôs na região central da cidade de Juiz de Fora. Deve-se destacar que a proposição de cenários leva em conta as dinâmicas usuais do espaço urbano, em que é difícil prever processos comerciais emergentes e/ou espontâneos, planejados ou controlados. A pesquisa possui caráter qualitativo e exploratório, uma vez que buscou propor cenários para os camelôs a partir da compreensão das suas principais características e particularidades no espaço público.</p>
+<p>Como percurso metodológico, adotou-se o exercício de proposição de cenários desenvolvido por Moreira (2004), que elaborou possíveis cenários para a região portuária da cidade do Rio de Janeiro, os quais funcionam como “[…] hipóteses ou proposições imaginárias” (ibid., p. 22). A proposição de cenários visou perscrutar a gama de possibilidades para o futuro dos camelôs no espaço público.</p>
+<p>Para a construção dos cenários, foram consultadas medidas adotadas em algumas conforme investigado por Lima et al. (2024). Alémdisso, foram realizadas entrevistas¹ com dois grupos: Grupo 1 – camelôs do Centro de Juiz de Fora; Grupo 2 – especialistas sobre comércio e cidade (Figura 1).</p>
+<p>No Grupo 1, foram identificadas as aspirações futuras dos camelôs para continuarem atuando no espaço público. Como forma de compreender suas demandas em relação às facilidades e pontos importantes para que exerçam suas atividades, foram elencadas questões constantemente presentes nos debates e referências que envolvem esses trabalhadores. Foram realizadas entrevistas com ênfase em suas relações com o espaço público e suas necessidades para continuarem atuando na região central. Como forma de recrutamento dos participantes, foram convidados os 48 camelôs presentes em suas barracas no Centro de Juiz de Fora, entre os dias 20 e 23 de maio de 2024. Ao todo, 23 camelôs concordaram em participar da entrevista.</p>
+<p>No Grupo 2, os cenários propostos foram criticados. Cogitava-se que, a partir dos comentários e ponderações feitas pelos especialistas entrevistados, novos cenários poderiam surgir. Os comentários obtidos nas entrevistas foram analisados criticamente, consistiram em uma observação de pontos positivos e negativos levantados pelos participantes das entrevistas em relação aos cenários vislumbrados, baseados em mseus discursos e em seus diferentes pontos de vista, de acordo com sua área de formação, de atuação profissional e ideologias pessoais.</p>
+<p>Participaram das entrevistas do Grupo 2 representantes dos seguintes órgãos municipais:</p>
+<p>Sesmaur (Secretaria Municipal de Sustentabilidade em Meio Ambiente e Atividades Urbanas) e Sindicomércio (Sindicato do Comércio de Juiz de Fora–lojistas). Ambos os participantes, além de serem representantes de suas instituições, fazem parte da Comissão Permanente do Comércio Popular da cidade, criada pela Lei Municipal n. 14.403/2022 (Juiz de Fora, 2022), uma comissão de caráter consultivo e deliberativo, que acompanha e sugere ações à prefeitura para assuntos relacionados ao comércio popular. Além dos órgãos selecionados, uma pesquisadora sobre comércio e cidade, doutora em Arquitetura e Urbanismo e professora titular na Universidade de São Paulo (USP), foi convidada para participar das entrevistas, representando um posicionamento neutro, sem relação ou influência nos conflitos que ocorrem na cidade entre os órgãos citados anteriormente. A ACAAJF (Associação de Apoio aos Camelôs, Ambulantes e Artesãos de Juiz de Fora) foi convidada a participar, porém não disponibilizou um representante no período de entrevistas.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/image-7.png"/>
+<p> <br/>Para suporte na realização das entrevistas com o Grupo 2, foram construídos cinco cenários, os quais funcionaram como ponto inicial para as discussões sobre as possibilidades para os camelôs em Juiz de Fora: (a) zero intervenção; (b) pequenos ajustes na situação atual; (c) camelôs nas praças; (d) criação de camelódromos (ou shoppings populares); (e) proibição de camelotagem no espaço público. Após as entrevistas, emergiu ainda mais um cenário, que não havia sido proposto: (f) aumento dos camelôs nas ruas.</p>
+<p>É importante ressaltar que essas propostas não consistiram em projetos arquitetônicos e urbanos, mas em algumas diretrizes, apresentadas de forma textual. Essas diretrizes constituem “cenários possíveis”, os quais poderão ser materializados (ou não) em função da atuação, sobretudo do poder público.</p>
+<h3><strong>Os camelôs em Juiz de Fora</strong></h3>
+<p>O município de Juiz de Fora, em Minas Gerais, possui uma forte relação com o comércio em sua área central. Há calçadões e vias em que o trânsito de veículos é restrito (fator que contribui para o caminhar dos pedestres) somados à existência de galerias comerciais (que fazem ligação entre as ruas), proporcionando dinamismo no fluxo de consumidores em busca de produtos e serviços. A conexão entre galerias comerciais e calçadões é denominada por Braida (2011) de “passagens em rede”, pois, ao mesmo tempo que contribuem para a mobilidade de pedestres, ofertam atividades do setor terciário.</p>
+<p>Existe um equilíbrio, na região central de Juiz de Fora, entre funções comerciais, habitacionais, de lazer e serviços, que proporcionam vitalidade à região. Destaca-se a função comercial, sobretudo devido ao sistema de galerias e calçadões se caracteriza como um “shopping a céu aberto” (ibid.). Diferentemente de outras cidades, o equilíbrio entre atividades diversas no Centro permite uma vitalidade de usos contínua, evitando a degradação e a evasão populacional.</p>
+<p>Durante as entrevistas realizadas com o Grupo 1, os participantes responderam a aspectos do espaço público relacionados à sua atividade, demonstrando suas necessidades e anseios (Figura 2). Os resultados detalhados foram inseridos nas discussões apresentadas adiante, sobre os cenários propostos, e relacionados aos comentários dos participantes do Grupo 2.</p>
+<p>Ao todo, percebe-se que a maioria dos participantes prefere permanecer onde está instalada, nos mesmos espaços já ocupados por eles, reconhecendo que há necessidade de infraestrutura urbana para o bom desempenho de suas atividades comerciais.<br/></p>
+<h3> <br/><br/><strong>Cenários possíveis para os camelôs</strong></h3>
+<p>A proposição dos cenários consiste em um exercício de construção de possibilidades para o futuro dos camelôs na cidade de Juiz de Fora, baseada nas situações já abordadas em outras cidades brasileiras (Lima et al., 2024), somando-se às características específicas dos camelôs do município, levantadas por meio das entrevistas com os camelôs e das contribuições dos especialistas e representantes de órgãos envolvidos nas discussões sobre a temática.</p>
+<p>De acordo com Moreira (2004), os cenários são considerados hipóteses ou proposições imaginárias que buscam contribuir para as discussões em Arquitetura e Urbanismo, apontando diversas possibilidades para intervenções urbanísticas, sejam cenários complementares entre si ou opostos.</p>
+<p>É importante ressaltar que os cenários propostos assumem a perspectiva de que, no Brasil, as principais intervenções urbanas partem do poder público, que tem um papel de destaque no planejamento urbano por meio de regulamentações, obras urbanísticas e demais intervenções nas áreas públicas. Portanto, os cenários são uma construção de possibilidades de ações direcionadas aos camelôs e conduzidas pelo poder público, negociadas com a população em geral.</p>
+<p>Esse exercício versa sobre as possibilidades de melhoria do espaço urbano, a partir de intervenções democráticas e participativas por meio do planejamento urbano, das ferramentas de regulamentação e incentivos à dinamização e à diversificação das tipologias comerciais nos centros das cidades. Adota-se como premissa que não apenas o Estado deve concentrar as decisões sobre o planejamento urbano, mas sim envolver todos os agentes, além de garantir a reinvenção contínua do território (Silva, 2008).</p>
+<p>Destaca-se que cada cenário tem implicações nas esferas urbana, social e econômica. À medida que se restringem determinadas características dos camelôs ou se ampliam, inúmeras consequências (previsíveis ou não) poderão ocorrer. Essas consequências foram levantadas e discutidas pelos participantes do Grupo 2, durante a realização de entrevistas.</p>
+<h3><strong>Cenário 1: zero intervenção</strong></h3>
+<p>Esse cenário está relacionado à não intervenção no espaço urbano, admitindo um status de laissez-faire, uma situação em que nenhuma providência será tomada em relação à atividade dos camelôs. Baseia-se, em situações já ocorridas na cidade de Juiz de Fora durante alguns governos municipais, que optaram por não propor novas regulamentações, não retirar esses comerciantes das ruas e não proporcionar melhorias no espaço público, seja para atuação dos camelôs ou para requalificação espacial.</p>
+<p>Esse cenário está historicamente relacionado a alguns casos de municípios brasileiros que não realizaram intervenções para controle do número de camelôs ou para políticas de credenciamento e ordenamento de pontos (Mamani, 2017).</p>
+<p>Supõe-se que as últimas intervenções realizadas na cidade de Juiz de Fora em relação aos camelôs atendem às demandas de todos os agentes envolvidos: comerciantes dos camelôs, lojistas, pedestres e veículos. Sendo assim, entende-se que a proibição da atividade dos camelôs na avenida Getúlio Vargas em novembro de 2021, além do processo de concorrência pública para ocupação de pontos comerciais na região central, distribuídos em fevereiro de 2024, em consequência da implementação da nova legislação em vigor – a Lei n. 14.403/2022, que prevê ainda a padronização das barracas (Juiz de Fora, 2022) –, são suficientes para garantir a amenização dos conflitos relacionados à atividade dos camelôs no Centro.</p>
+<p>Esse cenário permite que a atividade dos camelôs permaneça nas ruas, nos pontos comerciais negociados entre os camelôs, lojistas e o poder público durante o processo de construção da nova legislação do setor, entre 2020 e 2022, garantindo que os camelôs permaneçam instalados em pontos de grande fluxo de pedestres próximo às galerias comerciais e calçadões da região central.</p>
+<p>Com base nas entrevistas realizadas com os trabalhadores dos camelôs, esse cenário pode causar descontentamento entre os proprietários de barracas regularizadas, que demonstraram receio da concorrência com outros camelôs atuando sem a autorização de órgãos públicos e sem uma constante fiscalização.</p>
+<p>De acordo com o representante da Sesmaur,</p>
+<blockquote>
+<p><br/>[…] a implementação desse cenário não é tangível, e é impossível de ocorrer, pois a cidade é dinâmica e está em constante mudança. Por isso foi criada a Comissão Permanente do Comércio Popular, que pode solicitar à prefeitura alterações nas ruas e na distribuição dos pontos após a concordância entre os comerciantes populares e comerciantes estabelecidos por exemplo, futuramente, a comissão pode enxergar a necessidade de diminuição de vagas de estacionamento de veículos para criação de novos pontos para os camelôs.</p>
+<p>Ao contrário do que afirma a Sesmaur, o Sindicomércio considera a implementação desse cenário parcialmente possível,</p>
+</blockquote>
+<blockquote>
+<p><br/><br/>[…] uma vez que a Lei 14.403/2022, apesar de não ser a melhor solução, possibilitou uma organização dos camelôs no Centro, se comparada aos anos anteriores, que permaneceram sem intervenção das gestões municipais e sem atualização da legislação sobre o comércio popular desde 1992.</p>
+</blockquote>
+<p>Nota-se que, apesar do discurso voltado às necessidades constantes de revisões no planejamento urbano adotado pela Sesmaur, ao enfatizar que a cidade está em constantes transformações e que a não adoção de intervenções é impossível de se concretizar, o Sindicomércio ressalta que a cidade ficou por 30 anos sem atualizações na legislação acerca do comércio popular, resultando em um período sem intervenções do poder público, seja pela complexidade da temática, que também envolve questões sociais, ou pela falta de esforços e interesse em reestruturar a atividade dos camelôs.</p>
+<p>A pesquisadora da USP considera que:</p>
+<blockquote>
+<p>[…] este cenário é possível desde que se faça uma pesquisa aprofundada sobre o processo licitatório dos camelôs, questionando se a maioria dos agentes envolvidos está satisfeita com a distribuição dos pontos, ou se alguém se sente prejudicado.</p>
+</blockquote>
+<p>Refletindo sobre as considerações da pesquisadora, nota-se que o Sindicomércio é um dos agentes envolvidos nas discussões que não está totalmente satisfeito, uma vez que pondera que a legislação implementada em 2022 ainda não foi a melhor solução para a atividade dos camelôs em Juiz de Fora, mas considera que, após um longo período sem intervenções, o instrumento apresentou melhora no Centro.</p>
+<p>Em relação ao posicionamento dos camelôs entrevistados, esse cenário não possibilita um remanejamento de pontos, ou a distribuição de novos locais para ocupação das barracas, anseios destacados por alguns comerciantes, que demonstraram interesse em ocupar outras ruas ou pontos mais próximos a equipamentos comerciais, principalmente os que ficaram insatisfeitos com os seus novos pontos direcionados pela prefeitura.</p>
+<p>Entende-se, que apesar das constantes mudanças no espaço público das cidades no decorrer dos anos, e do consequente surgimento de demandas para modificações e intervenções, os administradores públicos podem decidir por não intervir em determinado setor, talvez, por evitarem questões burocráticas e polêmicas, tornando esse cenário de zero intervenções uma possibilidade, mesmo que ainda seja visto como um desatino pelos planejadores urbanos.</p>
+<p>Também cabe mencionar que, nesse cenário, são possíveis duas variações de postura do poder público municipal em relação ao controle e à repressão dos camelôs: (a) manutenção da fiscalização (inclusive com o uso da força, se necessário) para que se faça cumprir a lei em vigor; e (b) completa inação em relação a essa temática, apostando na auto-organização da cidade, o que pode levar a aumento desordenado dos camelôs no Centro da cidade, os quais poderão passar a se apropriar do espaço público sem uma prévia negociação com os diferentes agentes.</p>
+<h3><strong>Cenário 2: pequenos ajustes na situação atual</strong></h3>
+<p>Esse cenário vislumbra a proposição de pequenos ajustes na região central para melhor vitalidade e reorganização dos camelôs. Entende-se que, mediante intervenções pontuais e de menor impacto, os camelôs não sejam prejudicados abruptamente, e os conflitos possam ser amenizados apenas com pequenas realocações negociadas com os agentes envolvidos. Além disso,consta, nesse cenário, a realização de esforços do poder público para regularização de possíveis camelôs que atuam sem licenciamento municipal.</p>
+<p>Esse cenário baseia-se em alguns casos estudados nas cidades brasileiras em que o poder público permitiu a ocupação das ruas do Centro pelos camelôs, distribuindo-os em pontos estratégicos, com a intenção de evitar conflitos com lojistas, pedestres e veículos. Destacam-se as intervenções realizadas em Campinas/SP e Niterói/RJ durante as décadas de 1980 e 1990, que, além de organizarem os pontos comerciais em diversas ruas, implementaram políticas de cadastramento e regularização dos camelôs (Sakai, 2011; Silva, T., 2021).</p>
+<p>Historicamente, de acordo com Ribeiro (2021), ocorreu em Juiz de Fora uma tentativa de fazer uma pequena realocação dos camelôs no Centro durante a pandemia de Covid-19, em dezembro de 2020, visando, principalmente, à desobstrução de vias onde as barracas se encontravam e transferindo-as para as calçadas. Esse primeiro passo deu início ao processo de discussão e implementação da nova lei do comércio popular na cidade em 2022 (Juiz de Fora, 2022).</p>
+<p>A partir das entrevistas com os trabalhadores dos camelôs, nota-se que a implementação desse cenário contempla uma parcela dos camelôs, que demonstra interesse em mudança para pontos estrategicamente melhores, com maior fluxo de pedestres e próximos de outros equipamentos comerciais, como as galerias. Porém, a questão do aumento do número de camelôs nas ruas, em razão da emissão em grande número de licenças, ocasiona a mesma preocupação do cenário anterior: a alta concorrência entre esses comerciantes e, hipoteticamente, com a maioria regularizada.</p>
+<p>Para a implementação desse cenário, o primeiro passo consiste em uma redistribuição dos pontos comerciais, de maneira planejada e diversificada, com a implementação de novos pontos para ocupação dos camelôs em locais de alto fluxo de pessoas, em ruas ainda não ocupadas por essa modalidade comercial, como, por exemplo, as ruas Braz Bernardino, Mister Moore, Floriano Peixoto e São Sebastião; em contrapartida, a retirada de alguns pontos de camelôs já existentes próximos aos cruzamentos, às travessias de pedestres e nas calçadas estreitas, permitindomaior acessibilidade para os pedestres e fluidez no trânsito de veículos.</p>
+<p>O segundo passo consiste na regularização de camelôs que atuam sem licença da prefeitura, garantindo que tenham documentação necessária e evitando que burlem as fiscalizações, gerando uma tentativa de harmonia entre os comerciantes lojistas e os comerciantes camelôs, amenizando disputas e possíveis concorrências desleais.</p>
+<p>Esse cenário também proporciona que as atividades dos camelôs continuem ocorrendo nas ruas, mas com alguns critérios específicos para implementação dos pontos comerciais, visando amenizar conflitos com os pedestres, com o trânsito de veículos e outras modalidades de comércio e serviços.</p>
+<p>Segundo o representante do Sindicomércio, esse cenário já vem sendo implantado, pelo fato de a Lei n. 14.403/2022 já permitir que a Comissão Permanente do Comércio Popular faça pequenos ajustes:</p>
+<blockquote>
+<p>Quando se construiu a lei, pensou-se nessa possibilidade de alterações pontuais, sem que a lei fosse completamente alterada. Uma vez que esse processo de alteração de leis envolve trâmites burocráticos e lentos em nosso País, os pequenos ajustes foram construídos de forma aviabilizar as demandas que surgem espontaneamente no dia a dia da atividade dos camelôs.</p>
+</blockquote>
+<p>A pesquisadora da USP também concorda:</p>
+<blockquote>
+<p>[…] o cenário é possível de ser implementado pela incessante necessidade de controle e organização das vias pelo poder público, necessitando de pequenos ajustes constantemente. Há também uma necessidade rotineira de controle de áreas, para assegurar os locais que podem receber e os que espacialmente não comportam a atividade dos camelôs.</p>
+</blockquote>
+<p>O representante da Sesmaur ressalta que, após a implementação da nova legislação e do processo licitatório, ocorreram demandas de pequenos ajustes levantados pela comissão e encaminhados à prefeitura: um exemplo desses pequenos ajustes, que já estão ocorrendo após o processo licitatório, foi a necessidade de criação de 16 novos pontos comerciais na parte baixa da rua Halfeld; pequenas alterações no modelo padronizado da barraca; possibilidade de troca de pontos, desde que localizados próximos aos ocupados pelo mesmo comerciante anteriormente à licitação; modificações dos tipos de produtos comercializados permitidos em cada ponto.</p>
+<p>A implementação da padronização das barracas foi um ponto de concordância entre a Sesmaur e o Sindicomércio, porém, a pesquisadora da USP destaca que</p>
+<blockquote>
+<p>[…] deve-se dar uma certa liberdade aos trabalhadores dos camelôs, para que utilizem a criatividade nas intervenções e caracterizações de seus equipamentos, gerando diversidade das barracas nas ruas, mas deve-se sempre considerar as questões normativas de segurança e materiais de fabricação.</p>
+</blockquote>
+<p>A realização de pequenos ajustes no viés da possibilidade de transferência e criação de novos pontos comerciais tende a favorecer os anseios dos camelôs, que, durante as entrevistas, demonstraram-se favoráveis à possibilidade de melhorias nos espaços urbanos, criação de novos pontos e possibilidade de transferência para vias, mais próximas aos calçadões, galerias e equipamentos comerciais. Porém, a alternativa de retirada de alguns pontos próximos às esquinas e às faixas de pedestres pode gerar mais conflitos, com a possível insatisfação dos camelôs.</p>
+<p>Ao analisar os discursos, observa-se um consenso de que as necessidades de pequenos ajustes são constantes e devem ser implementadas quando apuradas e acompanhadas pelos agentes envolvidos. No caso de Juiz de Fora, a Comissão Permanente do Comércio Popular foi organizada também para esse fim, aparecendo como um instrumento de apoio ao poder público na adoção de modificações. Esse cenário se mostra passível de implementação e faz parte do complexo “jogo de cartas” (Santos, 1988) presente na disputa por ocupação de áreas públicas urbanas, negociada entre os agentes implicados. O fato importante, que deve ser debatido, é o grau de intervenção desses pequenos ajustes e seus desdobramentos.</p>
+<h3><strong>Cenário 3: camelôs nas praças</strong></h3>
+<p>Esse cenário busca transferir os camelôs das ruas para as praças da região central da cidade e parte da premissa de que esses locais podem ser readequados para o recebimento de pontos comerciais, para atuação segura dos camelôs, evitando os conflitos com pedestres e veículos.</p>
+<p>Historicamente, esse cenário baseia-se nas intervenções realizadas em algumas cidades brasileiras, como no caso do Rio de Janeiro, durante a década de 1980, que promoveu a retirada dos camelôs das ruas e transferências para as praças (Moreira, 2008). Na década de 1990, a prática passou a ser mais adotada pelos administradores urbanos. Em Presidente Prudente/SP, os camelôs foram transferidos das ruas para uma praça pelo poder público (Ribeiro, 2019), assim como em Feira de Santana/BA e Manaus/AM, que transferiram seus camelôs das ruas para praças localizadas em suas regiões centrais (Silva, T., 2021).</p>
+<p>O cenário em questão aproxima-se da intervenção realizada pela Prefeitura de Juiz de Fora no final de 2019, que estabeleceu a transferência dos camelôs da avenida Getúlio Vargas para a praça Deputado Clodesmidt Riani (Ribeiro, 2021), porém, diferentemente dessa ação realizada, esse cenário consiste na participação de todos os agentes envolvidos de forma democrática, de modo que as distintas aspirações sejam compreendidas e atendidas, parcialmente ou totalmente, de acordo com as negociações e características singulares das praças.</p>
+<p>Baseando-se nos fatores históricos nacionais e locais, esse cenário vislumbra um processo de estudo e transferência dos comerciantes para ocupação de pontos demarcados nas seguintes praças públicas, na região central de Juiz de Fora: parque Halfeld, praça Antônio Carlos, praça Deputado Clodesmidt Riani e praça da Estação.</p>
+<p>É importante ressaltar que cada praça da região central possui suas características e particularidades, cabendo ao poder público a realização de debates e negociações com todos os agentes envolvidos para que se identifique o perfil de cada uma das praças a fim de garantir que as atividades e produtos a serem comercializados sejam compatíveis com o espaço e a infraestrutura existente.</p>
+<p>Esse cenário vislumbra melhorias em alguns aspectos espaciais das ruas após a retirada dos camelôs, permitindo melhor acessibilidade e maior mobilidade. Por outro lado, permite que os comerciantes dos camelôs tenham acesso a sanitários públicos e água potável, que deverão ser implantados no processo de readequação das praças. Além disso, possibilita que os camelôs se instalem em locais espacialmente mais seguros e confortáveis.</p>
+<p>De acordo com dados levantados nas entrevistas com os trabalhadores dos camelôs, para a categoria, esse cenário seria inviável devido à insatisfação dos camelôs que atuam nas praças Clodesmidt Riani e da Estação e pelo receio dos que atuam nas ruas de serem transferidos para esses espaços, alegando a falta de fluxo de pedestres e de infraestrutura adequada.</p>
+<p>Segundo a pesquisadora da USP,</p>
+<blockquote>
+<p>“[…] no Brasil, é forte essa relação entre praça e comércio, mas deve-se ter cuidado com as ilegalidades, como tráfico de drogas e contrabando, que podem causar uma certa insegurança”.<br/></p>
+</blockquote>
+<p>O representante do Sindicomércio considera que</p>
+<blockquote>
+<p>“[…] esse cenário não seria possível de ser implementado na cidade, pois as praças do Centro não comportam a quantidade de camelôs que atualmente ocupam as ruas, causando conflitos no processo de transferência.</p>
+</blockquote>
+<p>Em concordância com o Sindicomércio, a Sesmaur pondera que esse cenário é impossível de ser implementado, pois <em>“[…] ocasionaria automaticamente na disponibilização de espaços livres nas ruas para os comerciantes populares irregulares, necessitando de um aumento das atividades de fiscalização e repressão a esses comerciantes”.</em></p>
+<p>De acordo com a pesquisadora da USP, a ocupação dos camelôs nas praças é justificável nas situações em que exista um fluxo significativo de pessoas: <em>“Deve ocorrer de forma organizada, sem prejudicar as demais atividades já existentes, e as barracas podem comercializar</em> <em>produtos relacionados com os usos do entorno da praça”.</em></p>
+<p>Observa-se, no discurso da Sesmaur, um anseio urbanístico pela ocupação das praças, levando mais atividades e criando novas dinâmicas urbanas para esse espaço público, mas não pela ocupação dos camelôs, que já estão consolidados nas ruas do Centro, principalmente após o processo licitatório concluído em fevereiro de 2024. <em>“As praças podem ser ocupadas, não pelos camelôs, mas por outras categorias, como as feiras de artesanato e de economia solidária, por</em> <em>meio da criação de editais específicos de concorrência pública, de forma sazonal”.</em></p>
+<p>O Sindicomércio ressalta que:</p>
+<blockquote>
+<p>[…] durante as discussões para implementação da Lei 14.403/2022, percebeu-se uma vocação das praças do Centro para atividades temporárias, como as eventuais feiras, que já acontecem na praça Parque Halfeld e praça da Estação em determinados dias da semana. Ficando alguns camelôs apenas na praça Deputado Clodesmidt Riani, por questões anteriores da prefeitura.</p>
+</blockquote>
+<p>De forma a complementar a informação do Sindicomércio, a Sesmaur justifica que:</p>
+<blockquote>
+<p>[…] o processo de retirada dos camelôs da avenida Getúlio Vargas e transferência para a praça Deputado Clodesmidi Riani foi um caso à parte, pois a avenida concentra uma grande quantidade de pontos de ônibus, lojas, estacionamentos, um supermercado e faz cruzamento com as principais vias do centro, não comportando os camelôs. Foi feita uma análise sobre o caso dos camelôs da avenida, e os que se encontravam em situação cadastral regular e ativa na prefeitura foram transferidos para a rua Batista de Oliveira. Os demais desfrutavam de pontos de terceiros, seja por terem comprado ilegalmente, ou herdado de permissionários falecidos, foram transferidos para a praça mais próxima da avenida, a praça Deputado Clodesmidt Riani.</p>
+</blockquote>
+<p>Em geral, nota-se uma visão otimista de todos os participantes, favorável à iniciativa de levar atividades para as praças, agregando mais usos e diversidade. A pesquisadora da USP traz um discurso de que é possível implementar o cenário 3, caso as praças possuam infraestrutura e tenham fluxos de pessoas, porém, os representantes da Sesmaur e do Sindicomércio apontam a vocação das praças do Centro para outra modalidade de comércio popular, contrária à retirada dos camelôs das ruas para esses locais, demonstrando uma preocupação com as possíveis consequências de ocupação dessas ruas por comerciantes populares irregulares e pela grande concentração de camelôs apenas nas praças.</p>
+<p>Em concordância com a Sesmaur e o Sindicomércio, as entrevistas com os participantes do Grupo 1 demonstram que os camelôs não se mostram favoráveis a ocupar as praças da região central, principalmente pela falta de fluxo de pedestres e pela insegurança. Segundo eles, a realocação para as praças contribuiria para a decadência da atividade devido à dificuldade nas vendas, prejudicando o sustento de suas famílias.</p>
+<p>Deve-se destacar que o sucesso da inserção dos camelôs nas praças depende, em grande parte, de elas terem vitalidade e fluxo de pedestres, tal como as ruas. Em casos em que a praça se aproxima de uma rotatória ou está implantada de modo a não possuir um fluxo considerável de transeuntes, a possibilidade de fracasso da permanência dos camelôs é bastante alta. Outro aspecto preponderante é a sensação de segurança. Percebe-se, pelos relatos dos camelôs de Juiz de Fora, que as praças inseguras não são atrativas para a permanência.</p>
+<h3><strong>Cenário 4: criação de camelódromos (ou shopping populares)</strong></h3>
+<p>Esse cenário vislumbra a criação (ou a construção propriamente dita) de um edifício comercial com diversos boxes para abrigar os camelôs da região central da cidade. Seria escolhido um terreno com área considerável, na região central, para a construção do equipamento comercial.</p>
+<p>Historicamente, essa intervenção tem sido a mais recorrente nas cidades brasileiras devido à instituição de decretos que proíbem a atividade dos camelôs nas ruas dos centros urbanos e, em consequência, a adoção de processos licitatórios que visam à distribuição dos camelôs em edifícios comerciais, popularmente conhecidos como camelódromos e shoppings populares (Lima et al., 2024).</p>
+<p>Em outras cidades brasileiras, esses edifícios construídos para abrigar os camelôs são fruto de iniciativa do poder público, ou implementados através de parceria público-privada. Um exemplo disso foi a criação de seis shoppings populares para abrigar os camelôs retirados das ruas do Centro de Belo Horizonte/MG, instalados em edifícios históricos sem uso ou em terrenos vazios localizados na região central (Vilela, 2006).</p>
+<p>Nos casos de Cuiabá/MT e Feira de Santana/BA, o poder público transferiu os camelôs para shoppings populares modestos no final dos anos 1990 e início dos anos 2000. Através da organização dos trabalhadores dos camelôs, desenvolveram-se melhorias na infraestrutura, na década de 2010, que resultaram na ampliação e na consolidação desses shoppings, custeados e geridos pela associação dos comerciantes e proprietários dos boxes, antigos camelôs de rua (Fonseca, 2021; Queiroz, 2013).</p>
+<p>Em relação ao contexto da cidade de Juiz de Fora, no passado, houve discussões sobre a construção de um edifício na região central para abrigar os camelôs que seriam retirados das ruas. Os trâmites para a construção do equipamento comercial se intensificaram nos primeiros anos da década de 2010, porém, sem uma parceria com a iniciativa privada, o processo de construção do shopping popular não seguiu adiante (Valente, 2016).</p>
+<p>Vale mencionar que, em Juiz de Fora, há alguns anos, tornou-se frequente a formação de espaços comerciais constituídos por estandes ou boxes. A antiga Casas Regente, na rua Marechal Deodoro, onde foi construída a atual galeria Marechal Shopping, abrigou um desses espaços, ocupados não exatamente por camelôs, mas por lojistas e artesãos que comercializavam, via de regra, produtos populares. Tratava-se de “[…] uma grande loja dividida em boxes de pequenas lojas, chamada de Free Shopping Marechal” (Dias, 2017, p. 117). Portanto, não se pode falar exatamente em camelódromo, mas pode-se pensar em uma estrutura semelhante. Dentro dessa mesma lógica, pode ser mencionado o comércio não alimentício do Mercado Municipal.</p>
+<p>Baseado nos casos de outras cidades e na tentativa de construção de um shopping popular em Juiz de Fora, esse cenário propõe que as ruas não serão adequadas para a atividade dos camelôs, concentrando-os em um edifício com infraestrutura que contemple a existência de banheiros, bebedouros, iluminação e ventilação adequada, possibilitando melhor fluidez de pedestres e veículos nas ruas com a desobstrução de vias e calçadas e proporcionando maior proteção contra intempéries e segurança para essa atividade. Assim, além da redução dos conflitos de mobilidade e acessibilidade no espaço urbano, os conflitos gerados pela concorrência comercial entre camelôs e lojistas poderão ser amenizados em virtude da não ocupação das vias pelos camelôs.</p>
+<p>Nota-se, de acordo com as entrevistas realizadas com os camelôs, que a implementação desse cenário aumentaria os conflitos com a categoria, que tende a permanecer nas ruas,atuando na ilegalidade mesmo após a proibição. Além disso, existe o receio dos camelôs quanto à queda na quantidade de vendas ao se mudarem das ruas para um edifício comercial.</p>
+<p>Segundo a Sesmaur:</p>
+<blockquote>
+<p>[…] durante as discussões para construção da Lei 14.403/2022, foi observada a necessidade de se pensar, futuramente, em um shopping popular no Centro. Caso a construção do equipamento seja de interesse da comissão, deve-se debater sobre como será feita sua ocupação, será por alguns camelôs que desejam sair das ruas? Por pessoas que ainda não trabalham como camelôs? Terá nova licitação para ocupação dos pontos que ficarão desocupados, caso seus permissionários queiram ir para o camelódromo?</p>
+</blockquote>
+<p>O representante do Sindicomércio considera que “[…] a construção de um camelódromo é o melhor cenário para a cidade de Juiz de Fora, possibilitando uma revitalização do centro, tornando as ruas com mais acessibilidade para os pedestres”. Esse discurso reforça o posicionamento dos lojistas, que, desde 2012, anseiam pela construção de um edifício para abrigar os comerciantes populares. Nota-se um caráter de “embelezamento” da cidade, considerando que a retirada dos camelôs das ruas iria melhorar a sua imagem e extinguir a concorrência com os lojistas.</p>
+<p>Com um discurso totalmente contrário, a pesquisadora da USP considera que esse cenário se mostra sem efeito:</p>
+<blockquote>
+<p>[…] ao transferir os camelôs para esses edifícios, os trabalhadores se deparam com o pagamento de taxas, mesmo que mínimas, para utilização mensal dos boxes, e se não tiver uma garantia de fluxo de pedestres, não se tem sucesso. Para atrair fluxos, teria que ter eventos que atraíssem pessoas, shows, praças gastronômicas, como ocorre em alguns mercados públicos, com preços populares e com certa frequência, fato não muito comum e de alto custo nesses camelódromos.</p>
+</blockquote>
+<p>Em meio às oposições de discursos, encontra-se um posicionamento voltado a novas possibilidades, de forma mais democrática, revelando a ideologia no viés de um planejador urbano, segundo a Sesmaur:</p>
+<blockquote>
+<p>[…] a construção de shopping popular na cidade é interessante na perspectiva de se ter um novo equipamento comercial no Centro, porém, não é viável a proibição dos camelôs nas ruas e a transferência para esse equipamento. Durante as discussões para implementação da lei atual foi identificada a necessidade de construção desse shopping popular futuramente, pois só as ruas não comportarão todos os camelôs, devendo ocorrer a existência simultânea dos camelôs nas ruas e no shopping popular.</p>
+</blockquote>
+<p>O Sindicomércio defende que a retirada dos camelôs das ruas para um shopping popular irá proporcionar o <em>“[…] conforto aos trabalhadores dos camelôs, que terão proteção contra intempéries, melhorando a saúde física e emocional”</em>. Em contrapartida, há o risco econômico; nota-se uma preocupação com o alto risco de fracasso dos camelódromos, como ocorrido em outras cidades brasileiras. Conforme menciona a pesquisadora da USP, os camelódromos não permitem a compra por impulso, que ocorre nas ruas, nos locais de passagem. É muito difícil para as pessoas irem ao camelódromo como destino final, mas sim comprarem nas barracas das ruas quando passam em direção a outro destino.</p>
+<p>Conforme apontado anteriormente pela pesquisadora, a Sesmaur reforça o discurso de dificuldade de funcionamento do shopping apenas com os camelôs: <em>“[…] para implementação,</em> <em>é necessário pensar em mais atividades de apoio, como a ocupação de algumas lojas e demais usos</em> <em>de outros segmentos do comércio e serviços”.</em></p>
+<p>Considerando o discurso dos participantes, observa-se que a decisão de construção de um shopping popular carrega diversas questões, muitas vezes complexas de serem debatidas e até mesmo definidas. Após a construção, surgirão novas demandas, como a necessidade de constante fiscalização para que as vias não sejam novamente ocupadas por camelôs, mesmo que ilegalmente.</p>
+<p>A atividade de camelôs em edifícios comerciais perpassa por algumas preocupações desses comerciantes, conforme evidenciado nas entrevistas com os camelôs, como o custo mensal a ser arcado por ocuparem esses equipamentos, o risco na queda das vendas pelo baixo fluxo de clientes, ocasionando processos de retorno desses comerciantes, gradativamente, para as ruas. Uma tentativa de amenização dos custos de funcionamento, observada em outras cidades brasileiras, é a inserção de camelódromos em edifícios abandonados nas áreas centrais e o envolvimento da parceria público-privada em seu gerenciamento.</p>
+<p>Há, também, que se ponderar sobre as questões relativas às possíveis sublocações ou venda (mesmo que ilegais) dos pontos nos camelódromos, configurando uma espécie de gentrificação. Portanto, sobretudo nesse cenário, é de suma importância que haja um acompanhamento de perto do poder municipal para que apenas os camelôs cadastrados e autorizados possam exercer suas atividades nesses estabelecimentos.</p>
+<h3><strong>Cenário 5: proibição da camelotagem no espaço público</strong></h3>
+<p>Esse cenário vislumbra a proibição de camelôs nas ruas e praças de Juiz de Fora por meio de implementação de legislação municipal – que visa à não ocupação de barracas do comércio popular no espaço urbano –, somada a constantes esforços de fiscalização e monitoramento. Entende-se que a implementação desse cenário irá findar os conflitos existentes acerca dos camelôs no espaço público.</p>
+<p>Baseando-se em outras cidades brasileiras, o cenário proposto aproxima-se do ocorrido em duas capitais brasileiras: em Cuiabá, os camelôs foram retirados dos espaços públicos em que atuavam, no Centro, através de uma operação urbana promovida pelo poder público em 1995 (Fonseca, 2021); e, em 2003, Belo Horizonte implementou o seu código municipal de posturas, que proibiu a atividade dos camelôs em todas as ruas e praças do Centro, pressupondo que a retirada dessa modalidade comercial das áreas urbanas acarretaria melhorias na mobilidade e na organização espacial (Araújo Filho, 2021).</p>
+<p>Historicamente, não foram encontradas ações do poder público que proibissem totalmente a atividade dos camelôs na cidade de Juiz de Fora. Talvez, a situação ocorrida que mais se assemelha a esse cenário seja a das medidas de confinamento impostas em 2020 pela pandemiade Covid-19, quando em alguns períodos, decretou-se o fechamento de atividades comerciais e prestação de serviços classificadas como não essenciais para a sobrevivência humana, entre elas, a atividade dos camelôs.</p>
+<p>Esse cenário possui um caráter radical e vislumbra a proibição da atividade dos camelôs em todo o espaço público da região central de Juiz de Fora, assumindo que a vocação comercial dessa região será voltada para comerciantes lojistas, e que os espaços públicos não serão ocupados pelos camelôs, visando à desobstrução de vias e calçadas e à organização do comércio na região central da cidade.</p>
+<p>Semelhante ao cenário anterior, com base nas entrevistas realizadas com os trabalhadores dos camelôs, a implementação desse cenário tem grande chance de ocasionar a atuação desses comerciantes, nas ruas, de forma irregular, sem a autorização do poder público e em constante conflito com agentes de fiscalização e demais comerciantes lojistas.</p>
+<p>A pesquisadora da USP considera que</p>
+<blockquote>
+<p>[…] a implementação desse cenário é impossível, pois sempre que houver proibição haverá a transgressão. Os camelôs estão em um movimento de sobrevivência. Se os camelôs estão lá é porque tem pessoas consumindo.</p>
+</blockquote>
+<p>Em concordância, o Sindicomércio afirma que <em>“[…] a proibição não é a solução; por trás da atividade dos camelôs há questões sociais e não pode ser radical a esse ponto; acaba desmotivando uma cadeia produtiva, pois as pessoas tendem a empreender”.</em></p>
+<p>Apesar do posicionamento da pesquisadora e do Sindicomércio, ao considerarem a proibição impossível, em seu discurso, a Sesmaur, embora contrária à proibição, considera até possível ocorrer em alguns casos, por uma vontade política de gestores municipais. Mas a proibição não acontece da noite para o dia, sendo um processo de constantes conflitos.</p>
+<p>A partir dos discursos, nota-se que a proibição da atividade se caracteriza como diretriz teórica, pois, na prática, a necessidade de trabalho, somada às demandas de consumo, acarreta a idade pessoas às ruas para comercialização de produtos, mesmo que de forma irregular ou ilegal.</p>
+<p>A pesquisadora da USP defende que</p>
+<blockquote>
+<p>[…] a proibição não é o correto, pois é uma tentativa falha da gestão de achar que para se transformar em uma cidade maravilhosa deve-se proibir a atividade dos camelôs. Em nosso País, há necessidade de mercado para esses trabalhadores, mesmo proibindo, eles continuariam atuando, mudando constantemente de local, fugindo das fiscalizações, em busca dos locais de fluxo.</p>
+</blockquote>
+<p>O representante da Sesmaur afirma, ainda, que na cidade esse cenário não é possível de ser implementado:</p>
+<blockquote>
+<p>[…] a lei atual garante que os camelôs permaneçam ocupando seus pontos por um período mínimo de cinco anos. Esse instrumento foi pensado para que administrações posteriores não façam mudanças drásticas no comércio popular, garantindo os direitos dos trabalhadores dos camelôs contemplados pelo edital. Além disso, pela dinâmica central de Juiz de Fora, a proibição da atividade não é viável.</p>
+</blockquote>
+<p>Nas entrevistas realizadas com os camelôs, apesar de não levantada a hipótese de proibição da atividade nas ruas, pelo discurso constante da necessidade de ampliação do número de pontos e melhorias na infraestrutura das ruas, os camelôs se mostrariam totalmente contrários a esse cenário, sendo, obviamente, os principais agentes prejudicados.</p>
+<p>Observa-se que a implementação desse cenário está condicionada ao surgimento de outras questões de ordem social e econômica e ao aumento de camelôs irregulares nas ruas; mesmo com a criação de legislações rígidas, a atividade tende a acontecer, demandando políticas de repressão e intensa fiscalização por parte do poder público. Talvez, por todos esses fatores, a proibição não tenha sido a ferramenta mais adotada pelos planejadores urbanos atualmente.</p>
+<h3><strong>Cenário 6: aumento dos camelôs nas ruas</strong></h3>
+<p>Esse cenário, que não foi apresentado aos entrevistados do Grupo 2, pois surgiu após a realização das entrevistas, tem por pressuposto a expansão expressiva do comércio popular no Centro de Juiz de Fora, aumentando consideravelmente o número de pontos oficialmente autorizados pela prefeitura. Considera-se, nesse caso, que o Centro é capaz de absorver uma quantidade bem maior de camelôs do que a alocada atualmente.</p>
+<p>Esse cenário reconhece a alta demanda dos cidadãos em obter uma licença da prefeitura para comercializarem seus produtos em barracas alocadas na região central da cidade. Traz à tona o questionamento de como devem ocorrer os editais de concorrência pública, uma vez que os processos de cadastramento de comerciantes populares, no passado, demonstraram que quanto menos uma pessoa é qualificada e quanto menor for sua renda, mais apta estará para atuar na rua. Isso reproduz o ciclo de preconceitos com os comerciantes populares. Entretanto, sem esses critérios, há o viés de que outros profissionais ou empresários estariam pleiteando esses pontos e concorrendo com os comerciantes populares.</p>
+<p>Em relação aos camelôs entrevistados, esse cenário seria parcialmente aceito pela categoria, pois, se ocorresse o aumento do número de pontos e o poder público permitisse a escolha/troca de pontos comerciais pelos camelôs já contemplados pelo edital de concorrência pública, seria benéfico. Em contrapartida, o aumento significativo do número de camelôs poderia ocasionar o aumento da concorrência entre camelôs, gerando novos conflitos entre a categoria.</p>
+<p>Deve-se ponderar que esse cenário tende a aumentar o conflito entre camelôs e lojistas, os quais recorrentemente demonstram um desejo pela expulsão dos camelôs das ruas. Também deve-se considerar que, do ponto de vista da qualidade urbana, há uma necessidade de se ter um ecossistema equilibrado, com um mix adequado de camelôs e lojas. Logo, verifica-se que esse cenário pode ser implementado, porém requer um estudo técnico aprofundado para verificar quais serão os verdadeiros impactos, tanto na paisagem quanto na dinâmica do comércio como um todo.</p>
+<h3><strong>Outros cenários</strong></h3>
+<p>Como forma de estimular a reflexão dos participantes do Grupo 2 e gerar mais respostas à questão desta pesquisa, ao final das entrevistas, os participantes foram instigados a vislumbrar novos cenários, de forma a complementar e ampliar as possibilidades para a sua atividade no espaço urbano da cidade.</p>
+<p>De acordo com a pesquisadora da USP:</p>
+<blockquote>
+<p>[…] outro cenário poderia contemplar situações mistas, como a escolha de ruas para receber os camelôs aos finais de semana, fora do horário de funcionamento das lojas; o mesmo pode ocorrer com as praças. Criando-se novos pontos para mais camelôs atuarem aos finais de semana, enquanto os outros continuam atuando no horário comercial. Levando as barracas para as ruas que ficam com as atividades fechadas após determinado horário, pode-se considerar a ocupação de barracas com diversos tipos de produtos comercializados, como alimentos e artesanatos, por exemplo.</p>
+</blockquote>
+<p>No contexto da cidade de Juiz de Fora, a atividade dos camelôs nas ruas do Centro fora do horário comercial, talvez, não tenha tanto sucesso, já que, apesar de abrigar edifícios residenciais, o fluxo de pessoas cai bruscamente nos dias úteis à noite. Nos finais de semana, o fluxo de pessoas é ainda mais baixo, dificultando ou inviabilizando a implementação da proposta.</p>
+<p>O Sindicomércio diz que, na perspectiva atual da cidade “[…] não vislumbra outros cenários, a não ser o cenário de construção deum shopping popular, como dito anteriormente, a proposta mais viável para uma revitalização do Centro”.</p>
+<p>A proposição de cenários combinados, simultaneamente, esteve presente em alguns discursos, conforme observado pela Sesmaur na possibilidade de existência de um shopping popular mantendo-se a atividade dos camelôs também nas ruas, ou pela coexistência de camelôs nas ruas e nas praças, conforme vislumbrado pela pesquisadora da USP. Essas situações tendem a tornar a ocupação do comércio popular no Centro mais dinâmica, mas podem trazer novos questionamentos de outros agentes envolvidos, como, por exemplo, o Sindicomércio, contrário à aglomeração de camelôs nos espaços públicos, devido ao receio de adensamento da atividade na região central.</p>
+<p>O representante da Sesmaur considera que, em relação ao comércio popular na região central,<em> “[…] ainda se tem muito a caminhar, os debates devem contemplar a distribuição de pontos fixos e pontos sazonais, feiras de economias criativas, de modo a tornar o comércio do Centro mais dinâmico e atrativo para os consumidores”.</em></p>
+<p>Os discursos nos permitem identificar que, durante esse complexo exercício de proposição de cenários, há um jogo de forças e interesses, aspectos políticos e culturais e, na extensa agenda do planejamento urbano, surgirão oposições e concordâncias, medidas favorecendo determinada parcela de agentes urbanos e privilegiando outras, até que se chegue a um denominador comum, de forma democrática, que seja ótimo para todos os setores envolvidos, alcançando-se um suposto (utópico) equilíbrio.</p>
+<p>Cumpre dizer que os cenários foram instituídos a partir da dimensão “espaço”, tão cara para o campo da Arquitetura e Urbanismo, porém, as discussões também apontaram para a proposição de cenários que considerassem a dimensão “tempo”, a qual não pode ser desprezada. Assim, a dimensão temporal pode ser incorporada como variável para relativizar alguns cenários propostos, por exemplo, a instituição de permissões e/ou proibições sazonais. Nesse caso, no cenário 5, a proibição dos camelôs no espaço público poderia ser permanente ou temporária (sazonal).</p>
+<p>O Quadro 1 apresenta uma síntese dos cenários possíveis para os camelôs nas áreas centrais das cidades: Compreende-se que o Quadro 1 apresenta um universo de possibilidades para as inserções espaço-temporais dos camelôs nas cidades; embora todo o estudo tenha se direcionado para a cidade de Juiz de Fora, o quadro possui um caráter abstrato o suficiente para permitir sua aplicação em outros contextos, resguardadas, obviamente, as realidades do comércio popular nas diferentes cidades.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/image-9.png"/>
+<h3><strong>Considerações finais</strong></h3>
+<p>Entre as categorias do comércio popular, a temática dos camelôs é constante nas discussões sobre planejamento urbano e nas revitalizações de espaços públicos nas cidades brasileiras, revelando que esses comerciantes são participantes ativos nas dinâmicas dos centros urbanos, o que envolve questões econômicas e sociais complexas e contribui para a distribuição de produtos e a movimentação da economia.</p>
+<p>Em relação aos camelôs de Juiz de Fora, as intervenções se intensificaram principalmente nos últimos quatro anos, com ações de proibição da camelotagem na avenida Getúlio Vargas, transferência para a praça Deputado Clodesmidt Riani, realização de protestos dos trabalhadores dos camelôs e construção da legislação sobre o comércio popular, publicada em 2022 (Juiz de Fora, 2022), culminando em uma nova licitação de concorrência pública para distribuição dos pontos comerciais dos camelôs existentes nas ruas.</p>
+<p>Foram propostos seis cenários principais de espacialização dos camelôs, os quais podem ser flexibilizados pela dimensão temporal e adotados individualmente ou combinados entre si. Em cada um deles, foram apresentadas ponderações sobre possíveis impactos na cidade, no entanto, não se buscou “a melhor solução”, porque ela varia de acordo com o ponto de vista (ou interesses) de um determinado grupo ou agente da construção da cidade. Além disso, é possível afirmar que não há apenas uma solução, pois, pela dinâmica do comércio na área central, a combinação de diversos cenários se apresenta como uma alternativa para diversificação da ocupação dos camelôs no Centro. Acredita-se que a mediação do poder público para a proposição, de forma negociada e democrática, de diferentes cenários combinados entre si possa ser uma estratégia capaz de dissipar grandes conflitos e encontrar uma ótima solução para o bem da coletividade, principalmente com a participação ativa dos camelôs nas discussões e tomadas de decisões, por serem os principais agentes afetados.</p>
+<p>Quanto ao caminho para a implementação de legislação, intervenções e operações urbanas relacionadas à atividade dos camelôs, recomenda-se a adoção de características da gestão pública participativa, que contempla a criação de comissões e grupos de trabalho para analisar as situações e dar voz para todos os agentes envolvidos, almejando decisões que irão amenizar os conflitos e construir coletivamente um espaço urbano democrático.</p>
+<p>Em relação à amplitude da temática da pesquisa e da consolidação de diversas modalidades de comércio popular nas cidades brasileiras, devido a aspectos culturais, sociais e econômicos, os cenários propostos para os camelôs da região central de Juiz de Fora podem ser amplamente adotados por outros municípios, resguardando-se as devidas escalas e particularidades de cada um, ampliando as discussões sobre as possibilidades de manutenção da atividade dos camelôs no espaço público brasileiro.</p>
+<p>Se, por um lado, as limitações podem ser interpretadas como fragilidades, como a não participação de outras secretarias municipais e agentes do espaço público nas entrevistas, por outro, elas constituem lacunas que podem ser precursoras de trabalhos futuros. Entende-se que, no processo de construção dos cenários, pode-se, ainda, agregar mais discursos de outros agentes envolvidos com a atividade dos camelôs, como outras secretarias municipais, câmara de vereadores, pedestres, consumidores, motoristas e moradores do Centro. Também cabe mencionar que a situação dos camelôs, do comércio popular, em geral, é complexa e demanda ser tratada de forma multidisciplinar, e não somente do ponto de vista arquitetônico e urbanístico.</p>
+
+<p><strong>Nota</strong></p>
+<p>(1) Projeto de pesquisa com seres humanos aprovado pelo Comitê de Ética em Pesquisa com Seres Humanos da Universidade Federal de Juiz de Fora, conforme parecer n. 6.788.922.</p>
+<p><strong>Referências</strong></p>
+<p>ARAÚJO FILHO, T. P. (2021). Viver na tora: trabalho ambulante e estratégias de vida nas encruzilhadas da gestão contemporânea do comércio popular. Tese de doutorado. São Carlos, Universidade Federal de São Carlos. Disponível em: https://repositorio.ufscar.br/bitstream/handle/ufscar/15420/TESE%20COMPLETA%20 -%20VERS%c3%83O%20DEFINITIVA%20-%2028-12-21%20-%20FINAL.pdf?sequence=1&amp;isAllowed=y. Acesso em: 28 jan 2024.<br/><br/>BRAIDA, F. (2011). Passagens em rede: a dinâmica das galerias comerciais e dos calçadões nos centros de Juiz de Fora e Buenos Aires. Juiz de Fora, UFJF.<br/><br/>CABRAL, M. P. (2018). Território urbano em disputa: as transformações no centro de Porto Alegre como resultado de disputa de múltiplos agentes urbanos no período de 2005 a 2017. Dissertação de mestrado. Porto Alegre, Universidade Federal do Rio Grande do Sul. Disponível em: https://lume.ufrgs.br/bitstream/handle/10183/188389/001086148.pdf?sequence=1&amp;isAllowed=y. Acesso em: 20 ago 2022.<br/><br/>DIAS, F. (2017). As galerias comerciais em Juiz de Fora após os anos 2000: demandas, agentes e projetos. Dissertação de mestrado. Juiz de Fora, Universidade Federal de Juiz de Fora. Disponível em: https://repositorio.ufjf.br/jspui/bitstream/ufjf/5925/1/fabriciosouzadias.pdf. Acesso em: 17 abr 2023.<br/><br/>FONSECA. C. R. (2021). De camelô a empreendedor: os “lojistas” do shopping popular de Cuiabá. Tese de doutorado. São Carlos, Universidade Federal de São Carlos. Disponível em: https://repositorio.ufscar.br/bitstream/handle/ufscar/14342 Tese%20Final_Christiany%20Regina%20Fonseca%20reposito%cc%81rio.pdf?sequence=1&amp;isAllowed=y. Acesso em: 2 maio 2024.</p>
+<p>GOULARTE, C. C. (2008). Cotidiano, identidade e memória: narrativas de camelôs em Pelotas (RS). Dissertação de mestrado. Pelotas, Universidade Federal de Pelotas. Disponível em: https://wp.ufpel.edu.br/ppgs/files/2014/06/claudia_goularte_dissertacao.pdf. Acesso em: 22 set 2022.</p>
+<p>JUIZ DE FORA (2022). Decreto n. 15.253 de 25 de maio. Regulamenta a Lei n. 14.403, de 28 de abril de 2022, que dispõe sobre o exercício do comércio popular nos espaços públicos do Município de Juiz de Fora. Disponívelem: https://jflegis.pjf.mg.gov.br/norma.php?chave=0000049932. Acesso em: 26 out 2023.</p>
+<p>KITAMURA, C. K.; MIRANDA, M.; RIBEIRO FILHO, V. (2007). O comércio e serviços ambulantes: uma discussão.Caminhos de Geografia. Uberlândia, v. 8, n. 23, pp. 20-26. Disponível em: https://seer.ufu.br/index.php/caminhosdegeografia/article/view/15656/8855. Acesso em: 30 set 2022.</p>
+<p>LIMA, P. C.; NASCIMENTO, V. C.; COCATE, I. P.; BRAIDA, F. (2024). O comércio popular nas cidades brasileiras.Vernácula – Territórios Contemporâneos, v. 2, n. 7, pp. 66-79. Disponível em: https://www.periodicos.univag.com.br/index.php/Vernacula/article/view/2585. Acesso em: 28 ago 2024.</p>
+<p>MAMANI, H. A. (2017). Conflito urbano e comércio informal: quadros da repressão e da tolerância aos camelôsna cidade do Rio de Janeiro (1983-2009). Dilemas – Revista de Estudos de Conflito e Controle Social, v. 10,n. 3, pp. 523-551. Disponível em: https://revistas.ufrj.br/index.php/dilemas/article/view/14562. Acesso em: 5 set 2022.</p>
+<p>MOREIRA, A. (2008). Mercados populares ou camelódromos: nascimento e variações de um objeto arquitetônico. In: COLÓQUIO INTERNACIONAL SOBRE COMÉRCIO E CIDADE: Uma Relação de Origem, 2. Anais… São Paulo. Disponível em:http://www.labcom.fau.usp.br/wpcontent uploads/2015/05/2_cincci/4002%20Moreira.pdf. Acesso em: 29 set 2022.<br/><br/>MOREIRA, C. da C. (2004). A cidade contemporânea entre a tabula rasa e a preservação: cenários para o porto do Rio de Janeiro. São Paulo, Unesp.<br/><br/>PAMPLONA, J. B. (2013). Mercado de trabalho, informalidade e comércio ambulante em São Paulo. Revista Brasileira de Estudos de População. Rio de Janeiro, v. 30, n. 1, pp. 225-249. Disponível em: https://rebep.org.br/revista/article/view/23/pdf_19. Acesso em: 29 abr 2023.<br/><br/>QUEIROZ, A. M. V. de L. (2013). Da rua para o Shopping Feiraguay: desenho urbano e memória visual do comércio popular em Feira de Santana, BA (1970-2012). Dissertação de mestrado. Feira de Santana, Universidade Estadual de Feira de Santana. Disponível em: http://tede2.uefs.br:8080/bitstream/tede/92/2/ Vers%c3%a3o%20revisada%20Amanda.pdf. Acesso em: 30 abr 2024.<br/><br/>RIBEIRO, G. B. (2019). Circuitos da economia urbana em cidades médias: os camelódromos de Presidente Prudente (SP) e Londrina (PR). Dissertação de mestrado. Presidente Prudente, Universidade Estadual Paulista. Disponível em: https://repositorio.unesp.br/server/api/core/bitstreams/4d2c7e97-1e81-4bb5-a1e3-b9786b75f792/content. Acesso em: 24 fev 2024.<br/><br/>RIBEIRO, R. (2021). PJF irá transferir ambulantes da Getúlio Vargas para a Praça do Riachuelo. Disponível em: https://tribunademinas.com.br/noticias/cidade/05-11-2021/pjf-anuncia-mudancas-no-trafego-do-centro-para-a-inauguracao-do-viaduto-helio-fadel.html. Acesso em: 22 ago 2022.</p>
+<p>SAKAI, R. Y. (2011). A ocupação da área central pelo comércio ambulante: negociações e produção do espaço urbano. Dissertação de mestrado. São Carlos, Universidade de São Paulo. Disponível em: https://teses.usp.br/teses/disponiveis/18/18142/tde-27082012-163631/publico Dissertacaorobertasakai.pdf. Acesso em: 8 abr 2024.<br/><br/>SANTOS, C. N. F. dos (1988). A cidade como um jogo de cartas. São Paulo, Projeto Editores.<br/><br/>SILVA, G. (2021). Situação dos ambulantes permanece sem solução em Juiz de Fora. Disponível em: https://tribunademinas.com.br/noticias/cidade/18-07-2021/situacao-dos-ambulantes-permanece-sem-solucao-em-juiz-de-fora.html. Acesso em: 22 ago 2022.<br/><br/>SILVA, L. T. (2008). Comércio ambulante: planejar e acontecer. O que realmente acontece? In: COLÓQUIO INTERNACIONAL SOBRE COMÉRCIO E CIDADE: Uma Relação de Origem, 2. Anais… São Paulo. Disponível em:http://www.labcom.fau.usp.br/wp-content/uploads/2015/05/2_cincci/3016%20Tabachi.pdf. Acesso em: 14 out 2022.<br/><br/>SILVA, T. J. A. da (2021). Metamorfose ambulante: o discurso empreendedor do comércio ambulante em Niterói. In: ENCONTRO NACIONAL DE ANTROPOLOGIA DO DIREITO, 7. Anais… São Paulo.<br/><br/>SPOSITO, M. E. B. (2012). Capitalismo e urbanização. São Paulo, Contexto.</p>
+<p>VALENTE, E. (2016). PJF desiste de shopping popular. Disponível em: https://tribunademinas.com.br/noticias/politica/26-04-2016/pjf-desiste-de-shopping-popular.html. Acesso em: 20 ago 2022.</p>
+<p>VARGAS, H. C. (2018). Espaço terciário: o lugar, a arquitetura e a imagem do comércio. Barueri, Manole.<br/><br/>VILELA, N. M. (2006). Hipercentro de Belo Horizonte: movimentos e transformações espaciais recentes. Dissertação de mestrado. Belo Horizonte, Universidade Federal de Minas Gerais. Disponível em: https://repositorio.ufmg.br/handle/1843/MPBB-6XRKL9. Acesso em: 4 jul 2022.</p>
+<p><strong>Contribuição de autoria</strong></p>
+<p>Pablo Correa Lima: administração de projetos; análise formal; aquisição de financiamento; conceitualização; curadoria de dados; investigação; metodologia; redação–rascunho original; redação–revisão e edição; software; validação; visualização.<br/><br/>Frederico Braida: administração de projetos; aquisição de financiamento; conceitualização; curadoria de dados; metodologia; redação–revisão e edição; supervisão; validação; visualização.<br/><br/>Marcelo Luís Ribeiro Silva Tavares: administração de projetos; conceitualização; curadoria de dados; redação– revisão e edição; supervisão; validação; visualização.</p>
+<p><em>*Os autores declaram que não há conflito de interesse</em></p>
+<p><em>*O conjunto de dados de apoio aos resultados deste estudo não está disponível ao público</em></p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleça o jornalismo crítico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/outras-cidades/cidades-o-que-fazer-com-os-camelos/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

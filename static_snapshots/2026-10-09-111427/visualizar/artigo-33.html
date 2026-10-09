@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Como votou a sua cidade? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Como votou a sua cidade?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Observatorio da Imprensa</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://www.observatoriodaimprensa.com.br/jornalismo-local/como-votou-a-sua-cidade/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/0g0a0034.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Como votou a sua cidade?
+                            </p>
+                            
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/0g0a0034.webp"/><p>(Foto: Rovena Rosa/Agência Brasil)</p>
+<p>Na noite de 4 de outubro, enquanto as grandes redações disputavam quem cravava primeiro o segundo turno presidencial, o leitor do jornal local fez outra pergunta. Quis saber quem da sua região vai para Brasília e para a Assembleia. Nos 18 portais regionais que cobriram a apuração com o <a href="https://mpj.site/" rel="noopener noreferrer" target="_blank">Mais Pelo Jornalismo (MPJ)</a>, as abas mais abertas foram as de deputado federal e estadual, com 2,3 mil leitores cada. Governador veio logo atrás. Presidente ficou em último, com 1,3 mil.</p>
+<p>O número é pequeno e diz muito. A grande imprensa cobre a eleição pelo país e pelo estado. O resultado de cada um dos 5.570 municípios quase nunca ganha quem o conte, e é ali que o eleitor mora, paga imposto e cruza com o candidato na feira. Quando alguém oferece esse recorte, ele vai atrás.</p>
+<p><b>Uma pergunta só</b></p>
+<p>O <b>MPJ </b>é um programa que dá infraestrutura de tecnologia a portais de jornalismo local, regional e de nicho. A ideia da apuração nasceu dentro da própria rede, numa conversa entre publishers sobre o dia da eleição. <b>Vinícius Andrade</b>, do <b>Guarulhos Todo Dia</b>, mostrou como a audiência do site dele crescia em noite de apuração. Faltava o que nenhum deles teria sozinho: <b>um painel ao vivo, com o dado oficial do TSE, que funcionasse bem no celular.</b></p>
+<p>Montamos um só painel para 18 veículos de 10 estados, de <b>Roraima ao Rio Grande do Sul</b>, cobrindo 56 municípios. Cada portal manteve a própria marca, as próprias matérias e os próprios anúncios, e escolheu até cinco cidades para abrir a página. O painel respondia a uma pergunta: <b>como votou a sua cidade? Em cada tela, explicava também onde aquela eleição se decide, porque presidente se decide no país, e deputado, no estado.</b></p>
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/1_fatos_do_iguacu_como_votou_sua_cidade.png"/><p>No Fatos do Iguaçu, de Pinhão (PR), o leitor vê lado a lado as cinco cidades da cobertura e abre o resultado de cada uma, cargo a cargo. (Imagem: Divulgação)</p>
+<p><b>O que aconteceu nas redações</b></p>
+<p>Os números vêm adiante. Antes, vale ouvir quem estava do outro lado da tela. Em Joinville, o Chuville transformou a noite numa transmissão ao vivo.</p>
+<p>“A partir das 16h, entramos ao vivo em um streaming em um estúdio improvisado e deu bem certo. Nós nos revezamos entre 12 pessoas para comentar, apurar, apresentar e fazer análises. Ter dados da apuração em uma única plataforma deu a nós uma centralidade de conteúdo que nenhum veículo da região e do estado tinha.”<b> Leandro Schmitz, publisher do Chuville.</b></p>
+<p>Em Araçatuba, no interior paulista, o Nossa Cidade mediu a noite com a régua de quem viu as apurações antes. “Com mais de 40 anos de jornalismo impresso, tendo acompanhado várias apurações manuais que demandavam vários dias de desgastante trabalho, fazer a cobertura de forma online e em pouco mais de cinco horas foi gratificante.”<b> Antônio Crispim, publisher do Nossa Cidade.</b></p>
+<p>Em Boa Vista, o Correio do Lavrado voltou ao ar depois de dois anos parado, e voltou justamente na noite da eleição. Em Frederico Westphalen (RS), a Rádio Comunitária usou o painel como cenário da própria live, filtrando cidades ao vivo enquanto os ouvintes faziam o mesmo em casa.</p>
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/2_chuville_celular_deputados-scaled.png"/><p>No celular, o leitor do Chuville vê os 40 deputados estaduais eleitos em Santa Catarina com os votos que cada um teve em Joinville. (Foto: Divulgação)</p>
+<p><b>O leitor ficou</b></p>
+<p>Entre as 5h de domingo e as 13h de segunda-feira, os 18 portais tiveram 80,2 mil páginas abertas por gente, já sem robôs. Por cima delas vieram mais 33,9 mil consultas dentro da apuração, com o leitor trocando de cargo, de cidade ou de estado. O pico veio às 19h, duas horas depois de as urnas fecharem, com 16,3 mil acessos numa única hora. Nos jornais menores, a audiência chegou a 17 vezes a de uma semana comum.</p>
+<p>Mais revelador que o volume é o comportamento. Na noite da apuração, das 17h à meia-noite, a página ficou em média 2min23s na tela, e metade das aberturas passou de um minuto. Mais de 1,7 mil leitores fizeram quase 3 mil buscas por candidato, quase sempre nomes da própria região. Teve quem procurasse pelo número de urna. Ninguém busca o número de urna de um desconhecido.</p>
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/3_grafico_audiencia_e_tempo_de_tela-scaled.png"/><p>Páginas abertas e navegação na apuração, hora a hora, nos 18 portais, com o tempo médio na tela (linha verde). Contagem própria da rede, sem robôs. (Imagem: Reprodução)</p>
+<p>Esses números saem de contagem própria, feita no servidor. A régua que o mercado usa, o Google Analytics, viu metade das páginas, mas essa é uma discussão para outro texto. Aqui interessa o que o leitor fez quando teve à mão o resultado da sua cidade.</p>
+<p><b>Da cidade para o bairro</b></p>
+<p>Dois dias depois da eleição, o painel desceu mais um degrau. Desde 6 de outubro, os 18 portais mostram como cada bairro votou. Cada urna publica o seu boletim, e o bairro é a soma dos boletins das seções que funcionam nele, segundo o cadastro de locais de votação do TSE. O leitor escolhe o cargo, de presidente a deputado estadual, acha o próprio bairro pelo nome ou pelo CEP e pode procurar um candidato para ver quantos votos ele teve em cada canto da cidade. Vale para qualquer município do país, e o link compartilhado abre no ponto exato.</p>
+<p>Em Guarulhos, são 141 bairros. Na mesma cidade, o Centro deu 23,8 pontos de vantagem a um candidato a presidente, e o Conjunto Marcos Freire deu 10,2 ao outro. O resultado da cidade, sozinho, apaga essa diferença. O do bairro mostra onde ela mora.</p>
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/4_guarulhos_bairros_desktop.png"/><p>Como cada bairro votou, no Guarulhos Todo Dia: o leitor troca de cargo, procura o bairro pelo nome ou pelo CEP e busca qualquer candidato. (Imagem: Reprodução)</p>
+<p><i>Como cada bairro votou, no Guarulhos Todo Dia: o leitor troca de cargo, procura o bairro pelo nome ou pelo CEP e busca qualquer candidato.</i>O painel avisa o que é e o que não é. A soma por bairro não é um resultado divulgado pelo TSE, e o eleitor vota onde está inscrito, quase sempre perto de casa, mas nem sempre. Com essa ressalva dita na tela, o leitor tem nas mãos um mapa que costuma ficar na gaveta das campanhas.</p>
+<p><strong>O que isso diz sobre o jornalismo local</strong></p>
+<p>O <b>Atlas da Notícia de 2025 </b>contou 2.504 municípios sem nenhum veículo de jornalismo local, quase metade do país, onde vivem mais de 20 milhões de pessoas. Costuma-se explicar o deserto pela falta de dinheiro e falta. Mas a noite da eleição mostrou um gargalo mais concreto.<b> Os 18 jornais do laboratório sabiam contar a eleição das suas cidades. O que nenhum deles tinha era a estrutura para pegar o arquivo bruto do TSE e transformar em resultado legível, ao vivo, no celular do leitor.</b></p>
+<p>Quando essa estrutura é dividida, o jornal pequeno joga em outro campeonato. Luiz Felipe, publisher da Agência Primaz, de Mariana (MG), resumiu assim:</p>
+<p>“Querendo ou não, a gente competiu ontem com a grande imprensa, com site do TSE e etc. Como era eleição nacional, não tinha um motivo muito especial que convencesse as pessoas a seguir a apuração com a gente. Por isso, em uma eleição municipal, vai ser ainda melhor. Só o jornalismo local está preocupado com o local.”<b> Luiz Felipe, publisher da Agência Primaz.</b></p>
+<p>Ele tem razão no ponto que mais importa. O dado do TSE é público e chega igual para todos. O que muda é quem sabe ler. Saber que um deputado eleito teve metade dos votos numa única cidade, que um prefeito apostou num candidato que naufragou ali, que a região mandou ou deixou de mandar alguém para Brasília: isso exige quem conhece o território e fiscaliza o poder local o ano inteiro. Esse conhecimento sempre existiu nas pequenas redações. Faltava a ferramenta que fizesse ele chegar ao leitor na noite em que o leitor mais precisa.</p>
+<p>Há também uma lição sobre cooperação. Os 18 jornais não concorrem entre si, porque cobrem cidades diferentes. Dividir código, servidor e painel não tirou a cara de nenhum deles. Cada um publicou as próprias matérias, com a própria marca, para o próprio leitor. A rede fez o trabalho que ninguém faria sozinho, e o jornalismo continuou sendo de cada um.</p>
+<p><b>Agora, a eleição da cidade</b></p>
+<p>Esta foi uma eleição nacional, e mesmo assim o leitor puxou o assunto para perto de casa. Em 2028, a eleição inteira acontece na cidade: prefeito e vereador, decididos bairro a bairro. O mapa para contar isso já está no ar. A meta do MPJ é chegar lá com cerca de 800 veículos regionais apurando juntos. O que fizemos em 4 de outubro foi o ensaio. Na noite da eleição, o leitor respondeu à pergunta antes de a gente terminar de fazê-la. Ele quer saber como votou a sua cidade. E só quem cobre a cidade todo dia sabe contar o que esse voto muda na vida dela.</p>
+<p>Os 18 painéis continuam no ar e podem ser vistos em <a href="https://mpj.site/hub-eleicoes-2026/" rel="noopener noreferrer" target="_blank">mpj.site/hub-eleicoes-2026</a>.</p>
+<p><strong>***</strong></p>
+<p><strong>Fernanda Lara</strong> é cofundadora do <a href="https://mpj.site/" rel="noopener noreferrer" target="_blank">Mais Pelo Jornalismo (MPJ)</a> e CEO da <a href="https://www.i-maxpr.com/" rel="noopener noreferrer" target="_blank">I’Max</a>, empresa que mantém o MPJ.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.observatoriodaimprensa.com.br/jornalismo-local/como-votou-a-sua-cidade/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

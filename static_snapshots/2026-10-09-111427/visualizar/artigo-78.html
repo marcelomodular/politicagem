@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ser anticapitalista não basta - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Ser anticapitalista não basta</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/10/ser-anticapitalista-nao-basta/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/123819809235.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Ser anticapitalista não basta
+                            </p>
+                            
+<p>Adaptado do livro <em><a href="https://jacobin.com/store/product/the-blueprint" rel="noopener noreferrer" target="_blank">The blueprint: How socialism can work in the real world</a></em> [O guia: como o socialismo pode funcionar no mundo real], de Mike Beggs, Ben Burgis e Bhaskar Sunkara (Verso, 2026).</p>
+
+<p>Vivemos numa época em que tudo é político — exceto a política. Rotineiramente, tratamos escolhas cotidianas sobre cultura, consumo e identidade pessoal como expressões de lealdade moral, analisando-as em busca de significados ocultos e atribuindo-as a campos partidários. Inferimos visões de mundo inteiras a partir do que as pessoas assistem, compram, comentam em tom de piada ou publicam na internet.</p>
+<p>No entanto, nessa atmosfera de constante conflito ideológico, as questões políticas mais fundamentais quase nunca são feitas. Como uma economia deve ser organizada? As disparidades de renda e riqueza são intrinsecamente condenáveis, ou são aceitáveis ​​desde que ninguém passe fome? A igualdade política pode realmente coexistir com a desigualdade econômica? Se a democracia é boa para os governos, por que não é boa para o chão de fábrica?</p>
+<p>Grande parte do século XX foi definida pela rivalidade global entre o capitalismo ocidental e o comunismo soviético. A vitória do capitalismo tornou-se evidente ao final do século. A URSS e seus Estados satélites da Europa Oriental entraram em colapso. A maioria dos países ainda governados por partidos comunistas adotou um modelo híbrido e mercantilizado dos dois sistemas. Numa era de triunfalismo capitalista, os contornos básicos da vida social e econômica eram tratados como inegociáveis.</p>
+<p>Décadas depois, mesmo os críticos mais ferrenhos dos abusos do capitalismo raramente sugerem que podemos transcender o sistema por completo.</p>
+<p>Passamos grande parte de nossas vidas defendendo reformas que beneficiem os trabalhadores aqui e agora. Entendemos que, embora a história às vezes dê passos gigantescos, o progresso social geralmente envolve lutas diárias de forças opostas por ganhos de curto prazo.</p>
+<p>No entanto, aqueles que se autodenominam socialistas devem ser capazes de oferecer não apenas uma crítica profunda ao capitalismo — uma crítica enraizada nas vidas e lutas das pessoas comuns — mas também uma visão do que deveria substituí-lo. Não como esse sucessor poderia ser daqui a séculos, quando os obstáculos econômicos, ambientais e logísticos forem superados pelo avanço da tecnologia, mas como uma alternativa poderia funcionar no presente. Sem isso, a oposição ao capitalismo corre o risco de se resumir a pouco mais do que um protesto moral abstrato.</p>
+<p>Se o melhor que podemos dizer sobre uma sociedade plenamente socialista é que ela talvez se torne possível um dia, como o prolongamento radical da vida ou colônias em galáxias distantes, então ser “contra” o capitalismo é uma afetação inútil que se sobrepõe ao nosso apoio a reformas dentro do sistema.</p>
+<p>Também não adianta muito apontar, como os marxistas costumam fazer, que o capitalismo nem sempre existiu. Considere outras coisas que não existiram durante a maior parte da história da humanidade — como o saneamento básico moderno, a democracia multipartidária ou a internet. A questão não é se alguma dessas coisas deixará de existir no futuro; é se desejaríamos que elas deixassem de existir. A superação do capitalismo só é desejável se pudermos substituí-lo por algo melhor.</p>
+<p>Uma característica fundamental que distingue o capitalismo do feudalismo ou dos antigos sistemas escravistas é que, nesses modos de produção anteriores, a classe dominante usava a força direta para obrigar o que Karl Marx chamou de “produtores imediatos” (camponeses, escravos ou servos) a trabalhar para ela. No capitalismo, os trabalhadores assalariados são obrigados a servir à classe capitalista não sob chicotes e correntes, mas pelo medo da miséria. Ninguém que trabalha para a Amazon é levado a um armazém sob guarda armada. Eles podem sair a qualquer momento, e a ameaça de perda do emprego é uma das armas disciplinares mais eficazes no arsenal do empregador.</p>
+<p>Os resultados falam por si. Os métodos de extração podem ser mais suaves, mas, assim como os camponeses feudais eram legalmente obrigados a dedicar parte do seu tempo ao cultivo de alimentos para a nobreza, os contratos de trabalho capitalistas modernos obrigam os trabalhadores a entregar parte do produto do seu trabalho à classe dominante da sociedade. Os maiores capitalistas enriquecem tanto nesse processo que estamos caminhando rapidamente para uma economia em que os primeiros lugares da hierarquia distributiva são ocupados não por bilionários, mas por trilionários.</p>
+<p>No trabalho, o chefe manda como um ditador. Os sindicatos e o Estado regulador suavizaram alguns dos aspectos mais grosseiros da tirania no local de trabalho no século XX, mas as forças da inovação capitalista geram maneiras criativas de restaurar esses aspectos todos os dias. Há um motivo pelo qual os trabalhadores dos armazéns da Amazon correm para cumprir suas metas em uma atmosfera de vigilância eletrônica e deixam de ir ao banheiro por medo de ficarem para trás.</p>
+<p>Por mais prejudicial que seja a coerção velada da necessidade econômica que fundamenta o capitalismo, ela representa uma melhoria em relação à coerção direta que caracterizou muitos dos sistemas que o precederam. Mas essa redução na falta de liberdade individual não é suficiente. Os socialistas desejam empoderar radicalmente os produtores diretos, criando arranjos institucionais por meio dos quais os trabalhadores possam decidir o que é produzido, como é produzido e como dividir os resultados entre si. E queremos criar um sistema que seja muito mais eficiente do que o capitalismo em garantir as necessidades sociais para que as pessoas tenham uma vida digna. Argumentamos aqui em defesa de um modelo realista de como isso poderia ser e argumentamos que ele representaria uma melhoria significativa em relação ao que temos hoje.</p>
+<p></p>
+<h2>A importância dos guias</h2>
+<p>Essa visão começa com uma pergunta simples: quem tem poder e quem não tem? A menos que se rompa o sistema por meio de ação coletiva, a única influência individual que os trabalhadores têm sob o capitalismo é o poder de sair. Garantir esse poder é uma conquista histórica profunda, mas tem sérias limitações.</p>
+<p>“Nós, que nos intitulamos socialistas, devemos ser capazes de oferecer não apenas uma crítica profunda ao capitalismo, mas também uma visão do que deveria substituí-lo.”</p>
+<p>Por um lado, os trabalhadores não podem exercer essa vantagem com frequência — suas perspectivas de emprego futuro ficam prejudicadas se houver muitas lacunas em seu histórico profissional. Por outro lado, na maioria dos casos, é muito mais fácil para uma empresa substituir um de seus funcionários do que para o trabalhador substituir a fonte de seu sustento. A situação é um pouco diferente para os trabalhadores cujas habilidades são particularmente procuradas pelos empregadores, mas a lei da oferta e da procura funciona no mercado de trabalho de maneira muito semelhante que em qualquer outro mercado — habilidades raras conferem maior poder de negociação justamente por serem raras. Para a maioria dos trabalhadores, na maior parte do tempo, o trabalho assalariado, no que podemos considerar seu “estado natural”, é uma proposta do tipo “pegar ou largar”. Os trabalhadores cuja única liberdade é a liberdade de sair podem decidir qual capitalista específico os domina, mas ainda assim não conseguem controlar totalmente suas próprias vidas.</p>
+<p>A crítica à falta de liberdade da classe trabalhadora não é a única queixa dos socialistas em relação ao capitalismo. Também nos preocupamos com questões como pobreza, precariedade, excesso de trabalho, equidade na distribuição de recursos, o efeito corrosivo de tudo isso na realização pessoal e nos relacionamentos interpessoais, destruição ecológica, imperialismo e a inevitável ligação entre riqueza concentrada e poder político concentrado. Mas pelo menos alguns desses outros problemas podem ser razoavelmente atribuídos aos desequilíbrios de poder fundamentais inerentes às relações de propriedade capitalistas. Esses desequilíbrios são profundamente questionáveis ​​por si só — ou pelo menos o são se houver uma sociedade mais desejável a ser encontrada na margem oposta ao capitalismo.</p>
+<p>Afinal, a abolição do trabalho assalariado só representa uma redução no nível geral de falta de liberdade humana se qualquer sistema que substitua o capitalismo puder sustentar um nível suficiente de abundância material. As tentativas de impor uma distribuição igualitária de migalhas podem se tornar muito desagradáveis ​​e não costumam durar muito. A maneira mais fácil de acabar com um sistema de coerção branda é trazer de volta a coerção rígida. Milhões de trabalhadores criticam o capitalismo, mas hesitam quanto às perspectivas de um futuro socialista viável e desejável. É exatamente por isso que precisamos de um plano — uma visão convincente e concreta — de como um sistema melhor poderia ser construído.</p>
+<p>Muitos socialistas acreditam que não precisamos nos preocupar com o que Marx chamou de “<a href="https://www.marxists.org/archive/marx/works/1867-c1/p3.htm" rel="noopener noreferrer" target="_blank">escrever receitas</a>” para “as cozinhas do futuro”, pois, uma vez que a classe trabalhadora tenha vencido a velha ordem, ela enfrentará e resolverá os problemas da construção de um novo mundo por meio da resolução democrática e em massa de problemas. Seria insensato e inadequado, segundo essa linha de raciocínio, tentar antecipar os resultados desse processo.</p>
+<p>Não negamos que haja algo de válido nessa linha de pensamento. É bem verdade que nenhum modelo idealizado hoje refletirá completamente as complexidades do mundo real de amanhã. E, em termos de política prática, as novas instituições sociais são frequentemente misturas estranhas e confusas — combinando resquícios de instituições antigas, novos elementos moldados por acidentes históricos e compromissos e improvisações impossíveis de prever. Mesmo em nossos momentos mais otimistas, não esperamos que os cidadãos de uma futura sociedade socialista se sintam vinculados a um modelo especulativo concebido em meados da década de 2020.</p>
+<p>No entanto, a antiga ideia socialista de que os detalhes se resolverão “após a revolução” é profundamente equivocada. A experiência da União Soviética foi um registro de fracasso econômico sistêmico, não apenas de repressão política. O autoritarismo, sem dúvida, exacerbou os fracassos das economias planificadas de diversas maneiras. Durante os dias mais sombrios de Josef Stálin ou Mao Zedong, até mesmo funcionários do governo muitas vezes temiam se manifestar contra decisões econômicas catastróficas equivocadas. Mas a aparente suposição de muitos socialistas antiestalinistas do século XX de que a democracia por si só teria curado os males dessas sociedades é difícil de defender.</p>
+<p>Comecemos com um simples experimento mental. Peguemos as estruturas básicas do planejamento econômico soviético e associemos a elas o tipo de instituições políticas democráticas encontradas na maioria das sociedades capitalistas avançadas. Há liberdade de imprensa. Há eleições competitivas. Os partidos debatem visões concorrentes para o próximo Plano Quinquenal, e aquele que obtiver a maioria no Soviete Supremo forma um governo e nomeia o novo chefe da Gosplan, a agência central de planejamento.</p>
+<p>Essa URSS alternativa seria superior à que existiu em nossa linha do tempo em inúmeros aspectos. A fome na Ucrânia na década de 1930 teria sido muito mais difícil de suportar se Stálin estivesse preocupado com a possibilidade de os camponeses votarem em sua reeleição. Mas será que as frustrações diárias dos consumidores nos supermercados de Leningrado em 1978 seriam realmente muito diferentes?</p>
+<p>A história do socialismo no século XX fornece evidências claras contra a ideia de que um modelo viável surgirá dialeticamente no momento histórico apropriado. Precisamos refletir cuidadosamente sobre essas questões com antecedência. Um plano não precisa corresponder perfeitamente ao resultado de um futuro processo coletivo para valer a pena ser elaborado. Ele pode demonstrar que existem maneiras desejáveis ​​de construir a sociedade para a qual estamos pedindo às pessoas que dediquem sua energia.</p>
+<p>Além disso, um plano concreto pode nos ajudar a nos mobilizar para lutar por um mundo melhor. Se os trabalhadores não acreditarem que existe uma alternativa ao capitalismo, suas expectativas políticas serão limitadas. Por outro lado, é fácil se refugiar em uma vaga e reconfortante incerteza diante de preocupações razoáveis ​​sobre como o socialismo poderia funcionar. Apresentar um modelo específico para o socialismo ajuda a esquerda socialista a evitar essa evasão e a lidar seriamente com as principais objeções à nossa visão de uma sociedade transformada.</p>
+<p>É por isso que escrevemos <a href="https://www.versobooks.com/products/2843-the-blueprint" rel="noopener noreferrer" target="_blank">o<em> </em>guia</a>, mesmo reconhecendo que, por diversos motivos, as pessoas nas cozinhas do futuro podem acabar usando outras receitas.</p>
+<p></p>
+<h2>Princípios de construção</h2>
+<p>Alguns socialistas poderiam criar objeções em relação ao experimento mental apresentado acima sobre uma URSS democrática com o seguinte argumento: “Socialistas de verdade como eu não acham que o tipo de democracia parlamentar que existe na maioria das sociedades capitalistas seja bom o suficiente. Eu quero uma democracia de baixo para cima de verdade, com comitês de trabalhadores, assembleias de bairro e assim por diante. Eu quero um planejamento participativo radicalmente descentralizado como alternativa à economia de estilo soviético.”</p>
+<p>Nosso objetor imaginário está nos dando uma prévia de um possível modelo para uma sociedade futura. Agora podemos começar a pensar se esse modelo é bom.</p>
+<p>Há pontos importantes em comum com o modelo que apresentaremos aqui. O mais óbvio é que também enfatizamos a importância da democracia no ambiente de trabalho. Também queremos fortalecer a democracia política na sociedade como um todo. Mas transferir a tomada de decisões econômicas de uma agência central de planejamento para comitês descentralizados, ou mesmo para assembleias nas quais se espera a participação de qualquer cidadão que se preocupe com o resultado, levanta pelo menos duas grandes preocupações.</p>
+<p>“A antiga ideia socialista de que os detalhes se resolverão ‘depois da revolução’ é profundamente equivocada.”</p>
+<p>Em primeiro lugar, será que os comitês e assembleias terão a função de determinar o preço de venda de cada produto? Se sim, não fica claro por que os cidadãos empoderados dessa sociedade teriam vantagem sobre os planejadores estatais, seja na URSS histórica ou em uma versão democrática imaginária dela. Eles ainda terão que resolver os problemas de informação que certamente surgirão em uma economia complexa, na qual um número impressionante de itens é comprado, vendido e produzido com uma variedade de bens de capital que, por sua vez, precisam ser adquiridos pelas empresas e fabricados. Será que estamos imaginando reuniões públicas onde os cidadãos debatem os preços de centenas de milhares de produtos — de insulina e fraldas a pneus de empilhadeira, bitolas de fio de cobre, microchips de smartphones e todos os tamanhos de parafusos usados ​​em uma fábrica de bicicletas? Há algum motivo para prever que as propostas mais populares ajudariam a coordenar a atividade econômica?</p>
+<p>Poderíamos então ter uma segunda oportunidade de analisar o projeto do opositor e sermos informados de que o dinheiro não existirá nesta versão do futuro socialista. Se assim for, isso apenas amplia a dimensão do problema. Seriam agora os comitês e assembleias responsáveis ​​por decidir o que será produzido em primeiro lugar, que tipo de pedidos de consumo serão atendidos quando vierem de cidadãos individuais e quanto de cada bem de capital será destinado a cada empresa de propriedade social para produzir os bens de consumo?</p>
+<p>Esse é o tipo de argumento que foi usado com grande eficácia por economistas antissocialistas como Ludwig von Mises e F.A. Hayek. Em seu famoso artigo sobre “<a href="https://cdn.mises.org/economic_calculation_in_the_socialist_commonwealth.pdf" rel="noopener noreferrer" target="_blank">O cálculo econômico sob o socialismo</a>”, Mises argumentou que não poderia haver uma contabilização racional dos bens de capital em um sistema de planejamento centralizado — que sem os preços que emergem das trocas de mercado, não haveria como saber a melhor forma de usar os recursos da sociedade para produzir o que as pessoas desejam. Sem os mercados determinando os preços desses bens de “ordem superior”, ele pensava, os planejadores estariam tateando no escuro enquanto tentavam coordenar as necessidades das várias empresas estatais com as preferências dos consumidores. E sem o dinheiro como medida comum de toneladas de carvão e ferro, horas de trabalho e assim por diante, sua tarefa se tornaria muito mais difícil.</p>
+<p>Não precisamos concordar com a teoria econômica geral de Mises nem com suas inclinações políticas para reconhecer isso como um problema real. É verdade que mesmo sociedades que sobrepõem políticas social-democratas, como a saúde pública nacionalizada, a estruturas fundamentalmente capitalistas demonstraram que o planejamento pode ser mais eficaz, em alguns setores, do que admitia a escola austríaca de economia. Mas esses sistemas operam com orçamentos monetários no contexto de uma economia de mercado mais ampla. Experimentos de planejamento econômico sem mercado têm sido muito menos animadores. Aqueles entre nós que desejam tentar mais uma vez ir além da social-democracia rumo ao socialismo precisam levar em conta os problemas genuínos identificados por nossos inimigos ideológicos e calibrar nossos modelos de acordo.</p>
+<p>Essa é uma questão de engenharia. Trata-se de saber se a versão do futuro que estamos considerando “funcionaria” em seus próprios termos. É esse tipo de território que exploramos em “<a href="https://www.versobooks.com/products/2843-the-blueprint" rel="noopener noreferrer" target="_blank"><em>The blueprint</em></a>” — apresentando nosso próprio modelo de socialismo e argumentando que ele pode atingir seus objetivos de forma eficaz.</p>
+<p>Contudo, essa não é a única objeção que pode ser levantada contra uma determinada visão pós-capitalista. Há também a questão dos próprios objetivos. Considere o tipo de proposta ultrademocrática que temos analisado, em que cada detalhe da atividade econômica deve ser planejado democraticamente. Mesmo que façamos a duvidosa suposição de que tal modelo funcionaria, por exemplo, para evitar a escassez em supermercados comunitários, seria desejável?</p>
+<p>Talvez não. Será que realmente queremos ter controle participativo direto sobre, digamos, o sistema de água municipal ou a rede elétrica? Ou preferiríamos nem pensar nisso?</p>
+<p>A democracia no local de trabalho é importante por muitos motivos. As pessoas não deveriam ter que receber ordens o dia todo de chefes que não lhes prestam contas. Os socialistas do passado estavam certos ao enfatizar esse ponto. Mas também estavam certos ao destacar que o socialismo significaria mais tempo livre para se dedicar a projetos pessoais. <a href="https://www.marxists.org/archive/marx/works/1845/german-ideology/ch01a.htm" rel="noopener noreferrer" target="_blank">A famosa imagem</a> de Marx de uma pessoa que passa parte do dia caçando, parte pescando e parte fazendo crítica literária sem nunca se tornar caçadora, pescadora ou crítica é uma versão extrema dessa aspiração: a visão de uma sociedade tão abundante que o consumo se dissocia do trabalho. Mas mesmo uma visão mais realista e de curto prazo do socialismo deveria prometer algo semelhante: as necessidades de todos atendidas e muito mais tempo para fazer o que bem entenderem com suas vidas.</p>
+<p>Algumas pessoas podem passar mais tempo lendo romances russos, cozinhando refeições elaboradas com pessoas queridas ou fazendo trilhas e acampando na natureza. Outras podem produzir obras verdadeiramente geniais para as quais jamais teriam tempo de outra forma — e outras ainda podem simplesmente achar que estão fazendo isso. De fato, esperamos confiantemente que uma sociedade melhor leve a uma avalanche de poesia ruim e álbuns intragáveis, já que as pessoas finalmente terão tempo para perseguir seus sonhos menos conscientes. Se isso acontecesse, saudaríamos como um sinal de progresso.</p>
+<p>Doze milhões de produtos são vendidos diretamente pela Amazon. Se os preços de todos esses doze milhões tiverem que ser definidos por meio de um processo democrático participativo ou, pior ainda, se os preços forem completamente descartados em favor de alguma fórmula sem dinheiro para determinar a quantidade e a combinação de produtos a que cada trabalhador-cidadão tem direito, muito tempo que as pessoas poderiam usar para defender seus próprios interesses acabaria sendo consumido por reuniões.</p>
+<p>É claro que existem diversos bens sociais que não podem ser gerenciados por meio de mercados e produção de mercadorias sem degradar importantes valores humanos. E mesmo quando se trata dos bens de consumo mais triviais, a metáfora dos economistas de dólares como “votos” é ofensiva em uma economia capitalista onde algumas pessoas têm milhares de vezes mais “votos” do que outras. Mas usar dinheiro comum em um supermercado controlado por trabalhadores para enviar um sinal rápido de demanda, comprando um ou dois tubos de uma marca preferida de pasta de dente, parece muito melhor para nós do que ficar sentado em uma sala de comitê discutindo quantos milhões de tubos de pasta de dente com flúor, ou antitártaro, ou clareadora atenderão às necessidades da comunidade no próximo ano.</p>
+<p>Essa é uma das razões, juntamente com as preocupações sobre incentivos e eficiência, pelas quais nosso modelo de socialismo reserva um lugar para a coordenação de mercado, ao mesmo tempo que insiste em um amplo setor público não mercantil, no controle social das finanças e na democracia no local de trabalho em toda a economia. Nosso modelo busca combinar a escolha individual com a tomada de decisão democrática coletiva em múltiplos níveis, reconhecendo as dificuldades de coordenar uma complexa divisão do trabalho para atender às necessidades e desejos de todos. Para nós, a eficiência é uma virtude socialista, assim como a igualdade, a segurança e a liberdade, porque é a chave para libertar o recurso mais importante de todos: o nosso tempo.</p>
+<p></p>
+<h2>O véu da ignorância</h2>
+<p>Isso nos leva de questões de engenharia a questões mais básicas sobre nossos objetivos. Quais valores devem guiar nosso planejamento social?</p>
+<p>Historicamente, alguns socialistas preferiram contornar essas questões, argumentando que, uma vez descobertas as leis do desenvolvimento das sociedades humanas, veríamos que o socialismo sucede o capitalismo tão naturalmente quanto o capitalismo sucedeu o feudalismo. Era possível, admitiam, que algo desse tão catastroficamente errado que a sociedade regredisse a um estágio anterior de desenvolvimento, mas havia apenas um caminho a seguir. Essa linha de pensamento quase determinista é sintetizada no que o filósofo marxista G.A. Cohen chama de “<a href="https://doi.org/10.4159/9780674029668" rel="noopener noreferrer" target="_blank">metáfora obstétrica</a>”: a velha sociedade já está grávida da nova, e tudo o que precisamos fazer é garantir que o bebê nasça em segurança.</p>
+<p>Se isso tivesse se confirmado, tanto as questões de engenharia sobre como projetar uma nova sociedade quanto as questões normativas sobre os valores que deveriam orientar sua construção seriam muito menos urgentes. A história, porém, não tem sido favorável a essa suposição.</p>
+<p>Em 1919, a revolução na Alemanha criou uma república socialista de curta duração na Baviera. Seu diretor de planejamento econômico foi o brilhante filósofo e teórico econômico Otto Neurath, que mais tarde lamentou que “faltasse preparo para <a href="https://www.haymarketbooks.org/books/510-marx-s-concept-of-the-alternative-to-capitalism" rel="noopener noreferrer" target="_blank">moldar conscientemente</a> a economia” mesmo entre os organizadores mais capazes. Brevemente preso após a derrota da república, ele refletiu sobre o que faltava em sua formação socialista: “A técnica de uma economia socialista havia sido gravemente negligenciada. Em vez disso, oferecia-se apenas crítica pura à economia capitalista e estudava-se a teoria pura marxista do valor e da história.”</p>
+<p>Problemas de concepção são problemas reais. Por outro lado, se o único futuro pós-capitalista possível ainda não está lá, à nossa espera, a questão dos valores não pode ser ignorada. Precisamos decidir quais objetivos nos importam, porque eles nos permitem avaliar nossas concepções. Quer queiramos ou não, isso nos leva ao terreno da filosofia política normativa. Um bom ponto de partida é a teoria da justiça de John Rawls.</p>
+<p>Rawls acreditava que instituições sociais justas são aquelas que podemos endossar a partir do que ele chamou de “<a href="https://doi.org/10.4159/9780674042605" rel="noopener noreferrer" target="_blank">posição original</a>”. Agentes nessa posição conhecem os fatos relevantes para decidir entre diferentes arranjos políticos e econômicos. Eles saberiam, por exemplo, como qualquer modelo funcionaria na prática — se enfrentariam escassez de bens essenciais, quão fácil seria, na prática, trocar de emprego, e assim por diante. Eles também saberiam que teriam que viver na sociedade que estavam projetando. Sua visão seria obscurecida, no entanto, por um “véu da ignorância” sobre uma questão crucial: quem eles seriam nessa sociedade.</p>
+<p>“A eficiência é uma virtude socialista, assim como a igualdade, a segurança e a liberdade, porque é a chave para libertar o recurso mais importante de todos: o nosso tempo.”</p>
+<p>Algumas das consequências disso são óbvias. Tais agentes não endossariam as leis raciais que existiam no apartheid da África do Sul ou os tipos de leis de gênero que ainda existem na Arábia Saudita, porque não saberiam a raça ou o gênero com os quais acabariam. Da mesma forma, não criariam o tipo de sociedade em que os pobres morrem de doenças facilmente tratáveis, porque não saberiam se nasceriam em famílias ricas ou pobres. Uma implicação menos óbvia do experimento mental é que aqueles que deliberam na posição original rejeitariam qualquer proposta de uma meritocracia pura, na qual algumas pessoas receberiam uma parcela maior dos recursos da sociedade sem outro motivo além de seus maiores talentos inatos. Muitos liberais e conservadores parecem achar que tal meritocracia pura seria uma utopia, mas os agentes na posição original a rejeitariam exatamente pelo mesmo motivo que rejeitariam leis racistas ou sexistas — eles não saberiam se sairiam prejudicados.</p>
+<p>A esquerda muitas vezes acaba gastando seu tempo argumentando que o capitalismo vigente não é particularmente meritocrático. CEOs de empresas de tecnologia aclamados como gênios raros pela imprensa especializada muitas vezes se revelam beneficiários de todo tipo de sorte. Receberam capital inicial de suas famílias, ou foram o único empreendedor entre vinte com a mesma ideia que por acaso estava no lugar certo na hora certa, ou se beneficiaram de favores do governo. Tudo isso é correto e merece destaque, mas a questão de Rawls é que altos níveis de desigualdade econômica não seriam justos mesmo que refletissem princípios puramente meritocráticos. Assim como você não escolhe sua raça, gênero ou origem socioeconômica, você também não escolhe se será um gênio da tecnologia de verdade.</p>
+<p>É verdade que quase todos os talentos precisam ser desenvolvidos com muito trabalho antes de serem realmente úteis para quem os possui. Ninguém chega às finais da NBA ou ganha uma Medalha Fields em matemática sem anos de aprimoramento de suas habilidades. Mas a realidade é que a grande maioria dos seres humanos não teria a capacidade de jogar basquete ou fazer matemática nesse nível, mesmo que dedicasse a vida inteira a isso. Ninguém, por ignorância, saberia qual é o seu potencial atlético ou intelectual. E assim como não saberiam se nasceriam em famílias ricas ou pobres, também não saberiam se teriam a combinação de habilidades cognitivas e sociais que — aliada a outros tipos de sorte — ajudam algumas crianças de famílias pobres a se saírem bem na escola e a ascenderem na carreira.</p>
+<p>Uma vez que você reconhece isso, fica fácil perceber como a teoria de Rawls se opõe a diversas fontes importantes de desigualdade. As coisas se complicam quando começamos a pensar em quais tipos de desigualdade seriam aceitáveis ​​para as pessoas na posição original.</p>
+<p>Rawls argumentou que, mesmo sob o véu da ignorância, poderíamos, ainda que a contragosto, tolerar desigualdades se elas atendessem a duas condições. Primeiro, as posições mais privilegiadas deveriam estar acessíveis a todos, sob condições de “igualdade justa de oportunidades”. Segundo, a existência de tais desigualdades teria que beneficiar os menos favorecidos.</p>
+<p>As desigualdades, por definição, favorecem os mais ricos. A questão de Rawls é que ainda podem existir casos em que os mais desfavorecidos na Sociedade A estejam em melhor situação do que seus pares em uma Sociedade B mais igualitária. Por exemplo, suponha que em A — mas não em B — os engenheiros de computação ganhem salários mais altos do que os trabalhadores na maioria das outras ocupações. Devido à remuneração mais alta, mais pessoas são atraídas para a área, o que acelera o progresso tecnológico. Esse progresso, por sua vez, melhora o padrão de vida de todos, incluindo os cidadãos mais pobres de A. Se estipularmos que A, apesar dessa parcela de desigualdade, ainda é mais igualitária do que qualquer sociedade atual, então um agente na posição original poderia tolerar racionalmente a diferença de renda. Mesmo que não possuísse as habilidades necessárias para se tornar um engenheiro, poderia considerar a desigualdade um preço que vale a pena pagar pelo acesso à tecnologia disponível em A, mas não em B.</p>
+<p>Nada disso significa que alguém nascido com as habilidades para ser um excelente engenheiro de computação mereça, inerentemente, um salário mais alto. Para entender por que não, imagine uma Sociedade C e uma Sociedade D, onde a ocupação incentivada com salários mais altos em C, mas não em D, fosse derrotar tigres gigantes em combate corpo a corpo. Nem C nem D possuem o nível de tecnologia necessário para abater os tigres gigantes, muito menos para engenharia de computação, e as condições iniciais são tais que ataques de tigres gigantes representam um problema social significativo. Assim como acontece com a preferência por A em relação a B, é fácil imaginar agentes escolhendo C em vez de D. Mesmo que você não tivesse o potencial para ser um dos melhores caçadores de tigres, estaria mais seguro se mais pessoas com esse potencial fossem atraídas para a caça de tigres com salários mais altos e, no geral, você poderia estar disposto a conviver com alguma desigualdade.</p>
+<p>Ainda assim, aceitar alguma desigualdade como um preço a pagar é muito diferente de endossar a desigualdade sem limites. Você pode hesitar em permitir que tais desigualdades cresçam além de um certo ponto. Distribuições extremamente desiguais de recursos podem ter consequências devastadoras para a dignidade humana, a coesão social e a democracia política. Você não quer ser devorado por um tigre, mas também não quer ser governado por uma casta guerreira que mata tigres.</p>
+<p>Rawls estava atento a esse ponto, mas um de seus críticos mais perspicazes, G.A. Cohen, levou a preocupação um passo adiante. Cohen entendia a justiça em termos do que chamava de “<a href="https://www.jstor.org/stable/j.ctt7sk94" rel="noopener noreferrer" target="_blank">igualdade socialista de oportunidades</a>”: o princípio de que as desigualdades distributivas são injustas na medida em que podem ser atribuídas a fatores fora do controle das pessoas na base da distribuição.</p>
+<p>Isso não significa, porém, que Cohen negue necessariamente que engenheiros de computação em A ou caçadores de tigres em C possam ter que ser compensados ​​com taxas um pouco mais altas em prol do bem comum. Ele deixa a porta aberta para tais possibilidades. Ele apenas conceitua isso como uma troca entre valores diferentes — sacrificar um pouco de justiça em troca de um ganho em eficiência — diferentemente de Rawls, que acredita que qualquer coisa que agentes racionais aprovassem por trás do véu da ignorância seria justa. Na visão de Cohen, Rawls está cometendo um erro ao obscurecer essa troca.</p>
+<p>A maneira como Cohen divide os conceitos direciona nossa atenção, de forma útil, para o fato de que algo importante se perde sempre que permitimos desigualdades distributivas que estão fora do controle de quem leva a pior, mesmo que, às vezes, a compensação valha a pena. Mas a diferença entre suas posições práticas pode ser menor do que parece.</p>
+<p>“Se o único futuro pós-capitalista possível ainda não está lá, à nossa espera, a questão dos valores não pode ser ignorada.”</p>
+<p>Embora Rawls deixe em aberto a questão empírica de qual sistema melhor satisfaria suas exigências em <em>Uma teoria da justiça</em>, sua combinação de perspectivas — manter a porta aberta para algum grau de desigualdade em prol de incentivos econômicos, ao mesmo tempo que enfatiza a preocupação com os menos favorecidos — soou para muitos como uma defesa do capitalismo de bem-estar social. Mas Rawls rejeitou categoricamente essa interpretação. Em <em>Justiça como equidade: Uma reformulação</em>, publicado um ano antes de sua morte, em 2002, ele concluiu que sua teoria era incompatível com o capitalismo em qualquer forma. Para entender uma das razões para isso, basta pensar na diferença entre cooperativas de trabalhadores e empresas capitalistas tradicionais.</p>
+<p>Normalmente, as escalas salariais em cooperativas não são completamente uniformes. Alguns membros trabalhadores podem ganhar mais do que outros. Mas a variação salarial é insignificante em comparação com os enormes níveis de desigualdade distributiva produzidos dentro das empresas capitalistas tradicionais.</p>
+<p>Considere a Corporação Mondragon, essencialmente uma federação de cooperativas de trabalhadores no País Basco, na Espanha. As virtudes da Mondragon são, por vezes, exageradas por esquerdistas ávidos por se apropriarem de modelos positivos. Ela opera no contexto da economia espanhola, predominantemente capitalista, e frequentemente responde aos incentivos criados por essa economia de maneiras que não refletem valores socialistas — por exemplo, contratando terceirizados, mesmo dentro da Espanha, e subcontratando empresas capitalistas no exterior. Mas o fato de os trabalhadores-membros da Mondragon não serem ideólogos socialistas rígidos, mas pessoas comuns tentando tomar decisões comerciais sensatas, torna seu relativo igualitarismo ainda mais notável. Nas cooperativas da Mondragon, a proporção entre as remunerações do executivo mais bem pago e do trabalhador com menor salário é <a href="https://www.newyorker.com/business/currency/how-mondragon-became-the-worlds-largest-co-op" rel="noopener noreferrer" target="_blank">limitada a</a> seis para um. Em comparação, nas empresas do índice IBEX-35 da Espanha, a proporção média entre a remuneração do CEO e a remuneração média do funcionário era de cerca de <a href="https://cadenaser.com/nacional/2025/04/14/un-ejecutivo-del-ibex-cobra-735-veces-mas-que-sus-trabajadores-cadena-ser/" rel="noopener noreferrer" target="_blank">74 para um</a> em 2023. Entre as empresas do índice S&amp;P 500 nos Estados Unidos, a proporção média entre a remuneração do CEO e a do trabalhador mediano foi <a href="https://aflcio.org/paywatch-2024" rel="noopener noreferrer" target="_blank">de 268 para um</a> naquele ano.</p>
+<p>A diferença mais óbvia entre a Mondragon e suas concorrentes não cooperativas é que, na Mondragon, os próprios trabalhadores votam em seus salários. É possível convencer a maioria dos trabalhadores-membros, que têm um incentivo racional para não deixar a empresa falir, a permitir que alguns de seus colegas recebam mais do que eles por uma série de razões. Os trabalhadores podem concordar porque esses colegas possuem habilidades técnicas particularmente desejáveis, ou porque estão dispostos a assumir responsabilidades estressantes e exigentes, ou ainda porque estão dispostos a realizar trabalhos sujos ou perigosos. Mas boa sorte em convencer seus colegas de que você deve receber uma parte maior do produto do trabalho coletivo de todos para que possa comprar sua própria nave espacial. Isso não vai acontecer.</p>
+<p>E mesmo essa diferença de seis para um deve ser compreendida no contexto da economia espanhola, onde a Mondragon precisa competir por talentos gerenciais e técnicos com empresas capitalistas tradicionais. A diferença seria ainda menor em uma economia onde a democracia no local de trabalho e, portanto, escalas salariais muito mais igualitárias fossem a norma.</p>
+<p>A teoria de Rawls admite a desigualdade distributiva quando quem acaba ficando com a extremidade mais curta da vara ainda a segura por uma vara mais longa do que seguraria em qualquer arranjo igualmente desejável, onde todas as varas tivessem o mesmo tamanho. O que conta como “igualmente desejável” é menos óbvio. Agentes que escolhem entre sociedades possíveis sob o véu da ignorância podem, por exemplo, aceitar um padrão de consumo ligeiramente inferior em troca do aumento em sua qualidade de vida geral, obtido ao evitar as pequenas indignidades sociais frequentemente associadas à desigualdade ou ao vivenciar um senso de comunidade mais robusto.</p>
+<p>Mesmo que você concorde com Rawls que alguma desigualdade distributiva pode ser justificada pelo seu princípio do “<em>maximin</em>” (maximizar o mínimo), é difícil acreditar que precisamos de tanta desigualdade quanto a gerada pelo capitalismo. Os fatores que impulsionam a desigualdade limitada dentro das cooperativas de trabalhadores são precisamente aqueles relevantes para manter o motor da produtividade funcionando. Mas só se consegue que alguns indivíduos adquiram centenas de vezes mais do produto coletivo do que outros quando os beneficiários diretos dessa desigualdade, ou seus defensores, têm o poder de simplesmente tomar essa parte sem ter que se justificar perante os que ficam com a pior parte.</p>
+<p></p>
+<h2>Cálculo e incentivos</h2>
+<p>Os pensadores capitalistas argumentam que, embora diferentes formas de distribuir a renda após a produção possam ser plausíveis, a sociedade se beneficia da desigualdade no poder econômico. Eles acreditam que as tentativas de colocar os meios de produção sob controle econômico coletivo apenas sufocarão a inovação, desencorajarão o investimento e, em última instância, reduzirão a riqueza disponível para distribuição. Em vez de distribuir de forma mais equitativa os benefícios de uma economia moderna, as tentativas de socialização apenas matarão a galinha dos ovos de ouro. Os cidadãos do futuro socialista estariam envolvidos em um racionamento igualitário de migalhas. Se isso estiver correto, mesmo os agentes na posição original poderiam estar dispostos a reconsiderar o capitalismo.</p>
+<p>O debate do século XX sobre o “cálculo socialista” centrou-se exatamente nessa questão. Do lado socialista, <a href="https://competitionandappropriation.econ.ucla.edu/wp-content/uploads/sites/95/2018/06/LangeEcTheorySocI.pdf" rel="noopener noreferrer" target="_blank">Oskar Lange</a> aceitou o argumento de Mises de que gerir uma divisão complexa do trabalho exigia um sistema de preços, mas negou que isso exigisse mercados. Os planejadores socialistas, tanto no centro quanto nos locais de trabalho, poderiam desenvolver preços e coordenar a produção seguindo um conjunto de procedimentos que reproduziriam os resultados ótimos dos modelos de “concorrência perfeita” de mercado, sem, de fato, precisar dos mercados. (Este sistema ainda envolvia dinheiro, lojas e um mercado de trabalho, porém, para identificar e precificar adequadamente as preferências das pessoas em relação ao consumo e ao trabalho.) Ele acreditava que isso superaria o capitalismo em seu próprio jogo, porque os mercados capitalistas reais estão longe do ideal de concorrência perfeita e porque os planejadores poderiam levar em conta fatores como a degradação ambiental, que os mercados ignoram sistematicamente. A precificação socialista seria mais eficiente, não menos. Chamamos a visão de Lange e outras semelhantes de “socialismo algorítmico” ou “socialismo de preços” para distingui-las do “socialismo de mercado”.</p>
+<p>A resposta hayekiana foi argumentar que tal sistema enfrentava problemas relacionados à informação e aos incentivos. É verdade que, ao contrário da forma como esse debate é frequentemente lembrado, os algoritmos de Lange não exigiam que os planejadores no centro recebessem e processassem uma vasta quantidade de informações de toda a economia. Tratava-se, na verdade, de um modelo de processamento de informações e tomada de decisões descentralizado. O problema era que o modelo de Lange dependia de gerentes locais avaliarem e agirem honestamente com base em informações sobre as possibilidades técnicas de produção em seus próprios campos. Na realidade, porém, eles teriam enormes incentivos para manipular esses números a fim de manter seus próprios cargos e poucos motivos para buscar novas e melhores maneiras de fazer as coisas.</p>
+<p>Por outro lado, <a href="https://mises.org/library/book/collectivist-economic-planning" rel="noopener noreferrer" target="_blank">Hayek</a> reconheceu que os mercados do mundo real tinham pouca semelhança com os modelos estáticos e perfeitamente competitivos da teoria do equilíbrio geral. Mas argumentou que essa objeção não abordava o ponto principal sobre por que os mercados, em sua realidade complexa e imperfeita, conseguem realizar a coordenação econômica de uma forma para a qual não há alternativa óbvia. O mundo real é um mundo de incertezas e mudanças constantes; ninguém possui mais do que uma fração das informações relevantes sobre as possibilidades técnicas e o que as pessoas desejam. A busca pelo lucro em uma competição com outros incentiva as pessoas a agirem com base nas informações que possuem, e os preços que surgem incorporam essas informações, retroalimentando-as aos participantes e coordenando suas atividades. É caótico; não é perfeito; mas funciona.</p>
+<p>“Reconhecemos a importância dos mercados e da produção de mercadorias em nosso modelo. Mas rejeitamos categoricamente a sugestão de que isso demonstre que precisamos do capitalismo.”</p>
+<p>Reconhecemos que há um ponto válido aqui e que alguns modelos de socialismo realmente fracassam nesses aspectos. Aceitamos a importância dos mercados e da produção de mercadorias em nosso modelo. Mas rejeitamos categoricamente a sugestão de que isso demonstre que precisamos do capitalismo.</p>
+<p>Em <a href="https://www.versobooks.com/products/2843-the-blueprint" rel="noopener noreferrer" target="_blank"><em>The blueprint</em></a>, esboçamos um modelo de uma economia totalmente socialista — uma em que, em vez de serem propriedade de uma classe capitalista separada da classe trabalhadora, os meios de produção foram socializados. O sistema econômico proposto, assim como o capitalismo, é misto. “Privado” e “público” talvez não sejam os termos mais adequados aqui, visto que essas esferas estão ainda mais interligadas no socialismo que idealizamos do que já estão em economias capitalistas altamente desenvolvidas, mas a distinção é bastante clara. Há um setor “privado” de produção de mercadorias, no qual os custos são cobertos pelas vendas no mercado, e um setor “público” não mercantilizado, que opera com recursos públicos. O setor não mercantilizado inclui a burocracia governamental e as agências sob controle central, mas também pode incluir uma variedade de agências comunitárias com considerável autonomia, que, no entanto, são financiadas pelos cofres públicos.</p>
+<p>As empresas do nosso setor de produção de commodities são democráticas de duas maneiras. Primeiro, as estruturas de gestão e administração são escolhidas pela força de trabalho da empresa por meio de um processo democrático. Segundo, cada trabalhador recebe uma parte da renda residual da empresa. Contudo, são empresas porque são entidades autônomas produtoras de commodities que precisam cobrir os custos com as receitas e cumprir suas obrigações contratuais de pagamento.</p>
+<p>Diversos modelos de constituição empresarial são possíveis, mas o padrão para empresas de médio a grande porte envolve a democracia representativa, com diretores eleitos nomeando e supervisionando administradores responsáveis ​​pela gestão do dia a dia. Essa estrutura pode ser complementada por comitês e referendos, conforme necessário, mas a administração rotineira geralmente é melhor conduzida por profissionais especializados com experiência em contabilidade, logística, entre outras áreas. A democracia cumpre seu papel ao garantir que os administradores sejam, em última instância, responsáveis ​​perante seus colegas e que as condições de trabalho e as principais questões estratégicas tenham ampla aprovação.</p>
+<p>A viabilidade financeira limita a empresa democrática, assim como limita a empresa capitalista. A necessidade de cobrir custos e cumprir obrigações de fluxo de caixa, enquanto se compete com outras empresas, é o que vincula a empresa à divisão do trabalho mais ampla em toda a economia — uma cadeia de coordenação que liga tudo, desde a venda de cafés com leite em cafeterias até o serviço federal de saúde comprando equipamentos médicos de ponta para uso em hospitais estatais, passando pelas cooperativas de fabricação de automóveis substituindo peças defeituosas em suas forjas.</p>
+<p>Essa disciplina financeira reforça a virtude socialista da eficiência, garantindo que a empresa utilize os recursos sociais de forma razoável para atender às necessidades e desejos das pessoas. Assim como as empresas capitalistas, as empresas democráticas recebem receita com a venda de sua produção e a utilizam para pagar por novos insumos para o próximo ciclo produtivo. Assim como as empresas capitalistas, elas necessitam de investimento: alguns insumos precisam ser pagos muito antes do recebimento da receita que cobre esses custos. Esse investimento precisa ser financiado de alguma forma. Assim como nas empresas capitalistas, suas receitas e custos futuros são incertos em certa medida. A demanda e os preços de mercado mudam ao longo do tempo. Elas precisam tomar decisões de investimento e produção diante da incerteza e, portanto, enfrentam riscos financeiros.</p>
+<p>Até aqui, tudo bem, Mondragon. As principais diferenças entre as empresas controladas pelos trabalhadores em nosso modelo e as cooperativas de trabalhadores existentes sob o capitalismo têm a ver com seu status legal e com a rede mais ampla de instituições em que operam. <a href="https://doi.org/10.1017/9781316459423" rel="noopener noreferrer" target="_blank">Pesquisas empíricas</a> sobre cooperativas sob o capitalismo sugerem que elas têm níveis de produtividade semelhantes e sobrevivem na mesma proporção que qualquer outra empresa, uma vez iniciadas. O principal problema é que sua taxa de natalidade é muito menor.</p>
+<p>Parte disso é, sem dúvida, atribuível a fatores culturais. Em pelo menos algumas sociedades com a doutrina jurídica da “cobertura”, segundo a qual muitos dos direitos das mulheres casadas retornavam aos seus maridos, pode ter sido tecnicamente possível que homens e mulheres fizessem contratos mais igualitários, semelhantes ao casamento, mas mesmo feministas convictas raramente o faziam. A maioria das pessoas em qualquer sociedade tende a recorrer às instituições normais preexistentes ao longo da vida — casando, formando famílias, abrindo empresas ou procurando emprego — e mesmo trabalhadores que poderiam juntar recursos com um grupo de amigos para criar uma pequena cooperativa normalmente não o fazem.</p>
+<p>Outros fatores, porém, têm um peso muito maior. Os problemas mais fundamentais envolvem o financiamento. Para produzir, os coletivos precisam não só da sua própria mão de obra, mas também de ferramentas, equipamentos, instalações e assim por diante. Precisam financiar essas coisas de alguma forma. O problema não é apenas que os bancos capitalistas e outras instituições financeiras sejam cautelosos em emprestar dinheiro a coletivos por causa da sua estrutura jurídica atípica. Nem mesmo é que as empresas capitalistas tradicionais sejam, muitas vezes, uma aposta mais segura para as instituições de crédito, já que têm uma vantagem competitiva sobre as cooperativas. As empresas capitalistas podem se movimentar em busca de lucros maiores e não precisam garantir a aprovação democrática dos trabalhadores cujas vidas elas impactam negativamente ao fazê-lo.</p>
+<p>Mesmo além desses fatores, existem aspectos básicos da economia das cooperativas de trabalhadores que as tornam incompatíveis com as relações financeiras capitalistas. Se os trabalhadores-membros autofinanciam a organização, cada um precisa trazer consigo algum patrimônio pessoal ou contrair uma segunda hipoteca para financiar sua parte. Eles não apenas dependem do emprego para receber um salário, como também têm uma parcela substancial de seu patrimônio atrelada a ele, o que os torna especialmente vulneráveis ​​à falência da empresa. Se a cooperativa cresce reinvestindo parte de seus lucros, seus membros acumulam riqueza coletiva, mas o que acontece quando alguém quer se aposentar ou sair para trabalhar em outro lugar? O que acontece quando a cooperativa quer se expandir, admitindo novos trabalhadores-membros? Ou os novos membros precisam trazer seu próprio patrimônio, ou os membros antigos se verão obrigados a compartilhar sua riqueza acumulada com os recém-chegados.</p>
+<p>No primeiro caso, a contratação de novos funcionários torna-se uma combinação de entrevistas de emprego e busca por investidores. No segundo caso, os membros já estabelecidos podem estar mais relutantes em expandir, já que isso significa compartilhar os lucros com mais pessoas. A alternativa ao autofinanciamento pelos membros é o empréstimo, mas isso traz seus próprios problemas. Ao tomar empréstimos, uma cooperativa promete pagamentos fixos ao credor em datas determinadas, enquanto suas próprias receitas permanecem incertas em algum grau. Sem a segurança do financiamento de investidores externos que podem ser remunerados com participação acionária, as cooperativas acabam altamente alavancadas, com a renda de seus membros-trabalhadores exposta às oscilações do negócio.</p>
+<p>Diante disso, não é difícil entender por que as cooperativas de trabalhadores são raras no capitalismo (e por que, ironicamente, são mais comuns na forma de parcerias entre profissionais de alta renda em áreas de baixa intensidade de capital, como o direito). Existem também problemas de ação coletiva envolvidos na formação de cooperativas em um contexto capitalista. Como nossas vidas econômicas são regidas por regras capitalistas que permitem a concentração do poder individual, qualquer pessoa cuja motivação para iniciar uma cooperativa seja simplesmente ter uma vida melhor teria todos os incentivos para almejar o impossível e tentar se tornar um empregador. A taxa de falência de empresas de todos os tipos é extremamente alta, e iniciar um novo empreendimento exige um esforço enorme. Por que fazer tudo isso com a tênue esperança de melhorar marginalmente sua posição, tornando-se um cidadão igualitário de uma mini república econômica? Por que não usar esse esforço para tentar conquistar uma vida muito melhor, construindo um mini reino econômico onde você seja o rei? Se, depois de todo esse suor e sangue, o resultado mais provável for que você acabe de volta à classe trabalhadora subordinada, por que não tentar ao menos chegar ao trono?</p>
+<p>Só esses problemas já significam que trabalhadores motivados principalmente por seus próprios interesses individuais têm muito menos probabilidade do que socialistas convictos de se envolverem em tentativas de criar cooperativas. E esses socialistas convictos provavelmente farão o cálculo racional de que seu tempo e esforço teriam mais impacto na sociedade ao seu redor se fossem gastos organizando sindicatos em grandes empresas capitalistas, em vez de trabalhar quatorze horas por dia para colocar em funcionamento uma cooperativa de café local.</p>
+<p>“Assim como o capitalismo exigiu um conjunto de instituições sociais diferentes do Antigo Regime, uma economia socialista estável e próspera só pode surgir com base em novas instituições socialistas.”</p>
+<p>A situação piora. Para entender a dimensão do problema, imagine que você pudesse pedir a um gênio da lâmpada que reestruturasse instantaneamente todas as empresas existentes e as colocasse sob a propriedade democrática e coletiva de seus trabalhadores, sem alterar mais nada na estrutura da economia. O resultado não seria uma forma estável de socialismo de mercado, mas um arranjo que as forças de mercado eventualmente empurrariam de volta para algo reconhecível como capitalismo. As empresas, sejam capitalistas ou controladas por trabalhadores, mais cedo ou mais tarde fecham as portas, e as pessoas que antes trabalhavam nelas precisam de novos empregos. Cooperativas que buscam expandir suas operações e aumentar a renda de seus membros têm um incentivo para contratar novos trabalhadores como funcionários regulares, em vez de coproprietários, e pessoas que estão desempregadas há algum tempo têm um incentivo para aceitar esse status reduzido. E cooperativas inteiras muitas vezes teriam um incentivo para se transformar em empresas capitalistas tradicionais, vendendo participações societárias para outras empresas ou indivíduos ricos.</p>
+<p>A lição aqui não é que seja uma missão impossível tentar ir além do capitalismo por completo, nem que a única maneira de fazê-lo seja aprender a conviver com os problemas de cálculo e incentivo causados ​​por um planejamento totalmente sem mercado. Em vez disso, a lição é que, assim como o capitalismo exigiu um conjunto de instituições sociais diferentes do Antigo Regime, uma economia socialista estável e próspera só pode surgir com base em novas instituições socialistas.</p>
+<p></p>
+<h2>Fim do realismo capitalista</h2>
+<p>Não se engane: em nosso modelo, grande parte da economia estaria sob propriedade estatal direta, como parte do setor público. Uma empresa de seguro saúde controlada pelos trabalhadores, por exemplo, teria os mesmos incentivos negativos que uma empresa de seguro saúde capitalista comum, e sabemos, pela experiência das social-democracias, que esse é exatamente o tipo de atividade para a qual os benefícios sociais da desmercantilização superam em muito quaisquer preocupações de cálculo. Argumentos semelhantes se aplicam a setores como educação, energia, transporte e telecomunicações. Também concordamos com a posição socialista tradicional de que os setores estratégicos da economia devem ser incorporados ao domínio do planejamento estatal e que o setor não mercantilizado será maior do que o típico no capitalismo. <a href="https://www.versobooks.com/products/2843-the-blueprint" rel="noopener noreferrer" target="_blank"><em>The blueprint</em></a> aborda a propriedade estatal no capítulo seis, a distribuição de renda no capítulo sete e a política macroeconômica no capítulo oito. Fundamentalmente, essa forma de gestão inclui o sistema bancário que, em nosso modelo, abrange todo o sistema financeiro e está inteiramente sob controle público.</p>
+<p>Contudo, pelas razões apresentadas acima e desenvolvidas no quarto capítulo do livro, haverá também um amplo setor de mercado de produção de mercadorias por empresas democráticas. Estas serão “privadas” no sentido de serem instituições autogovernadas e autônomas em relação ao Estado. Mas os trabalhadores não possuirão ações das empresas que possam ser compradas ou vendidas, assim como os cidadãos não podem vender seus votos na próxima eleição municipal para outro cidadão. Os trabalhadores podem entrar ou sair de uma empresa da mesma forma que os cidadãos podem entrar e sair de jurisdições, mas partes de nenhuma delas estarão à venda. E os ativos produtivos — os próprios “meios de produção” físicos — seriam essencialmente alugados à empresa pela comunidade em geral.</p>
+<p>A criação de novas empresas e a expansão das já existentes envolvem parcerias entre bancos públicos e empresas controladas por trabalhadores. Os trabalhadores-membros não investem seu próprio patrimônio nas empresas. O investimento em bens de capital e outros ativos provém dos bancos associados. Os mecanismos de financiamento diferem das formas capitalistas de dívida e capital próprio, sendo concebidos especificamente para combinar a democracia no local de trabalho com o controle democrático, em nível nacional, do uso dos recursos sociais. O sistema bancário público aloca recursos financeiros onde são mais necessários, gerenciando e distribuindo os riscos. As empresas coletivas individuais tornam-se custodiantes, e não proprietárias, da parcela da riqueza social que lhes é confiada. Elas têm liberdade para administrar as coisas à sua maneira, mas são responsáveis ​​por manter o valor da riqueza social e têm incentivos para utilizá-la de forma eficiente, a fim de atender às necessidades e desejos de seus concidadãos. <a href="https://www.versobooks.com/products/2843-the-blueprint" rel="noopener noreferrer" target="_blank"><em>The blueprint</em></a> descreve o sistema no nível da empresa no capítulo cinco e no nível macroeconômico no capítulo oito.</p>
+<p>A possibilidade de falência de empresas é um componente necessário de uma economia dinâmica. Mesmo sem falência total, empresas e setores inteiros às vezes precisam encolher em vez de crescer. Nosso modelo equilibra segurança com mecanismos que incentivam as pessoas a se mudarem para locais de trabalho onde são necessárias. Um Estado de bem-estar social apoia pessoas temporariamente desempregadas, oferecendo acesso à educação e treinamento para o desenvolvimento de novas habilidades. Enquanto isso, o sistema bancário público desempenha um papel ativo na criação de novas empresas democráticas, aproveitando as informações detalhadas que coleta para identificar as áreas com maior potencial de desenvolvimento. A política macroeconômica está comprometida com o pleno emprego, para que ninguém que deseje um trabalho remunerado fique desempregado por muito tempo.</p>
+<p>Esse tipo de socialismo não seria uma utopia nem um ponto final livre de conflitos para a história da humanidade. Nem sequer concretizaria plenamente o princípio de Cohen da “igualdade socialista de oportunidades”, visto que, mesmo com escalas salariais determinadas democraticamente, trabalhadores com habilidades particularmente desejáveis ​​muitas vezes estariam em posição de exigir uma remuneração acima da média, e parte disso refletiria a pura sorte do talento natural. (<a href="https://www.versobooks.com/products/2843-the-blueprint" rel="noopener noreferrer" target="_blank"><em>The blueprint</em></a> discute a distribuição e redistribuição de renda no capítulo sete.) Mas qualquer pessoa que veja o princípio de Cohen como sua bússola deve reconhecer este modelo como um enorme passo na direção certa. Talvez um caminho para uma reorganização ainda mais profundamente igualitária da estrutura básica da sociedade, sem custos inaceitáveis ​​para outros valores, como a eficiência econômica, se torne visível quando chegarmos a esse ponto. Assim como o grau de progresso social alcançado em muitas democracias capitalistas avançadas seria inimaginável para um cartista lutando pelo sufrágio universal masculino na Grã-Bretanha do início do século XIX, é possível que a visão de socialismo apresentada neste livro não chegue nem perto das virtudes do tipo de socialismo sob o qual todos viveremos no século XXIV. Não podemos saber.</p>
+<p>No entanto, nosso objetivo ao propor um modelo não é dar a palavra final sobre o progresso futuro e descartar outras possibilidades. É demonstrar que é possível e desejável ir muito além do que a maioria das pessoas vivas hoje com inclinações amplamente socialistas consegue imaginar.</p>
+<p>Vivemos numa época em que desenvolvimentos geopolíticos imprevisíveis e o progresso tecnológico vertiginoso podem tornar o futuro incerto, mas em que o que Mark Fisher chamou de “<a href="https://www.collectiveinkbooks.com/zer0-books/our-books/capitalist-realism-new-edition" rel="noopener noreferrer" target="_blank">realismo capitalista</a>” prevalece em questões econômicas fundamentais. Os esquerdistas estadunidenses sonham com um sistema de saúde universal, os esquerdistas britânicos com a reestatização das ferrovias do país, e assim por diante, mas é difícil imaginar qualquer alteração nas relações de propriedade básicas que moldam nossas sociedades. Ao apresentar um esboço para um futuro possível, pretendemos estimular nossa imaginação e recolocar as questões políticas maiores em pauta.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>é editor e fundador da revista Jacobin.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+
+<p>é editor de <em>Jacobin</em> e palestrante em economia política na University of Sydney.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+
+<p>é professor de filosofia e autor de Give Them An Argument: Logic for the Left. Ele faz um quadro semanal chamado "The Debunk", no The Michael Brooks Show.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/ser-anticapitalista-nao-basta/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

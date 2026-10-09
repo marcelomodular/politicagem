@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“O algoritmo beneficia sentimentos extremos”, comenta diretora de organização que combate poder das big techs - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">“O algoritmo beneficia sentimentos extremos”, comenta diretora de organização que combate poder das big techs</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Fundação Perseu Abramo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://fpabramo.org.br/o-algoritmo-beneficia-sentimentos-extremos-comenta-diretora-de-organizacao-que-combate-poder-das-big-techs/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://fpabramo.org.br/wp-content/uploads/2026/10/fabiorodriguespozzebom_agencia-brasil.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: “O algoritmo beneficia sentimentos extremos”, comenta diretora de organização que combate poder das big techs
+                            </p>
+                            
+<p>Após o resultado do legislativo apontar votação expressiva de candidatos com forte atuação nas redes sociais, sobretudo jovens, tanto no campo da direita quanto da esquerda, a presença das campanhas no ambiente digital, além de inevitável, passou a ser considerada prioritária, principalmente para a esquerda, já que o bolsonarismo está consolidado no espaço virtual. </p>
+<p>Em meio a preocupação com a disseminação desenfreada de <strong>notícias falsas</strong>, uso de <strong>Inteligência Artificial</strong> fora das diretrizes da legislação eleitoral, um assunto ganha destaque: a falta de transparência dos algoritmos que ditam as regras. </p>
+<p>Um estudo do <strong>NetLab</strong>, laboratório de pesquisa da Escola de Comunicação da Universidade Federal do Rio de Janeiro apontou que houve veiculação de anúncios ilegais nas plataformas da <strong>Meta, no Kwai, TikTok e Youtube</strong> durante a campanha, inclusive no dia de votação do 1º turno. </p>
+<p>Em março deste ano, o Tribunal Superior Eleitoral convocou uma reunião com representantes das big techs. Desde então, pouca coisa foi efetivamente feita, na opinião de <strong>Daniela da Silva, diretora-executiva da CTRL+Z,</strong> organização que atua pelos direitos do usuário nas redes. </p>
+<p>De acordo com a ativista, que trabalhou na Meta, a falta de transparência é um sintoma claro de uma atuação das empresas que não contribui com a democracia. Em entrevista, Daniela da Silva disse que “adotar as práticas e as pautas do inimigo” não favorece o engajamento e que “esse é o momento de cada um fazer aquilo que faz de melhor, nas redes e fora delas”.  Confira: </p>
+<p><strong>A cada nova eleição, o crescimento da presença do debate político nas redes sociais volta à pauta, tanto no interior das campanhas quanto na sociedade. Qual o seu balanço nessas eleições?</strong></p>
+<p>Uma conclusão que a gente pode chegar depois desse primeiro turno é que a política está acontecendo nas redes. E uma complicação que a gente precisa considerar quando a política vai para o ambiente das redes é que as plataformas digitais majoritárias, como a gente conhece, não foram espaços criados para que a gente faça debates políticos significativos, não foram pensados para a construção de movimentos, foram desenhadas com intenção de maximizar engajamento. Elas foram desenhadas para gerar lucro para os acionistas das grandes empresas de tecnologia, para as big techs. E a forma como uma plataforma é desenhada, a arquitetura, determina como o debate acontece, determina nosso comportamento nessas redes. Então, cada vez mais a gente acaba valorizando na política figuras que são figuras capazes de atrair atenção nesses espaços, que não são neutros. A gente precisa superar essa ideia da neutralidade da tecnologia, que a gente tem uma ferramenta e ela pode ser usada para o mal, mas ela também pode ser usada para o bem. Tecnologia não é neutra, né? Ela determina a forma como a gente se comunica, a nossa vida social, a vida coletiva. E isso acaba fazendo com que essas pessoas que surfam um pouco na tecnologia para conseguir atrair mais seguidores, acabam fazendo até uma colonização da política pela economia da atenção, que eu acho que é muito importante a gente refletir. Por mais que a gente tenha tido vitórias, por mais que a gente tenha lideranças jovens, progressistas, democratas, que também se apropriam da forma como essas redes funcionam para se projetar politicamente, o que é realmente ótimo, a gente não pode ignorar o fato de que tem uma avassaladora projeção de quadros de extrema direita, quadros não democráticos, que são pelo retrocesso em direitos e isso tem tudo a ver com a arquitetura dessas redes, com a forma como debate polarizado, um debate acirrado, violento se estabelece nesses espaços. Então, por mais que a gente consiga projetar alguns quadros e ter algumas lideranças do campo democrático, do campo progressista, a gente precisa estar muito ciente que estamos jogando o jogo em um campo cujas regras estão contra nós do campo progressista e democrático. Porque elas têm relação com a acumulação de recursos, lucro e com essa lógica da economia da atenção, de maximizar o engajamento e maximizar um tipo de relação com o conteúdo que muitas vezes é bastante predatório. </p>
+crédito: Divulgação CTRL+Z
+<p><strong>Saiu um estudo recente do NetLab, laboratório de pesquisa da UFRJ, que apontou o descumprimento das big techs em relação à divulgação de anúncios eleitorais no dia de votação. Pode falar um pouco sobre essas regras? O que estava previsto? Como elas se comportaram no primeiro turno?</strong></p>
+<p>Eu vou ser muito categórica, as big techs descumpriram a regulamentação eleitoral durante esse período, aliás, desde o começo oficial das eleições e até antes, na verdade, desde março, quando saíram as resoluções eleitorais e até agora. Por mais que o próprio TSE, na figura do ministro Kássio Nunes Marques, tenha ressaltado a colaboração das plataformas e falado sobre elas estarem atentas a essas resoluções, várias das regras colocadas foram desrespeitadas. Por exemplo, o uso de ferramentas de inteligência artificial que seguem recomendando e fazendo o ranqueamento de candidatos, plataformas que seguem vendendo anúncios políticos para agentes estrangeiros, pagos com moeda estrangeira, anúncios irregulares de diversas formas, tanto no conteúdo, anúncios que, por exemplo, divulgam ataques ao sistema eleitoral brasileiro, enfraquecem a narrativa a respeito do nosso sistema de votação, a respeito da própria capacidade do TSE, da democracia brasileira de fazer o controle do pleito, e a gente tem ataques a oponentes, coisas que não deveriam ser veiculadas na forma de anúncio e foram monetizadas, levando recurso direto para dentro de plataformas da Meta e do Kwai. A gente tem baixíssima transparência na divulgação de dados das bibliotecas de anúncio, o que impede que a gente faça o cruzamento dos dados dessas plataformas com os dados de despesa de campanha do TSE, porque trabalham com uma com uma precificação em faixas de preço por anúncio e não o preço correto, que é o que a gente deveria poder ver. A gente teve medidas de transparência que foram cumpridas de última hora com baixa qualidade técnica, não permitindo o acesso dos pesquisadores. A gente teve uma remoção em massa de conteúdos que algumas plataformas fizeram, né? Então, em nome de cumprir as regras do TSE, acontece de você postar um conteúdo e, de repente, esse conteúdo é removido. Aí, você recebe um aviso de que, de acordo com as normas do TSE, esse conteúdo foi tirado do ar. E, na verdade, esse conteúdo não está contra as normas. Essas empresas precisam ter a responsabilidade, o investimento, a capacidade técnica de navegar o contexto regulatório do Brasil de acordo, essa é a responsabilidade delas. Então, eu acho que a gente tem uma série de violações dessas regulações que aconteceram nos últimos dias, nos últimos meses e a gente precisa prestar absoluta atenção nisso, porque isso está afetando a forma como as eleições estão acontecendo no Brasil. São empresas estrangeiras com um poderio econômico, um poder político sem precedentes na história do capitalismo, que tem ali o controle sobre boa parte do debate público brasileiro porque as ferramentas da Meta estão na mão da maioria dos brasileiros. E o que estamos vendo, para usar o português claro, é muita ‘passação de pano’ para as empresas, como se o pouco que elas fizeram, que foi a assinatura de um termo de cooperação e estarem presentes numa sala de situação que o TSE abriu, fosse o suficiente, isso está longe de ser suficiente. O Brasil não apenas é um mercado consumidor de grande interesse, como também é um ponto de atenção político para elas. Conseguimos muitas vezes enfrentar essas empresas, propondo regulações que ampliam a responsabilidade delas. Então, não tem espaço para passar pano, elas precisam ser responsáveis em relação ao processo democrático que está acontecendo no Brasil, e até agora elas não estão sendo. </p>
+<p><strong>Entrando já na questão dos algoritmos, o professor Marcos Nobre fala sobre o Partido Digital Bolsonarista como um grupo que se articula nas redes também a partir das relações afetivas que existem fora delas, com a vantagem de que estão em campanha permanente e não só no processo eleitoral. Muitos desses conteúdos são caracterizados pelo ódio. O que podemos dizer sobre esse engajamento? </strong></p>
+<p>Gosto muito da análise do professor Marcos Nobre, e acredito que, além do ódio, podemos ampliar dizendo que o algoritmo beneficia mais os sentimentos extremos. Tudo que está no extremo, que mobiliza sentimentos de medo, culpa, desaprovação da posição do outro ou de fortalecimento das minhas próprias crenças, produz engajamento nessas redes e porque produz engajamento, o algoritmo tende a beneficiar. O campo progressista, que a gente também pode ampliar aqui para falar de campo democrático, entende a política de uma maneira que eu acho que é diferente. Existe o entendimento de que o debate tem que ter um certo nível de qualidade, em que você precisa escutar as partes, construir posições com calma, com tempo para pensar. Nada disso é privilegiado pelos algoritmos, porque eles não são construídos para isso. Eles são construídos para levar as pessoas a uma participação rápida, com engajamento rápido a partir de conteúdos muitas vezes passageiros pela sua timeline, então o foco é entregar cada vez mais conteúdo em um ritmo vertiginoso para também poder coletar de você cada vez mais dados que, no final, é a matéria-prima que essas empresas transformam em produto para os seus anunciantes. Nessa lógica, o campo democrático não tem como ser beneficiado porque se a gente está falando de um debate de qualidade, que privilegie diversos pontos de vista, que leve em conta a diversidade, como que esse tipo de conversa pública vai florescer em ambientes que, justamente, não são construídos para isso? Então, eu concordo com a leitura de que o algoritmo acaba beneficiando a extrema direita, pelo fato dela ser extrema, com posições que acabam levando as pessoas a interagir com conteúdo. E também são feitas reflexões rápidas, conteúdo fácil, que te leva ali a uma explicação fácil para problemas que são complexos. E tudo isso eu acho que é muito danoso para a política, para boa política, né? Para política com P maiúsculo, que eu acho que é aquela que o campo democrático deveria fazer. Eu não sou a favor de adotar as mesmas táticas. Eu acho que a gente precisa ocupar essas redes com consciência de que não estamos em território neutro, com um nível importante de autocrítica a respeito da forma difícil, como a gente costuma falar muitas vezes. Eu acho que ampliar o debate, fazer o debate para mais gente é facilitar o debate muitas vezes, e que a gente precisa se atentar a isso. Mas eu não acho que reproduzir extremismo para poder surfar na onda do algoritmo seja algo que a gente precise adotar como campo progressista, porque a gente simplesmente deixa de ser o campo progressista, quando a gente faz isso. Temos quadros que são muito inteligentes no uso dessas redes, que conseguem movimentar sentimento e muitas vezes um sentimento muito importante, que é o de pertencimento, o de sonho de futuro, que é o de conseguir levar as pessoas a se engajarem com a política. Temos muito a aprender com esses quadros, essa juventude que veio das redes e que agora também consegue se eleger com pautas progressistas, elas têm muito a ensinar para a gente nesse sentido. Mas eu tô longe de ser uma pessoa que defende vídeos feitos com IA, vídeos rápidos e que muitas vezes colocam pessoas em situações extremas para poder explicar uma pauta política ou persuadir. Acredito que a gente precisa aumentar o nosso peso nessas redes para que elas possam ter também uma quantidade maior de conteúdos que vem do campo democrático, equilibrando a balança. Estar presente nas redes, e isso é um trabalho de longo prazo, que precisa ser feito após as eleições também.</p>
+<p><strong>Sobre esse ponto da IA, que você citou, existia um medo muito grande de que o uso fosse desenfreado nessas eleições, mesmo com regras do TSE, em especial a preocupação com os conteúdos de deepfake [reproduções realistas com uso de imagens de rostos e vozes]. Qual sua avaliação? </strong></p>
+<p>Eu acho que teve sim um uso bastante importante de inteligência artificial por parte das campanhas e da militância durante esse pleito. Se a gente entrar em redes como Kwai, por exemplo, a gente vai ver a produção massiva de vídeos de inteligência artificial sobre o contexto eleitoral, que formam ali uma narrativa cada vez mais polarizada. Acho que também esse tema do ranqueamento de candidatos foi uma coisa que me impressionou bastante porque essa é uma norma que está valendo desde de março. E diversos jornalistas fizeram testes, organizações, veículos de comunicação, e foi reportado muitas vezes que continuava acontecendo nos chatbots, como o ChatGPT, de você perguntar sobre um candidato que é melhor, por exemplo, para a economia ou então você falar o seu perfil e ele recomendar um candidato ideal para você e isso não foi algo que foi controlado. É super difícil para gente monitorar esses casos porque você não consegue reproduzir esse comportamento todas as vezes, são resultados que são gerados a partir da interação de cada usuário com cada usuário. Sobre o uso de deepfake, acho que tem o importantíssimo caso do Bolsonaro, que foi usado pela própria campanha do seu filho do Flávio Bolsonaro na convenção na qual ele se lança como candidato. Acho que é um caso bastante paradigmático para a gente avaliar o que é verdade, o que de fato aconteceu em relação ao que foi produzido de maneira sintética e no que a gente quer basear a nossa democracia, no que as pessoas tem que basear a sua decisão de voto. Então, não dá para minimizar o uso da IA nessas eleições. E as empresas precisam garantir que essas tecnologias estejam disponíveis para o uso com integridade e com filtros de segurança para que elas respeitem a lei eleitoral, o que não aconteceu. </p>
+<p><strong>Com o resultado do primeiro turno, a militância do campo progressista começou a ocupar mais as redes com conteúdos políticos, inclusive fora do ambiente da campanha oficial. Nesse sentido, dois caminhos foram colocados: um de dialogar a partir dos nichos e outro de falar com os eleitores a partir de conteúdos mais gerais. Você acha que existe um caminho real para que a mensagem, de fato, chegue na parcela indecisa?</strong></p>
+<p>Estamos recebendo muito essa pergunta na Ctrl+Z, mas não temos essa resposta e considero estrutural o fato de que a gente não tenha. Os algoritmos das redes sociais não são transparentes. A gente não sabe o que eles entregam e deixam de entregar. Ninguém tem a tal fórmula para furar a bolha. Então, quando a gente quer que aquele conteúdo chegue justamente nas pessoas que não pensam igual a gente, quando a gente quer justamente falar com quem tá fora daquela nossa câmara de eco, com quem está indeciso, com os que não foram votar, não existe fórmula consagrada para chegar nesse lugar. É muito importante que as pessoas tenham ciência disso, porque eu acho que vai ter bastante gente agora que vai tentar vender esse tipo de solução. Ela não está disponível, por questões sistêmicas, estruturais, de como essas plataformas funcionam. Então, infelizmente, eu não sou a pessoa que vai ter resposta para essa possibilidade de hackear o sistema, mas posso dar minha opinião sobre o que acho eficaz para esse momento. Eu acho que é hora de todo mundo fazer o que sabe fazer de melhor. Quem tem abertura para ir para rua, conversar com gente no presencial, eu acho que tem que fazer isso. Quem produz bem conteúdo e tem uma uma trajetória ali ou então uma facilidade ou até uma vontade de se posicionar nas redes tem que aproveitar o momento. Acho que é importante participar politicamente por princípio, para além do fato de que a gente está em um momento de sensação de emergência, claro, mas é bom aproveitar que a pauta está quente, está todo mundo falando disso, e a pauta quente tende a circular mais. Acho importante valorizar quadros que já têm comunidades fortes nas redes, trazer esses quadros para perto da política institucional, para o centro das decisões do partido, para o centro da campanha, porque a gente não consegue formar essas comunidades do dia para a noite, elas são fruto de muito trabalho, especialmente para quem está na contramão da maré e fazendo isso, divulgando valores democráticos, fazendo um debate público de qualidade, cuidando da agenda progressista.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://fpabramo.org.br/o-algoritmo-beneficia-sentimentos-extremos-comenta-diretora-de-organizacao-que-combate-poder-das-big-techs/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

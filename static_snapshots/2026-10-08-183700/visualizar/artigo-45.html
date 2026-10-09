@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karl Marx, defensor da infância - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Karl Marx, defensor da infância</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/10/karl-marx-defensor-da-infancia/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/652026844468.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Karl Marx, defensor da infância
+                            </p>
+                            
+<p>No final da década de 1870, um visitante que foi à casa de Karl Marx no norte de Londres poderia encontrar o autor de <em>O capital</em> de quatro no jardim, com seu neto Johnny nas costas gritando: “Vamos! <em>Mais rápido</em>! Hurra!” Marx já tinha mais de sessenta anos e continuava até ficar encharcado de suor.</p>
+<p>Este não é o Marx que a maioria das pessoas imagina. Ele é comumente conhecido como um rabugento — um sujeito “áspero” com palavras duras, não exatamente o tipo afável e carinhoso. Saul Padover inicia sua introdução a <em>Karl Marx on Education, Women and Children </em>[Karl Marx sobre educação, mulheres e crianças] com essa mesma caracterização: “Em sua fala e escrita, seus ataques àqueles que ele considerava oponentes pessoais ou ideológicos — ou simplesmente pouco inteligentes — eram implacáveis”. Uma imagem familiar vem à mente: Marx, barbudo, com cabelos espessos desgrenhados, uma figura imponente em um terno de três peças fumando charutos baratos, vociferando com orgulho e desprezo. Mas não há contradição entre sua ternura com as crianças e sua atuação política polêmica: ele escreveu alguns de seus textos mais apaixonados sobre o que o capitalismo faz com as crianças.</p>
+<p>Marx encontrava tempo para seus próprios filhos e netos. Aos domingos, saía de seu escritório enfumaçado em direção a Hampstead Heath, onde fazia piqueniques e brincava com a família. Lá, os observadores podiam vê-lo de quatro, fingindo ser um cavalo, enquanto as crianças o cavalgavam alegremente. Como escreve Padover, “o extraordinário amor de Marx pelas crianças, suas e dos outros, é a característica mais luminosa de seu caráter. Ele era, como disse um amigo íntimo, ‘uma criança entre crianças’”. Padover também descreve Marx durante seus passeios semanais: “Ao caminhar por Hampstead Heath, ele parava para brincar com as crianças, que respondiam facilmente ao gentil estranho de barba espessa… Embora fosse materialista e antipático a todas as religiões, inclusive ao cristianismo, Marx costumava dizer que o que mais gostava em Cristo era seu grande amor pelas crianças”.</p>
+<p>A atitude pessoal de Marx em relação às crianças oferece um reflexo íntimo de seus compromissos políticos mais amplos, especialmente sua convicção de que os seres humanos devem ter a oportunidade de desenvolver suas capacidades livres de condições sociais e econômicas opressivas. Testemunhar a alegria e a energia das crianças, bem como o sofrimento infantil sob o capitalismo, fortaleceu os princípios de Marx e o motivou a continuar lutando para abolir a sociedade de classes. Uma parte significativa de sua obra e correspondência pessoal foi dedicada a denunciar a exploração brutal de crianças, lamentar as tragédias de sua própria família e expressar a preocupação constante com a situação de seus parentes.</p>
+<p>“Marx escreveu alguns de seus textos mais apaixonados sobre o que o capitalismo faz com as crianças.”</p>
+<p>Marx e sua esposa, Jenny, tiveram sete filhos, dos quais apenas três sobreviveram até a idade adulta: Jennychen, Laura e Eleanor. Os outros quatro morreram na infância ou na primeira infância: Edgar, Henry Edward Guy, Franziska e um filho bebê cujo nome não foi registrado. Ele expressou um profundo apego a todos os seus filhos, e a perda de Edgar foi particularmente devastadora; ele nunca se recuperou completamente. Marx deu a cada um de seus filhos um apelido especial, e o de Edgar era “Musch”. Ele foi o único filho de Marx e Jenny a chegar à infância e morreu aos oito anos nos braços do pai, provavelmente de tuberculose. Wilhelm Liebknecht, que compareceu ao funeral de Edgar, descreveu a dor dilacerante de Marx, a quem a família e os amigos chamavam de “Mohr” (o Mouro): “Marx estava sentado na carruagem, mudo, com as mãos na cabeça. Acariciei sua testa: ‘Mohr, você ainda tem sua esposa, suas filhas e nós — e nós o amamos muito.’ ‘Você não pode me devolver meu filho!’ Ele balbuciou… À beira da sepultura, Marx estava tão agitado que me aproximei dele, com medo de que ele se atirasse sobre o caixão.” Em uma carta a Friedrich Engels, datada de 12 de abril de 1855, Marx escreveu:</p>
+<blockquote>
+<p>Só agora sei o que é a verdadeira infelicidade. Sinto-me arrasado. Desde o funeral, tenho sofrido com dores de cabeça tão fortes que não consigo pensar, ouvir ou ver. Em meio a todos os tormentos terríveis que tenho enfrentado ultimamente, o pensamento em você e na sua amizade sempre me sustentou, assim como a esperança de que ainda haja algo sensato que possamos fazer juntos neste mundo.</p>
+</blockquote>
+<p>Os relatos sobre a paternidade de Marx o retratam como uma figura afetuosa, dedicada e ansiosa, profundamente preocupada e protetora com sua família. Ele insistia que suas três filhas crescessem com uma educação burguesa e as expôs a uma variedade de literatura e política desde cedo: lia para elas obras de Homero, o <em>Nibelungenlied</em>, <em>Dom Quixote</em> e <em>As mil e uma noites</em>. Eleanor comentou que “Shakespeare era a nossa bíblia; aos seis anos eu já sabia cenas inteiras de Shakespeare de cor”. As meninas frequentavam aulas de música e arte e estudavam vários idiomas. Marx e Jenny eram pobres nessa época e, ocasionalmente, a família passava fome para pagar a mensalidade escolar das crianças. Jenny comentou com orgulho: “Elas falam inglês fluentemente e falam francês muito bem. Em italiano, entendem Dante e também leem um pouco de espanhol; só com o alemão há um problema…”.</p>
+<p>Por sua vez, Marx acreditava que todas as crianças mereciam uma educação de alta qualidade não apenas dentro das quatro paredes da escola, mas também em casa, com seus pais. Aliás, em consonância com muitas abordagens progressistas da educação contemporânea, ele afirmava: “Os filhos devem educar seus pais”.</p>
+<p>“Testemunhar a alegria e a energia das crianças, bem como seu sofrimento sob o capitalismo, Marx fortaleceu seus princípios e o motivou a continuar lutando para abolir a sociedade de classes.”</p>
+<p>Essa visão da educação como um esforço abrangente e para toda a vida enriqueceu seu relacionamento com suas três filhas, que foi fortalecido pelo respeito e amor mútuos.</p>
+<p>Por mais indiscutível que fosse o amor de Marx por suas filhas, ele também era permeado por profundos preconceitos. Embora sua visão de mundo exigisse igualdade e dignidade para todos, o próprio Marx nutria visões patriarcais e racistas em sua vida pessoal, que entravam em conflito com suas convicções socialistas. Em suas cartas ao revolucionário Paul Lafargue, que cortejava Laura, Marx por vezes adota a perspectiva de que sua filha não era capaz de cuidar de si mesma e precisava ser protegida por outros. Essas cartas também incluem comentários racistas, como: “Quando você invoca seu temperamento crioulo, considero meu dever intervir entre seu temperamento e minha filha com meu bom senso. Se você não consegue demonstrar seu amor por ela de uma forma condizente com a latitude londrina, então é aconselhável que a ame à distância.”</p>
+<p>Outros momentos de sexismo transparecem nas cartas de Marx, desde a descrição que faz a Engels de como sua esposa gastava sua mesada semanal — “As mulheres obviamente sempre precisam de um guardião!” — até a descrição de sua filha mais nova, Eleanor, que sofria por seu amor por Prosper-Olivier Lissagaray, a quem Marx desaprovava: “Tussy [Eleanor] se sente muito melhor; seu apetite aumenta em proporção geométrica, mas isso é peculiar a essas doenças femininas em que a histeria desempenha um papel; é preciso agir como se não percebesse que ela voltou a se alimentar. Mas isso também desaparecerá assim que houver recuperação completa…”. Aqui, Marx minimiza os problemas alimentares e a saúde de Eleanor, atribuindo seus sofrimentos à histeria e a uma suposta condição emocional feminina. Por um lado, a política de Marx buscava a abolição da dominação e da exploração; por outro, ele defendia preconceitos que entravam em conflito com esses mesmos compromissos emancipatórios.</p>
+<p>O pensamento de Marx e, em particular, sua análise da família em <em>O capital,</em> ultrapassa seus próprios limites interpessoais. Em sua obra-prima, ele investiga o impacto da indústria sobre a unidade familiar tradicional. Com o advento das máquinas modernas e do sistema fabril, as antigas relações econômicas são destruídas, e a sociedade chega ao ponto em que “os direitos das crianças tiveram que ser proclamados” contra a sua exploração. Mas, ainda mais radicalmente, Marx afirma que a industrialização, apesar de sua forma brutal sob o capitalismo, cria as condições para “uma forma superior de família e de relações entre os sexos”. Ela rompe com a divisão do trabalho que confinava mulheres e crianças a papéis fixos no lar.</p>
+<p></p>
+<h2>As crianças roubadas do capital</h2>
+<p>Embora Marx lutasse pelas melhores condições educacionais possíveis para seus próprios filhos, ele tinha plena consciência de que milhares e milhares de crianças da classe trabalhadora eram privadas dessas oportunidades e forçadas a trabalhar em condições terríveis. Grande parte da obra de Marx, O <em>capital,</em> explora a terrível exploração de crianças em fábricas, oficinas e minas. Tal abuso e terror infligidos aos jovens o levaram a ser inflexível e intransigente em sua defesa do socialismo.</p>
+<p>Era fácil perceber a origem desses compromissos. Marx documentou a realidade do trabalho perigoso e horrível por toda a Inglaterra em O <em>capital</em>. Algumas das piores oficinas eram pequenas casas onde os trabalhadores se reuniam para fazer renda, trançar palha e confeccionar chapéus, muitos deles trabalhando das seis da manhã às dez da noite e até mais tarde. Crianças de apenas dois anos e meio trabalhavam ao lado de mais de uma dúzia de pessoas, com apenas 0,7 metros cúbicos por pessoa, aproximadamente o tamanho de uma geladeira grande.</p>
+<p>Longos trechos do primeiro volume são dedicados ao destino das crianças em condições como essas, e os escritos de Marx sobre sua exploração e negligência estão entre os mais devastadores e comoventes; essa foi uma força motriz de sua fúria revolucionária e de sua determinação em responsabilizar a classe dominante por seu desrespeito à vida humana.</p>
+<p>Baseando-se em investigações parlamentares britânicas, relatórios de inspetores de fábricas e depoimentos médicos, Marx examinou a exploração de crianças em fábricas, minas, oficinas e indústrias domésticas perigosamente superlotadas e mal ventiladas. As crianças sofriam de exaustão crônica, deformidades, atraso no crescimento, doenças e ferimentos constantes, enquanto sua educação e oportunidades de desenvolvimento intelectual eram sacrificadas em prol da produção. Para Marx, essas condições não eram apenas um conjunto de abusos cometidos por empregadores cruéis; elas decorriam da própria lógica do capital: “Portanto, o capital é indiferente à saúde ou à duração da vida do trabalhador, a menos que seja compelido pela sociedade”, escreveu ele. Diante da “degradação física e mental, da morte prematura e da tortura do excesso de trabalho”, o capital responde, na prática: “Isso deveria nos incomodar, já que aumenta nossos lucros?”</p>
+<p>“As crianças não só trabalhavam em jornadas excepcionalmente longas, como o capital absorvia o tempo precioso que deveria pertencer à própria infância.”</p>
+<p>Em 1853, Marx publicou “Prosperidade — A questão do trabalho” no <em>New-York Daily Tribune</em>, onde relatou estatísticas sobre trabalhadores de nove a vinte e dois anos e suas horas semanais de trabalho. Ele escreveu: “Meninos de nove e dez anos trabalhando sessenta horas consecutivas, com exceção de três horas de descanso! Que os patrões não digam nada sobre negligenciar a educação agora. Uma das citadas, Ann. B., uma menina de apenas nove anos, caiu no chão, dormindo de exaustão, durante as sessenta horas; ela foi <em>acordada e chorou, mas foi obrigada a retomar o trabalho!!</em>” No capítulo dez de <em>O capital</em>, “A jornada de trabalho”, Marx cita relatos de meninos em fábricas de vidro cujos períodos mínimos de descanso também tinham que incluir deslocamento, banho, vestir-se e comer, não deixando “nenhum tempo para ar fresco e brincadeiras, a não ser às custas do sono necessário para meninos jovens”. As crianças não só trabalhavam em jornadas excepcionalmente longas, como o capital absorvia o tempo precioso que deveria pertencer à própria infância.</p>
+<p>Em “Documentos britânicos importantes” (1858), Marx retomou os relatórios dos inspetores de fábricas britânicos e as limitações das Leis Fabris, que tentavam conter alguns dos piores abusos do capitalismo industrial. Mesmo sob essas leis, crianças de apenas oito anos podiam trabalhar legalmente em salas minúsculas, sujas e opressivas por períodos extraordinariamente longos, enquanto um menino “tendo atingido a idade de 13 anos pode ser, e frequentemente é, legalmente empregado dia e noite por qualquer número de horas, sem qualquer restrição”. Essas leis impunham limitações mínimas à exploração sem aboli-la, e o capital resistia continuamente até mesmo a essas limitações. Marx escreveu mais tarde em O <em>capital</em> que a redução da jornada de trabalho infantil pelo Estado era necessária “para impedir a cunhagem do sangue das crianças em capital”.</p>
+<p>As disposições das Leis Fabris relativas à educação enfrentaram problemas semelhantes. Marx destacou como as condições de trabalho das crianças geravam frequência escolar irregular. Por exemplo, as crianças empregadas em gráficas eram obrigadas a “completar” um número obrigatório de dias e horas de aula ao longo de períodos de seis meses. O resultado, no entanto, era uma frequência incrivelmente esporádica, com as crianças comparecendo à escola pelos períodos exigidos por lei e depois desaparecendo por semanas a fio. A inconsistência generalizada da escolaridade era, mais uma vez, organizada em torno das necessidades dos empregadores, em detrimento do desenvolvimento saudável da criança. Um inspetor de fábricas citado por Marx resumiu o absurdo desse sistema em uma única frase: “Assim, a criança é, por assim dizer, empurrada da escola para o trabalho e do trabalho para a escola, até que a história de cento e cinquenta horas seja contada.”</p>
+<p>Um inspetor do governo, John Kincaid, visitou duas escolas onde as crianças eram obrigadas a obter certificados de frequência escolar. Na primeira escola, a professora, Ann Killin, não conseguia soletrar o próprio nome, sem ter certeza se começava com K ou C. Na segunda escola, setenta e cinco crianças estavam amontoadas, ombro a ombro, em uma sala de quinze por dez pés. O professor não conseguiu identificar essas crianças, muito menos dizer a Kincaid quais delas eram seus alunos. Marx comentou sobre essas observações: “As cláusulas educacionais das Leis Fabris, embora exijam que as crianças tenham certificados de frequência escolar, não exigem que elas tenham aprendido alguma coisa…”.</p>
+<p>Sob as Leis Fabris de 1833 e 1844, as crianças mais novas eram submetidas a um “sistema de meio período”, no qual dividiam seu dia entre o trabalho na fábrica e a escola. Os pais de meninos e meninas pobres da classe trabalhadora estavam ansiosos para encontrar maneiras de seus filhos ganharem salários integrais para ajudar a família. Portanto, estavam ansiosos para tirá-los da escola e do turno de meio período, para que pudessem ganhar mais. Enquanto isso, os donos das fábricas só se preocupavam em contratar trabalhadores em tempo integral que tivessem força nas mãos para realizar o trabalho. Os anúncios de emprego até buscavam jovens “com idade não inferior a 13 anos”. Os empregadores se opunham à obrigatoriedade da frequência escolar para as crianças em meio período, argumentando que era mais barato e menos trabalhoso empregar um único grupo de crianças do que dois grupos alternando jornadas de trabalho de seis horas.</p>
+<p>“Marx escreveu em O <em>capital</em> que a redução da jornada de trabalho infantil pelo Estado era necessária ‘para impedir a cunhagem do sangue das crianças em capital’.”</p>
+<p>Marx rejeitou a explicação do trabalho infantil como mera consequência da irresponsabilidade parental: “Não foi, porém, o abuso da autoridade parental que criou a exploração capitalista, direta ou indireta, do trabalho infantil; mas, ao contrário, foi o modo capitalista de exploração que, ao eliminar a base econômica da autoridade parental, degenerou o seu exercício num abuso pernicioso do poder”. Marx argumentou que a exploração de crianças sob o capitalismo enfraqueceu a base econômica da autoridade parental e alterou as relações familiares por conta da necessidade material. Como Marx explicou em <em>O capital</em>, “Agora o capitalista compra crianças e jovens menores de idade. Antes, o trabalhador vendia sua própria força de trabalho, da qual se desfazia nominalmente como um agente livre. Agora ele vende esposa e filho”.</p>
+<p>A maquinaria alterou drasticamente quem podia ser remunerado por seu trabalho, o que exacerbou a transformação da família. “Na medida em que a maquinaria dispensa a força muscular”, escreve Marx, “torna-se um meio de empregar trabalhadores de pouca força e aqueles cujo desenvolvimento corporal é incompleto, mas cujos membros são ainda mais flexíveis”. Consequentemente, “o trabalho de mulheres e crianças foi, portanto, a primeira coisa procurada pelos capitalistas que utilizavam máquinas”. A máquina, que tinha o potencial de reduzir as muitas dificuldades e sofrimentos que acompanham o trabalho, tornou-se, em vez disso, um método de submeter “todos os membros da família do trabalhador, sem distinção de idade ou sexo” ao domínio direto do capital. “O trabalho compulsório para o capitalista usurpou o lugar, não só da brincadeira das crianças”, concluiu Marx, “mas também do trabalho livre em casa, dentro de limites moderados, para o sustento da família”. Para Marx, a adoração a Mamon torna-se adoração a Moloque, onde a busca desenfreada do lucro pelo capital exige o sacrifício das crianças. A saúde da família também sofre, pois o tempo em casa é subordinado à ganância capitalista.</p>
+<p>O trabalho era, naturalmente, comum para os jovens antes do capitalismo industrial, mas Marx destacou a indústria gráfica como um exemplo de como as máquinas, em particular, prejudicavam o desenvolvimento infantil. Sob um sistema de aprendizado mais antigo, os jovens trabalhadores progrediam de tarefas mais simples para formas mais complexas de impressão e esperava-se que desenvolvessem a alfabetização como parte de sua profissão. No entanto, a introdução das máquinas de impressão eliminou completamente esse processo de educação e desenvolvimento de habilidades. Em vez disso, as fábricas dividiam o trabalho entre trabalhadores adultos qualificados e meninos cujas únicas responsabilidades eram tarefas repetitivas, como colocar papel nas máquinas ou retirar as folhas impressas, que não ofereciam nenhuma oportunidade para o desenvolvimento de habilidades.</p><a href="https://autonomialiteraria.com.br/loja/america-latina/o-fantasma-do-comunismo-no-brasil-13-ensaios-contos-e-causos-sobre-o-espectro-que-assombra-os-poderosos/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2021/09/01_quotes_O-Fantasma-do-Comunismo-no-Brasil.jpg"/></a>
+<p>Marx entendia a legislação fabril como algo mais do que mera assistência caritativa para os trabalhadores e suas famílias. A disputa em torno da jornada de trabalho revelava que contratos “livres” entre trabalhadores e seus patrões não podiam proteger os trabalhadores de abusos e misérias intoleráveis. Quando o trabalhador vai ao mercado vender sua força de trabalho, parece que o faz por livre e espontânea vontade, mas dentro da fábrica, essa liberdade se revela uma ilusão. Os trabalhadores, segundo Marx, precisavam “unir forças e, como classe”, compelir a construção de “uma barreira social onipotente” que os protegesse “a si mesmos e às suas famílias” da “escravidão e da morte”. Para Marx, uma jornada de trabalho legalmente limitada era a “modesta Magna Carta” da classe trabalhadora, que finalmente estabelecia alguns — ainda que pequenos — limites ao capital.</p>
+<p>“A produção capitalista privou as crianças não apenas da saúde, mas também do seu desenvolvimento moral, intelectual e emocional, forçando-as a amadurecer em ambientes superlotados, marcados pela exaustão e negligência.”</p>
+<p>A fabricação de ferragens em Birmingham, que envolvia trabalho pesado e fisicamente exigente, era uma área comum de exploração infantil, com cerca de trinta mil crianças e jovens empregados. Isso incluía fundições de latão, fábricas de botões, esmaltação, galvanização e laqueamento. Citando a Comissão de Emprego Infantil, Marx relatou que “devido ao trabalho excessivo de seus operários, adultos e menores de idade, certas casas em Londres onde jornais e livros são impressos receberam o nome sinistro de ‘matadouros’”. Jovens mulheres e crianças eram submetidas ao que parecia ser trabalho constante na encadernação de livros; crianças trabalhavam em condições exaustivas em fábricas de cordas e em turnos noturnos em minas de sal, fábricas de velas e indústrias químicas; enquanto isso, na tecelagem de seda, crianças eram levadas à exaustão girando os teares no lugar das máquinas. Mas talvez uma das linhas de trabalho mais insalubres e vergonhosas para mulheres e jovens fosse a triagem de trapos. A Grã-Bretanha era o centro do comércio mundial de trapos, com materiais provenientes de todo o mundo, principalmente da Alemanha, França, Rússia, Itália, Egito, Turquia, Bélgica e Holanda. Os trapos eram usados ​​como adubo, para fazer edredons, para tecidos de má qualidade e serviam como matéria-prima para papel. Os classificadores de trapos frequentemente contraíam varíola e outras doenças infecciosas, que depois transmitiam a outras pessoas.</p>
+<p>Outro exemplo de trabalho brutal, completamente inadequado para crianças pequenas, era a fabricação de telhas e tijolos, onde as máquinas recém-inventadas eram usadas com parcimônia devido ao baixo custo da mão de obra. Ali, crianças — meninos e meninas — com apenas quatro anos de idade eram empregadas e, frequentemente, trabalhavam mais horas do que os adultos. O calor do verão contribuía para as condições traiçoeiras: “Em um determinado campo de telhas em Mosley, por exemplo, uma jovem de 24 anos tinha o hábito de fabricar 2.000 telhas por dia, com a ajuda de duas meninas que carregavam a argila para ela e empilhavam as telhas. Essas meninas carregavam diariamente 10 toneladas pelas paredes escorregadias dos poços de argila, de uma profundidade de 9 metros, e depois por uma distância de 64 metros.”</p>
+<p>Os malefícios do trabalho infantil, era evidente, iam muito além dos perigos físicos do trabalho industrial. O surgimento da produção capitalista privou as crianças não apenas da saúde, mas também de seu desenvolvimento moral, intelectual e emocional, forçando-as a amadurecer em ambientes superlotados, marcados pela exaustão e negligência. Ao destacar essas condições em sua análise, Marx demonstra que a exploração infantil pelo capitalismo permeava todos os aspectos da vida das crianças, reforçando sua crença de que uma sociedade justa deve proteger a dignidade e a capacidade das crianças para uma liberdade legítima. Quando tudo isso é retirado das crianças, o que resta? Marx escreveu: “Que a embriaguez excessiva seja prevalente desde a infância em toda essa classe é perfeitamente natural”.</p>
+<p>Exploração e opressão semelhantes atingiam as mulheres e crianças que trabalhavam na produção de renda em casa. A confecção da renda em si era feita por máquinas, mas o acabamento e os consertos aconteciam fora das fábricas, nas casas das patroas, administradas por mulheres pobres. Essas mulheres recebiam encomendas dos fabricantes e empregavam tantas mulheres, meninas e crianças pequenas quanto cabiam em seus minúsculos cômodos: às vezes de dez a vinte, e outras vezes de vinte a quarenta. A idade média em que as crianças começavam esse trabalho era de seis anos, e em muitos casos, era inferior a cinco. Jornadas de doze horas eram a norma, com apenas uma hora e meia para as refeições, que eram feitas em intervalos irregulares e frequentemente em oficinas imundas. Quando os negócios estavam em alta, a jornada de trabalho podia se estender a quinze horas ou mais. Para manter a renda limpa, as crianças eram obrigadas, mesmo no inverno, a tirar os sapatos. Para os observadores, as crianças pareciam ter se transformado em máquinas: “Até as crianças mais novas trabalham com uma atenção tensa e uma rapidez impressionante, quase nunca dando descanso aos dedos ou diminuindo o ritmo. Se lhes fazem uma pergunta, jamais desviam o olhar do trabalho por medo de perder um único instante.” A Comissão de Emprego Infantil declarou que “o trabalho delas é como escravidão”.</p>
+<p>“Todas as criaturas malignas dos <em>Contos de fadas dos Irmãos Grimm</em> não chegam aos pés dos monstros devoradores de crianças de <em>O capital</em>.”</p>
+<p>Para Marx, as condições para a manufatura não coincidiram apenas com um novo período de colonialismo e escravidão no Novo Mundo; o nascimento da indústria em larga escala também ocorreu por meio de um “vasto massacre de inocentes, semelhante ao de Herodes”. Os jovens trabalhadores das fábricas eram recrutados à força. Marx deixa claro que o capitalismo nasceu do “sequestro e escravização de crianças para a transformação da produção manufatureira em produção fabril e o estabelecimento da verdadeira relação entre capital e força de trabalho”. A manufatura exigia o saque de casas e orfanatos em busca de crianças pobres, que eram levadas, forçadas a trabalhar à noite e privadas de seu descanso. Os “dedos pequenos e ágeis das crianças” eram os mais requisitados para operar as novas máquinas nas grandes fábricas. Os orfanatos paroquiais foram esvaziados de suas crianças, e “muitas, muitas milhares dessas criaturinhas infelizes foram enviadas para o norte, com idades entre 7 e 13 ou 14 anos”.</p>
+<p>Para Marx, os novos patrões capitalistas eram “sequestradores de crianças” e nomeavam supervisores cujo interesse era “explorar as crianças ao máximo, pois seu pagamento era proporcional à quantidade de trabalho que conseguiam exigir”. As consequências foram extremamente cruéis. O industrial e reformador John Fielden relatou que “crueldades dilacerantes eram praticadas contra criaturas inocentes e desamparadas que eram assim entregues aos cuidados dos patrões”; as crianças “eram atormentadas até a beira da morte pelo excesso de trabalho”, “açoitadas, acorrentadas e torturadas” e “em muitos casos, mortas de fome enquanto eram açoitadas para trabalhar”. Algumas “foram levadas ao suicídio”.</p>
+<p>Esses horrores eram mantidos longe da vista do público em locais que se tornaram os cenários “solitários e sombrios de tortura e de muitos assassinatos”. Mas a exploração e o assassinato dessas crianças no início do sistema fabril precisam ser estudados cuidadosamente, não por razões antiquárias ou meramente sentimentais. Devem ser estudados porque nos lembram do que o capital é capaz quando sua busca pelo lucro não é contestada. Como Marx demonstra, enquanto o capitalismo existir, também existirá a tendência monstruosa de transformar o sangue de crianças em lucro. Todas as criaturas malignas dos <em>Contos de fadas dos Irmãos Grimm</em> não chegam aos pés dos monstros devoradores de crianças de O <em>capital</em>.</p>
+<p></p>
+<h2>Crianças no Reino da Liberdade</h2>
+<p>Mas não somos nós cidadãos de uma nova e esclarecida era? Esses horrores infantis do século XIX não pertencem apenas aos romances de Charles Dickens? De acordo com dados de 2024 da UNICEF e da Organização Internacional do Trabalho, cerca de 138 milhões de crianças ainda estão envolvidas em trabalho infantil; 54 milhões dessas crianças realizam trabalhos perigosos.</p>
+<p>É claro que as indústrias descritas por Marx em <em>O capital</em> evoluíram desde o século XIX, mas a persistência do trabalho infantil na agricultura, mineração, manufatura e produção de tijolos demonstra que a crítica de Marx à exploração infantil permanece relevante. Em todo o mundo, milhões de crianças continuam sacrificando sua educação, saúde e oportunidades futuras para atender às demandas da produção econômica e de uma sociedade organizada em torno do lucro.</p>
+<p>Se o capitalismo rouba o futuro das crianças, como esse futuro pode ser restaurado? Todas as atrocidades descritas acima, juntamente com a compaixão de Marx pelas crianças, levantam a questão do que uma sociedade mais saudável significaria para os jovens. Os críticos de Marx argumentavam que ele queria que o comunismo funcionasse como uma fábrica ou oficina gigante, onde todos levariam uma existência semelhante à de um zangão em uma colmeia coletiva. Mas isso é uma caricatura. Inspirado por socialistas utópicos que o precederam, como Robert Owen, Marx defendia o desenvolvimento integral do ser humano e a superação da divisão entre trabalho físico e intelectual. E, no que diz respeito às crianças, Marx não era totalmente contrário à ideia de que elas deveriam, de alguma forma, participar do trabalho organizado.</p>
+<p>Essa não era uma posição atípica no movimento socialista. De fato, nas instruções que ele elaborou para os delegados ao Congresso de Genebra da Primeira Internacional, em 1866, encontramos a seguinte visão para o desenvolvimento infantil combinada com a educação industrial:</p>
+<blockquote>
+<p>Consideramos a tendência da indústria moderna de fazer com que crianças e jovens de ambos os sexos cooperem no grande trabalho da produção social como uma tendência progressista, saudável e legítima, embora sob o capitalismo ela tenha sido distorcida e transformada em uma abominação. Em uma sociedade racional, <em>toda criança</em>, a partir dos 9 anos de idade, deveria se tornar um trabalhador produtivo, da mesma forma que nenhum adulto capaz deveria ser isento da lei geral da natureza: trabalhar para poder comer, e trabalhar não apenas com o intelecto, mas também com as mãos.</p>
+</blockquote>
+<p>Marx prosseguiu propondo três classes diferentes de crianças para cumprir esse plano: ambos os sexos, de nove a doze anos; de treze a quinze anos; e de dezesseis a dezessete anos. Marx sugeriu que o trabalho do primeiro grupo em qualquer oficina ou serviço doméstico fosse legalmente limitado a duas horas; o do segundo grupo, a quatro horas; e o do terceiro grupo, a seis horas. O terceiro grupo também deveria ter direito a um intervalo de pelo menos uma hora para descanso ou refeições.</p>
+<p>Marx reconheceu que as crianças poderiam se beneficiar ao iniciarem sua educação antes dos nove anos de idade, mas sua principal preocupação era abordar como o capitalismo forçava as famílias da classe trabalhadora a escolhas impossíveis. Como ele argumentou anteriormente, os trabalhadores são reduzidos a meros instrumentos de produção, e os pais são compelidos a enviar seus próprios filhos para trabalhar. Marx, portanto, insistiu que a sociedade tem a responsabilidade coletiva de proteger os direitos dos trabalhadores de todas as idades e garantir que as crianças, em especial, não sejam sacrificadas pelas exigências do capital. Para Marx, defender e proteger as crianças não era simplesmente uma questão de melhorar a educação ou as condições de trabalho; era uma profunda obrigação moral, enraizada na crença de que toda criança merece a oportunidade de se desenvolver livre da exploração.</p>
+<p>“No que dizia respeito às crianças, Marx não era totalmente contrário à ideia de que elas deveriam, de alguma forma, participar do trabalho organizado.”</p>
+<p>Segundo Marx, os métodos escolares deveriam basear-se na ciência independente e manter-se livres da influência do Estado ou da Igreja. Proteger as crianças, argumentava Marx, exigia “leis gerais, aplicadas pelo poder do Estado”: ​​“Ao aplicar tais leis, a classe trabalhadora não fortalece o poder governamental. Ao contrário, transforma esse poder, agora usado contra ela, em uma ferramenta própria de autonomia. Ela realiza por meio de um ato geral o que em vão tentaria por meio de uma multiplicidade de esforços individuais isolados”. Marx defendia a educação gratuita para todas as crianças em escolas públicas. Mas, por escolas públicas, ele não se referia ao que é comumente entendido como “escolas estaduais”.</p>
+<p>Definir por lei geral as despesas das escolas de ensino fundamental, as qualificações do corpo docente, as áreas de ensino, etc., e, como ocorre nos Estados Unidos, supervisionar o cumprimento dessas especificações legais por meio de inspetores estaduais, é algo muito diferente de designar o Estado como educador do povo. Governo e Igreja deveriam, portanto, ser igualmente excluídos de qualquer influência sobre as escolas.</p>
+<p>Para Marx, nem pais nem empregadores deveriam ser autorizados a enviar crianças para trabalhar a menos que seu trabalho fosse combinado com uma educação de verdade. A educação vai muito além da instrução em sala de aula, e Marx incluiu três áreas essenciais para o que constitui uma educação significativa: desenvolvimento intelectual, educação física que promova saúde e força, e treinamento tecnológico que apresente às crianças os princípios fundamentais da produção, proporcionando experiência prática com diversas ferramentas e profissões. Ao integrar o aprendizado mental, físico e prático, Marx idealizou uma educação que cultivaria indivíduos completos, em vez de preparar as crianças para uma vida inteira de trabalho restrito e repetitivo.</p>
+<p>Na <em>Crítica do Programa de Gotha</em>, Marx escreveu:</p>
+<blockquote>
+<p>A proibição geral do trabalho infantil é incompatível com a existência de uma indústria de grande escala e, portanto, um desejo vazio e piedoso. Sua concretização — se possível — seria reacionária, visto que, com uma regulamentação rigorosa da jornada de trabalho de acordo com as diferentes faixas etárias e outras medidas de segurança para a proteção das crianças, a combinação precoce do trabalho produtivo com a educação é um dos meios mais eficazes para a transformação da sociedade atual.</p>
+</blockquote>
+<p>A afirmação acima reflete um aspecto potencialmente controverso do pensamento de Marx, visto que ele claramente rejeitou a proibição total do trabalho infantil. Contudo, isso não se deve ao fato de ele endossar a exploração infantil, mas sim porque sustentava que tal proibição ignorava as realidades materiais da sociedade industrial. Em vez de defender a completa separação das crianças da atividade produtiva, Marx argumentava que o problema reside na organização capitalista do trabalho, onde as crianças são exploradas para o lucro em vez de serem educadas e terem seu pleno desenvolvimento respeitado. Em sua visão, o trabalho produtivo, quando estritamente regulamentado, adequado às faixas etárias e integrado à educação intelectual e física, poderia se tornar um poderoso meio de desenvolver seres humanos versáteis, capazes de participar conscientemente do melhoramento da sociedade.</p>
+<p>No cerne da questão reside a distinção entre trabalho e exploração. Marx não condenou o trabalho por completo; em vez disso, denunciou o sistema capitalista que transformava o trabalho infantil em fonte de lucro, privando as crianças de educação, saúde e oportunidades de desenvolvimento. Ao combinar trabalho produtivo altamente regulamentado com educação abrangente, Marx acreditava que as crianças poderiam cultivar simultaneamente uma ampla gama de habilidades práticas, crescimento intelectual e bem-estar físico. Isso reflete seu compromisso revolucionário mais amplo com a criação de uma sociedade na qual o trabalho sirva ao desenvolvimento humano, em vez de reduzir os seres humanos a instrumentos do capital.</p>
+<p>Hoje, podemos muito bem questionar a ideia de que crianças devam participar de qualquer forma de trabalho organizado já aos nove anos de idade, ou conciliar o trabalho formal com os estudos. A educação progressista moderna enfatiza bastante o tempo livre para brincadeiras e atividades ao ar livre. Mas poderíamos argumentar que devemos manter os três aspectos que Marx enfatizou — treinamento intelectual, físico e tecnológico — todos benéficos para o desenvolvimento infantil. O que conta como “treinamento tecnológico” mudará com o tempo e as novas invenções. Seria benéfico se, entre os nove e os dezessete anos, as crianças dedicassem de duas a cinco horas por semana a algo além dos estudos? Agricultura, tarefas domésticas, jardinagem, engenharia ou aprendizado de programação podem fazer parte de uma educação significativa. Certamente, a maioria das pessoas defenderia um equilíbrio saudável entre o aprendizado dentro e fora da escola; e em nossa sociedade capitalista contemporânea, onde somos bombardeados a cada instante por telas e inteligência artificial, talvez algum trabalho baseado em habilidades específicas possa ser uma escolha saudável para a maioria das crianças.</p>
+<p>Embora as condições enfrentadas pelas crianças hoje sejam diferentes daquelas que Marx encontrou no século XIX, a contradição fundamental que ele identificou permanece sem solução. A exploração é prevalente tanto de maneiras óbvias quanto mais obscuras. A maioria das crianças modernas pode não estar mais confinada ao chão de fábrica da mesma forma que as crianças descritas por Marx, mas muitas ainda são moldadas por sistemas que valorizam o lucro acima do pleno desenvolvimento individual e as preparam para participar de uma ordem econômica desigual. A persistência dessas condições revela que o problema que Marx confrontou não era meramente a crueldade impiedosa de certos empregadores ou os excessos da indústria do século XIX, mas a estrutura mais ampla de uma sociedade capitalista que coloca a acumulação e o lucro acima do desenvolvimento humano.</p>
+<p>Isso não mudou. Se as crianças devem ser verdadeiramente libertadas, a análise de Marx sugere que a solução não pode ser encontrada simplesmente reformando o sistema vigente; em vez disso, requer uma transformação fundamental rumo a uma sociedade socialista organizada em torno da responsabilidade coletiva, da igualdade e do livre desenvolvimento de cada indivíduo. Aqui, o socialismo não é apenas uma alternativa política, mas a extensão lógica da crítica de Marx: ou seja, que os seres humanos, especialmente as crianças, jamais devem ser reduzidos a instrumentos de produção. O que Marx chamou de esfera da liberdade só merece esse nome se as crianças não forem mais privadas de sua própria natureza humana.</p>
+<p></p><p></p><p><h5>Sam Fluss</h5></p><p>é estudante de doutorado em filosofia e educação no Teachers College, Columbia University. Ela é ex-estagiária editorial da Jacobin.</p><p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/karl-marx-defensor-da-infancia/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritmos onipotentes - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Algoritmos onipotentes</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/10/algoritmos-onipotentes/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-07-as-12.37.38.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Algoritmos onipotentes
+                            </p>
+                            
+<p>O artigo a seguir faz parte da série “<a href="https://jacobinlat.com/categoria/series/economia-politica-de-la-ia/" rel="noopener noreferrer" target="_blank">Economia Política da Inteligência Artificial</a>”, uma colaboração entre a revista <em>Jacobin</em> <em>América LAtina </em>e a Fundação Rosa Luxemburgo.</p>
+
+<p>Quando o bilionário e defensor da liberdade de expressão Elon Musk presenteou o mundo com seu chatbot “picante”, Grok, a promessa era clara: combater IAs “woke” como o ChatGPT com respostas mais “verdadeiras” e menos censuradas. O bot de Musk teria sido inspirado em O <em>guia do mochileiro das galáxias</em>, de Douglas Adams, um texto que, como observou Ronan Farrow na revista <em>The New Yorker</em>, zombava “tanto da hiper-riqueza quanto da ideologia do progresso a qualquer custo que Musk passou a personificar”. Grok prometia curar o “vírus mental woke”, uma condição tão controversa e insidiosa que Musk só podia discuti-la em rede nacional com seu amigo pessoal Bill Maher.</p>
+<p>O nome Grok vem de <em>Um estranho numa terra estranha</em>, o romance de ficção científica libertário de Robert Heinlein, de 1961, cujo espírito entra em conflito direto com o de Adams. Como o personagem marciano de Heinlein explica a seus amigos humanos, fazer “grok” de algo é “entendê-lo tão profundamente que você acaba se fundindo com ele”. <em>Grok</em>, então, não se trata de adotar uma postura provocativa, mas sim de uma forma de escuta ativa e empática. É revelador que Musk não consiga nem mesmo compreender suas próprias fontes literárias, embora a inconsistência ideológica nunca tenha sido um obstáculo em sua carreira.</p>
+<p>Musk tem um interesse antigo em inteligência artificial e foi um dos primeiros investidores da OpenAI. No entanto, a frustração com a falta de controle sobre a empresa o levou a retirar seu financiamento. Quando a OpenAI lançou o ChatGPT, Musk reagiu denunciando o bot como perigosamente “progressista”. Em uma entrevista com Tucker Carlson — na época ainda uma personalidade da Fox News — ele chegou a anunciar planos para criar uma alternativa chamada TruthGPT, uma “IA focada na busca da verdade suprema que tenta compreender a natureza do universo”. O resultado final foi o Grok, integrado diretamente ao núcleo do Twitter/X.</p>
+<p>Para aqueles que se recusam a pagar pela assinatura premium do X, existem até mesmo alternativas gratuitas (com anúncios) do TruthGPT. Desenvolvido por Matt Lorion, um apoiador de Musk que financiou o projeto vendendo a criptomoeda $TRUTH, esse tipo de sistema promete se expressar sem “viés político, cultural ou social”. Diferentemente do ChatGPT, o TruthGPT supostamente utiliza conjuntos de dados que incluem material “tradicional e altamente confiável”, juntamente com “fontes alternativas” não identificadas.</p>
+<p>Apesar das alegações desses modelos de evitarem um viés de esquerda, testes ocasionais provaram ser impossível fazê-los formular uma única posição de direita. Depois de se recusar a escrever ficção em apoio a Adolf Hitler, a IA afirmou que a Guerra Civil dos EUA não foi travada pelos “direitos dos estados” e rejeitou os princípios do “realismo racial”. Ela sequer aceitaria o uso de insultos raciais para evitar uma hipotética catástrofe nuclear — o mesmo cenário que levou Musk a chamar os filtros do ChatGPT de “preocupantes” (aparentemente, o próprio Grok concorda com Musk que recorrer a um insulto racial seria aceitável se isso “salvasse a vida de um bilhão de pessoas”). O TruthGPT pode até denunciar com veemência o fast food como “não saudável”, mas carece de qualquer caráter genuinamente pacifista.</p>
+<p>Musk e seu círculo apresentam a busca por chatbots imparciais como uma contribuição para a verdade, que eles equiparam ao anti-woke. O fato de até mesmo modelos GPT alimentados por “fontes alternativas” não conseguirem reproduzir argumentos da extrema direita sugere que o discurso online está mais próximo do centro político do que Musk gostaria de admitir. Em vez de censurar resultados a mando de alguma conspiração obscura de esquerda, o ChatGPT reflete predominantemente o estado geral da conversa no momento. O propósito do Grok e de outros modelos “anti-woke” não é resgatar uma verdade elementar aprisionada nos códigos do moralismo progressista, mas fabricar um novo discurso que se encaixe na sociedade idealizada por Musk e outros magnatas: uma tecnocracia autoritária governada por monarcas bilionários sem supervisão democrática.</p><a href="https://autonomialiteraria.com.br/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2024/05/Banner-300-600.gif"/></a>
+<p>Ficou claro que o verdadeiro objetivo do Grok é “impulsionar <em>o engajamento</em> no Twitter” ao revitalizar uma plataforma cujo valor de mercado despencou após sua aquisição. As especificações técnicas do Grok confirmam essa hipótese: diferentemente do ChatGPT e de outras IAs, ele se conecta ao Twitter em tempo real, em vez de depender exclusivamente de dados estáticos.</p>
+<p>De um ponto de vista cético, esse recurso demonstra que o Grok foi “projetado para levar o público a discussões estéreis”. Se Musk, assim como Steve Bannon, acredita que “a verdadeira oposição é a mídia”, então a capacidade do Grok de incitar e amplificar <em>trolls</em> no Twitter contribui para o objetivo de inundar o debate público com lixo. A compra da rede social tem menos a ver com uma ideia de liberdade de expressão absoluta do que com uma estratégia metapolítica focada em atingir objetivos políticos por meios culturais, baseada na premissa de Andrew Breitbart de que “a política é consequência da cultura”. Seja um efeito deliberado ou acidental, permitir que o exército de <em>trolls</em>, empoderado pelo Grok, saqueie o Twitter é mais eficaz para cooptar o fórum público digital do que restaurar contas suspensas.</p>
+<p>Queixar-se da suposta dominância da esquerda na mídia é humano; monopolizar plataformas como o Twitter é divino. A elite tecnológica dos EUA, como Peter Thiel, argumenta há tempos que <a href="https://jacobinlat.com/revista/" rel="noopener noreferrer" target="_blank">a liberdade capitalista e a democracia são incompatíveis</a>, desconsiderando as leis trabalhistas e a Primeira Emenda. Menos visível, mas igualmente grave, é a crescente radicalização de suas posições. Como observou o jornalista Corey Pein, as principais figuras do Vale do Silício estão se tornando mais extremistas “a cada geração”: o libertarianismo está dando lugar à neo-reação, ao monarquismo e ao feudalismo. Essas formas políticas arcaicas não contradizem a visão futurista da elite tecnológica; na verdade, as duas perspectivas apresentam uma notável sobreposição.</p>
+<p>Anos atrás, Thiel já comparava <em>startups</em> a monarquias, embora admitisse a necessidade de qualificar a analogia, pois “qualquer modelo fora da democracia gera desconforto”. Com o tempo, tanto admiradores quanto detratores de Musk passaram a retratá-lo como um monarca à moda antiga, como Frederico, o Grande, ou os Habsburgos. Até mesmo o blogueiro neo-reacionário Curtis Yarvin, que antes rotulava Musk como insuficientemente reacionário (“basicamente um democrata ao estilo Clinton com alguns ressentimentos”), mudou de posição após os primeiros deslizes na gestão do Twitter, apontando que os problemas de Musk surgiam quando começou a “atacar uma oligarquia a partir de uma perspectiva democrática”, um comportamento típico do povo comum, não de um rei.</p>
+<p>A ambição oligárquica de governar sem interferência popular não é novidade. Tampouco o é a visão paternalista atribuída ao penúltimo imperador Habsburgo, Francisco José, segundo a qual o dever do monarca é proteger a população de seus próprios políticos. O elemento inovador do Grok, do TruthGPT e de outras inteligências artificiais nominalmente libertadoras reside na convergência dessa ambição com técnicas metapolíticas.</p>
+<p>O ChatGPT já funcionava como uma “<a href="https://jacobinlat.com/2023/04/el-chatgpt-es-una-maquina-de-ideologia/" rel="noopener noreferrer" target="_blank">máquina ideológica</a>”. O Grok e seus similares simplesmente ajustam a direção política de acordo com a preferência de seus criadores. Apresentadas como uma rebelião contra a conspiração progressista que Yarvin chama de “a Catedral”, essas ferramentas buscam controlar o discurso, não libertá-lo. Moldar o debate público é o primeiro passo necessário para transformar o mundo em uma rede de feudos anarcocapitalistas com uma vassalagem de trezentos milhões de pessoas sem voz. É evidente que o Grok não é apenas um experimento fracassado, mas um instrumento central dessa ofensiva; uma ferramenta destinada a remodelar o senso comum e o discurso político global para atender aos interesses de seus proprietários.</p>
+<p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/algoritmos-onipotentes/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

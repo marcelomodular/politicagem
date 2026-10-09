@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perguntas incômodas sobre os que não votaram - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Perguntas incômodas sobre os que não votaram</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://outraspalavras.net/estadoemdisputa/perguntas-incomodas-sobre-os-que-nao-votaram/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/Screenshot-2026-10-07-at-17-44-48-image.webp-imagem-WEBP-1411-%C3%97-794-pixels-Redimensionada-81.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Perguntas incômodas sobre os que não votaram
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/Screenshot-2026-10-07-at-17-44-48-image.webp-imagem-WEBP-1411-%C3%97-794-pixels-Redimensionada-81.png"/><strong>Foto:</strong> Ismael Soares.
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p><em>“As pessoas não são más, elas só estão perdidas. Ainda há tempo.”</em><br/>– Criolo, “Ainda Há Tempo”</p>
+<p>Talvez seja difícil encontrar frase melhor para pensar o Brasil que chega a este segundo turno. Não porque as pessoas estejam simplesmente “perdidas” – e muito menos porque exista eleitor moralmente superior a outro –, mas porque uma democracia começa a adoecer quando uma parcela enorme da população deixa de enxergar na política um lugar onde sua vida possa efetivamente mudar.</p>
+<p>Em 4 de outubro, mais de <a href="https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/eleicoes-abstencao-cresce-para-2108-e-soma-334-milhoes-de-eleitores" rel="noopener noreferrer" target="_blank">33,4 milhões</a> de eleitores não compareceram às urnas no primeiro turno, uma abstenção de 21,08% do eleitorado – a <a href="https://www.otempo.com.br/politica/analise-abstencao-atinge-patamar-recorde-no-1-turno-da-eleicao-de-2026-e-supera-21" rel="noopener noreferrer" target="_blank">maior</a> em uma eleição presidencial desde 1998. O segundo turno, marcado para 25 de outubro, será disputado por Flávio Bolsonaro e Luiz Inácio Lula da Silva. Antes de perguntar em quem essas pessoas votariam, talvez seja necessário fazer uma pergunta anterior: <em>o que precisaria acontecer para que elas voltassem a acreditar que a política merece seu tempo?</em></p>
+<p>A resposta certamente não cabe em uma única explicação. Há desinteresse, dificuldades materiais, problemas de transporte, trabalho, doença, distância, desinformação, desencanto – e há também uma percepção cada vez mais disseminada de que “não importa quem ganhe”. Essa talvez seja a mais perigosa, porque uma democracia não se enfraquece apenas quando alguém tenta tomar o poder pela força; ela também se desgasta quando as pessoas deixam de acreditar que participar faz diferença. É nesse ponto que a velha discussão sobre o chamado “pobre de direita” precisa ser refeita, não para repetir o diagnóstico fácil, mas para perguntar o que ele não explica.</p>
+<h3><strong>A pergunta errada: quando o diagnóstico vira obstáculo</strong></h3>
+<p>“Como pode existir pobre de direita?” Uma pessoa pobre pode ser conservadora, liberal, socialista, religiosa, nacionalista, progressista ou qualquer combinação dessas coisas. Classe social não determina automaticamente consciência política, assim como renda não vem acompanhada de manual de instruções ideológicas. O problema é transformar “pobre de direita” em explicação: a expressão descreve uma posição eleitoral, mas não explica por que ela existe.</p>
+<p>Quando a esquerda olha para um trabalhador que vota à direita e responde apenas “ele não entendeu os próprios interesses”, comete um erro duplo – primeiro, transforma o eleitor em objeto de tutela; segundo, deixa de investigar por que suas próprias propostas deixaram de produzir identificação. Talvez a pergunta correta seja outra: <em>o que aconteceu para que pessoas que dependem de políticas públicas deixassem de enxergá-las como expressão de seus próprios direitos?</em> Essa pergunta dói mais, porque obriga a olhar para dentro.</p>
+<h3><strong>Política social não é esmola: quando o direito parece favor e o futuro parece impossível</strong></h3>
+<p>A <a href="https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm" rel="noopener noreferrer" target="_blank">Constituição </a>de 1988 não trata educação, saúde, alimentação, trabalho, moradia, transporte, segurança, previdência e assistência social como favores: reconhece direitos sociais e estabelece deveres e objetivos para o Estado. O próprio texto constitucional define entre os objetivos fundamentais da República a construção de uma sociedade livre, justa e solidária, a redução das desigualdades e a erradicação da pobreza. Isso deveria ser banal, mas não é. Quando uma família recebe uma transferência de renda, não está recebendo uma gentileza pessoal do governante; quando uma criança frequenta uma escola pública, não está recebendo uma concessão; quando alguém entra em um hospital público, o Estado não está fazendo caridade. Está cumprindo uma função que a Constituição lhe atribui.</p>
+<p>Defender direitos sociais não significa transformar toda política social existente em sucesso absoluto: uma política pode reduzir a fome sem eliminar a pobreza, ampliar o acesso à universidade sem enfrentar a precarização do trabalho, garantir renda sem produzir autonomia, impedir que alguém caia no abismo sem construir uma ponte para sair dele. Essa diferença é fundamental, porque a vida não pode ser organizada eternamente entre sobreviver e esperar.</p>
+<h3><strong>O Estado que chega tarde</strong></h3>
+<p>Há uma dimensão da pobreza que aparece pouco nas estatísticas: a experiência da espera. Esperar pela consulta, pela vaga na creche, pelo ônibus, pela casa, pelo emprego, pelo saneamento – esperar que o filho consiga uma oportunidade, que a violência diminua, que alguém olhe para aquele bairro. Esperar, esperar, esperar. E esperar não é apenas uma condição material; é também uma pedagogia política que ensina, todos os dias, o cidadão a desconfiar da promessa pública. Quando o Estado chega tarde demais, deixa de ser percebido como garantia e passa a ser percebido como promessa – e promessa repetida sem entrega produz descrença. É nesse terreno que discursos autoritários podem prosperar – não porque todo cidadão que vota à direita seja autoritário, mas porque o sofrimento social cria demanda por explicações, e a extrema direita frequentemente oferece algumas das mais simples: há sempre um culpado. O criminoso, o imigrante, o professor, a universidade, a esquerda, o servidor público, o “sistema”, a minoria. O alvo muda; a estrutura permanece. A política deixa de perguntar como distribuir riqueza, poder e oportunidades e passa a perguntar quem merece ser punido. É nesse mesmo movimento que a segurança pública se converte em um dos principais terrenos da fabricação de inimigos. Mas segurança pública também é direito, e combater o crime não é sinônimo de autoritarismo. O problema começa quando a proteção do cidadão é substituída pela produção de suspeitos – quando pobreza, diferença ou pertencimento político passam a funcionar como prova de culpa. É uma troca perigosa, porque o ressentimento mobiliza, mas não constrói escola, não constrói hospital, não transforma pesquisa em tecnologia. Não constrói soberania.</p>
+<p>Há uma memória que o Brasil ainda não conseguiu elaborar. Mais de 700 mil pessoas morreram na pandemia de COVID-19 – e morreram em uma pandemia agravada por decisões, omissões e escolhas do governo federal: minimização da doença, promoção de tratamentos sem eficácia comprovada e uma condução da vacinação que foi objeto de graves críticas e investigação parlamentar. A <a href="https://www.senado.leg.br/atividade/comissoes/comissao.asp?origem=SF&amp;codigo=1405" rel="noopener noreferrer" target="_blank">CPI da Pandemia</a> atribuiu ao governo federal papel preponderante na condução da resposta à crise e recomendou indiciamentos, inclusive do então presidente. A pandemia não terminou quando os hospitais esvaziaram. Ela permanece como um trauma não elaborado, como uma pergunta sem resposta: <em>como foi possível que um país inteiro assistisse, em tempo real, à produção industrial da morte e ainda assim, anos depois, um campo político associado àquele governo volte a disputar a Presidência com força suficiente para chegar ao segundo turno?</em></p>
+<p>Talvez porque a memória, no Brasil, seja tratada como assunto de arquivo, não como matéria de disputa. Talvez porque o luto tenha sido privatizado – cada família enterrando seus mortos em silêncio, sem que a sociedade pudesse dizer em voz alta: isso não foi apenas um acidente sanitário. Houve escolhas políticas, omissões e decisões que tiveram consequências concretas sobre a vida de centenas de milhares de pessoas. Disputar a memória da pandemia não é revanchismo. É impedir que o esquecimento prepare o terreno para a repetição. É dizer que as mais de 700 mil pessoas que morreram não são números: são pessoas de carne e osso, histórias, ausências que continuam a organizar a vida de quem ficou. E é por isso que o segundo turno não é apenas uma eleição. É uma escolha sobre o que faremos com essa memória.</p>
+<h3><strong>Quando a austeridade estreita o futuro: orçamento é política</strong></h3>
+<p>Não é correto afirmar que toda política de austeridade produz fascismo – embora determinadas políticas de austeridade, em certos contextos, possam alimentar condições sociais e políticas favoráveis ao crescimento da extrema direita. Tampouco existe uma equação automática entre contenção fiscal e extrema direita. Mas existe uma questão política incontornável: <em>o que acontece quando a capacidade do Estado de responder aos problemas sociais é permanentemente comprimida?</em></p>
+<p>O <a href="https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp200.htm" rel="noopener noreferrer" target="_blank">Novo Arcabouço Fiscal</a> é objeto de uma disputa legítima entre diferentes correntes econômicas – <a href="https://ojs.sites.ufsc.br/index.php/revistanecat/article/view/7315" rel="noopener noreferrer" target="_blank">David Deccache</a>, por exemplo, argumenta que as regras do novo regime fiscal restringem a capacidade do governo de ampliar gastos sociais, reduzir desigualdades e realizar investimentos necessários ao desenvolvimento. Essa é uma interpretação situada em uma determinada corrente do debate econômico e está longe de ser consensual. Justamente por isso, essa disputa deveria sair dos círculos especializados e entrar no debate público.</p>
+<p>O problema não é reconhecer que existem limites fiscais; o problema é transformar esses limites em uma variável puramente técnica que encerra, antes mesmo de começar, uma discussão que é essencialmente política. Quanto gastar? Onde investir? Quem proteger? Quem tributar? Que setores desenvolver? Que futuro financiar? Orçamento não é apenas contabilidade – orçamento é escolha. Se existe um limite para determinado gasto, existe também uma escolha sobre aquilo que não será feito. Por isso, a pergunta não deveria ser apenas “quanto o Estado pode gastar?”, mas: <em>que Estado queremos construir – e quanto estamos dispostos a financiar para que ele exista?</em></p>
+<h3><strong>A dívida também precisa ser discutida</strong></h3>
+<p>É preciso falar de dívida pública sem slogans – mas também sem esconder seus números. Segundo os cálculos de <a href="https://www.ihu.unisinos.br/categorias/669292-dario-durigan-e-os-juros-trilionarios-artigo-de-paulo-kliass" rel="noopener noreferrer" target="_blank">Paulo Kliass</a>, elaborados a partir das estatísticas oficiais do Banco Central, as despesas com juros da dívida pública somaram R$ 1,2 trilhão nos doze meses encerrados em junho de 2026. Apenas naquele mês, foram cerca de R$ 111 bilhões.<a href="https://www.gov.br/fazenda/pt-br/assuntos/noticias/2026/setembro/divida-publica-federal-totaliza-r-9-29-trilhoes-em-agosto" rel="noopener noreferrer" target="_blank"> Dados </a>oficiais divulgados posteriormente ajudam a dimensionar essa escala: em agosto de 2026, a dívida pública federal alcançou R$ 9,29 trilhões, enquanto os juros incorporados naquele mês chegaram a R$ 88,39 bilhões; com <a href="https://www.camara.leg.br/assessoria-de-imprensa/1305396-camara-dos-deputados-lanca-raio-x-da-divida-publica-federal-com-dados-de-julho" rel="noopener noreferrer" target="_blank">dados </a>até julho, a Consultoria de Orçamento da Câmara registrava R$ 1,15 trilhão em juros acumulados em doze meses. Os números variam conforme o período e a metodologia, mas ajudam a dimensionar a escala do problema. A pergunta, portanto, não é se a dívida custa caro. É quem paga essa conta e o que deixa de ser feito quando ela chega a essa escala.</p>
+<p>Esses dados não significam que “todo o dinheiro vai para os bancos”. Tampouco permitem concluir que a dívida pública possa simplesmente ser ignorada. Juros, amortizações e refinanciamento são conceitos diferentes, e uma discussão séria precisa respeitar essa diferença. Mas os números permitem formular uma pergunta que não deveria ser ignorada: <em>por que as despesas sociais precisam justificar continuamente sua existência enquanto a despesa financeira parece escapar, no debate público, do mesmo escrutínio político e midiático?</em></p>
+<p>Em 2026, essa escala tornou-se difícil de ignorar. Enquanto o debate gira em torno de cortes, contingenciamentos e limites para políticas sociais e investimentos, as despesas com juros da dívida ultrapassam a escala de um trilhão de reais em doze meses. A questão, portanto, não é escolher entre “responsabilidade fiscal” e “irresponsabilidade fiscal”. É perguntar: <em>responsabilidade fiscal para quem, para quê e com quais prioridades?</em></p>
+<p>Se o país precisa reorganizar suas contas, essa reorganização deveria alcançar o conjunto do orçamento. Se existem limites para financiar políticas públicas, também é legítimo discutir os mecanismos que determinam o custo financeiro do Estado. A dívida precisa deixar de ser um assunto reservado a especialistas e tornar-se uma questão democrática. Não para produzir uma conclusão antecipada. Mas para que a sociedade possa perguntar quanto paga, por que paga, quem recebe e que projeto de país esse pagamento torna possível.</p>
+<h3><strong>O problema também está dentro da esquerda</strong></h3>
+<p>É aqui que a autocrítica se torna indispensável. A extrema direita não cresce apenas pelo que diz; também cresce nos espaços que outras forças políticas deixam de ocupar. Se a esquerda promete transformação e entrega apenas administração da escassez, produz frustração; se promete democratização e não democratiza o poder, produz cinismo; se defende direitos, mas não consegue melhorar a experiência concreta de quem depende deles, permite que alguém apareça dizendo “eu sei por que sua vida está ruim” e ofereça uma explicação simples. Uma esquerda que pede confiança apenas porque é menos ruim que a alternativa corre o risco de transformar a própria política em gerenciamento permanente do medo. Ela precisa fazer uma pergunta mais difícil: <em>o que ainda falta para que a vida das pessoas seja digna?</em></p>
+<p>Transferência de renda não substitui emprego digno; acesso à universidade não substitui política industrial; escola pública não pode funcionar como depósito de crianças enquanto os adultos trabalham jornadas intermináveis; o SUS precisa de financiamento, mas também de capacidade tecnológica; habitação não pode significar simplesmente construir unidades distantes de tudo; combater a fome sem transformar a estrutura produtiva mantém milhões de pessoas permanentemente vulneráveis. O desafio não é apenas fazer o Estado chegar – é fazer com que ele chegue antes que a esperança vá embora.</p>
+<h3><strong>O futuro precisa voltar ao orçamento</strong></h3>
+<p>É aqui que a discussão fiscal encontra a discussão sobre futuro – e é aqui que a imagem do Estado que chega tarde retorna com força. Não se trata de revogar uma regra e imaginar que todos os problemas desaparecerão; a pergunta mais interessante é: <em>que pacto fiscal seria necessário para financiar um projeto de país que não seja apenas administração da escassez?</em> Isso não abre um programa de governo, mas um conjunto de perguntas que qualquer projeto de país precisaria enfrentar.</p>
+<ol>
+<li><strong>Que indústria o Brasil quer ter?</strong> Que medicamentos, equipamentos médicos, semicondutores, sistemas de energia, tecnologias agrícolas, satélites e tecnologias de defesa queremos ser capazes de produzir? Indústria, ciência e tecnologia não deveriam ser departamentos separados – são partes da mesma pergunta: quanto de autonomia um país quer possuir? Política industrial é também política de soberania. E qual é o custo de não produzir?<br/></li>
+<li><strong>Que cidade estamos construindo quando entregamos cada casa?</strong> Construir moradia significa construir cidades – emprego, infraestrutura, transporte, saneamento, arquitetura, engenharia, materiais, energia. Uma política habitacional robusta pode ser simultaneamente política social e política econômica. Mas também exige escolhas: onde construir, para quem, com que padrão de urbanização e a que custo ambiental.<br/></li>
+<li><strong>Quem ficará com o tempo economizado pela tecnologia?</strong> A redução da jornada e o fim da escala 6×1 não são apenas reivindicações trabalhistas – são uma pergunta sobre o destino dos ganhos de produtividade. Se máquinas, softwares e inteligência artificial aumentam a produtividade, quem fica com o tempo que a tecnologia economizou? Se a sociedade produz mais em menos horas, por que o trabalhador necessariamente precisa trabalhar mais para continuar vivendo? Se a tecnologia economiza tempo, o trabalhador também deveria receber parte desse tempo de volta.<br/></li>
+<li><strong>De quem o Estado arrecada?</strong> Não basta perguntar quanto o Estado arrecada; é preciso perguntar de quem arrecada. Uma sociedade em que o consumo pesa proporcionalmente mais sobre os pobres do que sobre os mais ricos precisa discutir progressividade tributária, renda, patrimônio, lucros e dividendos. Tributação não é apenas mecanismo de arrecadação – também é mecanismo de distribuição de poder.<br/></li>
+<li><strong>Que conhecimento um país precisa produzir para poder decidir?</strong> Um país que importa tecnologia estratégica compra também parte de sua autonomia. Universidades, institutos de pesquisa e centros tecnológicos precisam ser tratados como infraestrutura nacional. Ciência não é luxo – é capacidade de decidir. Um país que não pesquisa suficientemente não apenas sabe menos; escolhe menos.<br/></li>
+<li><strong>Qual é o limite entre autonomia técnica e responsabilidade democrática?</strong> O Brasil precisa discutir quais limites fiscais e monetários está disposto a estabelecer para preservar sua capacidade de escolha. O Novo Arcabouço Fiscal deve ser revogado e substituído por uma regra compatível com investimento, crescimento e redução das desigualdades? A autonomia do <a href="https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp179.htm" rel="noopener noreferrer" target="_blank">Banco Central</a>, tal como estabelecida atualmente, produz o equilíbrio adequado entre autonomia técnica, estabilidade de preços, emprego, crescimento e responsabilidade democrática? Essas perguntas não são técnicas – são políticas. E precisam ser respondidas no debate público.<br/></li>
+<li><strong>Quais ativos são estratégicos demais para serem mercadorias?</strong> Energia, água, mineração, infraestrutura, tecnologia e comunicações devem estar submetidos apenas à lógica de mercado? O que o país perde quando transfere ao setor privado capacidade produtiva, infraestrutura, conhecimento e poder de decisão? E, quando uma privatização compromete interesses estratégicos, não deveria existir também a possibilidade de recuperar o controle público? O Brasil precisa decidir o que não pode ser tratado apenas como mercadoria.<br/></li>
+<li><strong>Que transição energética queremos construir?</strong> Se minerais como lítio, níquel, cobre, grafita, manganês, nióbio e terras raras serão cada vez mais importantes para a transição energética, o Brasil continuará exportando minério e importando tecnologia? Ou usará esses recursos para desenvolver indústria, ciência e cadeias produtivas de maior valor agregado? A recém-criada <a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/lei/l15506.htm" rel="noopener noreferrer" target="_blank">Política Nacional de Minerais Críticos e Estratégicos</a> já reconhece sua importância para a transição energética, a soberania tecnológica e a redução de emissões. Mas será que ela basta? É possível combater a crise climática criando novas zonas de sacrifício ambiental? Mineral crítico deve ser apenas commodity de exportação ou instrumento de soberania?<br/></li>
+<li><strong>Como controlar um Estado maior?</strong> Se defendemos mais capacidade estatal para enfrentar os dramas da população, surge uma pergunta legítima: como impedir captura, desperdício, corrupção e burocratização? Nenhum projeto de Estado democrático pode ignorar essa questão. A resposta não pode ser simplesmente reduzir o Estado, mas torná-lo transparente, participativo e submetido ao controle social.<br/></li>
+<li><strong>Como democratizar as decisões?</strong> Democracia não pode começar e terminar na urna. Orçamento participativo, conselhos, consultas públicas, controle social – a própria <a href="https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm" rel="noopener noreferrer" target="_blank">Constituição, em seu art. 193</a>, parágrafo único, prevê a participação da sociedade na formulação, no monitoramento, no controle e na avaliação das políticas sociais. A democracia precisa sair do calendário eleitoral e entrar na vida cotidiana.</li>
+</ol>
+<h3><strong>Soberania também é decidir o próprio orçamento</strong></h3>
+<p>Existe uma conexão que costuma desaparecer quando economia e política externa são discutidas separadamente: capacidade produtiva é também capacidade diplomática. Um país que não possui capacidade produtiva suficiente depende de outros; um país dependente tecnologicamente possui menos margem de negociação; um país que precisa recorrer permanentemente a estruturas externas para financiar, produzir ou adquirir bens estratégicos possui menos alternativas; e um país com menos autonomia econômica possui menos espaço para exercer soberania política.</p>
+<p>A disputa global por minerais como lítio, terras raras e nióbio é uma das novas fronteiras da soberania – e o Brasil precisa decidir se será fornecedor de matéria-prima ou protagonista da transição energética. A transição energética não pode significar apenas substituir a dependência do petróleo pela dependência de minerais críticos importados. Significa construir capacidade produtiva, tecnológica e industrial para que o país não troque uma forma de dependência por outra.</p>
+<p>Por isso, soberania não significa fechar fronteiras – significa construir alternativas, cooperar sem depender, negociar sem obedecer, produzir aquilo que é estratégico sem depender de fornecedores externos, pesquisar para ampliar a própria capacidade de escolha, defender interesses nacionais sem transformar o mundo em uma guerra permanente de blocos.</p>
+<p>O debate sobre iniciativas de segurança e cooperação promovidas pelos Estados Unidos na América Latina – como o <a href="https://pt.euronews.com/2026/03/08/cuba-vai-cair-muito-em-breve-diz-trump-na-criacao-da-alianca-escudo-das-americas" rel="noopener noreferrer" target="_blank">Escudo das Américas</a>, lançado em março de 2026 e que hoje reúne os Estados Unidos e outros 14 países da América Latina e do Caribe – precisa ser feito nesse horizonte: não como escolha simplista entre “ser pró-EUA” ou “ser anti-EUA”, mas como discussão sobre qual margem de autonomia o Brasil deseja possuir no sistema internacional. Soberania é capacidade de escolha, e capacidade de escolha exige capacidade material.</p>
+<h3><strong>E os mais de 33 milhões que não foram votar?</strong></h3>
+<p>Talvez seja aqui que o segundo turno encontre sua questão mais profunda. Não deveríamos olhar para quem não votou como uma massa a ser conquistada – deveríamos perguntar o que precisaria acontecer para que essas pessoas voltassem a acreditar que a política merece seu tempo. Talvez alguns estejam indiferentes, talvez outros estejam decepcionados, talvez muitos simplesmente não acreditem que a política consiga alterar suas vidas. Essa última hipótese deveria assustar mais do que qualquer pesquisa eleitoral, porque uma democracia não pode depender eternamente da capacidade de seus candidatos de mobilizar medo contra medo. Ela precisa oferecer razões para participar – razões materiais, razões políticas, razões de futuro. Não basta dizer “vote porque a outra opção é pior”; uma democracia precisa ser capaz de dizer algo maior: “participe porque existe algo que podemos construir”.</p>
+<h3><strong>Ainda há tempo</strong></h3>
+<p>Talvez a tarefa deste segundo turno seja maior do que escolher entre dois nomes: é descobrir se a política brasileira ainda consegue produzir uma conversa sobre futuro. Uma conversa em que o pobre não seja tratado como eleitor irracional, em que o beneficiário de uma política social não seja tratado como devedor de gratidão, em que o trabalhador não seja transformado em empreendedor por decreto, em que o jovem não seja obrigado a escolher entre precariedade e emigração, em que ciência seja entendida como soberania, em que responsabilidade fiscal não signifique abrir mão da responsabilidade social do Estado, em que tecnologia não seja apenas uma promessa de produtividade para empresas, mas também uma possibilidade de devolver tempo às pessoas, em que democracia não seja apenas o direito de votar, mas também o direito de participar das decisões que organizam a vida coletiva.</p>
+<p>O segundo turno pode ser tratado apenas como uma batalha eleitoral, mas também pode ser uma oportunidade para fazer perguntas maiores. Que Estado queremos? Quem deve financiar esse Estado? O que queremos produzir? Quanto queremos trabalhar? Quem ficará com os ganhos da tecnologia? Como queremos viver? Que lugar queremos ocupar no mundo? Que futuro queremos oferecer aos nossos filhos? Essas perguntas não pertencem a um partido – pertencem à sociedade. E não serão respondidas sozinhas. Precisam ser discutidas nos bairros, nas escolas, nas universidades, nos sindicatos, nas associações, nos locais de trabalho, nos movimentos sociais, nos espaços culturais e nas ruas. Não para substituir a democracia eleitoral, mas para fazê-la respirar. Porque o problema do Brasil não é apenas quem está perdido – é quanta gente passou tempo demais esperando. Esperando a consulta, a casa, o emprego, a escola, o ônibus, a oportunidade, a política cumprir o que prometeu.</p>
+<p>Quando a espera se torna permanente, a esperança começa a parecer ingenuidade, e nesse momento qualquer promessa de ordem pode parecer mais concreta do que uma promessa de futuro. Talvez seja por isso que a frase de Criolo permaneça tão necessária: “As pessoas não são más, elas só estão perdidas. Ainda há tempo.” Mas tempo não é uma política pública – é apenas a possibilidade de começar antes que seja tarde.</p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleça o jornalismo crítico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/estadoemdisputa/perguntas-incomodas-sobre-os-que-nao-votaram/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

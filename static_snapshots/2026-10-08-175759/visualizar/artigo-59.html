@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A esquerda precisa gerar um senso de pertencimento - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A esquerda precisa gerar um senso de pertencimento</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/10/a-esquerda-precisa-gerar-um-senso-de-pertencimento/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-07-as-13.47.18.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A esquerda precisa gerar um senso de pertencimento
+                            </p>
+                            
+<p>UMA ENTREVISTA DE</p><p>
+
+			Mariano Schuster		</p>
+<p>Em <em>La izquierda después de la izquierda. Desde dónde, a quiénes y cómo hablar</em> [A esquerda depois da esquerda: De onde, para quem e como falar] (Comares, 2026), o cientista político espanhol Jorge Resina analisa por que as forças progressistas que emergiram após a crise de 2008 conseguiram despertar enormes expectativas, mas tiveram dificuldades em transformá-las em identidades e maiorias duradouras.</p>
+<p>Em entrevista a Mariano Schuster para a revista <em>Jacobin</em>, Resina reflete sobre a transformação da classe trabalhadora, as tensões entre redistribuição e reconhecimento, os limites da hiperliderança, a perda de uma perspectiva internacionalista e a eficácia da batalha cultural da extrema direita. Diante de uma esquerda presa entre a nostalgia, a fragmentação e a urgência das eleições, ele propõe a reconstrução de laços, comunidades e formas de pertencimento capazes de sustentar um projeto político de longo prazo.</p>
+
+<p>MARIANO SCHUSTER</p>
+<p><strong>Em 2011, após anos de crise, desemprego e medidas de austeridade, milhares de pessoas ocuparam praças em Madri, Atenas, Lisboa e Nova York. Desse ciclo emergiram movimentos como o Syriza, o Podemos, o trabalhismo de Jeremy Corbyn e a campanha de Bernie Sanders. Quais eram as queixas e expectativas daquele momento? O que esses movimentos tinham em comum e por que seu ímpeto diminuiu tão rapidamente?</strong></p>
+<p>JORGE RESINA</p>
+<p>A chave daquele momento residia não apenas na sensação de que era possível imaginar outro tipo de sociedade, mas na crença genuína de que ela poderia ser construída. Esse fenômeno estava diretamente ligado à crise de 2008, mas também a uma história de lutas na qual a esquerda antiglobalização desempenhou um papel significativo. Seattle e Gênova fazem parte dessa genealogia, assim como uma tradição profundamente enraizada na América Latina, especialmente nos movimentos sociais da década de 1990, que ajudaram a desenvolver uma contranarrativa ao neoliberalismo. O slogan “outro mundo é possível”, que acompanhou o Fórum Social Mundial, deixou então de funcionar meramente como um ideal utópico e passou a adquirir um grau de viabilidade política.</p>
+<p>A isso se somou uma dimensão geracional decisiva. Aqueles que foram às ruas e praças da Europa e dos Estados Unidos para protestar pertenciam a uma geração relativamente bem-educada e preparada, à qual havia sido prometido um certo horizonte de progresso e que, de repente, se viu confrontada com o desemprego, o trabalho precário e a falta de perspectivas. Esse sentimento de terem sido enganados permitiu a reabertura de questões que pareciam já resolvidas. Na Espanha, por exemplo, a primeira geração de millennials começou a questionar a Transição, a monarquia, o papel das elites e a ausência de democracia econômica. Nesse sentido, a crise não foi apenas econômica, mas também produziu uma crise de legitimidade e questionou elementos da ordem política que por muito tempo pareceram inquestionáveis.</p>
+<p>As experiências surgidas desse ciclo compartilhavam um enorme frescor e uma poderosa espontaneidade, mas também um desejo de transcender as mediações tradicionais — partidos políticos, sindicatos, meios de comunicação — e encontrar novas formas de democratizá-las. Por um tempo, essa energia gerou enormes expectativas. Até mesmo Nicolas Sarkozy, um presidente conservador, chegou a pautar a necessidade de reformar o capitalismo. A própria viabilidade do sistema parecia estar sendo questionada pelo que então se conhecia como o movimento dos Indignados.</p>
+<p>Contudo, a espontaneidade revelou, relativamente depressa, as suas limitações. Talvez a natureza um tanto inexperiente de uma geração com pouca vivência política também tenha contribuído para isso. Tratavam-se de processos autonomistas, baseados em assembleias e descentralizados, que haviam demonstrado uma enorme capacidade de desafiar a ordem vigente, mas que começaram a encontrar maiores dificuldades na construção de mecanismos duradouros de intervenção. Em determinado momento, a pergunta tornou-se inevitável: “Para onde vamos a partir daqui?”. A indignação podia gerar mobilização, mas não garantia, por si só, organização ou continuidade.</p>
+<p>Novas fórmulas foram então testadas, como partidos-movimento, partidos digitais e liderança coletiva. Mas muitas dessas experiências acabaram reproduzindo rapidamente algumas das próprias lógicas que buscavam superar. Os novos partidos envelheceram a um ritmo surpreendente e tenderam a concentrar o poder em pequenos grupos de liderança. Havia também um padrão patriarcal profundamente enraizado. Quase todos eram liderados por homens que aderiam a um modelo que estava sendo questionado dentro da própria esquerda pelos movimentos feministas.</p>
+<p>Contudo, esse ciclo não deve ser julgado apenas pelo destino subsequente das organizações que dele emergiram. Ele deixou um legado político e cultural significativo. Conceitos como “os 99%” e “dignidade” repolitizaram discussões que pareciam encerradas. Justiça tributária, a desmercantilização de certos serviços essenciais, a renda básica, o feminismo e a emergência climática adquiriram nova centralidade. Repertórios de mobilização também permaneceram, reaparecendo posteriormente em outros movimentos. O ciclo político seguiu seu curso, mas muitas das transformações culturais que produziu perduraram.</p>
+<p>MS</p>
+<p><strong>O Podemos surgiu nas praças espanholas, com seus principais fundadores tendo laços estreitos com governos de esquerda na América Latina. O partido também nasceu com os “círculos”, que logo perderam influência para uma liderança altamente centralizada. Como a influência latino-americana se combinou com o espírito de assembleia do movimento 15M? O que essa evolução revela sobre as tensões entre participação, liderança e eficácia eleitoral?</strong></p>
+<p>JR</p>
+<p>Há um primeiro ponto que precisa ser esclarecido: o movimento 15M foi muito mais do que o Podemos e, claro, muito mais do que seus fundadores. Nas praças, coexistiam perspectivas muito diversas, muitas delas enraizadas na tradição autonomista, buscando um aprofundamento substancial da democracia e até mesmo hesitantes quanto à ideia de fundar um partido político.</p>
+<p>Após essa mobilização inicial, porém, tornou-se evidente certa dificuldade em determinar o próximo passo. Foi nesse contexto que um grupo dos setores acadêmico e de consultoria, com experiência na América Latina (incluindo Pablo Iglesias, Íñigo Errejón e Juan Carlos Monedero, entre outros), teve a habilidade — ou o oportunismo, dependendo da perspectiva — de canalizar parte dessa energia social e, por fim, fundar o Podemos.</p>
+<p>Uma das lições aprendidas com as experiências latino-americanas foi precisamente a importância da vontade de poder, no sentido proposto por Álvaro García Linera. A questão poderia ser formulada de maneira bastante simples: se existe uma energia social suficientemente intensa e uma crise de representação suficientemente profunda, por que se limitar a protestar e não tentar chegar ao poder institucional por meio de eleições? Essa questão encontrou respostas concretas na Venezuela, Bolívia e Equador, onde diversos movimentos e forças políticas conseguiram chegar ao poder.</p>
+<p>Carolina Bescansa, então estrategista de comunicação política do Podemos, também foi fundamental para o sucesso inicial dessa nova força. O partido conseguiu construir uma narrativa que ressoou emocionalmente com o sentimento de uma parcela significativa da sociedade espanhola. Houve, de certa forma, uma tentativa de “latino-americanizar” a Espanha, embora as duas realidades fossem muito mais distantes do que os defensores dessa ideia imaginavam.</p>
+<p>A estratégia de comunicação e a capacidade de gerar entusiasmo funcionaram inicialmente. As dificuldades surgiram quando se tratou de dar ao partido uma estrutura organizacional e começar a competir institucionalmente. A estrutura socioeconômica, a complexidade territorial e a dimensão da Espanha eram diferentes. O ponto de partida também era diferente: a Espanha acabara de sair de um processo de precarização e limitação do Estado, enquanto a América Latina enfrentava desafios distintos. Somava-se a isso um sistema partidário muito mais consolidado e uma estrutura estatal — com seu funcionalismo público, altos funcionários e modelo de autonomia — que operava segundo uma lógica dificilmente comparável às experiências latino-americanas.</p>
+<p>Mas a principal limitação acabou sendo organizacional. Os grupos locais buscavam preservar o espírito territorial e deliberativo do movimento 15M, e também houve tentativas de construir um partido digital que ampliasse as possibilidades de participação. No entanto, essas estruturas rapidamente perderam sua capacidade efetiva de tomada de decisões. A clássica “lei de ferro da oligarquia” de Robert Michels voltou a entrar em ação: organizações criadas justamente para superar as deficiências dos partidos tradicionais começaram a reproduzir dinâmicas semelhantes de centralização, profissionalização e concentração de poder.</p>
+<p>A isso se somava uma disputa muito intensa sobre quem lideraria o partido e quem teria o poder de definir seus rumos. O Podemos foi fundado em 2014 e, em 2016, já estava praticamente fragmentado. Havia tendências e correntes difíceis de conciliar. É claro que havia egos envolvidos, mas seria simplista demais reduzir o problema a uma questão de personalidades. Havia também problemas de negociação, adaptação às circunstâncias e, sobretudo, uma incapacidade de construir espaços com verdadeira autonomia.</p>
+<p>A entrada nas instituições intensificou essas dinâmicas verticais. O Podemos progrediu rápido demais e acabou se tornando uma panelinha de quatro ou cinco homens disputando poder e popularidade. Ali, a compreensão patriarcal e sexista do poder ressurgiu. Também houve dificuldades em lidar intelectual e politicamente com as diferenças, de modo que divergências que poderiam ter levado a debates estratégicos frequentemente degeneravam em conflitos pessoais.</p>
+<p>Nada disso deve, obviamente, obscurecer os fatores externos. Refiro-me, entre outras coisas, ao chamado “Estado profundo”. Ou seja, às operações conduzidas por setores policiais e paramilitares que fabricaram acusações contra o partido, especialmente em relação ao suposto financiamento ilegal, que posteriormente se provaram falsas. A isso se somou o papel de certos veículos de comunicação, que amplificaram essas acusações e disseminaram essas teorias. Tudo isso causou enormes prejuízos.</p>
+<p>Mas reconhecer essas operações não exime de responsabilidade aqueles que lideraram o partido. A combinação de pressão externa, centralização organizacional e conflitos internos sufocou gradualmente o projeto até que ele se tornasse uma força marginal. Diversas formações políticas emergiram posteriormente desse espaço, e ainda hoje a esquerda espanhola enfrenta enormes dificuldades para organizar politicamente essa fragmentação.</p>
+<p>MS</p>
+<p><strong>Durante grande parte do século XX, a classe trabalhadora constituiu o principal sujeito político da esquerda. Mas as transformações do capitalismo, a precariedade do emprego e o enfraquecimento dos sindicatos, partidos e outros espaços de socialização alteraram profundamente esse mundo.</strong></p>
+<p><strong>Que formas assume essa classe hoje, e como ela pode ser reconstruída como um sujeito coletivo? Como podemos explicar que setores populares historicamente identificados com a esquerda tenham começado a percebê-la como uma elite cultural distante e encontrem na extrema direita uma resposta às suas demandas por reconhecimento e pertencimento?</strong></p>
+<p>JR</p>
+<p>Penso que precisamos seguir falando de classe, embora talvez não exatamente nos termos tradicionais da classe trabalhadora. Podemos falar de uma classe popular e, sobretudo, de uma classe precarizada. O conceito de “precariado” tem sido amplamente utilizado, embora também tenha recebido críticas, e, em termos próximos aos de Laclau, tem-se invocado a oposição entre “os que estão no topo” e “os que estão na base”. Mas, independentemente da categoria específica que utilizarmos, a esquerda não deve subestimar a persistência de uma dimensão de classe nas nossas sociedades.</p>
+<p>O que mudou radicalmente foram as condições em que essa classe se constitui. O capitalismo contemporâneo não corresponde mais ao modelo industrial e fabril clássico. Ele é permeado pela financeirização e pela digitalização, e está nos conduzindo, inclusive, a formas de tecnofeudalismo digital que produzem novos tipos de precarização e desigualdade. Trabalhadores do setor de serviços, entregadores de aplicativos, setores industriais em declínio, empregos digitais precários e migrantes coexistem, afetados por praticamente todos os eixos da desigualdade.</p>
+<p>Mas há uma questão histórica crucial aqui. Como E.P. Thompson e Eric Hobsbawm demonstraram em seus estudos sobre a formação da classe trabalhadora, a classe nunca foi simplesmente uma realidade econômica predeterminada. Ela também foi uma construção histórica, política e cultural. Tabernas, sociedades de ajuda mútua, sindicatos e até mesmo o próprio bairro constituíam espaços de socialização, transmissão de valores e produção de imaginários compartilhados. O status de classe trabalhadora era uma posição dentro da estrutura econômica, mas também uma experiência cotidiana que se tornava inteligível por meio de instituições, práticas e relações compartilhadas.</p>
+<p>Grande parte desse mundo se desfez. O trabalho assalariado continua sendo central, mas perdeu muito da sua capacidade de forjar identidades e horizontes coletivos por conta própria. Isso não significa, porém, que novas formas de trabalho sejam totalmente incapazes de gerar organização. Na Espanha, por exemplo, trabalhadores de plataformas digitais organizaram fundos de greve para cobrir multas, penalidades e licenças médicas. Na Argentina, entregadores da Glovo e da PedidosYa usaram grupos no Telegram para alertar uns aos outros sobre golpes, áreas perigosas e mudanças nos algoritmos. No México, o movimento #NiUnRepartidorMenos (Nem um entregador a menos) chegou a usar memes e humor para formar uma comunidade, e na Colômbia, entregadores da Rappi entraram em greve.</p>
+<p>Seria um erro romantizar essas experiências. Muitas são fragmentadas, defensivas e surgem em resposta a transformações concretas nas condições de trabalho. Elas não geram necessariamente identidades duradouras ou um sujeito político estável. Mas mostram que mesmo um capitalismo concebido para individualizar radicalmente o trabalhador continua produzindo demandas por solidariedade, cooperação e organização.</p>
+<p>Este mapa também deve incluir os chamados “perdedores da globalização”, aqueles ligados ao legado de um capitalismo mais produtivo, que se sentem desconectados e precisam de respostas. E não podemos esquecer os grandes marginalizados do nosso tempo: os migrantes. Considere, por exemplo, uma mulher migrante de origem árabe ou africana na Espanha: ali, diferentes desigualdades se acumulam e se cruzam. A esquerda deve ser capaz de conectar essas desigualdades sem permitir que esses grupos sejam percebidos como concorrentes em uma espécie de mercado de queixas.</p>
+<p>Quando essas experiências não conseguem ser reunidas em um imaginário compartilhado, surgem a fragmentação, a desafeição e um sentimento de abandono. E é precisamente aí que a extrema direita encontra terreno fértil. Muitos grupos camponeses e da classe trabalhadora que histórica e tradicionalmente foram alvos da esquerda encontram agora nela uma conexão política e emocional que a esquerda deixou de lhes oferecer.</p>
+<p>Existe também uma divisão cultural entre grandes cidades, províncias e, principalmente, áreas rurais. Isso é claramente visível nos Estados Unidos e na França. Regiões rurais, pequenas cidades e antigas zonas industriais parecem abandonadas e negligenciadas. A extrema direita atribui essa situação a políticas que chama de “globalistas”. Essa é uma explicação muito simplista e conveniente, pois desvia o foco das transformações estruturais do capitalismo, mas é extremamente eficaz politicamente.</p>
+<p>A isso se soma um crescente distanciamento das chamadas elites culturais. O ponto importante é que não se trata necessariamente de uma elite em termos econômicos. Muitos trabalhadores da cultura, da mídia e do meio digital também vivenciam situações precárias. Contudo, por virem de setores ligados ao trabalho braçal, de áreas rurais ou de antigas cidades industriais, podem ser percebidos como pertencentes a um mundo social diferente, com códigos, linguagens e valores muito distantes de sua experiência cotidiana. Esse distanciamento cultural pode se traduzir também na sensação de que seus modos de vida são vistos com condescendência ou até mesmo com desprezo.</p>
+<p>A classe social hoje é uma realidade multidimensional e heterogênea. Não há uma fronteira nítida entre o econômico e o cultural, nem uma experiência única de precariedade. O desafio reside em compreender como essas diferentes desigualdades estão interconectadas e como podem ser reintegradas em um entendimento comum. Isso também exige a recuperação de uma concepção de democracia que não se limite à sua dimensão política, mas que incorpore novamente sua dimensão econômica.</p>
+<p>MS</p>
+<p><strong>Os feminismos, as lutas indígenas e antirracistas, o ambientalismo e as dissidências sexuais ampliaram os sujeitos políticos da esquerda. No entanto, uma crítica generalizada argumenta que a “política identitária” fragmentou uma linguagem comum. Você rejeita a oposição entre classe e identidades e propõe um “novo universalismo” baseado na diferença. Em que consistiria isso e como poderia articular as desigualdades de classe, gênero, raça e território?</strong></p>
+<p>JR</p>
+<p>Vivemos em sociedades caracterizadas por identidades múltiplas, fluidas e em constante transformação, e a esquerda precisa ser capaz de compreender e incorporar essa realidade. Existem diferentes experiências, linguagens e formas de identificação. O desafio político não é negar essa pluralidade, mas criar mecanismos de tradução que permitam que essas experiências sejam reconhecidas dentro de uma estrutura comum.</p>
+<p>Por isso, é necessário ir além da dicotomia entre “<em>woke</em>” — associado a agendas progressistas sobre gênero, raça e diversidade — e “<em>rojipardo</em>” — uma corrente que combina posições econômicas de esquerda com posturas conservadoras em questões culturais. As desigualdades são interseccionais, afetando diferentes grupos de maneiras distintas e podendo se acumular. O que deve ser evitado é uma competição de queixas em que cada setor se percebe como desfavorecido em relação a outro, e a política se torna uma luta para determinar quem ocupa a posição mais vulnerável. Essa competição reproduz precisamente a lógica de escassez e fragmentação que a própria desigualdade produz.</p>
+<p>Neste ponto, a abordagem de Nancy Fraser sobre redistribuição e reconhecimento é particularmente útil. A injustiça de gênero ou racial não pode ser reduzida a danos culturais, mas também não é simplesmente um efeito colateral da economia. Da mesma forma, as desigualdades de classe são acompanhadas e reforçadas por formas de desprezo e subordinação cultural. Portanto, Fraser defende a necessidade de combinar condições materiais de igualdade com formas de reconhecimento que permitam uma participação verdadeiramente igualitária.</p>
+<p>O movimento <em>Black Lives Matter</em> oferece um exemplo claro dessa tensão. Suas reivindicações podem se limitar à denúncia do racismo sistêmico e da violência policial, ou podem se conectar a questões materiais como moradia, emprego, trabalho de cuidado e justiça econômica. É precisamente nessa articulação que uma experiência específica deixa de estar confinada à sua particularidade e adquire uma capacidade transformadora mais ampla.</p>
+<p>Também houve tentativas políticas de construir tais alianças. O movimento Podemos, em seus primórdios, conseguiu por um tempo unir demandas feministas, trabalhistas e territoriais em uma narrativa comum contra as elites. A Frente Ampla chilena tentou algo semelhante, assim como a França Insubmissa. E Bernie Sanders buscou vincular as desigualdades raciais, econômicas e ambientais sob a ideia de uma “revolução política” contra a oligarquia.</p>
+<p>A questão, portanto, não é escolher entre um universalismo que apaga as diferenças e uma política focada exclusivamente em identidades particulares. O desafio é construir princípios comuns — como igualdade e justiça — capazes de incorporar essas diferenças em vez de negá-las. Nessa perspectiva, as lutas feministas, antirracistas e ambientais não se apresentam como agendas separadas, mas sim como respostas a diferentes formas de desigualdade. A crise climática não afeta todos os setores sociais igualmente; os feminicídios expressam uma desigualdade estrutural entre homens e mulheres; e o discurso de ódio coloca certos grupos em uma posição mais vulnerável. São problemas diferentes, mas podem ser articulados politicamente em torno da mesma aspiração: reduzir as desigualdades e garantir condições de vida mais justas para todos.</p>
+<p>Esse seria o significado de um novo universalismo. Não o universalismo clássico que tende a apagar as diferenças em nome de um sujeito abstrato, mas um que parte precisamente delas. Um universalismo capaz de reconhecer a pluralidade não como uma ameaça à construção do bem comum, mas como uma de suas condições de possibilidade.</p>
+<p>Nesse sentido, a esquerda deveria parar de se concentrar em debates secundários que a fragmentam e tentar enxergar o panorama geral. Quando as origens das desigualdades e as formas pelas quais elas se reforçam mutuamente são compreendidas, pode surgir um senso de identidade compartilhada, ou pelo menos uma compreensão comum de certos imaginários, interesses e objetivos.</p>
+<p>MS</p>
+<p><strong>Você argumenta que a queda do Muro de Berlim não apenas desacreditou o socialismo real, mas também grande parte da linguagem, dos símbolos e das esperanças da esquerda, que ficou presa entre o presentismo e a nostalgia. Como construir uma memória compartilhada sem apagar as diferenças ou idealizar o passado? Quais elementos desse legado permanecem úteis para imaginar o futuro?</strong></p>
+<p>JR</p>
+<p>A esquerda mantém uma relação problemática com o próprio passado. Desde a queda do Muro de Berlim — embora o processo tenha começado antes — carrega um trauma profundo que não conseguiu superar. Houve luto, mas o luto não basta se o trauma não for enfrentado. Nesse sentido, a esquerda também precisa de terapia. Precisa se olhar no espelho, compreender as causas desse trauma e estabelecer uma relação mais honesta com a própria história.</p>
+<p>Isso implica, antes de mais nada, assumir a responsabilidade. O stalinismo faz parte da história sombria da esquerda, assim como outros projetos autoritários que surgiram de experiências a ele associadas. Não faz sentido ignorá-los ou fingir que não veem nada. Devemos confrontar essa história com sua luz e suas sombras. Assumir a responsabilidade não significa deixar de criticá-la ou justificar seus aspectos mais obscuros, mas sim estabelecer uma relação menos neurótica com ela.</p>
+<p>Somente por meio desse processo é possível recuperar o significado dessas lutas. De uma perspectiva próxima à de Walter Benjamin, eu diria que isso envolve buscar nas frestas do passado o que ainda pode iluminar o presente. A questão não é meramente observar como certas experiências terminaram, mas perguntar o que as originou, contra quais injustiças lutaram e quais expectativas emancipatórias elas desencadearam.</p>
+<p>O problema é que muitos dos antigos símbolos da esquerda perderam justamente esse poder. Das revoluções Francesa e Russa à Comuna de Paris e Maio de 68, muitas dessas datas se tornaram uma espécie de “aniversário sem alma”. Os símbolos podem até sobreviver ao custo de perder seu conteúdo político. Che Guevara se tornou um ícone pop, estampado em camisetas e canecas, enquanto “Bella Ciao”, o hino da resistência italiana, se tornou um sucesso mundial após <em>La Casa de Papel</em> e pode ser ouvido em boates hoje em dia sem nenhuma conexão com sua história política.</p>
+<p>Isso demonstra que preservar um símbolo não garante a preservação de uma memória. O oposto pode acontecer: a imagem permanece, mas o conflito, os atores e os projetos que lhe davam significado desaparecem.</p>
+<p>É por isso que formas de resgatar o passado que não se limitam a criar novos heróis ou novos panteões são tão interessantes. Silvia Federici, por exemplo, recupera as lutas das mulheres não para adicionar novas figuras a uma história monumental da esquerda, mas para resgatar experiências que foram capazes de romper com a ordem dominante. Essa abordagem permite que o passado dialogue com os conflitos do presente.</p><a href="https://autonomialiteraria.com.br/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2024/05/Banner-300-600.gif"/></a>
+<p>Há também uma dimensão emocional que a esquerda não deve abandonar. Muitas pessoas deram a vida por esses ideais, e o fizeram com nobreza. Recuperar o significado dessas lutas permite reconectarmo-nos com uma tradição sem transformá-la em objeto de veneração ou idealizá-la. Ao recusar-se a confrontar o seu passado, a esquerda também ficou presa ao presente. Uma parte significativa da social-democracia optou pela governança e acabou por competir com a direita, inclusive através de políticas neoliberais. Outra parte da esquerda, especialmente ligada a partidos comunistas ou grupos mais à esquerda, adotou uma posição marginal e uma espécie de derrota perpétua, com certo prazer no fracasso e um estranho conforto na marginalidade.</p>
+<p>Se a vontade de transformação desaparece, torna-se muito difícil construir uma visão de futuro que seja ao mesmo tempo possível e desejável. Isso não significa, é claro, reviver a visão teleológica clássica do marxismo ou construir uma imagem idílica do futuro. Trata-se de retornar à ideia de que o futuro é aberto, que não é meramente uma extensão do presente e que, portanto, pode ser contestado. Recuperar um sentido para o passado também pode nos ajudar a recuperar um sentido para o presente e, com ele, a possibilidade do futuro.</p>
+<p>MS</p>
+<p><strong>Os projetos que você analisa foram desenvolvidos principalmente em âmbitos nacionais, enquanto as potências econômicas operam em escala global. Por que tem sido tão difícil construir uma esquerda transnacional? O que poderia significar hoje um internacionalismo que vá além da solidariedade retórica?</strong></p>
+<p>JR</p>
+<p>Para compreender o declínio do internacionalismo, é preciso situá-lo no próprio processo de globalização neoliberal. Esse processo corroeu a soberania dos Estados e produziu novas formas de desigualdade e precariedade em escala global. Em resposta, o movimento alterglobalização das décadas de 1990 e início de 2000 constituiu uma poderosa contrarresposta global e, a meu ver, foi a última grande expressão internacionalista da esquerda.</p>
+<p>Os projetos de esquerda do século XXI, contudo, tenderam a considerar a recuperação da soberania e o papel do Estado como sua principal ferramenta política. Essa decisão tinha uma lógica clara, baseada na compreensão de que o Estado continuava sendo o instrumento por meio do qual os direitos poderiam ser redistribuídos, regulamentados e garantidos. Mas a ênfase na recuperação da soberania nacional também teve o efeito de enfraquecer uma perspectiva propriamente internacionalista.</p>
+<p>Na América Latina, houve tentativas de integração, como a Aliança Bolivariana para os Povos da Nossa América (ALBA) e a União de Nações Sul-Americanas (UNASUL), que acabaram fracassando e cujas dificuldades merecem uma análise mais aprofundada. Uma situação semelhante ocorreu na Europa. Entre os movimentos que emergiram durante o movimento Occupy, houve uma troca significativa de ideias e experiências, mas essa troca não se cristalizou em uma aliança europeia com uma vocação internacionalista genuína. O projeto DiEM25, liderado por Yanis Varoufakis, tentou desenvolver uma abordagem pan-europeia, mas seu impacto eleitoral foi praticamente nulo: não conseguiu eleger nenhum representante para o Parlamento Europeu e obteve muito poucos votos.</p>
+<p>O problema surge quando a identidade nacional deixa de ser uma ferramenta para recuperar a capacidade democrática e acaba por se sobrepor a uma identidade progressista de esquerda que, por definição, também é internacionalista. É aqui que a extrema direita tem uma vantagem significativa, porque utiliza a retórica soberanista para canalizar o descontentamento sem, de fato, desafiar as elites econômicas.</p>
+<p>Essa questão torna-se ainda mais relevante em um contexto no qual o capitalismo está se transformando em formas de tecnocapitalismo ou mesmo tecnofeudalismo digital. Figuras como Elon Musk e outros magnatas da tecnologia se tornaram algumas das pessoas mais poderosas do mundo, e suas empresas podem superar muitos Estados em sua capacidade de intervenção. Regular essas empresas e lidar com as novas formas de capitalismo digital exigirá, necessariamente, alianças internacionais. É notável, por exemplo, que propostas como o Imposto Tobin, que foi um dos principais lemas do movimento antiglobalização, sejam pouco discutidas hoje em dia. Estamos diante de um capitalismo ainda mais globalizado e concentrado, e, no entanto, perdemos muitas das ferramentas políticas e conceituais com as quais tentamos enfrentá-lo.</p>
+<p>Recuperar uma perspectiva internacionalista é, portanto, uma tarefa fundamental para a esquerda. Não como um complemento moral ou uma forma de solidariedade retórica entre organizações nacionais, mas como condição para intervir em poderes econômicos que há muito deixaram de operar dentro das fronteiras estatais.</p>
+<p>MS</p>
+<p><strong>O populismo de esquerda conseguiu articular diversas demandas e disputar eleições, mas você argumenta que ele não conseguiu gerar afiliações suficientemente duradouras e acabou dependendo de uma “hiperliderança”. As rupturas na Bolívia e no Equador, ou as dificuldades do Podemos em se tornar independente de Pablo Iglesias, parecem ilustrar isso. Qual é a relação entre esses dois fatores? Como construir uma liderança forte sem que o projeto dependa de um único indivíduo?</strong></p>
+<p>JR</p>
+<p>Uma das características mais marcantes dessas experiências foi não apenas a preeminência da liderança, mas também o ressurgimento de estilos de liderança bastante clássicos, construídos sobre um modelo patriarcal e profundamente masculinizado. Em muitos casos, prevaleceu a figura do líder alfa, que simbolicamente personifica todo o projeto.</p>
+<p>Mas seria insuficiente atribuir esse fenômeno unicamente a ambições pessoais. A hiperliderança também é uma expressão de fragilidade organizacional. Quando faltam mecanismos sólidos de socialização, interação e construção de identidade desde a base, o líder acaba funcionando como o principal elemento de coesão. A organização, então, identifica-se menos com suas práticas, instituições ou cultura compartilhada do que com a figura que a representa.</p>
+<p>Para evitar isso, precisaríamos colocar em prática algumas das ideias que surgiram, por exemplo, nos círculos do Podemos. É necessário construir espaços de poder efetivos, onde esse poder seja distribuído e onde existam regras claras de deliberação e mecanismos transparentes para a resolução de divergências.</p>
+<p>A esquerda também apresenta uma dificuldade recorrente em lidar com a dissidência. Frequentemente, idealiza a unidade e acaba confundindo coesão com uniformidade. O desacordo passa então a ser interpretado como divisão e a crítica como traição. Nessas condições, os debates programáticos são facilmente substituídos por alinhamentos pessoais, e as diferenças políticas acabam se organizando em torno de diferentes líderes.</p>
+<p>Esse problema pode ser observado em diversos processos. Na Bolívia, o confronto entre Evo Morales e Luis Arce acabou gerando uma profunda fratura dentro do partido MAS, com expulsões mútuas e, por fim, uma divisão eleitoral. No Equador, a relação entre Rafael Correa e Lenín Moreno também levou a uma ruptura profunda, embora Correa tenha continuado a exercer enorme influência sobre o espaço político que liderava. E o Podemos teve grande dificuldade em lidar com o conflito entre Pablo Iglesias e Íñigo Errejón e, posteriormente, em desenvolver uma liderança verdadeiramente independente de Iglesias.</p>
+<p>Existe também um problema relacionado à aceleração política. Quando uma organização tenta competir pelo poder muito rapidamente, toda a sua estratégia fica condicionada pela urgência das eleições. E, muitas vezes, ela nem sequer alcança esse poder. A esquerda tem dificuldade em chegar ao governo tanto na Europa quanto na América Latina. Mas mesmo quando consegue se aproximar, essa aceleração dificulta a construção de uma base social suficientemente sólida.</p>
+<p>Uma identidade política duradoura não pode depender unicamente da figura do líder. Ela precisa ser nutrida por experiências compartilhadas, memórias democráticas, símbolos, espaços de pertencimento e, no caso do governo, também por políticas públicas capazes de forjar laços comuns e reconhecimento. A partir daí, pode-se vislumbrar uma liderança mais coletiva. São necessários modelos mais coletivos e rotativos, construídos desde a base.</p>
+<p>É claro que sempre haverá pessoas mais adequadas para certos papéis de porta-voz. O problema não é a existência da liderança em si, mas sim sua transformação em uma espécie de patrimônio pessoal. Por isso, é importante limitar seu alcance e duração. Liderar não deve significar ocupar permanentemente o centro, mas sim possibilitar a existência de outros centros de poder. Caso contrário, recaímos repetidamente na lei de ferro da oligarquia.</p>
+<p>MS</p>
+<p><strong>O Brexit, o plebiscito sobre os Acordos de Paz na Colômbia e o projeto constitucional chileno aparecem em seu livro como casos em que a esquerda não conseguiu vencer a batalha pela narrativa. O que essas derrotas revelam sobre a abordagem utilizada para comunicar a mudança? De que narrativa ela precisa para tornar suas aspirações compreensíveis e desejáveis?</strong></p>
+<p>JR</p>
+<p>Esses três casos demonstram até que ponto a narrativa constitui uma dimensão fundamental da política. Não basta ter um projeto justo ou mesmo tecnicamente sólido. É preciso também garantir que a sociedade possa imaginá-lo, compreendê-lo, abraçá-lo e, sobretudo, desejá-lo.</p>
+<p>A esquerda muitas vezes demonstra uma notável capacidade de produzir diagnósticos complexos e rigorosos, mas encontra mais dificuldade em representar a mudança — ou seja, em mostrar o que ela significaria concretamente no dia a dia e como uma transformação política poderia alterar as experiências das pessoas. Isso requer um processo de tradução. Argumentos racionais e científicos são essenciais, mas conceitos abstratos por si só não mobilizam as pessoas. Um projeto político também precisa de imagens, emoções e narrativas capazes de conectar grandes princípios a experiências com as quais as pessoas se identifiquem.</p>
+<p>Os três referendos ilustram muito bem essa dificuldade. No Brexit, o trabalhismo de Jeremy Corbyn hesitou e não conseguiu formular uma posição suficientemente clara, enquanto a extrema direita apresentou a saída da União Europeia como uma resposta direta aos setores da classe trabalhadora que se sentiam abandonados pela globalização e viam Bruxelas como a raiz de seus problemas. Algo semelhante aconteceu na Colômbia. Nem o governo de Juan Manuel Santos nem a esquerda conseguiram transmitir plenamente o significado histórico dos Acordos de Paz. A enorme complexidade do texto foi contrabalançada por uma campanha do “não” que conseguiu condensar a discussão em mensagens muito mais simples e emocionalmente eficazes, associando o acordo à impunidade ou como uma recompensa aos guerrilheiros. O Chile é outro exemplo muito claro. Quase 80% dos eleitores inicialmente apoiaram a elaboração de uma nova Constituição, e havia uma enorme expectativa de mudança. No entanto, questões como plurinacionalidade, igualdade de gênero ou os direitos da natureza não se traduziram de forma eficaz o suficiente no cotidiano de uma parcela significativa da sociedade, enquanto a direita conseguiu caricaturar esses temas como elementos alienígenas ou divisivos.</p>
+<p>Há uma lição importante aqui: provar que o oponente está mentindo não é o mesmo que construir uma narrativa. Quando uma força política dedica toda a sua energia a desmascarar as notícias falsas do outro, ela permanece em terreno definido pelo seu adversário. É o outro lado que estabelece o contexto, seleciona os tópicos e determina o ritmo da discussão.</p>
+<p>Dois exemplos recentes ilustram a tendência oposta. Um deles é Zohran Mamdani, o atual prefeito da cidade de Nova York, que construiu grande parte de sua plataforma em torno de problemas concretos do dia a dia, como preços de moradia, transporte público e serviços de saúde. O outro é Zack Polanski, líder do Partido Verde na Inglaterra e no País de Gales, que buscou vincular a agenda ambiental a questões econômicas e sociais mais amplas, como o custo de vida, a habitação e a desigualdade. Em ambos os casos, há um esforço para traduzir princípios políticos amplos e problemas estruturais em experiências com as quais as pessoas possam se identificar em sua vida cotidiana.</p>
+<p>MS</p>
+<p><strong>A extrema direita não cresceu apenas por meio de partidos políticos e campanhas eleitorais. Durante anos, construiu seu próprio ecossistema de veículos de comunicação, plataformas, fundações, intelectuais e <em>influencers,</em> a partir do qual travou uma intensa batalha cultural. Como ela conseguiu trazer ideias e discursos que haviam sido marginalizados por muito tempo para o centro do debate público? O que esse processo nos revela sobre novas formas de construir poder político e cultural?</strong></p>
+<p>JR</p>
+<p>A guerra cultural é, sem dúvida, um elemento fundamental da nova direita. E, embora, como sabemos, ela se manifeste explicitamente nos discursos políticos dos líderes das principais forças da coligação de direita, na esfera social ela se trava principalmente por meio das redes sociais e do ecossistema digital. A pandemia também constituiu um ponto de virada significativo nesse processo.</p>
+<p>Há um elemento crucial que não deve ser negligenciado: as principais plataformas digitais são controladas por um pequeno grupo de empresas e magnatas que, em alguns casos, se alinharam abertamente à nova direita. Elon Musk é provavelmente o exemplo mais visível: ele apoiou Donald Trump nos Estados Unidos e endossou publicamente forças de extrema direita como o partido Alternativa para a Alemanha (AfD). Isso nos obriga a abandonar a noção de que as redes sociais são simplesmente plataformas tecnológicas neutras onde diferentes pontos de vista competem em igualdade de condições. A própria estrutura de propriedade dessas plataformas, suas decisões comerciais e suas regras de funcionamento influenciam quais discursos circulam, quais ganham maior visibilidade e quais atores estão em melhor posição para participar do debate público.</p>
+<p>Um segundo elemento está ligado aos algoritmos e ao sigilo que envolve seu funcionamento. Sabemos que eles tendem a privilegiar conteúdo que gera mais interação e, portanto, conteúdo capaz de despertar reações viscerais como ódio, medo ou indignação. Esse mecanismo contribui para intensificar a polarização e proporciona um terreno particularmente fértil para certos discursos.</p>
+<p>Neste ponto, é importante distinguir entre polarização política e polarização afetiva. A primeira não é necessariamente negativa, visto que a política envolve conflito, posições divergentes e projetos opostos. A segunda é muito mais problemática porque leva à incapacidade de reconhecer o outro e transforma o adversário em alguém com quem não existe mais nenhum mundo em comum.</p>
+<p>A extrema direita compreendeu muito bem essas dinâmicas e desenvolveu uma estratégia abrangente em torno delas. Não se limitou a criar partidos, publicar mensagens ou usar bots. Construiu um verdadeiro ecossistema digital paralelo: veículos de mídia como Breitbart e EdaTV, fóruns como o 4chan, grupos no Telegram e no WhatsApp, plataformas como a Truth Social e redes sociais reaproveitadas como o X. Em torno disso, surgiram também grupos de reflexão, fundações, podcasts e influenciadores que se citavam, se entrevistavam e se legitimavam mutuamente.</p>
+<p>Esse ecossistema é complementado por um aparato intelectual heterogêneo. Tucker Carlson, Curtis Yarvin, Ben Shapiro, Agustín Laje e Alain de Benoist vêm de diferentes tradições, mas todos contribuem para a mesma mudança: ideias que por muito tempo estiveram confinadas a espaços marginais começam a circular em círculos mais amplos até se tornarem posições aceitáveis ​​no debate público. A guerra cultural consiste precisamente, em grande medida, em modificar essas fronteiras.</p>
+<p>A nova direita também compreendeu muito bem as linguagens específicas do ambiente digital. Os memes permitem condensar narrativas complexas em uma imagem irônica; os tópicos podem ser apresentados como pesquisas, embora funcionem essencialmente como relatos emocionais; e vídeos curtos simplificam questões complexas em mensagens de enorme impacto. Tudo é concebido para produzir reações rápidas e intensas e para se adaptar aos padrões de circulação favorecidos pelas próprias plataformas.</p>
+<p>Mas esse processo não seria suficiente sem a construção de comunidades. Códigos compartilhados, sentimentos de pertencimento e laços que podem se estender posteriormente ao mundo físico são gerados em torno de figuras influentes. Construir uma identidade política requer comunidades, não apenas propaganda.</p>
+<p>A isso se soma a notável capacidade da extrema direita de traduzir debates complexos em conflitos emocionais simplistas. O feminismo, um movimento pela igualdade, é reformulado como uma ameaça aos homens. O ambientalismo, que levanta questões de justiça ecológica e social, é retratado como um ataque à liberdade e ao emprego. E a imigração, em vez de ser abordada em relação às crises humanitárias e às desigualdades entre o Norte e o Sul globais, é apresentada como um perigo para a segurança e a identidade nacional.</p>
+<p>Dessa forma, as inseguranças sociais generalizadas se transformam em sentimentos de injustiça e vitimização. A extrema direita constrói adversários facilmente reconhecíveis e consegue transferir a culpa pelos problemas estruturais para eles. Esse mecanismo é uma das chaves para sua eficácia cultural.</p>
+<p>A esquerda precisa compreender essa dinâmica e também construir comunidades digitais, ainda que a partir de uma perspectiva diferente. Não pode abandonar esses espaços nem limitar sua intervenção a simplesmente responder à retórica da direita. Por trás de tudo isso, reside uma profunda demanda por identidade coletiva, enraizamento e pertencimento diante das incertezas globais e da extrema individualização de nossas sociedades. E, ao mesmo tempo, há uma luta pelas narrativas capazes de organizar politicamente essa necessidade de comunidade.</p>
+<p>MS</p>
+<p><strong>Ao final do livro, ele propõe a mudança de uma “esquerda populista” para um “esquerdismo popular”, capaz de reconstruir sindicatos, bibliotecas, cooperativas, espaços comunitários, veículos de comunicação e redes de apoio sem abandonar a luta pelo Estado. O que significa “popular” nessa proposta? Como podemos conciliar a construção de um senso de pertencimento a partir da base com a luta para governar sem que uma lógica subordine a outra?</strong></p>
+<p>JR</p>
+<p>Quando falo do popular, não me refiro a simplificar o discurso, usar retórica vazia sobre “o povo” ou adotar uma visão paternalista que infantiliza a cidadania. O popular se refere a outra forma de compreender a construção política: uma construção enraizada na vida cotidiana e nos espaços concretos onde as pessoas criam laços, experiências compartilhadas e significados comuns.</p>
+<p>Uma das limitações da esquerda populista era sua capacidade de gerar fortes identificações e expandir rapidamente sua base eleitoral usando significantes suficientemente flexíveis para abranger diversas demandas, sem conseguir transformar essas identificações em afiliações duradouras. Um apoio muito forte podia existir em certos momentos, mas esse apoio nem sempre se consolidava em organizações, práticas ou identidades capazes de sobreviver às circunstâncias imediatas.</p>
+<p>Daí a ideia de um esquerdismo popular. “Popular” refere-se a uma cultura viva onde as dimensões material e simbólica se cruzam: modos de vida, linguagens, afetos, experiências e relações cotidianas. A esquerda precisa reconquistar presença nessa arena se pretende reconstruir algo mais duradouro do que uma coalizão eleitoral.</p>
+<p>Isso implica intervir no espaço digital, mesmo sabendo que essas são plataformas hostis sujeitas a certos algoritmos, mas também reconquistar uma presença territorial. E essa presença não pode ser meramente instrumental. Não se pode aparecer apenas durante uma campanha para ganhar legitimidade ou votos. As pessoas precisam sentir que a esquerda está presente e oferece apoio, que participa de espaços onde experiências são compartilhadas e as pessoas aprendem a se organizar.</p>
+<p>Só assim se podem construir laços e identidades duradouras que não dependam exclusivamente de uma situação eleitoral ou de uma figura carismática. Devemos romper com a ideia de que basta encontrar uma fórmula mágica ou um candidato com bom desempenho nas sondagens e construir o projeto de cima para baixo. A esquerda precisa de mais do que eleitores; precisa de construir um sentimento de pertencimento.</p>
+<p>A esquerda também precisa reconhecer que a política opera em dois níveis. Há um tempo acelerado, o tempo das emergências, das eleições e da necessidade de respostas imediatas. Mas há também um tempo mais lento, o tempo da sedimentação cultural, no qual as ideias se transformam em hábitos, linguagens e afiliações.</p>
+<p>O populismo recente lidou muito bem com a primeira fase, mas teve muito mais dificuldade com a segunda. As antigas tradições social-democratas e comunistas, por outro lado, foram capazes de construir estruturas duradouras, embora com o tempo tenham perdido grande parte da sua capacidade de interpretar o presente. O desafio reside precisamente em combinar ambos os ritmos: responder à urgência sem sacrificar o tempo necessário para construir uma identidade coletiva.</p>
+<p>Nesse processo, também é necessário aprender a dominar as linguagens populares do século XXI. Uma referência musical ou certas referências culturais contemporâneas podem ter efeitos significativos. Elas não constituem, por si só, uma alternativa política, mas fazem parte do material cultural com o qual se constroem imaginários, relações e comunidades.</p>
+<p>Não se trata de recriar nostalgicamente os antigos centros comunitários, sindicatos ou bibliotecas operárias. Muitos desses espaços já não existem, e outros perpetuaram formas significativas de exclusão racial e de gênero. A questão é: que espaços de socialização existem hoje que possam cumprir algumas dessas funções: sindicatos revitalizados, cooperativas, redes de apoio, meios de comunicação, espaços comunitários, plataformas digitais e novas formas culturais?</p>
+<p>O foco, portanto, deve ser a construção a partir da base, sem abandonar a luta institucional. Essas abordagens não são necessariamente contraditórias: uma deve alimentar a outra. O Estado continua sendo um espaço fundamental para a transformação das estruturas que produzem desigualdade, mas o acesso ao governo não basta. Sem um arcabouço social e cultural que sustente o projeto, qualquer vitória eleitoral pode ser tão fugaz e frágil quanto muitas que testemunhamos na última década.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+			        Jorge Resina                
+</h5>
+</p>
+
+<p>é um cientista político espanhol, autor de <em>La izquierda después de la izquierda. Desde dónde, a quiénes y cómo hablar</em> (Comares, 2026).</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/a-esquerda-precisa-gerar-um-senso-de-pertencimento/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
