@@ -5,11 +5,16 @@ from urllib.parse import unquote_plus, urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from readability import Document
 
 from scraper import get_all_news
-from security_utils import is_public_http_url, parse_published_date
+from security_utils import is_public_http_url, is_safe_embed_url, parse_published_date
+from snapshot_archive import (
+    build_archive_payload,
+    list_snapshots,
+    resolve_snapshot_path,
+)
 
 app = Flask(__name__)
 
@@ -160,7 +165,48 @@ def index():
         noticias.pop(headline_index)
         noticias.insert(0, headline)
 
-    return render_template('index.html', noticias=noticias, busca=busca)
+    return render_template(
+        'index.html',
+        noticias=noticias,
+        busca=busca,
+        arquivo=list_snapshots(),
+    )
+
+
+@app.route('/arquivo')
+def arquivo():
+    """Linha do tempo das edicoes (snapshots) ja geradas."""
+    return render_template(
+        'arquivo.html',
+        snapshots=list_snapshots(),
+    )
+
+
+@app.route('/api/arquivo')
+def api_arquivo():
+    """Dados do arquivo em JSON, para consumo programatico."""
+    return jsonify(build_archive_payload())
+
+
+@app.route('/arquivo/<slug>')
+def abrir_snapshot(slug):
+    """Abre o indice estatico de um snapshot especifico."""
+    try:
+        snapshot_dir = resolve_snapshot_path(slug)
+    except ValueError:
+        return jsonify({'error': 'Identificador de snapshot invalido.'}), 400
+    except FileNotFoundError:
+        return jsonify({'error': 'Snapshot nao encontrado.'}), 404
+
+    index_file = snapshot_dir / "index.html"
+    if not index_file.is_file():
+        return jsonify({'error': 'Snapshot sem pagina inicial.'}), 404
+
+    return send_from_directory(
+        snapshot_dir,
+        "index.html",
+        mimetype="text/html",
+    )
 
 
 @app.route('/visualizar')
@@ -178,6 +224,15 @@ def visualizar_noticia():
 
     if not url:
         return jsonify({'error': 'URL nao fornecida'}), 400
+
+    if not is_safe_embed_url(url):
+        return render_template(
+            'visualizar.html',
+            url='',
+            titulo=titulo,
+            fonte=fonte,
+            url_invalida=True,
+        ), 400
 
     return render_template('visualizar.html', url=url, titulo=titulo, fonte=fonte)
 

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quando o patrão pede voto - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Quando o patrão pede voto</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Agencia Publica</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://apublica.org/2026/10/quando-o-patrao-pede-voto/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/THUMB_REPORTAGEM-31.jpg?fit=1200%2C630&ssl=1" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Quando o patrão pede voto
+                            </p>
+                            
+<p>Vigilantes terceirizados em um hospital no Acre são convocados a participar de um ato eleitoral – e quem não for, pode perder o emprego. Em Caldas Novas, Goiás, a inauguração de uma loja da Havan converte-se em um encontro político, com direito a discurso inflamado do empresário <a href="https://apublica.org/2022/11/luciano-hang-enviou-caminhoes-para-ato-golpista-segundo-prf/" rel="noopener noreferrer" target="_blank">Luciano Hang</a> contra o fim da escala 6×1 e em defesa do bolsonarismo. Em Maceió, o influenciador digital Rico Melquíades diverte-se gravando vídeos em que ameaça demitir suas empregadas domésticas que votarem no PT.</p>
+<p>Esses são alguns exemplos de denúncias de assédio eleitoral no ambiente laboral recebidas pelo Ministério Público do Trabalho (MPT) em 2026. Entre 1º de janeiro e 15 de outubro deste ano, o MPT contabilizou 1.341 comunicações do gênero – sendo a maior parte delas, 553, registradas em setembro e outras 522 em outubro, até o dia 15. Considerando os dados desde setembro, foram quase 24 denúncias recebidas por dia.</p>
+<p>As eleições deste ano já bateram um recorde quando se leva em conta as denúncias recebidas entre 1º de janeiro e 30 de setembro: foram 819 indícios de assédio eleitoral, segundo o MPT. O número supera em quase dez vezes as 85 queixas recebidas em 2022 no mesmo período. Para se ter uma ideia do aumento dos casos, só em setembro deste ano foram 553 denúncias de assédio eleitoral no trabalho, ante 68 em 2022.</p>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/01_Quando-o-patrao-pede-voto.png?resize=640%2C460&amp;ssl=1"/>
+<p>Para o procurador-geral do Trabalho, Gláucio Araújo de Oliveira, a explosão de denúncias explica-se por diversos fatores. “De um lado, revela a persistência de práticas de pressão e constrangimento político nas relações de trabalho”, disse Oliveira em entrevista à <strong>Agência Pública</strong>. “De outro, reflete uma maior conscientização dos trabalhadores sobre seus direitos e a ampliação dos canais de denúncia. As campanhas de esclarecimento, a atuação articulada do MPT com a Justiça Eleitoral e a Justiça do Trabalho e a maior visibilidade do tema também contribuem para reduzir a subnotificação”, completa.</p>
+<h2><strong>Processos, multas e indenizações para empregadores</strong></h2>
+<p>E a tendência é de escalonamento em outubro ao se aproximar do segundo turno, que acontecerá no dia 25. Isso porque, nas últimas eleições gerais, os assédios explodiram no mês em que aconteceram as votações, com 2.641 casos. O MPT, neste ano, tem os dados processados até o dia 15.</p>
+<p>O estado que lidera as denúncias é São Paulo, com 224 casos, seguido de Minas Gerais, com 150, e o Rio de Janeiro, com 117. Fora do sudeste, quem mais somou denúncias de assédio eleitoral foram o Paraná, com 106 ocorrências, Goiás, com 59, Bahia, com 53, e o Mato Grosso, com 51.</p>
+<p>Pelo menos nos três casos que abrem esta reportagem, o desfecho foi negativo para os empregadores. A empresa de vigilância que presta serviços ao hospital no Acre foi proibida de coagir seus funcionários, sob o risco de ser multada em R$ 1 milhão caso descumpra a determinação. Hang, pelo comício que realizou em sua loja, passou a responder a uma ação civil pública e, caso seja condenado, será multado em até R$ 30 milhões. Já Melquíades, se reincidir no crime eleitoral, terá de pagar R$ 300 mil em indenizações.</p>
+<p>Luciano Hang e Melquíades foram procurados pela <strong>Agência Pública</strong>, mas não responderam até a publicação deste texto. O espaço segue aberto.</p>
+<h2><strong>Como se dá o assédio eleitoral</strong></h2>
+<p>O crime de assédio eleitoral no trabalho costuma seguir certos padrões, embora as denúncias contemplem variadas formas de abordagem – desde uma retífica automotiva em Dois Vizinhos, no Paraná, que passou a transportar seus funcionários numa vã coberta de propagandas políticas, até uma indústria de calçados em Bom Despacho, Minas Gerais, que abriu suas portas para o comício de candidatos, obrigando os funcionários a comparecerem.</p>
+<p>É o que aponta a pesquisa “Assédio eleitoral nas relações de trabalho”, produzida pela Justiça do Trabalho, que analisou 662 processos de assédio eleitoral entre 2023 e 2025. Ainda que anterior ao primeiro turno (ela foi publicada em agosto deste ano), a pesquisa traça o panorama de como, nas fábricas, escritórios e em outros ambientes laborais, dá-se o assédio aos trabalhadores.</p>
+<p>Em 9 a cada 10 das ações trabalhistas avaliadas, o relatório identificou provas de assédio institucionalizado. Ou seja, o assédio eleitoral, nesses casos, foi respaldado pela “alta cúpula” das empresas, a partir “do uso de ferramentas de comunicação interna para fins político-partidários e da instrumentalização da jornada de trabalho para atividades eleitorais (como convocação para reuniões partidárias, carreatas e panfletagem)”.</p>
+<p>Via de regra, esses assédios têm como pano de fundo o terror psicológico. Em 81,9% dos casos avaliados, os patrões buscaram impor suas visões políticas aos empregados por intermédio da “criação de narrativas catastróficas a partir dos resultados das eleições, como a perspectiva de caos econômico e social decorrente da vitória de um candidato”.</p>
+<p>Se o assédio eleitoral baseia-se no terror, o meio em que circulam suas mensagens é quase sempre o virtual. “As redes sociais se transformaram em um importante instrumento de coação e de monitoramento contra os trabalhadores”, afirma o relatório da Justiça do Trabalho. Em 67% dos casos estudados, o assédio se deu-se via WhatsApp.</p>
+<p>Outra forma de intimidação utilizada é a econômica. Em 61% das ações, a Justiça identificou “ameaças ligadas a salário, perda de função e oferecimentos de prêmios e vantagens [em troca do apoio a determinado candidato]”.</p>
+<p>Um caso ocorrido em Santarém, duas semanas antes do 1o turno, ilustra esse modo de operação. A chefe de uma empresa de trabalhadores terceirizados que presta serviços à secretaria de estado de Turismo criou um grupo de Whatsapp para distribuir mensagens de apoio a um candidato a deputado estadual. Em seguida, adicionou os funcionários ao grupo e passou a pressioná-los a divulgar os materiais de campanha, ameaçando aqueles que não aderissem com a possibilidade de demissão. No dia 22 de setembro, depois de apurar as denúncias anônimas que recebeu, a Justiça do Trabalho interveio. O grupo foi dissolvido e a servidora, afastada de suas funções.</p>
+<h2><strong>99% dos casos chegam a um desfecho, diz MPT</strong></h2>
+<p>Quase sempre, contou à <strong>Pública</strong> o procurador-geral do Trabalho, as denúncias de assédio eleitoral são apuradas e chegam a um desfecho. Foi assim em 2022, quando mais de 99% dos casos foram encerrados ou por ações judiciais, por termos de ajustamento de conduta ou por soluções extrajudiciais.</p>
+<p>Dentre as medidas do MPT para coibir o assédio eleitoral e garantir a liberdade política dos trabalhadores nas eleições deste ano, está a criação de um <a href="https://mpt.mp.br/assedio-eleitoral" rel="noopener noreferrer" target="_blank">canal virtual para o envio de denúncias</a>.</p>
+<p>Para registrar uma queixa, basta informar o estado e o município em que se deram os fatos e relatar as irregularidades percebidas, bem como os dados do denunciado. Caso o denunciante tenha provas do assédio eleitoral, ele poderá anexá-las à denúncia. As queixas podem ser feitas de forma anônima e os dados dos denunciantes serão mantidos sob sigilo sempre que assim solicitarem.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://apublica.org/2026/10/quando-o-patrao-pede-voto/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

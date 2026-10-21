@@ -8,7 +8,7 @@ from scraper import get_all_news
 
 def main():
     print("\n" + "="*60)
-    print("       📰  AGREGADOR DE NOTÍCIAS BRASILEIRAS")
+    print("        AGREGADOR DE NOTÍCIAS BRASILEIRAS")
     print("="*60 + "\n")
 
     noticias = get_all_news()
@@ -24,9 +24,9 @@ def main():
             print(f"\n── {fonte_atual} ──────────────────────────")
 
         print(f"\n[{i}] {noticia['titulo']}")
-        print(f"    🔗 {noticia['link']}")
+        print(f"    {noticia['link']}")
         if noticia.get('data'):
-            print(f"    📅 {noticia['data']}")
+            print(f"    {noticia['data']}")
 
     print("\n" + "="*60)
     print(f"Total: {len(noticias)} notícias agregadas.")

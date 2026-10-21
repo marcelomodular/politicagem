@@ -88,50 +88,143 @@ def check_ipfs_installed() -> bool:
     return shutil.which("ipfs") is not None
 
 
+def detect_ipfs_arch() -> str:
+    """Mapeia a arquitetura da maquina para o nome usado nas releases do Kubo."""
+    machine = platform.machine().lower()
+
+    if machine in {"x86_64", "amd64"}:
+        return "amd64"
+    if machine in {"aarch64", "arm64"}:
+        return "arm64"
+    if machine in {"armv7l", "armv7"}:
+        return "arm"
+
+    return "amd64"
+
+
+def get_ipfs_release_info() -> dict:
+    """
+    Descobre a versao mais recente do Kubo (IPFS) e a URL de download.
+
+    Usa a API do GitHub, que e estavel. Se a API falhar, cai para uma
+    versao fixa conhecida.
+    """
+    import json
+    import urllib.request
+
+    fallback = {
+        "tag": "v0.43.1",
+        "url": (
+            "https://github.com/ipfs/kubo/releases/download/v0.43.1/"
+            "kubo_v0.43.1_linux-amd64.tar.gz"
+        ),
+    }
+
+    try:
+        request = urllib.request.Request(
+            "https://api.github.com/repos/ipfs/kubo/releases/latest",
+            headers={"User-Agent": "politicagem-onboarding", "Accept": "application/vnd.github+json"},
+        )
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+
+        tag = payload.get("tag_name")
+        if not tag:
+            return fallback
+
+        arch = detect_ipfs_arch()
+        wanted = f"kubo_{tag}_linux-{arch}.tar.gz"
+
+        for asset in payload.get("assets", []):
+            if asset.get("name") == wanted:
+                return {"tag": tag, "url": asset["browser_download_url"]}
+
+        return fallback
+    except Exception as error:
+        log(f"[AVISO]  Nao foi possivel consultar a API do GitHub: {error}")
+        return fallback
+
+
 def install_ipfs_linux() -> None:
-    """Instala IPFS no Linux usando o script oficial."""
-    log("📦 Instalando IPFS no Linux...")
-    
-    # Tentar usar o script de instalacao oficial do IPFS
-    install_script = "https://dist.ipfs.io/go-ipfs/v0.28.0/go-ipfs_v0.28.0_linux-amd64.tar.gz"
-    
-    # Criar diretorio temporario
+    """Instala IPFS (Kubo) no Linux a partir da release oficial."""
+    log("Instalando IPFS (Kubo) no Linux...")
+
+    release = get_ipfs_release_info()
+    install_url = release["url"]
+    log(f"   Versao: {release['tag']}")
+    log(f"   Origem: {install_url}")
+
     temp_dir = ROOT_DIR / "temp_ipfs_install"
     temp_dir.mkdir(exist_ok=True)
-    
+    archive_path = temp_dir / "ipfs.tar.gz"
+
     try:
-        # Baixar
-        run_command(["curl", "-L", "-o", str(temp_dir / "ipfs.tar.gz"), install_script])
-        
-        # Extrair
-        run_command(["tar", "-xzf", str(temp_dir / "ipfs.tar.gz"), "-C", str(temp_dir)])
-        
-        # Instalar (move para ~/.local/bin ou /usr/local/bin)
-        ipfs_binary = temp_dir / "go-ipfs" / "ipfs"
+        # dist.ipfs.io/dist.ipfs.tech respondem com timeout em varias redes.
+        # O GitHub e a fonte mais confiavel para o download do tarball.
+        # O -C - retoma downloads interrompidos em vez de recomecar do zero.
+        run_command(
+            [
+                "curl",
+                "-fL",
+                "-C",
+                "-",
+                "--retry",
+                "5",
+                "--retry-delay",
+                "3",
+                "--retry-all-errors",
+                "--connect-timeout",
+                "30",
+                "--max-time",
+                "1800",
+                "-o",
+                str(archive_path),
+                install_url,
+            ]
+        )
+
+        if not archive_path.is_file() or archive_path.stat().st_size < 1_000_000:
+            raise RuntimeError(
+                "Download do IPFS falhou ou gerou um arquivo invalido."
+            )
+
+        run_command(["tar", "-xzf", str(archive_path), "-C", str(temp_dir)])
+
+        # As releases novas extraem em "kubo/"; as antigas em "go-ipfs/".
+        ipfs_binary = None
+        for candidate in ("kubo/ipfs", "go-ipfs/ipfs"):
+            path = temp_dir / candidate
+            if path.is_file():
+                ipfs_binary = path
+                break
+
+        if ipfs_binary is None:
+            raise RuntimeError("Binario 'ipfs' nao encontrado no pacote extraido.")
+
         local_bin = Path.home() / ".local" / "bin"
         local_bin.mkdir(parents=True, exist_ok=True)
-        
-        shutil.copy(str(ipfs_binary), str(local_bin / "ipfs"))
-        os.chmod(str(local_bin / "ipfs"), 0o755)  # Tornar executavel
-        
-        log(f"✅ IPFS instalado em: {local_bin / 'ipfs'}")
-        log("⚠️  Adicione ~/.local/bin ao seu PATH se ainda nao estiver:")
+
+        target = local_bin / "ipfs"
+        shutil.copy(str(ipfs_binary), str(target))
+        os.chmod(str(target), 0o755)
+
+        log(f"[OK] IPFS instalado em: {target}")
+        log("[AVISO]  Adicione ~/.local/bin ao seu PATH se ainda nao estiver:")
         log("   export PATH=$HOME/.local/bin:$PATH")
-        
+
     finally:
-        # Limpar arquivos temporarios
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 def install_ipfs_macos() -> None:
     """Instala IPFS no macOS usando Homebrew."""
-    log("📦 Instalando IPFS no macOS via Homebrew...")
+    log("Instalando IPFS no macOS via Homebrew...")
     run_command(["brew", "install", "ipfs"])
 
 
 def install_ipfs_windows() -> None:
     """Instala IPFS no Windows usando Chocolatey ou Winget."""
-    log("📦 Instalando IPFS no Windows...")
+    log("Instalando IPFS no Windows...")
     
     # Tentar Chocolatey primeiro
     if shutil.which("choco"):
@@ -149,11 +242,11 @@ def install_ipfs_windows() -> None:
 def install_ipfs() -> None:
     """Instala IPFS baseado no sistema operacional detectado."""
     if check_ipfs_installed():
-        log("✅ IPFS ja esta instalado.")
+        log("[OK] IPFS ja esta instalado.")
         return
     
     os_type = detect_os()
-    log(f"🔍 Sistema operacional detectado: {os_type}")
+    log(f"Sistema operacional detectado: {os_type}")
     
     if os_type == "linux":
         install_ipfs_linux()
@@ -170,19 +263,19 @@ def initialize_ipfs() -> None:
     ipfs_dir = Path.home() / ".ipfs"
     
     if ipfs_dir.exists():
-        log("✅ IPFS ja esta inicializado.")
+        log("[OK] IPFS ja esta inicializado.")
         return
     
-    log("🔧 Inicializando IPFS...")
+    log("Inicializando IPFS...")
     run_command(["ipfs", "init"])
-    log("✅ IPFS inicializado com sucesso.")
+    log("[OK] IPFS inicializado com sucesso.")
 
 
 def make_snapshot_script_executable() -> None:
     """Torna o script de snapshot executavel no Linux/macOS."""
     if os.name != "nt" and GENERATE_SNAPSHOT_SCRIPT.exists():
         run_command(["chmod", "+x", str(GENERATE_SNAPSHOT_SCRIPT)])
-        log("✅ Script generate_snapshot.sh tornado executavel.")
+        log("[OK] Script generate_snapshot.sh tornado executavel.")
 
 
 def install_electron_dependencies() -> None:
@@ -288,14 +381,14 @@ def run_onboarding(auto: bool, skip_ipfs: bool = False) -> None:
     log("\n" + "=" * 60)
     log("Onboarding concluido!")
     log("=" * 60)
-    log("\n🚀 Como usar o Politicagem:")
+    log("\nComo usar o Politicagem:")
     log("   Servidor web: python app.py")
     log("   Modo terminal: python main.py")
     log("   App desktop:   cd electron-app && npm start")
-    log("\n📦 Snapshots estaticos para IPFS:")
+    log("\nSnapshots estaticos para IPFS:")
     log("   Gerar snapshot: ./generate_snapshot.sh")
     log("   Ou manualmente: python snapshot_generator.py")
-    log("\n💡 Para IPFS, certifique-se de iniciar o daemon:")
+    log("\nPara IPFS, certifique-se de iniciar o daemon:")
     log("   ipfs daemon")
 
 

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is the US abandoning Ukraine? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Is the US abandoning Ukraine?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/today-explained-newsletter/506912/trump-zelensky-diesel" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/10/gettyimages-2300444217.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Is the US abandoning Ukraine?
+                            </p>
+                            <p><em>This story appeared in Today, Explained, a daily newsletter that helps you understand the most compelling news and stories of the day. <a href="https://www.vox.com/today-explained-newsletter" rel="noopener noreferrer" target="_blank">Subscribe here</a></em>.</p><p>You can’t quite say that President Donald Trump is “turning” on Ukraine President Volodymyr Zelenskyy, because he never truly seemed to have Zelenskyy’s back.</p><p>There was that time <a href="https://www.trumpstruth.org/statuses/29757" rel="noopener noreferrer" target="_blank">Trump panned</a> Zelenskyy as a “modestly successful comedian.” Or <a href="https://www.vox.com/politics/402134/the-big-trump-zelenskyy-blowup-briefly-explained" rel="noopener noreferrer" target="_blank">that excruciating meeting</a> where Trump and Vice President JD Vance harangued Zelenskyy for inadequately “thanking” them.</p><p>But over the past week, Trump has dropped even the meager niceties he sort of faked before. On Monday, <a href="https://abcnews.com/US/wireStory/us-ties-ukraine-hit-new-low-trump-slights-137397527" rel="noopener noreferrer" target="_blank">he blamed</a> Zelenskyy for failing to end Russia’s invasion…and suggested it was time for “somebody else” to take over negotiations.</p><p>Three days earlier, he delayed a package of tariffs and other sanctions <a href="https://www.govinfo.gov/content/pkg/CREC-2026-09-16/html/CREC-2026-09-16-pt1-PgH5836-6.htm#:~:text=(A)%20in%20the,of%20Ukraine%3B%20or" rel="noopener noreferrer" target="_blank">designed to pressure</a> Russia to end its four-year onslaught in Ukraine. And a week before that, Trump announced — after an <a href="https://www.reuters.com/world/neither-putin-nor-trump-wanted-hang-up-first-kremlin-aide-says-after-very-2026-10-10/" rel="noopener noreferrer" target="_blank">apparently chummy</a> phone call with Russian President Vladimir Putin — that the US would reopen its market to Russian diesel, reversing <a href="https://apnews.com/article/trump-russia-diesel-midterms-12baccc7aade559bf329079b0548c9da" rel="noopener noreferrer" target="_blank">a ban</a> imposed shortly after the invasion.</p><p>All this diplomatic whiplash comes as Russia continues <a href="https://www.pbs.org/newshour/world/russian-missile-and-drone-blitz-kills-9-in-ukraine-as-zelenskyy-meets-u-s-and-european-officials-in-norway" rel="noopener noreferrer" target="_blank">to bombard</a> Ukraine with drone and missile strikes, killing hundreds of civilians in September alone and leaving hundreds of thousands of people without power. The first two weeks of October ranked <a href="https://ukraine.ohchr.org/en/Civilian-casualties-remain-at-record-levels-amid-intensifying-attacks-on-energy-as-winter-approaches" rel="noopener noreferrer" target="_blank">among the deadliest</a> periods for civilians in the country since 2022, according to UN monitors.</p><p>But while those escalating strikes threaten both human lives and long-standing international norms around territory and sovereignty — norms <a href="https://www.vox.com/world-politics/458531/ukraine-land-swap-territory?utm_source=chatgpt.com#:~:text=Voluntarily%20signing%20away,war%20of%20conquest." rel="noopener noreferrer" target="_blank">that actually matter</a> <em>quite a lot </em>to American security, long-term — there’s another issue that Trump is more concerned with right now: Ukrainian strikes on Russian oil refineries.</p><p>Those strikes drive up the cost of gas, and those prices are, of course, <a href="https://www.vox.com/politics/502567/trump-iran-gas-prices-republican-midterm-convention" rel="noopener noreferrer" target="_blank">of profound concern to American voters</a>, who are paying near- record highs for gasoline and diesel fuel (...primarily due <a href="https://www.bbc.com/news/articles/cr0qk1j7q0eno" rel="noopener noreferrer" target="_blank">to the war in Iran</a>, I am obliged to note). More than any other issue, high living costs threaten to hamstring the GOP in next month’s midterm elections.</p><p>Trump has, perhaps predictably, pursued a Russia policy that he says could ease prices at home. In addition to allowing imports of Russian diesel, Trump has demanded that Ukraine stop targeting Russian oil refineries and ramped up pressure on Zelenskyy to negotiate an end to the war.</p><p>According to Ukrainian officials, that campaign has lately involved disruptions to both <a href="https://www.bbc.com/news/articles/cmj47yx572z5o" rel="noopener noreferrer" target="_blank">intelligence-sharing</a> and <a href="https://www.vox.com/the-logoff-newsletter-trump/506446/trump-russia-ukraine-zelenskyy-diesel-refineries-starlink" rel="noopener noreferrer" target="_blank">the US-based satellite internet service</a> Ukraine uses to intercept Russian attacks. (On Tuesday afternoon, Zelenskyy said intel sharing — if not satellite service — <a href="https://x.com/jimsciutto/status/2112606417148416105?s=20" rel="noopener noreferrer" target="_blank">had been restored</a> again.)</p><p>In either case, it will likely take more than arm-twisting to make the whole situation go away for good. As <a href="https://www.vox.com/world-politics/395105/ukraine-russia-ceasefire-deal-trump" rel="noopener noreferrer" target="_blank">Vox’s Josh Keating laid out earlier this year</a>, the US does have quite a lot of leverage over Ukraine — and Trump could very well pressure Zelenskyy to accept a peace deal with no real assurance that Russia won’t just invade again.</p><p>But we’ve all seen this movie before, as recently as 2014: Without credible guarantees, Putin could catch his breath, regroup, and return to Ukraine in a few months or years to take even <em>more</em> land.</p><p>The real, long-term threat there is that a stronger Russia would be even better positioned to menace the rest of Europe. And America’s power <a href="https://www.theatlantic.com/international/archive/2025/01/trump-putin-ukraine-russia-war/681228/" rel="noopener noreferrer" target="_blank">could suffer</a> as its allies <a href="https://www.vox.com/russia-ukraine/403127/europe-ukraine-aid-trump-zelenskyy" rel="noopener noreferrer" target="_blank">look elsewhere</a> for less fair-weather friends.</p><p>But uh…diesel might be a bit cheaper? Thank God for small mercies, I guess.</p><p><strong>➨ May we suggest a truly miserable read? </strong>My colleague Marina Bolotnikova calls <em>The Opposite of Happiness: How Bad Feelings Make and Break Us </em>“<a href="https://www.vox.com/future-perfect/505391/opposite-of-happiness-loewenstein" rel="noopener noreferrer" target="_blank">a bracing, useful, and even comforting lens on what it means to be alive.</a>” The recent book, by the noted economist George Loewenstein, examines the (necessary!) role of negative emotions in our lives and civilization…and suggests, albeit indirectly, some paths for making peace with them.</p><ul><li><strong>Did you know…</strong>that Turkey is <a href="https://www.vox.com/culture/391383/turkey-hair-transplants-restoration-men-fue-plugs" rel="noopener noreferrer" target="_blank">the world capital of hair transplants</a>? There are at least 500 clinics for that purpose in Istanbul alone, beloved by medical tourists. </li><li><strong>Today’s trivia:</strong> What’s the currency of Poland? (You can find this and other brain puzzles <a href="https://link.vox.com/click/6a46cfd46352b082500e86fe/aHR0cHM6Ly93d3cudm94LmNvbS8yMTUyMzIxMi9jcm9zc3dvcmQtcHV6emxlcy1mcmVlLWRhaWx5LXByaW50YWJsZT91ZWlkPWM3Mzg0ZDJhYzRmZDQ0YzcyZDI4OGQ4N2YxZjM5NDlh/664389def568f1a4620aa3aeC7b08b10b" rel="noopener noreferrer" target="_blank">in Vox’s daily crossword</a>. Look for the answer in tomorrow’s edition.)</li><li><strong>Yesterday’s trivia:</strong> Yesterday we asked you for the mass-market beer named after a Dutch river. That would be Amstel. The city of Amsterdam <a href="https://www.amsterdam.nl/stadsarchief/canon/windows/2/" rel="noopener noreferrer" target="_blank">is also named</a> for a dam on the same river.</li></ul>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/today-explained-newsletter/506912/trump-zelensky-diesel" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

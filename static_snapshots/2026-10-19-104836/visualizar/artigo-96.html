@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Como “desmascarar” os algoritmos das Big Techs - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Como “desmascarar” os algoritmos das Big Techs</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/10/como-desmascarar-os-algoritmos-das-big-techs/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/Racismo-algoritmico.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Como "desmascarar" os algoritmos das Big Techs
+                            </p>
+                            
+<p>Extraído do livro <em><a href="https://autonomialiteraria.com.br/loja/tecnologia/desmascarando-a-i-a-minha-missao-para-proteger-o-que-e-humano-em-um-mundo-de-maquinas/" rel="noopener noreferrer" target="_blank">Desmascarando a IA: minha missão para proteger o que é humano em um mundo de máquinas</a></em>, de Joy Buolamwini (Autonomia Literária, 2026).</p>
+
+<p>Qual o papel das evidências em um mundo que valoriza abordagens tecnocientíficas, mas onde boa parte dessa validação é realizada por atores embebidos de autoridade pela proximidade com os centros de poder econômico e militar do Capital? O livro <em>Desmascarando a I.A.</em> respondeu essa pergunta em várias camadas e relata uma história que inspira e pode inspirar muito do que se faz contra o racismo algorítmico no Brasil.</p>
+<p>O projeto inovador <em>Gender Shades</em> [“tons de gênero” em tradução livre], um dos temas centrais do <em>Desmascarando a I.A.</em>, foi resultado do trabalho de Joy Buolamwini, em colaboração com outras quatro pessoas pesquisadoras, que desvelou falhas em tecnologia desenvolvidas por gigantes como IBM, Microsoft e Amazon – organizações que empregam dezenas de milhares de pessoas, boa parte delas cientistas e pesquisadores de várias áreas.</p>
+<p>“Podemos entender que aquilo que é vendido como inovação, velocidade e disrupção pelo mercado de tecnologia tem pouco a ver com qualidade, precisão ou necessidade social.”</p>
+<p>Mesmo antes de relembrarmos toda a jornada de Joy Buolamwini após o <em>Gender Shades</em>, é preciso se escandalizar com essa disparidade. Como erros tão vultosos e vulgares foram permitidos em serviços de corporações bilionárias?</p>
+<p>Quando seguimos o conselho de Buolamwini sobre avaliar de forma expandida o significado dos danos algorítmicos podemos entender que aquilo que é vendido como inovação, velocidade e disrupção pelo mercado de tecnologia tem pouco a ver com qualidade, precisão ou necessidade social. O trabalho da autora, em particular este livro, é fonte essencial para reforçar o quão importante é a cultura da avaliação e auditoria algorítmica.</p>
+<p></p>
+<h2>Discriminação algorítmica e privacidade de dados</h2>
+<p>Os retrocessos sobre as conquistas sociais sobre discriminação algorítmica – incluindo as conquistas diretamente influenciadas por Buolamwini, mostram a importância da crítica algorítmica para o futuro da humanidade e combate às desigualdades. Como vemos no livro, no fim de 2022 foi lançada uma proposta de algo como A.I. Bill of Rights [Carta de Direitos da I.A. em tradução livre], pelo governo estadunidense sob Joe Biden. Como habitual, os Estados Unidos possuem uma abordagem jurídica <em>laissez-faire</em> sobre os assuntos estratégicos pertinentes a empresas parceiras do Estado, incluindo as Big Techs. Nesse contexto, a A.I. Bill of Rights, uma carta de recomendações, princípios e conceitos do governo estadunidense foi um passo muito relevante para o reconhecimento do problema.</p>
+<p>A carta incluía definições e recomendações em áreas como sistemas efetivos, proteção contra discriminação algorítmica, privacidade de dados e outros. Foi uma das reações ao avanço das propostas regulatórias da União Europeia e China, que já apresentavam um considerável léxico de defesa de direitos. A carta estadunidense definiu discriminação algorítmica como uma disparidade que ocorre quando sistemas automatizados contribuem para injustos tratamentos ou impactos desfavorecendo pessoas em base de sua raça, cor, etnicidade, sexo, gênero, religião, origem nacional, discapacidade e outras categorias protegidas por lei. Ao reconhecer o problema, ainda que sem fortes regras vinculantes, o documento reforçou consensos que já influenciavam políticas públicas tais como os avanços no Instituto Nacional de Padrões e Tecnologias (NIST) do país.</p>
+<p>“Buscando atender interesses de grupos como OpenAI, Microsoft, Palantir e Alphabet, o governo Trump gerou as condições para que tais empresas pudessem deixar de lado o verniz de civilidade.”</p>
+<p>O NIST foi uma das organizações influenciadas pelo trabalho de Buolamwini, aplicando lentes interseccionais à avaliação de ferramentas e softwares utilizados pelo governo estadunidense, incluindo reconhecimento facial. Hoje, documentos do NIST sequer podem mencionar as palavras “diversidade”, “equidade”, “inclusão” ou “mudança climática”. A proibição é uma das políticas recomendadas pelo America’s AI Action Plan, o plano nacional de inteligência artificial dos Estados Unidos.</p>
+<p></p>
+<h2>Trump, Big Techs e a luta pela soberania</h2>
+<p>Com a nova eleição de Donald Trump, que recebeu doações das Big Techs na campanha, posse e até para <a href="https://www.politico.com/news/2025/10/23/trump-ballroom-donors-list-00620230" rel="noopener noreferrer" target="_blank">construção de novo salão de baile</a>, os retrocessos foram acelerados. Buscando atender interesses de grupos como OpenAI, Microsoft, Palantir e Alphabet, o governo Trump gerou as condições para que tais empresas pudessem deixar de lado o verniz de civilidade. Logo em janeiro de 2025, as políticas de moderação de conteúdo das plataformas de mídias sociais foram modificadas para permitir discursos discriminatórios e eugenistas. Racismo, transfobia e capacitismo passaram a ser permitidos de forma explícita nas principais plataformas, <a href="https://www.gov.br/agu/pt-br/comunicacao/noticias/pesquisadores-e-sociedade-civil-querem-regras-para-plataformas-digitais" rel="noopener noreferrer" target="_blank">gerando novas preocupações</a> para governo e organizações da sociedade civil brasileiras.</p>
+<p>Apesar do aumento dos ataques de Trump e das Big Techs contra avanços sociais sobre governança de tecnologias digitais, essa é uma longa história que exigiria do Brasil posturas e políticas em defesa da soberania. Mesmo antes do governo trumpista, repositórios de danos de sistemas algorítmicos registram milhares de casos de problemas, incluindo contra brasileiros. Para evitar o estabelecimento de melhores regras de governança de plataformas no país, empresas como Facebook e Google empreenderam violentas <a href="https://apublica.org/2023/05/google-pagou-mais-de-meio-milhao-de-reais-em-anuncios-no-facebook-contra-pl-das-fake-news/" rel="noopener noreferrer" target="_blank">campanhas anti-regulação no Brasil</a> que levaram ao enterro simbólico do projeto de lei 2630/2020.</p>
+<p>“A farta produção sobre antidiscriminação e inteligência artificial no Brasil e no mundo não foi o suficiente para impedir o contrato racial da branquitude no legislativo.”</p>
+<p>Quanto à Inteligência Artificial (I.A), um volumoso corpo de pesquisas e evidências são produzidas também no Brasil por grupos de pesquisa e ativismo contra racismo algorítmico – incluindo frequentes citações ao trabalho de Buolamwini. Há estudos sobre discriminação e vieses em bancos de imagens, reconhecimento facial, sistemas de escore de crédito, moderação de conteúdo, visão computacional, modelos de linguagem e mapeamentos de avaliação dos debates legislativos sobre I.A., entre outros. Campanhas e mobilizações da sociedade civil utilizaram os dados produzidos por Buolamwini e colegas, incluindo <a href="https://tiremeurostodasuamira.org.br/" rel="noopener noreferrer" target="_blank">Tire Meu Rosto da Sua Mira</a> e <a href="https://idec.org.br/release/parlamentares-de-todas-regioes-do-brasil-apresentam-projetos-de-lei-pelo-banimento-do" rel="noopener noreferrer" target="_blank">#SaiDaMinhaCara</a>.</p><a href="https://www.camisacritica.com/collections/jacobin" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2022/05/Camisetas.gif"/></a>
+<p>A farta produção sobre antidiscriminação e inteligência artificial no Brasil e no mundo não foi o suficiente para impedir o contrato racial da branquitude no legislativo. No início de 2022, a jornada por uma regulação de Inteligência Artificial no Brasil ganhou um novo capítulo. Foi estabelecida a <em>Comissão de Juristas responsável por subsidiar a elaboração de substitutivo sobre inteligência artificial no Brasil</em>, composta pelo Ministro do Superior Tribunal de Justiça, Ricardo Villas Bôas Cueva, e 17 especialistas. E <a href="https://direitosnarede.org.br/carta-aberta-regulacao-ia/" rel="noopener noreferrer" target="_blank">zero representação de pessoas negras ou indígenas</a>. Com membros provenientes da academia, escritórios de advocacia milionários, da política federal e do terceiro setor, a comissão trabalhou durante meses para a produção de um relatório.</p>
+<p>Apesar da exclusão escandalosa de pessoas negras, a mobilização da sociedade civil e pesquisadores conseguiu algumas vitórias como a inclusão de conceitos como discriminação indireta – na verdade, uma obrigação constitucional, considerando a adesão do Brasil à Convenção Interamericana contra o Racismo, a Discriminação Racial e Formas Correlatas de Intolerância.</p>
+<p>A sociedade civil organizada demonstrou de forma sólida, durante as audiências públicas da comissão, o quanto as tecnologias de reconhecimento facial são nocivas a todos. A relatora da <a href="https://www12.senado.leg.br/noticias/materias/2022/05/18/debates-apontam-para-fim-do-reconhecimento-facial-na-seguranca-publica" rel="noopener noreferrer" target="_blank">comissão chegou a reconhecer</a> que “não podemos aceitar que técnicas simplesmente reproduzam, codifiquem e consolidem para o futuro essa discriminação pretérita e atual da sociedade”. A fala, porém, não se desdobrou em texto: a proposta de minuta da comissão incluiu reconhecimento facial como risco excessivo – mas repleta de exceções para uso, na prática legalizando o uso da tecnologia.</p>
+<p>“O lobby das Big Techs contra a participação social efetiva e transparência sobre a avaliação de impactos de sistemas algorítmicos nos mostra um panorama de crises irremediáveis.”</p>
+<p>Impossível aqui deixar de lembrar as citações que Buolamwini faz a Sojourner Truth e como denunciou a marginalização das perspectivas e experiências das mulheres negras. De modo similar, podemos lembrar de Lélia Gonzalez na famosa epígrafe: “Cumé que a gente fica?”. Quando 17 especialistas em I.A., de vários setores, normalizaram a exclusão de pessoas e perspectivas negras, podemos replicar o choque da enunciadora em “Eram todos gente fina, educada, viajada por esse mundo de Deus. Sabiam das coisas. E a gente foi se sentar lá na mesa. Só que tava tão cheia que não deu pra gente sentar junto com eles”.</p>
+<p>O resultado da comissão foi submetido como o projeto de lei 2338/2023, para posterior avaliação por comissão no Senado. Em agosto de 2023 foi estabelecida a Comissão Temporária Interna sobre Inteligência Artificial no Brasil (CTIA) composta por 13 senadores, sendo a presidência do Senador Carlos Viana, vice-presidência do Senador Marcos Pontes e como relator o Senador Eduardo Gomes. Diferentemente da comissão da Câmara, as lideranças da CTIA não buscaram sequer imprimir verniz de transparência ao processo, sem registro ou documentação transparentes.</p>
+<p>Ao longo do processo, a imprensa denunciou problemas de enviesamento das audiências públicas. Representantes de organizações que defendem interesses de empresas como Amazon, iFood, Huawei e Google participaram das audiências como se fossem da sociedade civil ou academia – levando até a uma universidade <a href="https://www.intercept.com.br/2024/07/01/senador-marcos-pontes-esconde-empresas-de-lobistas-convidados-para-debater-regulacao-da-ia/" rel="noopener noreferrer" target="_blank">desmentir</a> o vínculo com um dos lobistas.</p>
+<p>Como resultado, a CTIA suprimiu categorias ligadas à defesa de direitos. Menções à discriminação e vieses foram suprimidas e a linguagem de impacto pendeu desproporcionalmente a supostos impactos positivos, enquanto questões sobre arranjos produtivos enfatizaram capacitação, também sem menções a emprego ou trabalho – entre outros problemas. Quanto à avaliação de impacto algorítmico, a linguagem do projeto diluiu obrigações de transparência e de participação de grupos potencialmente afetados.</p>
+<p>“O grande capital que busca escalar tecnologias digitais de plataformização e extração é incompatível com o controle social das tecnologias e seus padrões de qualidade.”</p>
+<p>Ao chegar na Câmara dos Deputados em abril de 2025, a ofensiva das Big Techs e parceiros nacionais deu o tom do problema: a presidente da comissão de I.A. na casa legislativa fez uma viagem ao Vale do Silício com tudo pago pela Associação Nacional de Hospitais Privados. Os <a href="https://www.aosfatos.org/noticias/presidente-comissao-pl-da-ia-visita-google-conflito-de-interesses/" rel="noopener noreferrer" target="_blank">elogios intensos</a> à Google deram o tom do que estaria por vir: em audiências públicas sem participação da sociedade civil, o setor privado chegou até a atacar compromissos constitucionais sobre antidiscriminação.</p>
+<p>E essa é só uma parte da história. O lobby das Big Techs contra a participação social efetiva e transparência sobre a avaliação de impactos de sistemas algorítmicos nos mostra um panorama de crises irremediáveis. O grande capital que busca escalar tecnologias digitais de plataformização e extração é incompatível com o controle social das tecnologias e seus padrões de qualidade. Crescentemente a pesquisa científica crítica e reportagens jornalísticas, fruto de vazamentos, mostram que muito do que é vendido como inovação só se sustenta quando a sociedade não pode fazer escrutínio de impactos, qualidade, pontos positivos ou negativos. </p>
+<p>“Desmascarar a I.A. e desvelar como incorporam relações de poder e exploração já é uma das grandes demandas deste século.”</p>
+<p>O avanço do fascismo nos EUA junto às Big Techs é assustador, mas também um sinal de sua crise. Os modelos de negócio das Big Techs não interessam a ninguém além de seus CEOs, acionistas e os especuladores que os orbitam. E isto está cada vez mais visível.</p>
+<p>Jornadas de investigação como a empreendida por Joy Buolamwini já há mais de uma década nos mostram que temos caminhos múltiplos para melhorar, otimizar, avaliar – ou mesmo, recusar sistemas algorítmicos. Desmascarar a I.A. e desvelar como incorporam relações de poder e exploração já é uma das grandes demandas deste século.</p>
+<a href="https://autonomialiteraria.com.br/loja/tecnologia/desmascarando-a-i-a-minha-missao-para-proteger-o-que-e-humano-em-um-mundo-de-maquinas/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2026/10/Desmascarando-a-IA_site_03-1-scaled-1.jpg"/></a>Clique na imagem e garanta o seu!
+<p></p><p></p><p><h5>Tarcizio Silva</h5></p><p>é coordenador de pesquisa na Desvelar e consultor em direitos digitais na Nanet/ABONG. Doutor em Ciências Humanas e Sociais pela UFABC e Mestre em Comunicação e Cultura Contemporâneas pela UFBA. Autor do livro <em>Racismo Algorítmico: inteligência artificial e discriminação nas redes digitais</em> (2022).</p><p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/como-desmascarar-os-algoritmos-das-big-techs/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

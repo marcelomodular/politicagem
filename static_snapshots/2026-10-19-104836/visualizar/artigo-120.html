@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O que esses brasileiros sabem - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O que esses brasileiros sabem</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://piaui.uol.com.br/revista/241/o-que-esses-brasileiros-sabem/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/10/design-sem-nome-11_85social.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O que esses brasileiros sabem
+                            </p>
+                             <p>Como se sabe, não existe contradição entre ser um grande artista e uma péssima pessoa. É o caso do escritor francês Louis-Ferdinand Céline. Em 1928, Céline, que era médico, publicou na revista técnica <em>La Presse Médicale</em> um artigo em que propunha criar, nas empresas, uma força médico-­policial encarregada de convencer os operários de que adoecer não era razão para faltar ao trabalho. “A maioria dos doentes pode trabalhar”, afirmou. </p> <p>A seu juízo, não haveria muita resistência. A tarefa, na visão de Céline, precisava ser encarada como um trabalho paciente de persuasão, dado que “o público não quer compreender; quer acreditar”. </p> <p>Como, em obras posteriores, Céline denunciaria os horrores do sistema fordista, é possível, bondosamente, deixar sobre a mesa a hipótese de alguma ironia por parte do escritor. Para o que nos interessa aqui, o essencial é essa clivagem entre compreender e acreditar.</p> <p>Em 2022, muita gente se reuniu em frente de quartéis para pedir uma intervenção militar. Algumas pessoas ergueram as mãos para o céu e rezaram. Outras se reuniram em torno de um pneu e cantaram o Hino Nacional. Quem faz isso tem fé. Não quer compreender, quer apenas acreditar. É provável que aceite, sem contestar, a tese da fraude eleitoral, da volta do comunismo, da ação moralizante e desinteressada das Forças Armadas.</p> <p>Não é dessas pessoas que pretendo falar aqui. Aos que buscam apenas acreditar, sem querer ou ter tempo para compreender, contrapõe-se outro grupo, cuja grande influência é inversamente proporcional a seu tamanho: o dos que compreendem muito bem e, justamente por isso, não acreditam. É desses que quero falar.</p> <p>Nos dias que antecederam o último Sete de Setembro, algumas pessoas bem-postas receberam, via WhatsApp, uma convocação para sair às ruas e protestar contra os escândalos de Brasília. Como a data coincidia com o ato de Flávio Bolsonaro e seus aliados na Avenida Paulista, o chamado era, evidentemente, um alinhamento com a campanha do candidato do PL.</p> <p>“Vamos mostrar que quem tem o poder supremo no Brasil é o povo brasileiro!”, exclamava o enunciado em letras maiúsculas. Seguia-se uma fileirinha de bandeiras do Brasil e, abaixo dela, a ordem de marcha: “Segunda-feira, 7 de setembro, vamos todos às ruas!”</p> <p>A mensagem fora enviada por um membro de uma das mais tradicionais famílias brasileiras, na qual se contam, ao longo dos últimos 150 anos, poderosos senadores, banqueiros ilustres, advogados imensos, embaixadores de prestígio e paladinos de embates civilizatórios na história do país. Presume-se que quem passou adiante o chamado estudou em boas escolas e dispôs de acesso à boa informação. É muito provável, também, que no ambiente familiar tenha desfrutado do privilégio de conviver com figuras que tinham histórias para contar sobre a vida em regimes de exceção. Algumas delas, inclusive, por terem se oposto ao ditador do momento.</p> <p>É alguém que compreende, portanto. Sabe que Flávio Bolsonaro não representa um projeto político comprometido com o aprofundamento da nossa experiência democrática. Sabe que, fosse consumada a aposta violenta que resultou na depredação da Praça dos Três Poderes, hoje não estaríamos vivendo num regime aberto. E, porque compreende isso muito bem, não acredita na parolagem do candidato em defesa da democracia, dos direitos individuais e da liberdade de expressão. O que conta são outros valores, promessas implícitas na trajetória não exatamente do candidato Flávio, mas do candidato Bolsonaro. Interessa explorar no que gente assim acredita, o que quer e o que não considera importante.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/10/porcelana-3_1qt8f0q2.png"/></p> <p>Numa resenha do livro de Gisèle Pelicot, a dona de casa francesa que reagiu com bravura à violência sexual a que foi submetida pelo marido e por dezenas de outros homens, a crítica Parul Sehgal escreveu: “Todo escândalo, todo horror público, deixa atrás de si as mesmas perguntas amargas: Quem sabia? Quem desviou os olhos? O que Pelicot faz, de maneira brilhante e sutil, é formular a pergunta que a maioria evita – não quem, mas<em> como</em>?” </p> <p>É uma boa formulação. Vale para crimes contra um só indivíduo, contra muitos e contra uma nação. Em todos esses casos, o <em>como</em> acontece quando se deixa de traçar no chão uma linha imaginária além da qual se diz, de si para si: “Daqui não passo.” Os que, sob regimes de exceção, decidiram não ser cúmplices tiveram de travar essa conversa silenciosa com a própria consciência. A prática não exige “uma inteligência altamente desenvolvida nem uma grande sofisticação em questões morais, mas, antes, a disposição de conviver explicitamente consigo mesmo, de manter uma relação consigo mesmo”, como escreveu Hannah Arendt.</p> <p>Para tomar um exemplo, dentre tantos outros: Jair Bolsonaro dedicou seu voto pelo impeachment de Dilma Rousseff ao coronel Carlos Alberto Brilhante Ustra. Parte da população se lembra, parte já se esqueceu, parte nunca nem soube. Mas da gente de que trato aqui, todos – <em>todos</em>, sem exceção – sabem que isso aconteceu. Alguns, muitos, guardam na memória as palavras exatas ditas na ocasião pelo futuro presidente da República: “Pela memória do coronel Carlos Alberto Brilhante Ustra, o pavor de Dilma Rousseff.” Atrás dele, seu filho Eduardo articulava com os lábios as mesmas palavras.</p> <p>Flávio Bolsonaro jamais fez reparo algum às declarações do pai e do irmão. Pelo contrário. Sempre que lhe foi dada uma oportunidade de retificá-las, esquivou-se. Em 2016, quando candidato à Prefeitura do Rio de Janeiro, explicou que a homenagem feita por Jair seria “um contraponto” aos que, na oposição, dedicaram seus votos “aos heróis de esquerda”. Em oposição aos heróis da esquerda, portanto, o herói do seu campo – Brilhante Ustra. “É a opinião dele, tem que ser respeitada”, disse, defendendo o pai e encerrando a discussão.</p> <p>É o caso, então, de olhar de perto para a trajetória de Brilhante Ustra. Não toda, apenas as passagens sustentadas por provas, decisões da Justiça e investigações oficiais. É um exercício penoso, do qual, no entanto, não deveria se eximir quem dá respaldo simbólico ao campo que celebra a vida deste homem.</p> <p><strong>Edgar de Aquino Duarte:</strong> ex-militar, dono de uma pequena imobiliária e corretor da Bolsa de Valores, atividades a que passou a se dedicar depois de deixar a militância política. O fato de não participar da resistência ao regime desde 1968 – levava a vida civil sob um pseudônimo para evitar a prisão – não impediu que, em 1971, fosse sequestrado e preso pela repressão. Ficaria no cárcere até 1973. A partir daí, não se conhece seu paradeiro.</p> <p>Em 23 de outubro de 2012, a denúncia oferecida pelo Ministério Público Federal (MPF) de sequestro e desaparecimento de Duarte foi integralmente recebida pelo juiz federal Hélio Egydio de Matos Nogueira: “No caso dos autos, o acusado” – Brilhante Ustra – “foi o autor e possuía o domínio do fato criminoso consistente na privação ilegal da liberdade de Edgar de Aquino Duarte [...] nas dependências do Deops/SP, de onde a vítima desapareceu.”</p> <p><strong>Família Teles:</strong> em 1972, Maria Amélia de Almeida Teles, o marido, César Teles, e a irmã Criméia de Almeida, grávida de 8 meses, foram presos e torturados no DOI-Codi de São Paulo, que Ustra comandou de 1970 a 1974. A Justiça de São Paulo reconheceu o coronel como responsável pelas sevícias. </p> <p>Na época, os filhos do casal também ficaram em poder dos militares. Sobre uma certa tenente Neuza, acusada de os haver sequestrado, Maria Amélia declarou ao MPF: “Esta policial foi uma das sequestradoras dos meus filhos de 5 e 4 anos [...] Eu tinha visto no DOI-Codi/SP, no final de 1972, vésperas do ano novo, esta policial que circulava na parte superior daquele prédio, juntamente com o comandante Carlos Alberto Brilhante Ustra. Foi ela que entregou meus filhos ao Ustra, que os levou até a sala onde eu estava na ‘cadeira de dragão’.” </p> <p>Em 2014, o STJ confirmou a decisão da Justiça de SP e reconheceu que o coronel praticou torturas durante o regime militar. </p> <p><strong>Luiz Eduardo da Rocha Merlino:</strong> o jornalista foi morto no DOI-Codi em 1971. Tinha 22 anos. Diz a sentença da 20ª Vara Cível do Foro Central de São Paulo que a ação foi ajuizada contra o coronel “em decorrência de espancamento e atos outros de tortura comandados e praticados diretamente pelo requerido”, ou seja, por Brilhante Ustra. </p> <p>De acordo com a juíza Claudia de Lima Menge, “a prova oral deu integral respaldo ao relato [...] Narraram as testemunhas a dinâmica dos eventos, a elevada brutalidade dos espancamentos a que foi submetido o companheiro e irmão das autoras, que o levaram à morte, ora sob comando, ora sob atuação direta do requerido, na qualidade de comandante do DOI-Codi e da Oban (Operação Bandeirante)”. </p> <p>De uma testemunha, Laurindo Martins Junqueira Filho: “Ustra era o comandante da unidade e assistiu à minha tortura, assistiu à tortura do companheiro que estava comigo. Ele não viu o Luiz Eduardo sendo torturado, mas ele era o comandante da unidade de tortura e orientava essa tortura pessoalmente.” </p> <p>De outra testemunha, Leane Ferreira de Almeida: “Ouvi os gritos de Luiz Eduardo durante três dias, durante o período em que as equipes comandadas pelo major Ustra o torturaram.” </p> <p>Esses são alguns dos predicados de Brilhante Ustra. Há base judicial particularmente forte para chamá-lo de torturador. Não se trata, assim, apenas de uma qualificação política ou historiográfica. A Justiça o reconheceu como tal.</p> <p>Voltamos, portanto, ao <em>como</em>. Como se restaura um mundo em que se aceita a existência de um torturador? Como um regime de exceção ressurge como alternativa política? Como se começa a minar uma democracia? Como se prepara um país para o retorno dos tiranos? </p> <p>Sabendo, compreendendo, mas não se importando em dar legitimidade a uma candidatura que, por sua origem, seu fiador e suas afinidades eletivas, representa o oposto de um estado de direito. Não acredito que os empresários e as lideranças do mundo corporativo e financeiro do país que recebem Flávio Bolsonaro para jantar desejem, como desejaram seus congêneres em 1964, o fim do frágil experimento democrático brasileiro. Alguns, talvez, mas certamente não todos, nem sequer a maioria. Ainda assim, nos termos de Parul Sehgal, tomaram a decisão de desviar os olhos.</p> <p>Ao <em>como</em>, então, vale a pena acrescentar o <em>quem</em>. Flávio Rocha (varejo de moda). Marcelo Kayath (mercado financeiro). André Esteves (banco de investimentos). Eduardo Bartolomeo (mineração). Eduardo Fischer (publicidade). Roberto Campos Neto (mercado financeiro). Fernando Marques (indústria farmacêutica). Emmanuel Hermann (mercado financeiro). Paulo Skaf (indústria). Luiz Carlos Trabuco (setor bancário). Fábio Barbosa (gestão empresarial e finanças). Alexandre Ostrowiecki (eletrônicos). Mario Araripe (energia renovável). Milton Maluhy Filho (setor bancário). Helio Seibel (madeira e materiais de construção). Christian Egan (mercado de capitais). Roberto Dagnoni (criptomoedas). Pedro Parente (energia e infraestrutura). Daniel Goldberg (investimentos). Fábio Ermírio de Moraes (indústria e investimentos). Fabio Carvalho (varejo e mídia). Richard Gerdau (siderurgia). Gilson Finkelsztain (setor bancário). José Galló (varejo). Fernando Simões (logística e infraestrutura). João Camargo (articulação empresarial)<a href="https://piaui.uol.com.br/revista/241/o-que-esses-brasileiros-sabem/#nota1" rel="noopener noreferrer" target="_blank">1</a>. </p> <p>Essas pessoas participaram de encontros e jantares com Flávio Bolsonaro, algumas na condição de anfitriãs. Não presumo que todas votem no candidato, embora imagine que boa parte, sim. Sei também que nem todas estavam ali com o mesmo grau de autonomia. Há entre elas executivos de grandes empresas, profissionais que respondem a conselhos de administração. Outras – a maioria – têm margem muito maior de escolha: são empresários, controladores, acionistas relevantes ou investidores com peso próprio. Homens de poder, portanto, com agência e liberdade para ficar em casa. São sobretudo estes que me intrigam, e é deles que trato aqui. Se questionados sobre o risco de tornar normal o que deveria ser anátema, dirão – como alguns disseram – que investidores precisam ouvir quem tem expectativa de poder. Afinal de contas, argumentam, jornalistas não se negam a entrevistar Flávio Bolsonaro.</p> <p>Há uma falsa equivalência nessa comparação. Jornalistas não conferem legitimidade política a seus entrevistados. Se Consuelo Dieguez, Malu Gaspar ou Lauro Jardim se sentarem para uma entrevista com Daniel Vorcaro, o público não encarará o encontro como um aval ao ex-banqueiro. Já se uma parte vistosa do PIB recebê-lo para jantar, é razoável presumir que isso seja meio caminho andado para sua reabilitação.</p> <p>O caso de Marcelo Kayath é interessante. Banqueiro bem-sucedido, crítico das ortodoxias do pensamento liberal e amigo de Fernando Haddad, parece ser um homem sem amarras ideológicas e aberto ao diálogo. Em 2022, apoiou Lula e ofereceu jantares ao então candidato durante a campanha. Hoje, legitimamente preocupado com a situação das contas públicas e seus efeitos deletérios sobre a vida econômica do país, Kayath se aproxima do outro lado. Os jantares passaram a ser para Flávio Bolsonaro – já houve dois, um em sua casa em Miami, outro em São Paulo –, além de ter facilitado encontros com agentes do mercado financeiro e trocado “ideias e sugestões” com a equipe do candidato. </p> <p>Em entrevista ao <em>Valor</em>, deixou claro que não conversaria com Jair Bolsonaro, de quem se mantém crítico. Não há dúvida de que são assustadores os dados que, com precisão, reúne sobre o endividamento do país, das empresas e das famílias. Tomando como sincera a razão que apresenta, foi provavelmente essa preocupação que o levou a admitir a hipótese de estabelecer uma interlocução com Flávio. Entabulou o tal diálogo de si para si, concluiu que o senador do PL é a única alternativa a Lula e decidiu conversar.</p> <p>O problema, aqui, parece ser de ordem de valores: do que se admite negociar e daquilo que não se negocia. O que o faz acreditar que o filho é diferente do pai? Que, uma vez no poder, não cederá às mesmas tentações que levaram Jair Bolsonaro a ameaçar de morte todas as conquistas que a sociedade brasileira, a duras penas, consolidou desde a redemocratização? Ao reconhecer o rigor de sua análise sobre a situação econômica do Brasil, é justo perguntar por que suspende esse mesmo rigor diante dos riscos políticos da volta de um Bolsonaro ao poder.</p> <p>Afinal, Flávio nada mais é do que o filho do pai. Um homem medíocre e sem expressão, sem história e sem ideias, menos um político que um sobrenome. </p> <p>O que se pode dizer dele com menos generosidade, a parte sobre seus atributos mais assustadores, será dito adiante. Antes, porém, é preciso estabelecer algo que me parece essencial. Existem determinados absolutos que não admitem acomodação. A tortura certamente é um deles. Flávio não torturou, mas seu pai, além de nunca ter condenado a prática, celebrou seus perpetradores. E foi o próprio Flávio quem, em entrevista à <em>Folha de S.Paulo</em>, afirmou que seria candidato “para honrar meu pai e para dar continuidade ao seu legado”.</p> <p>Como as palavras importam e devem ser levadas a sério quando ditas por um candidato à Presidência da República, que se escolha então o legado. A explosão do desmatamento na Amazônia?<a href="https://piaui.uol.com.br/revista/241/o-que-esses-brasileiros-sabem/#nota2" rel="noopener noreferrer" target="_blank">2</a> A crise humanitária dos yanomamis? Os mais de 700 mil brasileiros mortos durante a pandemia? As constantes ameaças autoritárias? O desprezo pela cultura? O desprezo pela ciência? A cloroquina? O ministério formado por figuras como Eduardo Pazuello, Ricardo Salles, Ernesto Araújo, Mario Frias, Ricardo Vélez Rodríguez, Abraham Weintraub e Milton Ribeiro, para citar apenas aqueles que comandaram áreas decisivas para o futuro do país?</p> <p>Eu fico com o voto em homenagem a Brilhante Ustra. Até que alguém do clã desautorize a fala, é ela que melhor sintetiza o horizonte moral da família Bolsonaro. Pode-se dialogar com todos os lados, menos com esse. Não exigir uma retratação antes de começar a conversa é, muito concretamente, acumpliciar-se. Dito de outra maneira, é como declarar: entre a irresponsabilidade fiscal e a tortura, fico com a tortura.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/10/4_rmv1p6p9_46urna93.png"/></p> <p>Alguém já disse que líderes de primeiro time se cercam de assessores de primeiro time; líderes de segundo time, de assessores de terceiro. O entorno do pai é conhecido. Vejamos o do filho. </p> <p>Comecemos por Ciro Nogueira. Ministro da Casa Civil do pai, arquiteto do orçamento secreto, Nogueira só não está no coração da campanha de Flávio por se achar enredado no caso Master.</p> <p>No ano passado, o candidato não poupou palavras para elogiá-lo: “[<em>Ciro</em>] já levantou o dedo e acho que tem todas as credenciais para ser [<em>o vice...</em>]. É nordestino, de um partido grande e forte. Teve ali a lealdade ao presidente Bolsonaro [<em>quando foi ministro</em>]. Sem dúvida é um nome que está colocado.”</p> <p>Na ocasião, os indícios de ilicitude de Nogueira já eram portentosos. Em agosto de 2024, o senador pelo Piauí apresentara a famigerada Emenda nº 11 à PEC 65/2023, que propunha elevar de 250 mil para 1 milhão de reais o limite de cobertura do Fundo Garantidor de Créditos. Como se sabe, de tão favorável aos interesses de Daniel Vorcaro, a peça logo ganhou o apelido de Emenda Master. A PF apuraria que o texto chegou pronto ao senador: fora escrito pela assessoria do Banco Master.</p> <p>Trinta dias antes, Ciro Nogueira comprara uma cobertura tríplex na Rua Oscar Freire, em São Paulo, por 22 milhões de reais.</p> <p>Em junho daquele mesmo ano, o prolífico legislador havia apresentado outras duas propostas de lei que atendiam aos interesses de um dos maiores sonegadores do país, Ricardo Magro. As peças também ganharam nome próprio: Emendas Refit, em homenagem à refinaria de Magro. Os textos criavam exceções que poderiam impedir empresas do setor de combustíveis, como a Refit, de ser enquadradas como devedoras contumazes. Dado que Ricardo Magro acumulava dívidas tributárias bilionárias, os benefícios potenciais eram extraordinários. E há uma coincidência de datas que merece registro. Reportagens do <em>Estadão</em> e de Breno Pires na <strong>piauí</strong> mostraram que, menos de dois meses depois da apresentação das emendas, uma empresa de Magro registrava em sua contabilidade 14,2 milhões de reais a pagar à Ciro Nogueira Agropecuária e Imóveis, empresa da família do senador.</p> <p>Seria possível prosseguir, mas basta. Flávio Bolsonaro só se afastou de Nogueira quando já não era possível mantê-lo por perto.</p> <p>Sigamos, portanto. </p> <p>É instrutivo se debruçar sobre as chapas regionais de apoio a Flávio, em especial sobre os candidatos fluminenses. Afinal, o Rio de Janeiro é o estado do senador e, portanto, onde se supõe que ele cultive suas relações políticas de maior confiança.</p> <p>Infelizmente, é preciso começar por um fracasso. O nome estelar do partido de Flávio para disputar uma das duas vagas ao Senado era o de Cláudio Castro. Sabe-se bem o que veio a acontecer. As denúncias que se abateram sobre Castro apontam para um nível de delinquência que se destaca mesmo quando comparado aos dos feitos menos louváveis dos governadores que o antecederam – o que, convenhamos, de tão extraordinário chega a ser admirável.</p> <p>Assim como ocorre com Ciro Nogueira, no histórico de Castro nenhum escândalo recente deixa de dar a sua cara: Master, Refit, uso político da máquina. E há, inclusive, o que não chega a aparecer na ficha corrida dos demais. Quando vice-governador na gestão Wilson Witzel, Castro foi investigado por desvio de recursos de um programa que oferecia cirurgias de catarata a pessoas em situação de rua. Delatores do caso afirmaram que ele se beneficiava financeira e politicamente do controle sobre esse projeto social.</p> <p>As peripécias de vários personagens que sempre cercaram a família Bolsonaro lembram uma frase que Louis-Ferdinand Céline, o escritor citado no início deste artigo, teria dito a respeito de um desafeto: “Fulano pagaria para ser comprado.” Substitua-se Fulano por boa parte desse elenco, e a frase fica de pé.</p> <p>O ministro André Mendonça do STF determinou o trancamento de dois inquéritos da PF e do MP-RJ que investigavam Cláudio Castro no âmbito da Operação Catarata, por entender que teria havido vício processual: Castro já ocupava o cargo de vice-governador quando foram realizadas diligências contra ele sem a autorização judicial que, em razão do cargo, seria necessária. </p> <p>O fato de ter escapado por pouco não arrefeceu o ímpeto de caminhar sempre pelas fronteiras do Código Penal. Em 23 de março de 2026, quase sete anos depois dos eventos investigados pela Operação Catarata, Cláudio Castro, governador do Rio de Janeiro desde 2020, renunciou ao mandato às vésperas da conclusão de um julgamento na Justiça Eleitoral. No dia seguinte, o TSE declarou-o inelegível por oito anos por abuso de poder político e econômico nas eleições de 2022, um escândalo relacionado ao uso de uma gigantesca folha de pagamentos para contratar um número enorme de pessoas sem concurso e utilizar uma parcela dessa estrutura para favorecer eleitoralmente candidatos ligados ao governo. Foram dezenas de milhares de contratados e centenas de milhões de reais pagos, em grande parte por saques em espécie. </p> <p>No início de 2025 a relação de Castro com os casos Master e Refit ainda não tinham vindo a público, mas no seu currículo já constavam a Operação Catarata e outros malfeitos. Isso não foi suficiente para que Flávio Bolsonaro deixasse de festejar o provável companheiro de palanque. Em fevereiro, ele estreou seu podcast <em>Fala 01!</em> – título, aliás, sintomático. O primeiro convidado? Cláudio Castro. Apresentou-o assim: “Meu amigo governador Cláudio Castro, obrigado por estar aqui comigo. É uma grande honra estar com você. Não é de agora que a gente tá junto caminhando na política.” Como o governador deixou claro, Flávio estava certo: de fato, os dois eram amigos havia “muitos e muitos anos”.</p> <p>Tendo a amizade com Castro sido roída pelos escândalos, passou-se à segunda opção: Márcio Canella, ex-prefeito de Belford Roxo. “Estou aqui para reafirmar o meu apoio integral, 100%, ao meu amigo Márcio Canella como pré-­candidato ao Senado pelo Rio de Janeiro”, declarou Flávio Bolsonaro em abril.</p> <p>Tudo ia bem quando, em julho, prenderam Canella. Foi um acaso. A polícia fazia diligências no âmbito de uma operação que apurava o uso de postos de gasolina para lavar dinheiro do crime, e o ainda pré-candidato era um dos investigados. Josette Goulart, da <em>newsletter</em> Tixa News, conta assim a história: “A Polícia Federal bateu na porta de Márcio Canella [...] Era só uma busca e apreensão. Mas eis que Canella foi pego com um fuzil em seu carro e acabou preso. O histórico não é dos melhores. Nomeou milicianos quando ainda era prefeito de Belford Roxo, por exemplo, segundo mostrou reportagem da <em>Folha</em>. Ele deixou a prefeitura justamente para ser candidato a senador.” </p> <p>Já não é. As complicações com a Justiça o levaram a mirar mais baixo. Agora, será candidato a deputado estadual. Flávio terá que se contentar com a terceira opção, Carlos Portinho, sobre o qual, até o presente momento, nada consta.</p> <p>Para o governo do Rio, o PL apresentou Douglas Ruas. Policial civil e deputado de pouca projeção estadual, acabou eleito presidente da Alerj depois de seu antecessor ser preso e perder o mandato. Assim como o candidato à Presidência, o candidato a governador tem no pai sua principal referência política. No caso do deputado, trata-se de Nelson Ruas dos Santos, o Capitão Nelson, atual prefeito de São Gonçalo e figura central na trajetória política do filho.</p> <p>Uma espécie de cantochão ressoa por trás dos personagens que cercam Flávio Bolsonaro, repetindo, caso após caso, a palavra <em>milícia</em>. O relatório final da CPI das Milícias da Alerj, aprovado por unanimidade em 2008, registra o Capitão Nelson como um dos líderes de um grupo paramilitar que atuava em São Gonçalo. Seus integrantes cobravam por segurança, transporte alternativo e tevê a cabo, e impunham suas atividades através de ameaças – acusação que Nelson sempre negou e que, segundo ele, não levou a seu indiciamento. </p> <p>Ele também nega uma denúncia do começo dos anos 1990, na qual aparece como um dos autores de uma chacina ocorrida em 1988. </p> <p>Até prova em contrário, presume-se a inocência. A questão incômoda não é saber se este ou aquele personagem faz parte de uma organização criminosa, e sim a constância com que essas denúncias surgem em torno do candidato à Presidência. O problema é o cantochão.</p> <p>Toda a vida política de Flávio foi acompanhada por esse baixo contínuo. Em 2007, jovem deputado estadual no Rio, ele defendeu publicamente a legalização das milícias, sob o argumento de que o Estado era incapaz de cumprir sua missão constitucional. Sugeriu também que, nas favelas, a presença dos milicianos era bem-vinda, tanto assim que trabalhadores se dispunham a “pagar R$ 15 para não ter traficantes”. Na voz do deputado, ser extorquido virava escolha. </p> <p>O tempo não mudou suas simpatias. Em 2023, já como senador, Flávio destinou 200 mil reais, por meio de uma emenda parlamentar, a um projeto em área de milícia. Como revelou o <em>Estadão</em>, atendia a um pedido de Robson Calixto Fonseca, conhecido como Peixe. Peixe seria preso no ano seguinte por envolvimento no assassinato de Marielle Franco e Anderson Gomes. Nas mensagens obtidas pela PF, o miliciano se refere duas vezes a Flávio como “nosso senador”.</p> <p> </p> <p>É pouco provável que os frequentadores dos jantares saibam do projeto de transformar as milícias em negócio legítimo. Imagino também que não conheçam Márcio Canella, Douglas Ruas, Capitão Nelson e Peixe, embora, por dever de cidadania, talvez tivessem que se informar sobre o círculo próximo da pessoa com quem se sentam à mesa. Sobre Cláudio Castro, é provável que saibam um pouco mais. </p> <p>E sobre Fabrício Queiroz não podem ter dúvidas. Sabem de quem se trata.</p> <p>Aqui nesta revista, Miguel Lago escreveu que Flávio Bolsonaro é a expressão de uma visão de futuro “que começa a se consolidar: individualista, violenta, hostil a compromissos éticos mais amplos e pouco preocupada com o outro”. Queiroz é um bom exemplo – não o melhor, apenas mais um – das figuras que povoarão esse país imaginado.</p> <p>Ex-policial da PM do Rio de Janeiro, Queiroz mantinha relações antigas e estreitas com personagens do universo miliciano. Há documentos e investigações que apontam vínculos financeiros e interlocução com esse meio. Um exemplo: em mensagens de 2019 obtidas pelo MP, sua mulher lhe encaminhou o pedido de um homem ameaçado pelo grupo paramilitar de Rio das Pedras, na Zona Sudoeste do Rio de Janeiro. Conforme publicou a <em>Folha</em>, Queiroz respondeu “que poderia interceder com os milicianos pessoalmente, mas que não faria o contato pelo telefone porque tinha receio de estar grampeado”. </p> <p>Um relatório do Coaf informa que, em 2017, Queiroz recebeu recursos de uma empresa de estética que era usada no esquema de lavagem de dinheiro de um matador de aluguel. O ano é importante porque, na ocasião, o ex-­policial era assessor de Flávio Bolsonaro na Alerj, cargo que assumiu em 2007. Muito ligado a Jair, tinha ascendência sobre os assessores do então deputado, que o tratavam como chefe de gabinete. Foi nessa posição, segundo o MP-RJ, que operou o esquema de rachadinha no gabinete de Flávio. </p> <p>Em uma reportagem de 2020, a <em>Folha</em> noticiou que, de acordo com o MP-RJ, onze assessores vinculados a Flávio repassaram pelo menos 2 milhões de reais a Queiroz, sendo a maior parte por meio de depósitos em espécie. A Promotoria identificou que o ex-assessor pagou mensalidades escolares e planos de saúde da família do chefe. Essa teria sido uma forma de lavar o dinheiro obtido com a suposta rachadinha.</p> <p>Queiroz chegou a ser preso, mas o caso começou a desmoronar judicialmente durante a Presidência de Jair Bolsonaro. Cortes superiores anularam, por falhas processuais, quebras de sigilo, buscas e outras provas da investigação, além de excluírem do conjunto probatório quatro dos cinco relatórios do Coaf que haviam embasado a denúncia, sob o argumento de que tinham sido obtidos de forma irregular.</p> <p>Assim como ocorreu com Castro, Queiroz voltou para casa não por ter provado sua inocência, mas por ter se beneficiado de tropeços formais que impediram que as acusações contra ele fossem julgadas no mérito. Pouco importa. Para o que interessa aqui, Queiroz tem outra serventia: a de estabelecer um elo entre seu antigo patrão e uma figura bem mais perigosa do universo de homens da violência em torno do qual Flávio Bolsonaro sempre gravitou. Refiro-me, claro, a Adriano da Nóbrega, o matador de aluguel cujo círculo mantinha relações financeiras com o assessor parlamentar. </p> <p>Também aqui, o pessoal dos jantares sabe de quem se trata.</p> <p>Vale a pena atentar para a cronologia. </p> <p>Em outubro de 2003, o então deputado estadual Flávio Bolsonaro propôs a primeira moção de louvor a Nóbrega, elogiando seu “excepcional comportamento” e sua “dedicação, brilhantismo e galhardia” no exercício da função policial.</p> <p>No dia 25 do mês seguinte, o guardador de carros Leandro dos Santos Silva, de 24 anos, denunciou policiais do Grupamento de Ações Táticas do 16º Batalhão de Polícia Militar, em Olaria, entre eles Nóbrega. Segundo relatou, quatro dias antes fora sequestrado e torturado pelos policiais, que lhe extorquiram 2 mil reais. Dois dias depois, ao sair de casa em Parada de Lucas, foi assassinado a tiros.</p> <p>Pelo crime, Nóbrega foi preso preventivamente em janeiro de 2004. Em junho de 2005, quando ele ainda estava confinado à espera de julgamento, Flávio propôs conceder-lhe a Medalha Tiradentes, a maior honraria da Alerj. Em outubro, Nóbrega foi condenado pelo tribunal do júri a dezenove anos de prisão. Flávio e Jair Bolsonaro foram à cadeia para entregar-lhe a medalha.</p> <p>Em 2006, anulou-se o julgamento pelo homicídio e Nóbrega foi solto. Passados dois anos, voltou a ser preso, agora acusado de tentar assassinar um pecuarista a mando de bicheiros cariocas. Um mês depois, com o fim do prazo da prisão temporária, estava novamente em liberdade.</p> <p>Em janeiro de 2014, a PM o expulsou da corporação porque a Corregedoria concluiu que ele atuava como braço de aluguel da contravenção.</p> <p>A esposa de Nóbrega integrava o gabinete de Flávio desde 2007. Em 2016, o hoje candidato à Presidência contratou outro membro da família do matador – em abril, a mãe de Nóbrega tornou-se sua assessora parlamentar.</p> <p>Dada a relação de Fabrício Queiroz com Adriano da Nóbrega, presume-se que as referidas mãe e ex-mulher fossem próximas do faz-tudo de Flávio. E, de fato, foi durante o período em que elas estiveram a serviço do então deputado que se utilizaram contas bancárias de Nóbrega para movimentar dinheiro do esquema de rachadinhas. Como mostraram as investigações, as duas recebiam sem trabalhar, circunstância que deveria despertar a curiosidade dos vigilantes da responsabilidade fiscal.</p> <p>Desde 2018 – com mãe, ex-mulher e Queiroz firmes na folha de pagamentos de Flávio Bolsonaro –, investigava-­se a atuação de grupos de matadores ligados a um certo Escritório do Crime. Já se sabia, portanto, como Adriano da Nóbrega ganhava a vida. As notícias começaram a vir a público no contexto da apuração do assassinato de Marielle Franco e Anderson Gomes. Adriano, inclusive, prestara depoimento à Polícia Civil em agosto daquele ano, quando já era mencionado em denúncias anônimas relacionadas ao caso.</p> <p>Acusado de homicídio em 2003, expulso da polícia em 2014, apontado como chefe de um grupo de extermínio em meados de 2018: nada disso levou Flávio a afastar de sua convivência e de seu serviço a mãe, a ex-mulher e o amigo de Nóbrega, todos pagos, evidentemente, com recursos públicos. Queiroz só deu baixa na carteira em outubro de 2018, quando Flávio já havia sido eleito senador; a mãe e a ex-mulher do matador, no mês seguinte.</p> <p>Em janeiro de 2019, agora formalmente acusado de liderar o grupo de sicários, Nóbrega fugiu para não ser preso. Seria morto um ano depois, num suposto confronto com policiais militares.</p> <p>Em momento nenhum dessa trajetória, na qual se acumulam acusações da mais alta criminalidade, Flávio ou Jair deixaram de defender o assassino. “Como é muito comum, um PM, quando está em operação, mata vagabundo, traficante”, declarou o pai-presidente em 2020, referindo-se ao guardador de carros Leandro dos Santos Silva. “[<em>Adriano</em>] estava sendo falsamente acusado de ter cometido homicídio e, na verdade, foi uma troca de tiros com um traficante”, afirmou o filho-candidato em 2026, aos apresentadores do <em>Jornal Nacional</em>.</p> <p>É falso. De acordo com a investigação, depois de matarem o guardador, os oito policiais – entre eles Adriano – alteraram a cena do crime para forjar um confronto. Como mostrou o UOL, “não há evidências de que Leandro dos Santos Silva fosse um traficante”. Ele era funcionário da CET-Rio, o que não impediu Flávio de, na entrevista citada, chamá-lo de “marginal”. Diante de uma pergunta sobre um matador, preferiu reservar o adjetivo para o trabalhador.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/10/6_8ikj2itc.png"/></p> <p>Não deixa de ser revelador que boa parte dos comensais de que falo aqui não considere que os fatos acima – seja a estreita amizade, seja a reiterada defesa, seja a admiração confessa por pessoas ligadas ao que há de mais perigoso e criminal – constituam razão suficiente para se afastar do candidato. Suspeito – porque já ouvi essa conversa inúmeras vezes – que muitos deles já tenham pensado em transformar em residência permanente suas casas em Miami. Afinal, no Brasil, “a violência está demais”.</p> <p>Uma interpretação menos generosa poderia concluir que, para eles, quem dá expediente numa organização chamada Escritório do Crime não costuma escolher seus alvos nos melhores endereços das nossas cidades. Afeta o flanelinha, não o CEO. Logo, pode-se seguir com o jantar.</p> <p>Que tudo isso represente a lenta penetração do crime nas instâncias mais elevadas do poder político nacional não parece ser fator de perturbação. Mas há ainda outra dimensão a considerar. A mais grave de todas.</p> <p>Chegamos, finalmente, ao ataque às instituições democráticas, talvez a maior das violências. A não ser que se escolha desviar os olhos, não pode haver dúvida sobre o que pensa a esse respeito a família Bolsonaro. Deixo de lado o pai para ficar apenas com o filho.</p> <p>Em 2020, quando Jair Bolsonaro participava de mais uma manifestação em que se exibiam faixas pedindo intervenção militar e se repetiam palavras de ordem favoráveis ao AI-5, Flávio descreveu o espetáculo como o de uma “democracia pulsando forte”. E considerou uma “canalhada” caracterizar a manifestação como de apoio à ruptura institucional.</p> <p>Veio o Oito de Janeiro, e o campo político se dividiu em dois: os que encararam os eventos daquele dia como a maior violência contra as instituições brasileiras desde a redemocratização, e os que não. Flávio, evidentemente, pertence ao segundo grupo. “Essa narrativa de tentativa de golpe no Oito de Janeiro é um crime impossível”, declarou em 2024, no programa <em>Roda Viva</em>. “Um terreno na Lua”, comparou. Isso quando já tinham se tornado públicas a minuta do golpe, as reuniões em que se discutiu a trama do <em>putsch</em> e as tentativas do pai de obter a adesão dos militares. </p> <p>Não satisfeito, ainda insinuou que Lu­la, de caso pensado, teria deixado que a baderna prosperasse – “Eu acho que ele saiu [<em>de Brasília</em>] torcendo para acontecer o que aconteceu” –, transformando o governo constitucional recém-empossado em cúmplice do ataque promovido pela base social que sustentava seu pai e hoje sustenta sua candidatura.</p> <p>No ano passado, falando à <em>Folha</em>, admitiu a possibilidade do “uso da força” contra o Supremo na hipótese de um presidente eleito conceder indulto a Bolsonaro e a Corte declarar o ato inconstitucional. Se chegar ao Planalto, é possível que enfrente essa situação, uma vez que não há compromisso maior em sua campanha do que anistiar o pai e todos os conspiradores de 2022. A promessa foi reiterada na entrevista aos apresentadores do <em>Jornal Nacional</em> deste ano, com Flávio já candidato à Presidência.</p> <p>Deveria preocupar a todos que se dizem adeptos da tradição liberal a proximidade ao poder de um candidato que trata como farsa – nas suas palavras, como “golpe da Disney” – um dia de fúria antidemocrática. Que jamais deixa de minimizar o perigo que corremos naqueles dias em que, no próprio palácio de governo, alguns dos homens mais próximos ao então presidente tramavam o assassinato do presidente e do vice-presidente eleitos, o assassinato de um juiz da Suprema Corte, o fim da nossa democracia.</p> <p>Mais grave ainda é o que se apresenta como absolutamente óbvio: que Flávio não passa de um homem sem autonomia, um instrumento de Jair. Afirmou que, se eleito, dará ao pai o cargo que este quiser. Subirá a rampa com Jair e a Jair caberá decidir se fará ou não parte do governo. Que dúvida pode haver a respeito de quem será o homem forte de uma eventual presidência de Zero Um?</p> <p>Para os (poucos) que, cheios de virtude, dizem não admitir conversa com o pai, mas, com o filho, sim, um aviso: informem-se sobre o fenômeno do ventriloquismo. É com o pai que estão conversando. Se não enxergam, é porque não querem.</p> <p> </p> <p>Os apoiadores de Flávio Bolsonaro na elite econômica brasileira não formam um bloco homogêneo. Neles se misturam, às vezes num único personagem, a defesa de interesses particulares do velho patrimonialismo nacional, a preocupação legítima com a situação macroeconômica, o desejo ingênuo de “contribuir para o diálogo”, a vertigem quase erótica da influência política e a vaidade intelectual de quem se acha capaz de definir os melhores rumos da nação. Noves fora essas diferenças, existe um vocabulário comum em suas reivindicações: privatizações, redução da carga tributária, flexibilização regulatória, corte de gastos, diminuição da máquina pública.</p> <p>As receitas para alcançar tais objetivos também variam, mas é preciso admitir que, com raras exceções, entre esses apoiadores prevalece a ideia de que a conta não deve ser paga por sua própria classe. Ana Clara Costa chamou a atenção para isso aqui na revista. Durante um evento que reuniu a nata do sistema financeiro nacional em São Paulo, um dos participantes se manifestou indignado com a situação de um país que, segundo ele, assina cheques para 112 milhões de pessoas. “É insustentável”, declarou.</p> <p>“Claramente se referia a programas sociais”, explica Ana Clara, “mas não se sabe de onde tirou a cifra. Afinal, os beneficiários do programa Bolsa Família, principal alavanca para famílias pobres, somam cerca de 20 milhões, e os contemplados pelo Benefício de Prestação Continuada, outro programa expressivo, chegam a cerca de 6 milhões. Ainda assim, o gestor defendeu cortes como solução para os problemas fiscais. ‘Não tem como um país sobreviver com metade das pessoas recebendo cheque do governo’, disse, repetindo o número.” Foi aplaudido pela sala.</p> <p>Coube ao anfitrião do evento, o banqueiro André Esteves, introduzir uma nota incômoda. Como mostra Ana Clara, Esteves lembrou aos presentes que “os maiores subsídios concedidos pelo governo ocorrem, na prática, em benefício do próprio mercado financeiro. ‘Há 1 trilhão de subsídio para nós aqui nessa sala, o subsídio ao rentista’, disse, referindo-se aos investimentos isentos de tributação”. Segundo Ana Clara, o tema não mobilizou a plateia tanto quanto a perspectiva de cortar benefícios destinados aos pobres.</p> <p>André Esteves e o indignado da tarde, o gestor de fundos Luis Stuhlberger, aparecem com frequência na imprensa, seja em eventos com Flávio Bolsonaro, no caso do primeiro, seja em manifestações sobre o candidato, no caso do segundo. Stuhlberger considera que uma vitória da direita pode incentivar a retomada de “boas práticas” macroeconômicas. É o caso de perguntar: que direita? A liberal, social-democrata de Fernando Henrique Cardoso, Pedro Malan e Geraldo Alckmin já não está no jogo, ou mudou de lado. E de lembrar: a que temos hoje é a de Ciro Nogueira, Valdemar Costa Neto, Eduardo Bolsonaro, Paulo Figueiredo, Ricardo Salles e Silas Malafaia. Disso eles também sabem.</p> <p>Historiadores do autoritarismo explicam que uma das características desse regime é contar com cidadãos que já não sabem distinguir ficção de fato, verdade de mentira. A gente de quem falo aqui sabe. São pessoas bem informadas, que sabem de Brilhante Ustra, sabem de Queiroz, sabem de Cláudio Castro, sabem de Ciro Nogueira, sabem do Oito de Janeiro, sabem das minutas impressas no palácio presidencial, sabem da conspiração tarifária contra o país, sabem da ascendência que o pai tem sobre o filho. Sei que sabem, porque conheço o mundo social em que vivem. É o mundo em que nasci. Sei das informações que circulam por ele, e são boas informações.</p> <p>Sei que dirão que a situação fiscal é insustentável e que, a continuar assim, o país se arruinará. É verdade que Lula 3 gastou mais do que devia, fazendo subir os juros e a dívida. Mas há sutilezas aqui. Por exemplo, como mostrou Marcelo Kayath em sua boa entrevista ao <em>Valor</em>, vários dos nossos problemas são estruturais. A responsabilidade fiscal pode não ser uma prioridade do atual governo, e parte do crescimento das despesas primárias obrigatórias pode ser atribuída a ele. Ainda assim, o fato é que essas despesas absorvem mais de 90% dos recursos disponíveis. E boa parte do orçamento de investimento está nas mãos do Congresso, o que limita a capacidade de ação do Executivo.</p> <p>Além disso, é estranho imaginar que uma administração Bolsonaro possa funcionar como o fiel da estabilidade, visto que naquela à qual sobrevivemos floresceu o orçamento secreto, se caloteou o pagamento dos precatórios e Daniel Vorcaro ganhou autorização para se tornar banqueiro. Mas que assim seja, mesmo que apenas como exercício mental. Diante de cenários ruins, é preciso escolher o menos danoso. Economias se recuperam, regimes de exceção tendem a se prolongar. Nossa última ditadura durou 21 anos, e ainda estamos pagando o seu preço. Vimos isso nas minutas impressas no Planalto, na invasão dos prédios da República, nos militares voltando a nos assombrar o sono.</p> <p>É curioso: essas são pessoas que não aceitam o risco de uma crise econômica, mas admitem sem estrilar o de uma crise democrática. As consequências da primeira podem ser gravíssimas, mas são, em princípio, reversíveis; as da segunda podem deixar marcas institucionais duradouras. </p> <p>Lula 1 e Lula 2 – este último tendo enfrentado a maior crise financeira desde a Grande Depressão – mostraram que Lula é capaz de governar com cautela. O único governo Bolsonaro que conhecemos nos ensinou o contrário.</p> <p>Já se disse que vamos à guerra não com os generais que gostaríamos de ter, mas com os que temos. E, no momento, temos estes dois. A escolha é esta, não outra. É justo, então, perguntar aos que vêm dando legitimidade política a Flávio Bolsonaro: podem ter tanta certeza assim de que ele não será tutelado pelo pai? Penso que não. E ainda que não seja, será a tutela o único problema? A história do próprio Flávio deveria ser resposta suficiente. A tutela do pai é um perigo; Flávio sozinho, também. Concluo, portanto, que estão em paz com o risco de sacrificar a democracia em nome do ajuste fiscal. Fica esclarecida, assim, a escala de valores.</p> <p>Por ela, é admissível tramar golpes de Estado; vale conspirar contra os interesses do país, vale se avassalar aos Estados Unidos (as bandeiras americanas nos comícios, o boné na cabeça dos correligionários, o bonequinho de Trump na mesa de Flávio), vale incitar nações estrangeiras a atacar a economia brasileira, vale convidar forças militares estrangeiras a bombardear o território nacional.</p> <p>Vale também conviver com as mais desvairadas possibilidades. “Eduardo Bolsonaro tem dito a interlocutores que, se o irmão virar presidente, ele comandará o Itamaraty no próximo governo”, publicou recentemente Lauro Jardim. Eduardo – aquele que trabalhou duro junto a Trump e Rubio para prejudicar o Brasil numa conspiração bem-sucedida em benefício da própria família e em detrimento dos brasileiros – será nomeado chanceler? Não? Vocês garantem?</p> <p>Eduardo por certo terá influência sobre a pasta. É útil, então, comparar o presente com o passado. De um lado, Mauro Vieira; do outro, Ernesto Araújo. E pela frente, quem sabe, Eduardo Bolsonaro ou Paulo Figueiredo, seu fiel escudeiro nas idas e vindas pelos corredores de Washington, uma figura obscena que, não faz três meses, escreveu que mulheres não sabem votar e considerou “genial” Jair ter insinuado que uma adversária não merecia ser violentada sexualmente. Apoiar Flávio é estar disposto a pactuar com essa companhia. E pior, vê-la representar o país.</p> <p><img alt="" src="https://piaui.uol.com.br/media/uploads/2026/10/porcelana-4_gmpgzhld.png"/></p> <p>Nada disso significa uma adesão ao atual presidente. É preciso admitir que os últimos quatro anos foram vividos sem paixão e sem grandeza. Faltou ao governo convicção nas próprias ideias, talvez por elas inexistirem. Ainda que as conquistas de Lula não tenham sido poucas – cito apenas duas, imensas, que uma volta dos Bolsonaro põe em risco: a redução histórica do desmatamento e a pacificação da questão militar –, ele fracassou em nos propor um projeto de futuro. </p> <p>O que não se pode imputar a Lula, contudo, é qualquer ameaça à estabilidade democrática. Como lembrou Míriam Leitão, entre os cinco primeiros candidatos presidenciais entrevistados pelos apresentadores do <em>Jornal Nacional</em> – Caiado, Zema, Renan Santos, Lula e Flávio –, “a apenas um não foi preciso fazer perguntas sobre democracia. Dois subestimaram o ataque aos Três Poderes de Oito de Janeiro, um apresentou uma proposta de extremismo autoritário e o quarto é filho do ex-presidente que tentou o golpe”.</p> <p>Estamos, novamente, numa encruzilhada. Em momentos assim da história, uma pergunta sempre volta: E eu, nessas circunstâncias, o que teria feito? É aí que entra o diálogo silencioso de que fala Hannah Arendt. Existe uma boa história a esse respeito. O pai de um historiador do totalitarismo, um homem comum, de vida confortável e valores conservadores, decidiu muito cedo que não seria cúmplice do regime que se instalava. “Mesmo se todos os outros, eu não”, repetia aos filhos, citando uma passagem bíblica sobre não transigir com os próprios princípios. Em consequência, ao longo dos anos 1930, a família perdeu posição social e empobreceu. O futuro historiador, um adolescente na época, aprenderia ainda uma segunda lição valiosa, esta de um professor: “Em caso de dúvida, escolha a dúvida.” </p> <p>Jürgen Habermas, o grande pensador da razão e da democracia, escreveu no início da carreira que “se o temor desaparece, os monstros voltam”. Pois bem, na quadra histórica em que nos encontramos, marcada por derivas autoritárias em toda parte, em especial no nosso continente, os monstros estão de volta. A eleição brasileira de 2026 pôs diante do eleitor alternativas que, a meu ver, jamais foram equivalentes.</p> <p>A figura do candidato da direita – ou, para usar o termo feliz do jornalista João Gabriel de Lima, da direita à direita da direita –, sua história, suas amizades, sua família e seu entorno exigem, no mínimo, o exercício da dúvida.</p> <p>As pessoas de que falo aqui sabem que há razões para duvidar e, ainda assim, parecem desprezá-las. Se esse é o caso, a pergunta fundamental sobre como agiriam em momentos graves da história não precisa mais ser feita. A resposta foi dada. </p> <p></p>  <em>[1] Os nomes dos empresários David Feffer (papel e celulose) e Rubens Ometto (energia e infraestrutura) foram suprimidos da lista publicada originalmente. Ambos negaram ter participado de jantares ou encontros com o candidato Flávio Bolsonaro. No dia 10 de outubro, por meio de rede social, o empresário Fabio Carvalho (varejo e mídia) negou ter participado de um jantar específico, ocorrido no dia 27 de agosto. A reportagem não faz essa afirmação. Diz apenas que empresários participaram de encontros e jantares com Flávio Bolsonaro. Diante disso, a <strong>piauí</strong> procurou Carvalho para esclarecer se ele tomou parte em algum desses encontros. Ele não respondeu.<br/><br/></em><p>[2] Não custa lembrar. Em 2019, os senadores Flávio Bolsonaro e Marcio Bittar apresentaram o Projeto de Lei n</p>o <p>2.362/2019, que revogava integralmente o capítulo do Código Florestal dedicado à Reserva Legal. Em outras palavras, acabaria ali a obrigação de preservar vegetação nativa dentro de propriedades privadas rurais em todo país. Pode-se imaginar a consequência disso para a Amazônia.</p><em><br/></em>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/revista/241/o-que-esses-brasileiros-sabem/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

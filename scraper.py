@@ -16,6 +16,16 @@ USER_AGENT = (
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/122.0.0.0 Safari/537.36"
 )
+# Alguns servidores bloqueiam o User-Agent do Chrome em Windows (403) mas
+# aceitam o mesmo Chrome em Linux. Tentamos o primario e, se falhar, o alternativo.
+FALLBACK_USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/122.0.0.0 Safari/537.36"
+)
+USER_AGENTS = (USER_AGENT, FALLBACK_USER_AGENT)
+# Status que indicam bloqueio por User-Agent (e nao por feed inexistente).
+BLOCKED_STATUS_CODES = {403, 406, 429}
 SOURCES_FILE = Path(__file__).resolve().with_name("news_sources.json")
 
 
@@ -49,31 +59,99 @@ SOURCES = _load_sources()
 
 
 def _fetch_feed(url):
-    response = requests.get(
-        url,
-        timeout=REQUEST_TIMEOUT_SECONDS,
-        headers={"User-Agent": USER_AGENT},
-    )
-    response.raise_for_status()
-    return response.content
+    """
+    Busca o feed, trocando de User-Agent apenas quando o servidor bloqueia
+    por status HTTP (403/406/429). Erros de rede e timeout nao sao repetidos:
+    um dominio fora do ar apenascustaria o dobro do tempo de espera.
+    """
+    last_error = None
+
+    for user_agent in USER_AGENTS:
+        try:
+            response = requests.get(
+                url,
+                timeout=REQUEST_TIMEOUT_SECONDS,
+                headers={"User-Agent": user_agent},
+            )
+        except Exception as error:
+            raise error
+
+        if response.status_code in BLOCKED_STATUS_CODES:
+            last_error = requests.HTTPError(
+                f"HTTP {response.status_code} bloqueado por User-Agent.",
+                response=response,
+            )
+            continue
+
+        response.raise_for_status()
+        return response.content
+
+    raise last_error if last_error else RuntimeError("Falha ao buscar feed.")
+
+
+def _extract_entry_date(entry, feed_level=None):
+    """
+    Extrai a data de publicacao de uma entrada RSS.
+
+    Alguns feeds (ex.: Opera Mundi) publicam sem <pubDate> no item, mas
+    trazem <lastBuildDate> no channel. Nesses casos caimos para a data do
+    feed para que a noticia ainda entre na ordenacao cronologica.
+    """
+    for key in ("published", "updated", "created", "date"):
+        value = entry.get(key)
+        if value:
+            return value
+
+    if feed_level:
+        for key in ("published_parsed", "updated_parsed", "created_parsed"):
+            parsed = feed_level.get(key)
+            if parsed:
+                try:
+                    from time import strftime
+
+                    return strftime("%a, %d %b %Y %H:%M:%S %z", parsed)
+                except Exception:
+                    continue
+
+        for key in ("updated", "published", "lastBuildDate"):
+            value = feed_level.get(key)
+            if value:
+                return value
+
+    return ""
 
 
 def get_rss_news(url, source_name, limit=5):
     try:
         feed_data = _fetch_feed(url)
         feed = feedparser.parse(feed_data)
+        feed_level = feed.feed if hasattr(feed, "feed") else {}
         noticias = []
+        seen_titles = set()
 
-        for entry in feed.entries[:limit]:
+        # Alguns feeds repetem o mesmo texto com links levemente diferentes
+        # (ex.: a Embaixada da Venezuela publica "/post/" e "/post-2/").
+        # Pegamos mais itens que o limite para ainda ter 'limit' uniques.
+        for entry in feed.entries[: limit * 3]:
+            titulo = (entry.get("title") or "Sem titulo").strip()
+            assinatura = titulo.casefold()
+
+            if assinatura in seen_titles:
+                continue
+
+            seen_titles.add(assinatura)
             noticias.append(
                 {
                     "titulo": entry.get("title", "Sem titulo"),
                     "link": entry.get("link", "#"),
                     "resumo": entry.get("summary", ""),
                     "fonte": source_name,
-                    "data": entry.get("published", ""),
+                    "data": _extract_entry_date(entry, feed_level),
                 }
             )
+
+            if len(noticias) >= limit:
+                break
 
         return noticias
     except Exception:

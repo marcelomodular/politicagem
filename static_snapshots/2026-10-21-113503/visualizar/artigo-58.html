@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“Aqui todo mundo passa desodorante!” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">“Aqui todo mundo passa desodorante!”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://piaui.uol.com.br/web/aqui-todo-mundo-passa-desodorante/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/10/afp__20261018__sales-brazilel261018_npagn__v1__highres__brazilelectionsflaviobolsona_85social.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: “Aqui todo mundo passa desodorante!”
+                            </p>
+                             <p>Faltando uma semana para o segundo turno da eleição presidencial, Flávio Bolsonaro e seu hoje fiel escudeiro, o deputado Nikolas Ferreira, convocaram um “Bloquinho do 22” na Avenida Paulista, a fim de energizar sua campanha eleitoral e se contrapor ao ato lulista do domingo anterior.</p> <p><em>(Jonas Medeiros acompanha manifestações das direitas desde 2015 como parte do seu trabalho de pesquisa no Cebrap).</em> Sempre prefiro me locomover para observar os atos de rua utilizando o transporte público. A pesquisa de campo começa antes mesmo de chegar ao local da concentração e ela pode se estender depois que o protesto tenha se dispersado. No metrô, me espantou a presença desproporcional de manifestantes verde-amarelos. Havia mais gente de vermelho no vagão que eu peguei: uma turma de jovens eleitores de Lula, portando camisas e adereços vermelhos, muitos adesivos, um leque e uma bandeira LGBT+. </p> <p>Tudo mudou quando saí do vagão. Fui cercado por uma multidão gritando “Lula ladrão, seu lugar é na prisão”, ecoando amplamente no túnel de transição entre as linhas amarela e verde do Metrô. Uma ou outra pessoa de vermelho andando na direção contrária, alguns se resguardando, outros fazendo o L.</p> <p>Chegando à Paulista, já tinha ficado claro para mim que o ato não seria um fracasso – a estimativa de público foi de 76,2 mil pessoas, segundo o PoderData, que calculou 261  mil pessoas no ato pró-Lula (o Monitor do Debate Político do Cebrap estimou público semelhante, de 71,9 mil pessoas na manifestação bolsonarista).</p> <p>Além de seguir mapeando as bandeiras do bolsonarismo, o ato de domingo tinha uma outra característica importante: o horário. Ao menos em São Paulo, é uma novidade a manifestação ocorrer pela manhã, às 11 horas. Este horário matutino é rotina, por exemplo, em Copacabana, o que transforma o almoço em uma espécie de teto temporal do protesto. Já as domingadas na Paulista costumeiramente ocorrem à tarde, entre 14 e 15 horas, com o almoço servindo de sociabilidade informal que precede a manifestação. Ao menos neste ato, atrasar o almoço não foi um problema. Tudo indica que a mudança tenha ocorrido em decorrência do debate na  Band marcado para aquela noite. Flávio, inclusive, falou pouco no carro de som para poupar a voz.</p> <p> Além do horário, estava curioso também para entender como a dinâmica do “bloquinho” poderia alterar a dinâmica de rua. A singularidade do que ocorreu no domingo fica evidenciada com mais clareza quando pensamos em como foram concebidos, organizados e efetivados os protestos das direitas na última década. </p> <p>O formato clássico de um ato de rua é a passeata: com concentração, caminhada e dispersão. Quase todas as manifestações das esquerdas seguem este padrão. As da direita, contudo, construíram um caminho alternativo a esse a partir de meados de 2010, quando a campanha pró-impeachment de Dilma colocou a direita, e posteriormente a extrema direita, nas ruas. As domingadas se revelaram atos sedentários, sem passeata coordenada coletivamente; no máximo, manifestantes circulando de um canto a outro no interior do ato, o qual permanecia parado, até o momento em que se dissipava.</p> <p>Com a perda de relevância dos atores da chamada nova direita (como Revoltados Online, MBL e Vem Pra Rua), o bolsonarismo alcançou a hegemonia no campo conservador. A partir daí, dois personagens protagonizaram modelos diferentes de passeatas. O pastor Silas Malafaia, um dos artífices da <a href="https://piaui.uol.com.br/web/extrema-direita-patriotas-8-de-janeiro/" rel="noopener noreferrer" target="_blank">campanha</a> de anistia a Bolsonaro após o Oito de Janeiro, instaurou o que defino como <a href="https://piaui.uol.com.br/web/o-baile-do-golpe-frustrado-bolsonaro-manifestacao-avenida-paulista/" rel="noopener noreferrer" target="_blank">showmícios</a>. É o modelo que vigorou com sucesso, mas que agora parece perder espaço para os bloquinhos de Nikolas. Este regime implicava um carro de som unificado – eficaz na repressão à dissidência no interior do campo reacionário e no monopólio dos meios de eletrificação dos discursos políticos –, uma trilha sonora potente e meticulosamente concebida e, por fim, o estabelecimento de uma dinâmica de tapete vermelho de Hollywood: políticos-celebridades entrando e saindo do carro de som através de uma calçada da fama com manifestantes-fãs em polvorosa.</p> <p>O outro personagem é o padre Kelmon, que tentou – sem êxito –  reavivar a base bolsonarista nas ruas após a prisão de Jair em novembro de 2025. No dia 7 de dezembro, Kelmon, candidato à presidência em 2022 pelo PTB, convocou um ato na Paulista. Sua proposta se diferenciava da de Malafaia por substituir o sedentarismo pelo nomadismo: o pequeno público bolsonarista (cerca de 1,4 mil pessoas) seguiu em <a href="https://piaui.uol.com.br/web/a-fabricacao-de-um-povo/" rel="noopener noreferrer" target="_blank">passeata</a>, saindo da frente do Edifício Gazeta, descendo a Brigadeiro, até se dispersar na frente da Catedral da Sé. Além de ser fisicamente exigente para parte das pessoas, tratava-se de um repertório inédito, que exigiu certa curva de aprendizagem daqueles manifestantes. Para maquiar a falta de público, houve uma profusão de imagens de IA de protestos artificiais.</p> <p>O que se viu no último domingo difere significativamente dessas duas propostas. Em primeiro lugar, o “Bloquinho do 22”, como Flávio e Nikolas o batizaram, foi capaz de reunir o nomadismo da passeata com a ocupação massiva das ruas, reinventando a domingada. Gostaria de chamar a atenção para o protagonismo do deputado federal mineiro reeleito com mais de 3 milhões de votos, a ponto de nomear o que ocorreu no último domingo de um emergente regime Nikolas. O jovem político já havia tomado a frente de Malafaia nos atos de janeiro em Brasília e de março na Paulista. Mas agora a troca de guarda parece ter alcançado uma coerência entre forma e conteúdo: em vez de apenas sequestrar o formato do showmício, ele produziu um repertório singular, à sua imagem e semelhança.</p> <p>O bloquinho simplesmente aboliu o mega carro de som unificado, inaugurado por Malafaia, em dois sentidos. Em primeiro lugar, não havia um carro de som, mas dois; e, em segundo lugar, ambos eram pequenos, do tamanho que partidos da esquerda não petista, como Psol ou PSTU costumam alugar para se contrapor ao caminhão de som do PT e dos movimentos sociais, sindicais e estudantis ao seu redor. A duplicidade, contudo, se mostrou eficaz, pois o principal carro de som era o único que tinha microfone, reunindo Flávio, Nikolas, Pavanato, Dallagnol, Tarcísio e outros. Já o carro de som secundário ficava alternando entre tocar jingles e momentos de silêncio, com interações com os manifestantes no chão do ato sem a mediação eletrificada, apenas na base do grito, poses para fotos e vídeos e sinais de vitória ou 22 com os dedos.<br/><br/>Mas também houve percalços na nova forma de organização. Ouvi mais de uma vez os eleitores de Flávio compararem o perrengue dos corpos espremidos e suados a “parece com o metrô” ou com a “Estação da Sé” – como se nunca tivessem frequentado um bloquinho de carnaval, por exemplo. E a trilha sonora passava longe de sambas, marchas e frevos, com predomínio do funk. Isto, por si só, não é inédito, já que a inteligência política e estética de Malafaia já havia incorporado uma versão instrumental e eletrônica de Baile de Favela como recurso estratégico para animar corpos e preencher vazios discursivos, evitando dilemas estratégicos após a derrota do golpe militar de 2022. Mas, diante da utilização do funk em jingles e cortes nas redes sociais, parece que estamos diante de uma apropriação juvenil reacionária de um gênero musical que antes conservadores buscavam combater e de um certo esgotamento de uma brasilidade impressa no gênero, como argumentei recentemente em<a href="https://piaui.uol.com.br/web/musicas-brasil-copa-mundo-futebol/" rel="noopener noreferrer" target="_blank"> ensaio</a> aqui na <strong>piauí</strong>.</p> <p>A transição geracional desencadeou o rejuvenescimento do repertório da domingada. Sem contar a genialidade do não tão sutil golpe semiótico de Nikolas: enquanto todos, incluindo Flávio Bolsonaro, em ambos os carros de som portavam abadás em dois tons de verde, com escritos em branco que diziam “Bloco do 22”, o deputado federal mineiro era o único vestido com camiseta listrada de amarelo e branco. O uniforme de Nikolas o colocou como uma liderança entre as lideranças, ofuscando a todos. Para uma parcela dos manifestantes, o mineiro de 30 anos de idade era tratado como “sucessor do presidente”, no que me pareceu ser a naturalização da vitória de Flávio no próximo domingo e sua reeleição em 2030, o que deixaria em aberto a candidatura de Nikolas para 2034. </p> <p></p> <p><br/><br/></p> <p>Ainda não é possível saber se essa dinâmica protagonizada por Nikolas poderá criar alguma tensão com o clã Bolsonaro ou dentro do campo reacionário. O que dá para dizer, seguindo postagens na rede social Facebook, é que o repertório foi concebido para ser replicado nacionalmente, especialmente no Sudeste e no Nordeste: Arucuaí-MG e Capelinha-MG (15/10), Nanuque-MG (16), Vitória, Teresina e Salvador (17), São Paulo (18), Manaus (19), Aracaju (20), São Luís (21), Recife (22), Fortaleza (23) e, por fim, encerrando na dobradinha dos estados de Nikolas e Flávio, Belo Horizonte e Rio de Janeiro (24).</p> <p>Além disso, aprendi com essa pesquisa de campo que a dinâmica do bloquinho não é homogênea: a experiência desse novo tipo de ato de rua foi variável de acordo com o grau de proximidade com o carro de som principal, no qual estavam Nikolas e Flávio. Esses círculos concêntricos praticamente correspondem às diferentes fases da observação que eu realizei ao percorrer o protesto das 11 horas até as 14h30. Foram quatro fases ou círculos.</p> <p>Depois de não conseguir atravessar a Paulista, busquei abrir caminho pelas paralelas. Por sorte, quando finalmente cheguei ao quarteirão do Masp, me deparei com o pequeno carro de som das principais lideranças. Demorei para enxergar Flávio, mas bati o olho e já pude identificar Nikolas soltando rojões. O primeiro círculo concêntrico em torno do carro de som foi a mais perfeita consonância entre lideranças políticas e base social, o auge de sua interação coordenada. </p> <p>Essa operação física e afetiva permitiu fortalecer uma identidade coletiva, um campo político que se encarna ali momentaneamente, mas também instaura uma mania persecutória, que busca delimitar e escancarar a presença de outsiders: um cartaz dizia e depois os manifestantes gritavam repetidamente: “Quem fica parado / É petista infiltrado.” Da forma como li, essa paranoia de potenciais infiltrados foi um efeito colateral do chamado de Janones para que as esquerdas retomassem via postagens virais os símbolos patrióticos verde-amarelos, como a camiseta da seleção brasileira. Dizia inclusive um cartaz: “Flávio é mito!!! O medo foi tão grande que até a esquerda se vestiu de verde e amarelo.”</p> <p>Consegui acompanhar de perto o bloquinho por metade do quarteirão do Masp. Contudo, o ritmo de quem seguia “atrás do trio elétrico” era menor do que a velocidade do próprio carro de som e rapidamente me vi no segundo círculo concêntrico, aquele que não está mais na sintonia festiva e dançante, e passei pelo mais clássico perrengue carnavalesco: corpos espremidos que mal andam. Devo ter demorado quase uma hora para andar a segunda metade do quarteirão e poder escapulir da Paulista lotada em direção à Alameda Santos via Alameda Casa Branca. Nessa fase da observação, muitas pessoas irritadas, algumas passando mal (contabilizei duas senhoras e uma menina que choravam com dificuldades de respirar) e zero capacidade de escutar qualquer discurso eletrificado. </p> <p>Passado o perrengue, descobri os demais círculos concêntricos. Longe das lideranças e longe do ponto no qual estavam os corpos espremidos, havia um silêncio. Esse silêncio era preenchido de duas maneiras. A primeira delas era pelas conversas informais. Em outras manifestações, eu já havia notado que a massificação permite uma sociabilidade independente do carro de som. O mais impressionante deste domingo foi como diversas falas tinham o mesmo substrato: um antipetismo atroz. Claro, o antipetismo sempre esteve presente nas manifestações das direitas, mas não me recordo de ter coletado tantas interações nas quais o antipetismo estava tão radicalizado. Isso surpreende também se considerarmos que nos últimos três anos, os protestos bolsonaristas se acostumaram a eleger Alexandre de Moraes como um antagonista tão ou mais importante do que Lula. Não desta vez. Pelo que observei, Xandão foi pouco lembrado: vi apenas um cartaz recorrente, no qual se acrescenta à sua foto olhos vermelhos, o escrito “Xô satanás” e, por fim, em sua testa “666” (o número da besta, como aparece no Livro do Apocalipse). Talvez o declínio de sua relevância nas ruas seja sintoma de sua fragilização e deslegitimação na própria correlação de forças no interior do sistema político.</p> <p>Saí da Paulista com a impressão de que ainda mais estruturante do antipetismo do que discursos de ódio são as narrativas que giram em torno do sentimento de nojo. Nas proximidades da Alameda Ministro Rocha Azevedo ouvi a conversa entre um casal, um senhor mais velho do que sua esposa. A mulher disse para o marido: “Semana passada era só fedor de maconha. Agora todo mundo é cheiroso, cheirando à perfume.” A temática do odor e do fedor foi retomada por um homem, que puxou um grito na altura do Parque Trianon: “Aqui todo mundo depila! Aqui todo mundo passa desodorante!”, com muitas pessoas acenando sua concordância. Também ali perto, antes de eu ficar preso no círculo do perrengue, uma menina entrou em pânico ao ver um adesivo de Bolsonaro: “Arranca, arranca! É crime, é crime!”, ao passo que uma jovem atendeu ao pedido e tirou com a unha o que estava colado em um poste. O contraste aqui é com a crítica que Tarcísio de Freitas dirigiu a supostos atos de vandalismo no protesto das esquerdas do domingo anterior (muito embora o fantasma das depredações do Oito de Janeiro também possam estar operando ali). Chegando à Alameda Santos, escuto um rapaz falar para o amigo: “Vamos fazer diferente dos petistas”, e ele então coloca na lata de lixo sua garrafa de água, dando a entender que apoiadores do PT jogam lixo na rua. Por último, já na altura da Brigadeiro, quase no final do ato, escuto dois amigos que andavam em direção ao Paraíso: “Não sei por que tanto caminhão de lixo. Hoje não tem PT. Aqueles sujos! Que desperdício de dinheiro público...” Com esse acúmulo de historietas, podemos ver como os bolsonaristas igualam petistas a drogados, fedorentos, porcos, criminosos e vândalos.</p> <p>A segunda forma de preencher o silêncio só surgiu ao final do ato. Comecei a perceber cornetas e buzinas nas mãos de manifestantes, que as tocavam insistentemente. No longo processo de dispersão do protesto carros e motos faziam questão de demonstrar seu apoio político buzinando. No lugar do vazio do carro de som, restava como quarto e último círculo concêntrico uma verdadeira cacofonia sonora. Neste momento, como não havia mais a sintonia dançante entre manifestantes e lideranças soltando rojão, a euforia passava a se prolongar de modo desorganizado e histérico com o buzinaço. Como disse um manifestante: “clima de Copa, né?”.</p> <p><br/><br/></p> <p>Concluí que o objetivo central do “Bloquinho do 22” não era difundir algum discurso, programa ou plataforma de governo, mas sim cristalizar um ambiente emocional eufórico, com as pessoas pulando, dançando e cantando, em que a derrota de Flávio no segundo turno parece inconcebível. Um clima diferente das eleições de 2022, quando desde setembro os bolsonaristas aventavam que as pesquisas eleitorais estariam sendo manipuladas e que as urnas eletrônicas poderiam ser fraudadas. O que se viu no domingo também difere das manifestações que antecederam o primeiro turno. No ato de Sete de Setembro, a discursividade olhou para o futuro, com a libertação de Jair, a subordinação autoritária do Judiciário à Presidência e ao Senado e o projeto entreguista ao poder imperialista dos Estados Unidos. Agora, a aposta parece ser de que a frente ampla entre direita e extrema direita passa menos por propostas e argumentos e muito mais pela reativação radicalizada do nojo antipetista. </p> <p>O Bloquinho do 22 também reproduziu múltiplas imagens espelhadas, exemplos de um mundo invertido. O nojo antipetista levou os manifestantes a se imaginarem cheirosos por serem os únicos a usarem desodorante e por não fumarem maconha, enquanto ignoravam a própria massificação a que eram submetidos ao seguir o carro de som. </p> <p>Um rapaz no carro de som das lideranças secundárias portava uma Bandeira do Império do Brasil em suas costas e um bandeirão com a cara de Flávio Bolsonaro. Caso curioso de um monarquista que apoia um candidato à Presidência em vez de lutar pela dissolução da República como regime político.</p> <p>Mais significativo ainda desse mundo invertido foi o curto-circuito de como o antipetismo pode oscilar freneticamente entre populismo e elitismo.</p> <p>Fotografei um cartaz claramente feito por IA no qual se lia: “Somos a geração que vai aposentar o PT! Se não tem carne, come ovo; se não tem ovo, come salada.” No alto da imagem, Lula e Janja gargalham de olhos fechados, ele segurando uma taça de champanhe, ela portando um “Cartão da Janja sem limite”, ao lado de um Passaporte Diplomático, ironicamente vermelho. Acima do presidente e da primeira-dama, fotos de cidades estrangeiras (Nova York, Paris, Roma, Tóquio, Pequim e Seul), junto com um “Aerolula” e os escritos “182 dias no exterior, 38 viagens internacionais da Janja, 38 países visitados”. As imagens abaixo do casal são carne (com um X vermelho por cima), ovos e salada. Como se esse suposto estilo de vida burguês e cosmopolita fosse a causa da miséria e da fome do povo brasileiro. Um claro símbolo do populismo de extrema direita que se apresenta como antissistêmico e transforma o PT no ápice do sistema econômico e político.</p> <p>O último espelhamento para o qual eu queria chamar a atenção é uma projeção de autoritarismo, que acompanhei de soslaio. O manifestante olhou para a câmera e perguntou qual era a profissão do rapaz. Ele disse que era fotógrafo, mas que estava ali por vontade pessoal. “No meu trabalho, 90% é petista, se eu mostro isso, fico sem emprego. Infelizmente...” Ou seja, atribui-se ao petismo uma suposta perseguição à sua posição política. </p> <p>Outro exemplo de uma tentativa de articular antipetismo e antiautoritarismo está em um novo sequestro simbólico de um grito de esquerda que eu ainda não havia escutado. No lugar do clássico “recua, fascista, recua!”, os bolsonaristas passaram a gritar para uma janela onde havia uma bandeira vermelha: “recua, petista, recua!”</p> <p>A inversão surge a partir do momento em que passei a registrar episódios de violência política latente na base do ato. Retornando àquele casal cuja conversa equiparava petistas a maconheiros, a mulher falava em parte para seu parceiro, em parte gritando para quem mais quisesse ou pudesse ouvir: “Lula ladrão, seu lugar é na prisão! E leva toda esta corja! E põe a Janja pra dormir.” Já em vídeo enviado por uma amiga, pude ouvir uma variação inédita da primeira frase: “Lula ladrão, seu lugar é no caixão.” É um antipetismo que se nutre não apenas dos discursos de ódio, mas também práticas de criminalização e extermínio da alteridade política. E que pode aumentar em caso de vitória de Flávio.</p> <p>Saí da Paulista com a percepção de que havia menos bandeiras estadunidenses do que nos atos anteriores, em especial considerando os desastres simbólicos dos atos de Sete de Setembro de 2025 e 26, nos quais o aniversário da Independência do Brasil se converteu em <a href="https://piaui.uol.com.br/web/o-dia-da-dependencia-e-a-condenacao-do-ex-presidente/" rel="noopener noreferrer" target="_blank">Dia da Dependência</a>. Contudo, a imagem mais chocante do dia foi a de um míssil inflável com os dizeres “Trump nuke Brazil”: um pedido para que Donald Trump bombardeie o nosso país com bombas nucleares. Em que condições isso se daria? Em que termos passa a ser concebível não apenas uma intervenção estrangeira visando mudança de regime ou de presidente (como no caso do sequestro de Nicolás Maduro), mas um desejo por aniquilação que é homicida do campo inimigo e, ao mesmo tempo, suicida? Na véspera do bloquinho, ouvi de uma caixa de supermercado que o cliente logo antes de mim era um senhor que desejava a vitória de Flávio “para o Brasil virar colônia dos Estados Unidos”. Aparentemente, no campo reacionário, não há nojo dos ataques à soberania nacional.</p>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/web/aqui-todo-mundo-passa-desodorante/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

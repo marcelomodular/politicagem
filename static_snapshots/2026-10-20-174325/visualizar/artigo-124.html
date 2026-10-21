@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A invenção do medo – um inventário do nosso assombro - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A invenção do medo – um inventário do nosso assombro</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/10/a-invencao-do-medo-um-inventario-do-nosso-assombro/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-16-as-12.49.19.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A invenção do medo - um inventário do nosso assombro
+                            </p>
+                            
+<p><em><a href="https://autonomialiteraria.com.br/loja/america-latina/o-fantasma-do-comunismo-no-brasil-13-ensaios-contos-e-causos-sobre-o-espectro-que-assombra-os-poderosos/" rel="noopener noreferrer" target="_blank">O fantasma do comunismo no Brasil: 13 ensaios, contos e causos sobre o espectro que assombra os poderosos</a></em> (Autonomia Literária, 2026) traz uma coletânea potente com nomes de peso sobre um tema quente, perturbador e terrivelmente atual para o nosso país — ainda mais nesse turbulento contexto eleitoral. </p>
+<p>A obra conta com autores como Maria Angelica Souza Ribeiro, Lincoln Secco, Arnaldo Lemos Filho, Samantha Lodi &amp; Margareth Rago, Petrônio Domingues, Nilce Aravecchia &amp; Rodrigo Queiroz, Dolores Rocca Rivarola, Jamil Chade, Ladislau Dowbor, Alexandre Vasilenskas, Xico Sá, Lindener Pareto Jr. e Hugo Albuquerque.</p>
+<p>Abaixo, republicamos um trecho da introdução do livro.</p>
+
+<p>Há uma velha anedota política que diz que o Brasil é o único país do mundo onde o passado é imprevisível. Se isso é verdade para a nossa História oficial, o que dizer dos fantasmas que habitam os seus porões? Desde o século XIX, o Brasil especializou-se em produzir uma assombração particular, moldada não de ectoplasma, mas de decretos, inquéritos, sermões, manchetes de jornal e, mais recentemente, de áudios virais e correntes de WhatsApp. Falamos, é claro, do “fantasma do comunismo”.</p>
+<p>Este livro, <em>O fantasma do comunismo no Brasil: 13 ensaios, contos e causos sobre o espectro que assombra os poderosos</em>, nasce de uma perplexidade e de uma urgência. A perplexidade de constatar que, décadas após a queda do Muro de Berlim e o suposto “fim da História”, a velha palavra de ordem ainda é capaz de eleger presidentes, destruir reputações, mobilizar quartéis e depredar praças públicas. A urgência de dissecar a anatomia desse medo, não apenas como um exercício historiográfico, mas como uma vacina necessária contra o delírio que sequestrou o nosso presente.</p>
+<p>A obra que você tem em mãos é um esforço coletivo para mapear as diferentes encarnações desse espectro. Como organizadores, compreendemos desde o início que o fenômeno era vasto demais para ser capturado por uma única lente disciplinar. O anticomunismo brasileiro é um artefato complexo: ele tem a profundidade da longa duração histórica, a densidade teórica da filosofia política, a violência material do terrorismo de Estado e, simultaneamente, a leveza anedótica e trágica do folclore popular e da crônica de costumes. Por isso, reunimos aqui treze vozes – acadêmicos, jornalistas, memorialistas e escritores – para compor um mosaico que transita entre o rigor da pesquisa e o pulsar da literatura.</p>
+<p>O percurso de leitura que propomos não é acidental; ele obedece a uma arquitetura narrativa pensada para conduzir o leitor da abstração conceitual à carne viva da História, e desta ao nosso horizonte contemporâneo, num movimento de cinco estações.</p>
+<p></p>
+<h2>O pórtico conceitual e o imaginário popular</h2>
+<p>Começamos nomeando o medo. Nos ensaios que abrem o volume, o fantasma é investigado em sua origem filológica e em sua eficácia simbólica. O leitor descobrirá, guiado por Hugo Albuquerque, como a palavra alemã <em>Gespenst</em>, utilizada por Marx e Engels no Manifesto de 1848, viajou pelas traduções de Macfarlane, pelas reflexões de Derrida e Fisher, até se cristalizar como o “espectro” que ronda a Europa. E como, ao chegar aos trópicos, encontrou terreno fértil na nossa imaginação cívica, misturando-se aos Exus e às nossas próprias entidades.</p>
+<p>O comunismo, como nos mostra Maria Angelica Souza Ribeiro, antes de ser um programa de partido, operou entre nós como um placebo político, uma encenação de presença, uma síntese teatral que condensa ansiedades difusas e oferece à direita uma narrativa unificadora. É a transmutação do conceito em mito que permite que o “perigo vermelho” assuma as feições do Papa-Figo nordestino, aterrorizando criancinhas e adultos em igual medida, numa crônica de Xico Sá onde o humor serve de antessala para a tragédia, conectando o folclore celta ao imaginário eleitoral brasileiro, do IBAD à Galinha Pintadinha.</p>
+<p></p>
+<h2>As raízes históricas de um “mal necessário”</h2>
+<p>Avançando, o livro mergulha nas raízes desse pânico fabricado. Descobrimos com Lincoln Secco que o anticomunismo brasileiro tem uma vocação estruturalmente “preventiva”. Ele não nasceu como resposta a uma revolução real, mas como um mecanismo de contenção contra qualquer ímpeto reformista. Desde o século XIX, no alvorecer do debate abolicionista, a pecha de “comunista” já era atirada contra aqueles que ousavam questionar o direito de propriedade sobre seres humanos. A abolição, para os escravocratas, era vista como uma medida de expropriação comunista.</p>
+<p>Essa lógica da prevenção – a antecipação violenta de um inimigo muitas vezes imaginário – consolidou-se ao longo do século XX, encontrando no conservadorismo religioso um de seus pilares mais robustos. O testemunho pungente de Arnaldo Lemos Filho, que narra a experiência de quem foi tachado de “padre comunista” por defender a justiça social e as Reformas de Base, ilustra a fratura entre o humanismo evangélico, a Teologia da Libertação e a cruzada reacionária liderada por setores como a TFP e o Centro Dom Vital.</p>
+<p></p>
+<h2>A repressão, as vítimas e a disputa pela memória</h2>
+<p>Mas o fantasma também deixou marcas físicas, cicatrizes indeléveis no corpo social. Ao entrarmos no bloco central da obra, a abstração cede lugar à brutalidade do Estado. Revisitamos a ditadura civil-militar (1964-1985) não apenas pelos números frios, mas pela memória de resistência. Samantha Lodi e Margareth Rago nos conduzem aos porões do DOI-CODI, revelando como as mulheres enfrentaram o terrorismo de Estado e a violência de gênero. O corpo feminino tornou-se o território onde a repressão exercia seu sadismo mais abjeto, numa tentativa inútil de aniquilar a identidade e a dignidade das militantes.</p>
+<p>Vemos também como a máquina repressiva não apenas aniquilava corpos, mas tentava obliterar memórias. Petrônio Domingues reconstrói a trajetória de Carlos Marighella, transformado pelo regime no “inimigo público número um”. Acompanhamos a disputa narrativa que se seguiu ao seu assassinato, um esforço hercúleo de familiares e militantes que só muito recentemente começou a restituir-lhe o status de herói nacional, ressignificando o sacrifício em nome da liberdade.</p>
+<p></p>
+<h2>A atualização contemporânea: o assombro bolsonarista</h2>
+<p>A redemocratização não exorcizou o fantasma; apenas o colocou em repouso até que uma nova crise exigisse os seus serviços. A quarta parte deste livro dedica-se à atualização contemporânea do anticomunismo, que encontrou no bolsonarismo a sua expressão mais radical e grotesca.</p>
+<p>Aqui, a leitora verá como o medo vermelho foi instrumentalizado para justificar a depredação da arquitetura modernista de Brasília. Nilce Aravecchia e Rodrigo Queiroz demonstram como as linhas retas, os pilotis e o vidro, que propunham um espaço público igualitário e transparente, foram vistos como um “delito” contra a propriedade privada e a família tradicional burguesa, culminando nos ataques de 8 de janeiro.</p>
+<p>Na crônica visceral de Lindener Pareto Jr., a sala de aula universitária transforma-se num campo de batalha. Professores são sitiados por milícias digitais e alunos armados de certezas delirantes, insuflados pelo olavismo e pelo pânico moral. O canetão vermelho jogado no lixo torna-se a metáfora perfeita de uma pseudo-intelectualidade que abdicou da razão em favor da perseguição.</p>
+<p>Dolores Rocca Rivarola sistematiza essa escalada, analisando como o antipetismo bolsonarista fundiu o discurso anticorrupção a um anticomunismo explícito e implícito, operando uma cruzada moral que se espalhou pelo continente, dialogando com o fenômeno Milei na Argentina. E a escala dessa paranoia não se restringiu às nossas fronteiras; como revela a reportagem investigativa de Jamil Chade, ela sequestrou a própria diplomacia brasileira. O Itamaraty, sob Ernesto Araújo, inseriu o país numa rede global de extrema direita disposta a sacrificar os direitos humanos e a saúde pública no altar de uma guerra santa imaginária, liderando alianças ultraconservadoras como o Consenso de Genebra.</p>
+<p></p>
+<h2>Balanço, horizonte e a retomada do assombro</h2>
+<p>Finalmente, encerramos a jornada com um balanço crítico e prospectivo. Se o anticomunismo serviu historicamente para legitimar a apropriação da riqueza e a manutenção de abismos sociais, como nos ensina a economia política de Ladislau Dowbor, é preciso perguntar: a quem serve o medo? Dowbor desloca o debate da ideologia para a materialidade, lembrando-nos que o capitalismo tem rios de sangue nas mãos e que o anticomunismo é, no fundo, uma ferramenta para cegar as pessoas diante de alternativas viáveis de desenvolvimento e bem-estar.</p>
+<p>O que faremos com esse legado? A resposta não está no recuo melancólico, mas na reapropriação do nosso direito de sonhar e de assombrar. Em tempos de realismo capitalista, onde imaginar o fim do mundo parece mais fácil do que imaginar o fim da exploração, a última palavra deste livro, assinada por Alexandre Vasilenskas, é uma convocação. Retomando Derrida e Mark Fisher, ele nos lembra que a “hauntologia” é o resquício de um futuro que foi impedido, mas que insiste em assombrar o presente. Se eles insistem em nos tratar como fantasmas, que assumamos o nosso papel histórico. Que a tradição emancipatória volte a assombrá-los. São eles ou nós.</p>
+<p><em>O fantasma do comunismo no Brasil</em> é, portanto, um livro sobre a invenção de um inimigo. Mas é, sobretudo, um livro sobre nós mesmos. Sobre as fraturas de uma sociedade que prefere lutar contra sombras a enfrentar os seus demônios reais: a desigualdade, o racismo, a concentração de renda e o autoritarismo latente.</p>
+<p>Ao reunir crônicas viscerais, ensaios de rigor acadêmico, memórias em primeira pessoa e reportagens investigativas, esperamos oferecer ao leitor não apenas um diagnóstico do nosso tempo, mas um arsenal reflexivo. Que a leitura destas páginas sirva para desarmar as armadilhas do pânico moral e nos devolva a lucidez necessária para reconstruir o chão que pisamos.</p>
+<a href="https://autonomialiteraria.com.br/loja/america-latina/o-fantasma-do-comunismo-no-brasil-13-ensaios-contos-e-causos-sobre-o-espectro-que-assombra-os-poderosos/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2026/10/O-Fantasma-do-Comunismo_mockup-site_01-scaled-1.jpg"/></a>Clique na imagem e garanta o seu!
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>é publisher da Revista Jacobina, editor da Autonomia Literária, mestre em direito pela PUC-SP e advogado.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+			        Xico Sá                
+</h5>
+</p>
+
+<p>é escritor e jornalista. Participou de programas como Notícias MTV, Cartão Verde (Cultura), e Amor &amp; Sexo (Globo), hoje está ICL Notícias. É autor de <i>Big jato</i> (Companhia das Letras, 2012) e <i>A falta </i>(Planeta, 2022), entre outros livros. </p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+			        Lindener Pareto Jr                
+</h5>
+</p>
+
+<p>é professor e historiador. É colunista, Curador Acadêmico e apresentador do <i>Provocação Histórica</i> nos canais do Instituto Conhecimento Liberta (ICL). É autor de <i>Crônico e anacrônico </i>(Autonomia Literária, 2025).</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/a-invencao-do-medo-um-inventario-do-nosso-assombro/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

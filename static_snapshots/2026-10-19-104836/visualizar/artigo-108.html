@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Brasil digitalizou a exclusão - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O Brasil digitalizou a exclusão</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/10/o-brasil-digitalizou-a-exclusao/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/images-15.jpeg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O Brasil digitalizou a exclusão
+                            </p>
+                            
+<p>O Brasil não resolveu sua dívida histórica com a educação, apenas a tornou digital. Hoje, pedir um benefício, procurar emprego, movimentar dinheiro, preencher uma inscrição, enviar documentos, marcar um atendimento, acompanhar um processo e acessar informações públicas depende, cada vez mais, de uma tela.</p>
+<p>A promessa que acompanha essa transformação é conhecida: a tecnologia simplificaria processos, ampliaria acessos, eliminaria distâncias e democratizaria oportunidades.</p>
+<p>Mas democratiza para quem? No Brasil, 29% das pessoas entre 15 e 64 anos são analfabetas funcionais. Entre elas, 76% vivem em famílias com renda de até dois salários mínimos e 58% são pretas ou pardas.</p>
+<p>A desigualdade educacional brasileira, portanto, não é abstrata, tem classe, raça, cep, território e história. No entanto, agora tem também uma interface. É dessa contradição que parte uma das discussões presentes em <em>Inaf 25 anos: alfabetismo no Brasil em tempos digitais</em>, livro da Diálogos Editora organizado por Heloisa Trenche Belusci e Roberto Catelli Jr.</p>
+<p>A publicação revisita os 25 anos do <a href="https://alfabetismofuncional.org.br/" rel="noopener noreferrer" target="_blank">Indicador de Alfabetismo Funcional</a> (Inaf), criado em 2001 pela Ação Educativa e pelo Instituto Paulo Montenegro e analisa os resultados da edição de 2024, que pela primeira vez incorporou uma avaliação realizada em ambiente digital.</p>
+<p>Mais do que um retrato sobre quem sabe ou não sabe ler, os dados permitem observar quem possui as ferramentas necessárias para participar de uma sociedade que exige cada vez mais leitura, interpretação, cálculo e capacidade de navegar por sistemas digitais para realizar até atividades básicas da vida.</p>
+<p></p>
+<h2>O problema nunca foi simplesmente saber ler</h2>
+<p>O termo “analfabetismo funcional” pode produzir uma interpretação confortável: a de que estamos diante de indivíduos que, por alguma razão, não aprenderam o suficiente, mas os números contam outra história.</p>
+<p>Quando três quartos dos analfabetos funcionais pertencem a famílias que vivem com até dois salários mínimos, é difícil sustentar que estamos diante de uma coleção de fracassos individuais.</p>
+<p>Quando 58% são pretos ou pardos, também não estamos diante de uma distribuição aleatória. Estamos diante das consequências acumuladas de um país no qual o acesso à educação de qualidade sempre esteve profundamente relacionado à posição que cada pessoa ocupa na estrutura social.</p>
+<p>A pergunta deixa de ser “por que essas pessoas não aprenderam?” e passa a ser outra: quais condições materiais foram oferecidas para que aprendessem? Quem precisou abandonar a escola para trabalhar? Quem encontrou uma escola precarizada? Quem teve tempo para estudar? Quem teve livros em casa? Quem teve silêncio em casa para ler?  Quem precisou cuidar dos filhos enquanto estudava? Quem teve computador, internet, espaço, silêncio? Quem conseguiu chegar ao fim da educação básica? E quem, depois de adulto, encontrou uma política pública que lhe permitisse voltar?</p>
+<p>Alfabetismo não existe separado das condições concretas da vida.</p>
+<p></p>
+<h2>A internet chegou, a igualdade não</h2>
+<p>A edição de 2024 do Inaf acrescenta uma camada importante a essa discussão. Pela primeira vez, a pesquisa avaliou habilidades em ambiente digital.</p>
+<p>Um dos resultados é particularmente revelador: entre pessoas classificadas no nível elementar de alfabetismo, 95% haviam acessado a internet nos três meses anteriores à pesquisa.</p>
+<p>Aparentemente, portanto, a exclusão digital estaria perto de ser superada, mas basta mudar a pergunta. Em uma tarefa proposta pelo Inaf, apenas 17% conseguiram completar corretamente todas as etapas de uma inscrição por formulário online.</p>
+<p>Em outra, somente 13% concluíram todas as etapas de uma compra pela internet.</p>
+<p>Quando era necessário escolher um filme a partir de determinados critérios e justificar a escolha, apenas 4% conseguiram realizar integralmente a tarefa.</p>
+<p>O celular está na mão, a conexão existe, o aplicativo abre, mas isso, nem de longe, significa igualdade. </p>
+<p>Durante anos, parte da discussão sobre inclusão digital foi organizada em torno do acesso à infraestrutura: quem possui computador, quem tem celular, quem consegue se conectar à internet. Essa discussão continua importante, mas tornou-se insuficiente.</p>
+<p>A questão agora é também o que cada pessoa consegue fazer depois que a tela acende.</p>
+<p></p>
+<h2>A burocracia não desapareceu, virou aplicativo </h2>
+<p>Há uma dimensão política nessa transformação. A digitalização costuma ser apresentada como sinônimo de modernização. Menos papel, menos filas, menos deslocamentos, menos burocracia.</p>
+<p>Para milhões de pessoas, pode efetivamente significar tudo isso. Para outras, entretanto, uma repartição pública que antes tinha um balcão, uma pessoa e uma possibilidade de pedir ajuda foi substituída por uma interface.</p>
+<p>O trabalhador que procura emprego precisa cadastrar currículo em uma plataforma. A pessoa que busca determinado benefício precisa interpretar instruções, criar senha, preencher campos, anexar documentos e acompanhar notificações.</p>
+<p>Bancos fecham agências enquanto operações migram para aplicativos, empresas automatizam processos seletivos. Serviços públicos são reorganizados em torno de cadastros e portais. A burocracia não necessariamente desapareceu.</p>
+<p>Em muitos casos, o trabalho necessário para atravessá-la foi transferido da instituição para o indivíduo e pessoas chegam a essa nova ordem digital carregando condições profundamente desiguais.</p>
+<p>Para alguém com escolarização elevada, computador próprio, conexão estável e familiaridade com interfaces digitais, preencher mais um cadastro pode ser apenas uma inconveniência.</p>
+<p>Para quem teve sua trajetória escolar interrompida, utiliza um celular antigo, divide o aparelho, depende de pacote de dados e encontra dificuldades de leitura e interpretação, o mesmo procedimento pode funcionar como barreira.</p>
+<p>A tecnologia é a mesma e as condições sociais de utilizá-la não são.</p>
+<p></p>
+<h2>A desigualdade brasileira também envelhece</h2>
+<p>Outro dado ajuda a compreender a dimensão histórica do problema: 65% dos analfabetos funcionais têm entre 40 e 64 anos.</p>
+<p>Isso significa que estamos falando de milhões de pessoas que atravessaram décadas de profundas mudanças econômicas e tecnológicas carregando as consequências de direitos educacionais que não lhes foram plenamente garantidos.</p>
+<p>Agora o país envelhece e, simultaneamente, digitaliza-se. É difícil imaginar contradição mais evidente.</p>
+<p>Pessoas que não tiveram acesso adequado à escolarização quando jovens são cobradas, décadas depois, por competências cada vez mais complexas para trabalhar e acessar serviços.</p>
+<p>Nesse cenário, a Educação de Jovens e Adultos (EJA) não pode ser tratada como uma política residual destinada a corrigir individualmente trajetórias escolares “incompletas”, ela é parte da resposta pública a uma dívida coletiva.</p>
+<p>“Discutir alfabetismo em um país que envelhece exige olhar também para as oportunidades educacionais oferecidas ao longo de toda a vida. Os dados evidenciam a necessidade de políticas consistentes de Educação de Jovens e Adultos, capazes de enfrentar desigualdades que persistem e afetam justamente parcelas da população que tiveram seus direitos educacionais negados ao longo de suas trajetórias”, afirma Heloisa Trenche Belusci, uma das organizadoras do livro.</p>
+<p></p>
+<h2>A tecnologia não elimina relações de classe</h2>
+<p>Existe uma tendência de imaginar a tecnologia como uma força externa às relações sociais. Primeiro surge a inovação. Depois caberia à sociedade “se adaptar”. Os dados do Inaf sugerem o limite dessa narrativa. Nenhuma tecnologia chega a uma sociedade vazia.</p>
+<p>Ela chega a uma sociedade já organizada por desigualdades de renda, raça, escolarização, gênero e território.</p>
+<p>Por isso, a mesma tecnologia capaz de ampliar acesso para alguns pode aprofundar barreiras para outros.</p>
+<p>No Nordeste, por exemplo, 42% das pessoas entre 15 e 64 anos estão em situação de analfabetismo funcional.</p>
+<p>Mais da metade das pessoas nessa condição no país vive em municípios com até 100 mil habitantes.</p>
+<p>Isso significa que discutir a digitalização do Brasil exige perguntar não apenas quais tecnologias estão disponíveis, mas sobre quais desigualdades elas estão sendo construídas.</p>
+<p>Uma política pública não se torna universal simplesmente porque está disponível online, um serviço não se torna acessível apenas porque existe um aplicativo.</p>
+<p>Uma vaga de emprego não está igualmente disponível para todos apenas porque foi publicada numa plataforma. A igualdade formal de acesso à ferramenta não elimina a desigualdade material das condições para utilizá-la.</p>
+<p></p>
+<h2>Alfabetizar também é distribuir poder</h2>
+<p>Há, finalmente, algo maior em jogo: ler não serve apenas para preencher formulários.</p>
+<p>Alfabetismo significa também capacidade de interpretar o mundo, comparar informações, compreender contratos, reconhecer interesses, acessar conhecimento e participar da vida pública.</p>
+<p>Em uma sociedade inundada por informação e mediada por algoritmos, essas capacidades tornam-se ainda mais decisivas. É por isso que alfabetização nunca foi apenas uma questão pedagógica. Ela é também uma questão de distribuição de poder. Quem consegue compreender uma informação pública? Quem lê as condições de um contrato? Quem consegue comparar uma proposta de trabalho? Quem identifica uma fraude? Quem entende uma cobrança? Quem consegue pesquisar versões diferentes de um acontecimento? Quem consegue produzir e fazer circular a própria narrativa?</p>
+<p>A discussão sobre alfabetismo em tempos digitais é, portanto, também uma discussão sobre quem possui as ferramentas necessárias para agir com autonomia na sociedade contemporânea.</p>
+<p>Para Roberto Catelli Jr., responsável pelo Inaf na Ação Educativa e organizador da publicação, a dimensão digital permite justamente ampliar o alcance dessa análise.</p>
+<p>“Os 25 anos do Inaf nos permitem olhar para uma trajetória extensa de produção de conhecimento sobre o alfabetismo no Brasil e, ao mesmo tempo, para os novos desafios colocados pelas transformações da sociedade. A incorporação da dimensão digital amplia essa análise e ajuda a compreender como as habilidades de leitura, escrita e matemática são mobilizadas em contextos cada vez mais mediados pela tecnologia”, afirma.</p>
+<p></p>
+<h2>Vinte e cinco anos depois, a pergunta continua sendo sobre desigualdade</h2>
+<p>Com 160 páginas, “Inaf 25 anos: alfabetismo no Brasil em tempos digitais” reúne especialistas para analisar a trajetória do indicador e os resultados de 2024.</p>
+<p>Os textos discutem alfabetismo e letramento digital, conectividade, numeramento, desigualdades raciais, geracionais e de gênero, Educação de Jovens e Adultos, escolarização, trabalho, cidadania e desenvolvimento humano.</p>
+<p>O livro será lançado no dia 21 de outubro, das 19h às 21h, no auditório da Ação Educativa, em São Paulo, em evento gratuito e aberto ao público.</p>
+<p>A programação terá debate com Daniela Costa (Cetic.br), Ana Elisa Ribeiro (Cefet-MG), Edneia Gonçalves (Ação Educativa), Rosalina Maria Soares (Fundação Roberto Marinho) e Maria Clara Di Pierro (FEUSP), seguido de lançamento, coquetel e sessão de autógrafos.</p>
+<p>Vinte e cinco anos de dados do Inaf ajudam a desmontar uma fantasia particularmente conveniente: a de que o avanço tecnológico, por si só, produz avanço social. Não produz.</p>
+<p>Digitalizar uma sociedade desigual não elimina automaticamente suas desigualdades. Se milhões de pessoas chegam ao mundo digital depois de terem acesso desigual à escola, ao tempo, à renda, aos livros e às oportunidades de aprendizagem, não existe razão para imaginar que a simples chegada de uma nova tecnologia apagará essas diferenças.</p>
+<p>Ela pode ampliá-las. A questão que o Brasil precisa enfrentar, portanto, não é apenas como colocar mais pessoas online.</p>
+<p>É quem controla as condições para que elas possam ler, compreender, trabalhar, participar e exercer direitos nesse mundo.</p>
+<p>Porque, se o direito à educação continua sendo distribuído de maneira desigual, o risco é transformar a promessa de democratização digital em algo muito mais antigo e conhecido no Brasil: uma nova tecnologia para administrar velhas desigualdades.</p>
+
+<h3><strong>Serviço</strong></h3>
+<p><strong>Lançamento de “Inaf 25 anos: alfabetismo no Brasil em tempos digitais”</strong><strong><br/></strong>21 de outubro | 19h às 21h<br/>Auditório da Ação Educativa<br/>Gratuito e aberto ao público</p>
+<p></p><p></p><p><h5>Jéssica Balbino</h5></p><p>é jornalista e escritora. Seu último livro <em>Porca Gorda</em>, já está disponível no site da editora e nas melhores livrarias.</p><p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/o-brasil-digitalizou-a-exclusao/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

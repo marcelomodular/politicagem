@@ -264,7 +264,7 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
         
         # Processar cada notícia para extrair conteúdo
         for i, noticia in enumerate(noticias):
-            print(f"📄 Processando artigo {i+1}/{len(noticias)}: {noticia['titulo'][:50]}...")
+            print(f"Processando artigo {i+1}/{len(noticias)}: {noticia['titulo'][:50]}...")
             
             # Extrair conteúdo
             article_data = extract_article_content(noticia['link'])
@@ -295,7 +295,7 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
             noticia['static_url'] = f"visualizar/{safe_filename}"
             noticia['extracted_data'] = article_data
         
-        print(f"✅ {len(noticias)} artigos processados e salvos em visualizar/")
+        print(f"[OK] {len(noticias)} artigos processados e salvos em visualizar/")
     
     # Renderizar template principal
     template = env.get_template('index.html')
@@ -325,11 +325,11 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
     metadata_path = output_dir / "snapshot_metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding='utf-8')
     
-    print(f"✅ Snapshot gerado em: {output_dir}")
-    print(f"📰 {len(noticias)} notícias processadas")
-    print(f"📄 Index HTML: {index_path}")
+    print(f"[OK] Snapshot gerado em: {output_dir}")
+    print(f"{len(noticias)} notícias processadas")
+    print(f"Index HTML: {index_path}")
     if extract_articles:
-        print(f"📁 Artigos estáticos: {articles_dir}")
+        print(f"Artigos estáticos: {articles_dir}")
     
     return str(output_dir), str(index_path)
 

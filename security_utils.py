@@ -54,6 +54,32 @@ def parse_published_date(raw_value):
     return None
 
 
+def is_safe_embed_url(url):
+    """
+    URLs seguras para embutir em iframe/anchor do visualizador.
+
+    Diferente de is_public_http_url, aqui nao resolvemos DNS: a URL pode
+    ser de um veiculo temporariamente inacessivel, mas o ponto e bloquear
+    esquemas executaveis (javascript:, data:, vbscript:) e credenciais embutidas.
+    """
+    if not url:
+        return False
+
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+
+    if parsed.scheme.lower() not in {'http', 'https'}:
+        return False
+    if not parsed.hostname:
+        return False
+    if parsed.username or parsed.password:
+        return False
+
+    return True
+
+
 def is_public_http_url(url, resolver=socket.getaddrinfo):
     try:
         parsed = urlparse(url)

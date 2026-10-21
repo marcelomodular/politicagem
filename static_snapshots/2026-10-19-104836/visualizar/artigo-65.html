@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O que falta para completar a virada - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O que falta para completar a virada</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://outraspalavras.net/estadoemdisputa/oque-falta-para-tornar-a-virada-possivel/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/e3e89653-a6af-4642-91f7-64e2c02d9d49.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O que falta para completar a virada
+                            </p>
+                            
+<p><a href="https://substackcdn.com/image/fetch/$s_!enop!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F9264b5a8-de3f-4a5c-bbe3-a103e57ced4a_1920x1322.jpeg" rel="noopener noreferrer" target="_blank"></a></p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/e3e89653-a6af-4642-91f7-64e2c02d9d49-1.jpg"/> Foto: Taba Benedicto/ EstadÃ£o
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>FlÃ¡vio Bolsonaro terminou o primeiro turno com 47,03% dos votos vÃ¡lidos; Lula, com 45,16%. <a href="https://noticias.uol.com.br/ultimas-noticias/agencia-estado/2026/10/05/com-100-das-secoes-totalizadas-flavio-tem-4703-lula-tem-4516-e-cury-289.amp.htm" rel="noopener noreferrer" target="_blank">A distÃ¢ncia de aproximadamente 2,22 milhÃµes de votos </a>Ã© suficientemente pequena para manter a disputa aberta e suficientemente concreta para exigir uma mudanÃ§a de rumo. Outros 33,47 milhÃµes de eleitores nÃ£o compareceram Ã s urnas. NÃ£o constituem uma reserva automÃ¡tica de nenhuma candidatura, mas lembram que o resultado ainda pode mudar. A questÃ£o decisiva, entretanto, ultrapassa a aritmÃ©tica: Lula conseguirÃ¡ apresentar uma razÃ£o para o futuro que seja mais forte do que o desejo de encerrar seu ciclo?</p>
+<p>O Datafolha realizado em 2 e 3 de outubro oferecia uma fotografia anterior Ã  votaÃ§Ã£o: na simulaÃ§Ã£o de segundo turno, Lula tinha 47%, contra 46% de FlÃ¡vio, em empate tÃ©cnico. Esse levantamento nÃ£o descreve a disputa depois das urnas e tampouco pode ser comparado diretamente ao resultado de primeiro turno, que envolvia outros candidatos e outra base de cÃ¡lculo. Sua contribuiÃ§Ã£o mais interessante estÃ¡ nos recortes sociais: eles permitem questionar explicaÃ§Ãµes fÃ¡ceis sobre quem deseja mudanÃ§a e por quÃª.</p>
+<p>Uma dessas explicaÃ§Ãµes Ã© a de que a esquerda envelheceu e perdeu os jovens. Suas principais lideranÃ§as nacionais, de fato, carregam a experiÃªncia da ditadura, das lutas sindicais e da redemocratizaÃ§Ã£o. Lula Ã© a expressÃ£o mais evidente dessa longevidade. Mas a idade das lideranÃ§as nÃ£o determina a idade de seus eleitores. A <a href="https://www1.folha.uol.com.br/poder/2026/10/datafolha-lula-lidera-entre-mais-jovens-e-mais-velhos-no-1o-turno-e-flavio-bolsonaro-entre-os-mais-ricos.shtml" rel="noopener noreferrer" target="_blank">pesquisa </a>da vÃ©spera mostrava precisamente o contrÃ¡rio da hipÃ³tese de abandono juvenil: o presidente tinha vantagem entre os mais jovens, assim como entre os mais velhos. O problema geracional Ã© mais complexo do que uma oposiÃ§Ã£o entre juventude conservadora e velhice progressista.</p>
+<p>Na simulaÃ§Ã£o direta, Lula registrava 52% contra 40% entre os eleitores de 16 a 24 anos e 51% contra 42% entre aqueles com 60 anos ou mais. FlÃ¡vio liderava entre 25 e 34 anos, por 51% a 41%, e aparecia numericamente Ã  frente entre 35 e 44 anos, por 50% a 42%, neste caso no limite do empate tÃ©cnico. Entre 45 e 59 anos, havia praticamente igualdade: 47% a 46% para Lula. A curva era aproximadamente um U: o presidente mais forte nos extremos, o adversÃ¡rio no miolo da vida adulta. Esse desenho localiza uma dificuldade; nÃ£o explica sozinho sua origem.</p>
+<p>A idade precisa ser relacionada Ã s condiÃ§Ãµes materiais. Em entrevista Ã  BBC News Brasil, publicada pela Folha em janeiro de 2025, <a href="https://www1.folha.uol.com.br/mercado/2025/01/nova-classe-trabalhadora-nao-esta-satisfeita-com-governo-lula-e-um-fenomeno-de-classe-diz-cientista-politico-andre-singer.shtml" rel="noopener noreferrer" target="_blank">AndrÃ© Singer</a> chamava atenÃ§Ã£o para a queda do apoio ao governo na passagem da renda familiar de atÃ© dois salÃ¡rios mÃ­nimos para a faixa de dois a cinco. Sua interpretaÃ§Ã£o relacionava a insatisfaÃ§Ã£o ao custo de vida e Ã  fragmentaÃ§Ã£o do trabalho: plataformas, informalidade e formas precÃ¡rias de empreendedorismo enfraqueciam a experiÃªncia coletiva que havia dado origem ao PT. Essa hipÃ³tese ajuda a formular a pergunta correta: que expectativas de seguranÃ§a e ascensÃ£o foram frustradas na vida de parte desses trabalhadores?â </p>
+<p>TambÃ©m mudou a relaÃ§Ã£o com a histÃ³ria. Para quem nÃ£o viveu politicamente a ditadura, a democracia Ã© uma condiÃ§Ã£o de partida, mesmo quando ameaÃ§ada. Direitos que precisaram ser conquistados por uma geraÃ§Ã£o podem aparecer Ã  seguinte como obrigaÃ§Ãµes elementares do Estado. Isso nÃ£o significa desprezar eleiÃ§Ãµes livres, saÃºde ou educaÃ§Ã£o; significa exigir que funcionem e que permitam avanÃ§ar. A defesa da ConstituiÃ§Ã£o perde potÃªncia quando se resume Ã  preservaÃ§Ã£o institucional e deixa de expressar suas promessas de igualdade, desenvolvimento e bem-estar. Uma conquista histÃ³rica nÃ£o pode transformar-se em justificativa para baixar as expectativas de quem veio depois.</p>
+<p>Os primeiros governos Lula ficaram associados Ã  experiÃªncia concreta de ascensÃ£o: entre 2003 e 2009, <a href="https://m.folha.uol.com.br/mercado/2010/09/796799-quase-30-milhoes-entraram-na-classe-media-durante-governo-lula.shtml" rel="noopener noreferrer" target="_blank">quase 30 milhÃµes </a>de pessoas ingressaram no estrato de renda entÃ£o chamado de classe mÃ©dia. Essa classificaÃ§Ã£o nÃ£o eliminava vulnerabilidades nem convertia trabalhadores em proprietÃ¡rios, mas registrava uma mudanÃ§a material importante. Em 2022, <a href="https://www1.folha.uol.com.br/mercado/2022/08/nova-classe-c-perdeu-terreno-e-ficou-para-tras-diz-marcelo-neri.shtml" rel="noopener noreferrer" target="_blank">segundo o Diretor da FGV Social</a>, passados 7 anos desde a crise econÃ´mica de 2015-2016, a situaÃ§Ã£o desse extrato da populaÃ§Ã£o era sofrida e havia uma nova geraÃ§Ã£o da classe C que nÃ£o viveu uma escassez, o que faz com que ela se ressinta mais. No terceiro mandato, a melhora tambÃ©m aparece nos indicadores: segundo a TendÃªncias Consultoria, em 2024 as classes A, B e C voltaram a reunir mais da metade dos domicÃ­lios brasileiros â<a href="https://tendencias.com.br/classe-media-cresce-em-2024-e-predomina-no-pais-jornal-da-globo/" rel="noopener noreferrer" target="_blank"> 50,1%</a>, marca que nÃ£o era alcanÃ§ada desde 2015. Esse retorno, porÃ©m, pode carregar um significado psicolÃ³gico diferente. Para quem perdeu posiÃ§Ã£o nos ciclos de recessÃ£o e estagnaÃ§Ã£o, recuperar renda e capacidade de consumo pode ser vivido como restituiÃ§Ã£o de condiÃ§Ãµes que jÃ¡ considerava um direito conquistado, e nÃ£o como chegada a um novo patamar de vida. Recuperar o que se perdeu importa, mas nÃ£o necessariamente desperta a mesma percepÃ§Ã£o de transformaÃ§Ã£o que experimentar uma conquista pela primeira vez. Essa memÃ³ria ajuda a entender a forÃ§a do lulismo e tambÃ©m o tamanho da cobranÃ§a que recai sobre ele: quem simbolizou a possibilidade de melhorar de vida passa a ser julgado pela capacidade de reabrir esse caminho.</p>
+<p>O paradoxo jÃ¡ havia sido percebido em 2014. Uma <a href="https://www1.folha.uol.com.br/fsp/poder/186769-adversarias-sao-herdeiras-dos-filhos-da-inclusao-da-gestao-lula.shtml%E2%81%A0" rel="noopener noreferrer" target="_blank">anÃ¡lise </a>de dirigentes do Datafolha descrevia os âfilhos da inclusÃ£oâ como um eleitorado mais escolarizado e exigente, cujas transformaÃ§Ãµes nÃ£o encontravam correspondÃªncia suficiente nas instituiÃ§Ãµes e nos serviÃ§os. A inclusÃ£o nÃ£o produz gratidÃ£o eleitoral permanente. Produz cidadÃ£os com novas necessidades, capacidade de comparaÃ§Ã£o e disposiÃ§Ã£o para cobrar. Parte da frustraÃ§Ã£o pode nascer justamente do sucesso anterior: depois de entrar na universidade, consumir mais ou melhorar a moradia, Ã© razoÃ¡vel esperar trabalho compatÃ­vel, serviÃ§os melhores e uma vida menos insegura.</p>
+<p>Ocorre que a trajetÃ³ria posterior interrompeu muitas dessas expectativas. Uma parcela dos adultos de hoje conheceu, na infÃ¢ncia ou na juventude, a promessa de ascensÃ£o e chegou Ã  maturidade sob condiÃ§Ãµes muito menos favorÃ¡veis. Diploma, esforÃ§o e jornadas extensas deixaram de parecer suficientes para construir patrimÃ´nio ou obter estabilidade. NÃ£o se trata de atribuir uma consciÃªncia Ãºnica a milhÃµes de pessoas, mas de reconhecer que a lembranÃ§a das conquistas passadas <a href="https://www1.folha.uol.com.br/mercado/2025/01/nova-classe-trabalhadora-nao-esta-satisfeita-com-governo-lula-e-um-fenomeno-de-classe-diz-cientista-politico-andre-singer.shtml%E2%81%A0" rel="noopener noreferrer" target="_blank">nÃ£o garante ao PT eterna gratidÃ£o da classe trabalhadora</a>.</p>
+<p>A direita radical encontrou espaÃ§o nessa distÃ¢ncia entre promessa e experiÃªncia. Sua narrativa oferece responsÃ¡veis identificÃ¡veis: impostos, burocracia, corrupÃ§Ã£o, esquerda, judiciÃ¡rio politizado e com privilÃ©gios, bem como um âEstado burocrÃ¡ticoâ apresentado como obstÃ¡culo Ã  prosperidade. Alguns desses problemas sÃ£o reais; a operaÃ§Ã£o polÃ­tica consiste em reuni-los numa explicaÃ§Ã£o que promete libertar o indivÃ­duo eliminando controles e proteÃ§Ãµes coletivas. O trabalhador submetido a relaÃ§Ãµes econÃ´micas desiguais Ã© convidado a acreditar que vencerÃ¡ sozinho se o poder pÃºblico deixar de atrapalhÃ¡-lo. Uma esquerda que responda apenas com a celebraÃ§Ã£o de seu passado deixa sem resposta a inseguranÃ§a que torna essa promessa atraente.</p>
+<p>A economia de 2026 contÃ©m essa contradiÃ§Ã£o. A <a href="https://www1.folha.uol.com.br/mercado/2026/10/brasil-chega-as-eleicoes-de-2026-com-mais-emprego-renda-e-dividas.shtml" rel="noopener noreferrer" target="_blank">reportagem da Folha</a> publicada na vÃ©spera da eleiÃ§Ã£o descreveu avanÃ§os no emprego e na renda convivendo com dÃ­vidas elevadas. Em agosto, 82% das famÃ­lias tinham compromissos financeiros a vencer; 29,9% estavam inadimplentes. SÃ£o conceitos diferentes: ter uma prestaÃ§Ã£o nÃ£o equivale a nÃ£o conseguir pagÃ¡-la. Ainda assim, o quadro mostra por que um mercado de trabalho melhor nÃ£o se traduz automaticamente em tranquilidade domÃ©stica. Uma parte da renda que aumenta jÃ¡ chega comprometida com obrigaÃ§Ãµes anteriores.â </p>
+<p>Para quem enfrenta crÃ©dito caro, aluguel e prestaÃ§Ãµes, a prosperidade se mede pelo que sobra e pelo que se consegue planejar. Um indicador nacional favorÃ¡vel nÃ£o paga uma dÃ­vida individual. <strong>Isso nÃ£o invalida os resultados do governo, mas nos obriga a compreender seus limites</strong>. FlÃ¡vio explorou o endividamento e o custo de vida enquanto Lula destacou os recordes de emprego e renda. Assim a oposiÃ§Ã£o conseguiu dar expressÃ£o polÃ­tica a contradiÃ§Ãµes reais, apresentando-as como esgotamento do governo. CombatÃª-la exige enfrentar essas contradiÃ§Ãµes, sem tratar a insatisfaÃ§Ã£o como simples erro de percepÃ§Ã£o.</p>
+<p>O desgaste institucional acrescentou outra camada ao mal-estar. No <a href="https://www1.folha.uol.com.br/poder/2026/09/datafolha-desconfianca-no-stf-dispara-vai-a-48-e-atinge-recorde.shtml" rel="noopener noreferrer" target="_blank">Datafolha de setembro</a>, 48% afirmavam nÃ£o confiar no STF, contra 43% em marÃ§o, recorde da sÃ©rie iniciada em 2012. Outros 14% confiavam muito e 35%, um pouco. A desconfianÃ§a atingia 69% entre os que declaravam voto em FlÃ¡vio e 22% entre os de Lula. A pesquisa mostra a associaÃ§Ã£o entre polarizaÃ§Ã£o e credibilidade da Corte, sem demonstrar qual fenÃ´meno causou o outro. Defender a democracia, nesse contexto, exige tambÃ©m defender transparÃªncia, apuraÃ§Ã£o de suspeitas e prevenÃ§Ã£o de conflitos de interesses. PorÃ©m, ao mesmo tempo que Lula defendeu a investigaÃ§Ã£o de todos ministros envolvidos, <a href="https://www.youtube.com/watch?v=y-KdHRZ9Ggo&amp;t=1s" rel="noopener noreferrer" target="_blank">fez questÃ£o de deixar claro </a>que nÃ£o Ã© Delegado de PolÃ­cia, nem Juiz. Seu aliado polÃ­tico, Flavio Dino<a href="https://conjur.com.br/2026-set-15/dino-pede-vista-e-suspende-julgamento-sobre-possibilidade-de-investigacao-contra-alexandre/" rel="noopener noreferrer" target="_blank"> pediu vista </a>do processo na famigerada sessÃ£o que decidiria a abertura ou nÃ£o de inquÃ©rito contra Alexandre de Moraes. <a href="https://www.cnnbrasil.com.br/politica/lula-diz-querer-mudar-criterio-de-indicacao-ao-stf/" rel="noopener noreferrer" target="_blank">Defendeu</a> genericamente mudanÃ§as na nomeaÃ§Ã£o de ministros da Corte, mas nÃ£o apresentou uma proposta concreta de reforma polÃ­tica ou do JudiciÃ¡rio. Essa postura vacilante contribuiu com a desconfianÃ§a do eleitor âindependenteâ, que pendeu para aquele que fazia ataques mais veementes Ã  corte e a ministros especÃ­ficos.</p>
+<p>â As bets aprofundam o encontro entre inseguranÃ§a econÃ´mica e descrenÃ§a. Sua trajetÃ³ria atravessa trÃªs governos:<a href="https://www.aosfatos.org/noticias/temer-lula-bets/" rel="noopener noreferrer" target="_blank"> a autorizaÃ§Ã£o das apostas esportivas</a> de quota fixa foi aprovada pelo Congresso e sancionada por Temer em 2018; Bolsonaro encerrou o mandato sem concluir a regulamentaÃ§Ã£o; Lula sancionou a Lei 14.790/2023, estruturando controles e incluindo tambÃ©m jogos online de quota fixa. Ã impreciso atribuir a Lula a origem de todo o mercado, assim como seria incorreto desconsiderar sua responsabilidade por consolidar o espaÃ§o legal da atividade. FiscalizaÃ§Ã£o e arrecadaÃ§Ã£o foram combinadas com a aceitaÃ§Ã£o de um negÃ³cio cujos custos sociais jÃ¡ exigiam atenÃ§Ã£o.â </p>
+<p>A promessa de dinheiro rÃ¡pido encontra terreno fÃ©rtil onde o trabalho parece incapaz de atender aos anseios materiais. Para parte dos apostadores, as perdas levam Ã  tentativa de recuperaÃ§Ã£o, a novas dÃ­vidas e ao sofrimento que passa a atingir a famÃ­lia. Acesso permanente pelo celular e ciclos rÃ¡pidos dos cassinos online<a href="https://tab.uol.com.br/noticias/redacao/2026/10/06/proibicao-das-bets-nao-apaga-vicio-gota-dagua-e-o-endividamento.htm" rel="noopener noreferrer" target="_blank"> aumentam a exposiÃ§Ã£o</a>, que causa endividamento, vergonha e associaÃ§Ã£o com ansiedade e depressÃ£o, que podem anteceder ou acompanhar a dependÃªncia. NÃ£o Ã© necessÃ¡rio supor que todo apostador tenha um transtorno para reconhecer o problema: a exploraÃ§Ã£o comercial da esperanÃ§a<a href="https://www.uol.com.br/vivabem/noticias/redacao/2026/09/25/lula-proibe-apostas-saiba-como-as-bets-agem-e-viciam-o-cerebro-no-jogo.ghtm" rel="noopener noreferrer" target="_blank"> pode agravar </a>justamente a sensaÃ§Ã£o de fracasso da qual promete oferecer uma saÃ­da. Dessa maneira, as bets, na conjuntura, ajudaram a aumentar o mal-estar econÃ´mico, com <a href="https://economia.uol.com.br/noticias/redacao/2026/09/25/bets-r-99-bilhoes-ao-governo-tiraram-r-141-bi-pib.ghtm" rel="noopener noreferrer" target="_blank">aumento do endividamento</a> e desviando recursos de setores que poderiam ajudar no crescimento da economia.</p>
+<p>â Em que pese a calcificaÃ§Ã£o do perfil ideolÃ³gico do eleitorado, como bem demonstrado por Felime Nunes e Thomas Traumann no seu livro <a href="https://www.amazon.com.br/Biografia-abismo-polariza%C3%A7%C3%A3o-fam%C3%ADlias-compromete/dp/6560051005/ref=sr_1_2?adgrpid=140135290219&amp;dib=eyJ2IjoiMSJ9.UTNHz5fQ7fKhFzNkDixJmkraenxPxn-_cGAV0As2LvKeFEuAknSwS01OpsKyUJv4iPwSWSwOFhewCAfkU5SYP36gBBASo4m5bTcDMeKdFXBpwCZoI0DGniV8E8cWIzrLdrNUOsBapJqpw49x-Bk74Xs7e3IwahgxVawI8Ybw8v096brLalmGMi4NmNHc7ug3b_wKwwwTnhEGrulJkxw9ojFQTB4bp3wD4OoisvodaBU.inoX7NvLBiUUT5cI3NBnNxE5-RVfQtuXnG1IZsMogSg&amp;dib_tag=se&amp;hvadid=678188926502&amp;hvdev=c&amp;hvexpln=0&amp;hvlocphy=9253293&amp;hvnetw=g&amp;hvocijid=18061057057986654098--&amp;hvqmt=b&amp;hvrand=18061057057986654098&amp;hvtargid=kwd-2428990252523&amp;hydadcr=5758_13215217&amp;keywords=felipe+nunes+livro&amp;mcid=ef253e6d152e3f23bd86ea892caa1acd&amp;qid=1791565903&amp;sr=8-2" rel="noopener noreferrer" target="_blank">âA Biografia do Abismoâ</a>, a forÃ§a eleitoral do candidato nÃ£o demonstra que todos os seus votantes compartilhem integralmente o projeto bolsonarista. Ã plausÃ­vel, portanto, que o que tenha decidido o resultado do primeiro turno tenha sido um voto de puniÃ§Ã£o daqueles eleitores independentes, que em 2022 acreditaram que com a volta de Lula, regressarÃ­amos a uma nova era de bonanÃ§a e mobilidade social acelerada, como foi nos seus primeiros governos. Assim, seria um equÃ­voco polÃ­tico presumir que toda insatisfaÃ§Ã£o pertence definitivamente Ã  extrema-direita, bem como imaginar que ela se desfarÃ¡ apenas porque se relembrem os riscos do adversÃ¡rio.</p>
+<p>No entanto, o desejo pela mudanÃ§a com FlÃ¡vio contÃ©m contradiÃ§Ã£o inescapÃ¡vel: representa, na verdade, o retorno de uma famÃ­lia que jÃ¡ governou o paÃ­s e tem um projeto claro de desmonte democrÃ¡tico. JoÃ£o Moreira Salles reÃºne, na PiauÃ­ de outubro deste ano,<a href="https://piaui.uol.com.br/web/o-que-esses-brasileiros-sabem/" rel="noopener noreferrer" target="_blank"> declaraÃ§Ãµes</a> em que o candidato promete honrar o legado do pai e lhe reservar espaÃ§o num eventual governo. NÃ£o Ã© preciso presumir que Jair controlarÃ¡ cada decisÃ£o do filho para reconhecer o conteÃºdo restaurador dessa candidatura. O desejo de sair do presente nÃ£o informa, por si sÃ³, a direÃ§Ã£o da mudanÃ§a.</p>
+<p>â O mesmo texto de Salles oferece uma crÃ­tica que o campo progressista deveria levar a sÃ©rio. ApÃ³s expor os riscos do bolsonarismo, ele reconhece conquistas de Lula, mas aponta a ausÃªncia de um projeto de futuro. A forÃ§a desse diagnÃ³stico estÃ¡ em recusar a falsa escolha entre fazer autocrÃ­tica e defender a democracia. Ã possÃ­vel considerar a candidatura de FlÃ¡vio perigosa e, ao mesmo tempo, julgar insuficiente o horizonte oferecido pelo terceiro mandato. A segunda avaliaÃ§Ã£o ajuda a explicar por que a primeira, isoladamente, jÃ¡ nÃ£o convence como antes.â </p>
+<p>Lula nÃ£o precisa de um quarto mandato para assegurar seu lugar na histÃ³ria. Sua biografia jÃ¡ estÃ¡ inscrita na experiÃªncia polÃ­tica brasileira. O que precisa justificar Ã© a utilidade de mais quatro anos para quem nÃ£o deseja apenas recordar o que viveu ou conhecer o que aconteceu antes de nascer. Uma eleiÃ§Ã£o nÃ£o deveria funcionar como cerimÃ´nia de coroaÃ§Ã£o. A memÃ³ria de um governo sÃ³ se transforma em promessa convincente quando permite imaginar o prÃ³ximo passo. <strong>A pergunta central deixou de ser quanto o Brasil deve a Lula: passou a ser que paÃ­s ele ainda se dispÃµe a ajudar a construir.</strong></p>
+<p>Ã nesse sentido que cabe desejar o retorno do âLula do Velho Testamentoâ: menos acomodado Ã  administraÃ§Ã£o dos limites, mais disposto a explicitar os conflitos que os produzem. NÃ£o se trata de abandonar negociaÃ§Ã£o ou garantias democrÃ¡ticas. Trata-se de dizer quem ganha e quem perde com escolhas econÃ´micas apresentadas como inevitÃ¡veis. A polÃ­tica recupera sentido quando torna esses conflitos inteligÃ­veis e assume compromissos sobre como enfrentÃ¡-los.</p>
+<p>â A luta de classes, nessa perspectiva, tem expressÃµes bastante concretas: tempo de trabalho, custo do crÃ©dito, tributaÃ§Ã£o do consumo, proteÃ§Ã£o patrimonial e distribuiÃ§Ã£o do orÃ§amento. Nesse sentido, Ã© pedagÃ³gico quando Salles relatou o contraste entre a indignaÃ§Ã£o empresarial com benefÃ­cios sociais e a observaÃ§Ã£o do prÃ³prio AndrÃ© Esteves (BTG Pactual) sobre subsÃ­dios recebidos pelo prÃ³prio mercado financeiro. Um projeto de desenvolvimento nacional precisa distinguir a remuneraÃ§Ã£o do investimento produtivo da proteÃ§Ã£o de ganhos que pouco contribuem para ampliar emprego, capacidade tecnolÃ³gica e bem-estar.</p>
+<p>â HÃ¡ espaÃ§o social para essa discussÃ£o, mas nÃ£o uma fÃ³rmula retÃ³rica infalÃ­vel. Na <a href="https://www1.folha.uol.com.br/poder/2025/07/quaest-confira-10-pontos-relevantes-da-pesquisa-sobre-lula-tarifaco-e-economia.shtml" rel="noopener noreferrer" target="_blank">Quaest de julho de 2025</a>, 63% apoiavam aumentar impostos dos mais ricos para reduzir os dos mais pobres; ao mesmo tempo, 53% rejeitavam o discurso de âricos contra pobresâ por associÃ¡-lo Ã  ampliaÃ§Ã£o dos conflitos. A pesquisa tambÃ©m registrou oscilaÃ§Ã£o favorÃ¡vel a Lula apÃ³s o tarifaÃ§o de Trump, sem isolar suas causas. O recado Ã© mais exigente do que a defesa de elevar o tom: <strong>propostas distributivas podem obter apoio mesmo entre pessoas que recusam a linguagem escolhida para apresentÃ¡-las.</strong> O confronto, portanto, precisa ter objeto, finalidade e resultado compreensÃ­veis.</p>
+<p><strong>Um projeto de futuro </strong>deve dar unidade a essa disputa. ReindustrializaÃ§Ã£o, produtividade, ciÃªncia, inteligÃªncia artificial, soberania digital, transiÃ§Ã£o energÃ©tica, infraestrutura, ampliaÃ§Ã£o massiva da malha metroferroviÃ¡ria e do Programa Minha Casa Minha Vida nÃ£o podem aparecer como uma lista de anÃºncios. Precisam responder a uma pergunta comum: <strong>como o paÃ­s produzirÃ¡ mais riqueza, dominarÃ¡ tecnologias e converterÃ¡ esses ganhos em melhores condiÃ§Ãµes de vida?</strong> A ConstituiÃ§Ã£o jÃ¡ associa a ordem econÃ´mica Ã  valorizaÃ§Ã£o do trabalho, Ã  soberania nacional e Ã  reduÃ§Ã£o das desigualdades. Transformar esses objetivos em direÃ§Ã£o efetiva do Estado seria uma maneira de ligar a defesa democrÃ¡tica Ã  transformaÃ§Ã£o material que parte da sociedade reclama.</p>
+<p>Isso exige tambÃ©m disputar a reforma das instituiÃ§Ãµes. Defender sua independÃªncia nÃ£o significa considerÃ¡-las imunes a aperfeiÃ§oamento ou indiferentes aos interesses que representam. TransparÃªncia, controle do poder econÃ´mico, responsabilizaÃ§Ã£o e participaÃ§Ã£o social pertencem a uma agenda democrÃ¡tica. A alternativa Ã  captura autoritÃ¡ria nÃ£o pode ser a preservaÃ§Ã£o de todos os arranjos existentes. O campo progressista precisa demonstrar que hÃ¡ mudanÃ§as institucionais capazes de ampliar direitos e outras capazes de concentrar poder, embora ambas possam ser apresentadas ao pÃºblico com o mesmo vocabulÃ¡rio de renovaÃ§Ã£o.</p>
+<p>O primeiro turno tornou essa distinÃ§Ã£o mais urgente. O PL terÃ¡ 28 das 81 cadeiras do Senado. A <a href="https://www1.folha.uol.com.br/poder/2026/10/senado-tera-ao-menos-51-congressistas-a-favor-de-impeachment-no-stf-3-abaixo-do-minimo.shtml" rel="noopener noreferrer" target="_blank">Folha identificou</a> ao menos 49 senadores favorÃ¡veis ao impeachment de ministros do STF, ainda que com ressalvas, cinco abaixo dos 54 necessÃ¡rios Ã  condenaÃ§Ã£o. Esse conjunto nÃ£o constitui uma bancada homogÃªnea nem assegura votos em processos concretos. Ainda assim, mostra que a possibilidade de afastamentos deixou de ser apenas uma palavra de ordem distante. Sua execuÃ§Ã£o dependeria de alianÃ§as, da conduÃ§Ã£o do Senado e das circunstÃ¢ncias de cada caso, num ambiente de pressÃ£o sobre a Corte.</p>
+<p>â A renovaÃ§Ã£o ordinÃ¡ria do Supremo amplia o alcance da eleiÃ§Ã£o. Ã vaga deixada por Barroso somam-se as aposentadorias compulsÃ³rias de Fux, em 2028, e CÃ¡rmen LÃºcia, em 2029. Gilmar Mendes alcanÃ§a a idade-limite em 30 de dezembro de 2030, o que deixa incerteza sobre o momento de sua substituiÃ§Ã£o. A <a href="https://www1.folha.uol.com.br/poder/2026/06/presidente-eleito-em-outubro-podera-indicar-um-quinto-dos-ministros-do-stf-e-tribunais-superiores.shtml" rel="noopener noreferrer" target="_blank">Folha apontou a possibilidade de quatro indicaÃ§Ãµes</a>. Cada nome depende de aprovaÃ§Ã£o do Senado e a nomeaÃ§Ã£o nÃ£o garante fidelidade futura. Mas a autonomia formal nÃ£o dispensa o exame das condutas: o comportamento dos atuais indicados por Bolsonaro fornece razÃµes concretas para levar a sÃ©rio o risco de alinhamento polÃ­tico.</p>
+<p>â No caso de AndrÃ© MendonÃ§a, a divulgaÃ§Ã£o do relatÃ³rio sobre Vorcaro e Moraes no inÃ­cio de setembro colocou o colega sob forte pressÃ£o Ã s vÃ©speras do 7 de Setembro, em plena campanha. <a href="https://www.metropoles.com/colunas/reinaldo-azevedo/resposta-de-moraes-aparato-mendonca-imprensa-e-anatomia-do-fascismo" rel="noopener noreferrer" target="_blank">Reinaldo Azevedo</a> interpretou a atuaÃ§Ã£o como intervenÃ§Ã£o orientada pelo calendÃ¡rio eleitoral; <a href="https://www1.folha.uol.com.br/poder/2026/09/ofensiva-de-dino-enterra-tregua-proposta-por-fachin.shtml" rel="noopener noreferrer" target="_blank">Igor Gielow</a>, na Folha, tambÃ©m identificou benefÃ­cio polÃ­tico para FlÃ¡vio no momento da divulgaÃ§Ã£o. Considero o episÃ³dio um indÃ­cio relevante de convergÃªncia com o projeto bolsonarista. Isso nÃ£o transforma intenÃ§Ã£o partidÃ¡ria em fato judicialmente provado nem dispensa apuraÃ§Ã£o das suspeitas contra Moraes. Obriga, porÃ©m, a examinar a atuaÃ§Ã£o de quem investiga com o mesmo rigor aplicado a quem Ã© investigado.</p>
+<p>â Nunes Marques oferece outro exemplo. Segundo a reportagem da Folha de 5 de outubro, ele <a href="https://www1.folha.uol.com.br/poder/2026/10/kassio-quer-julgar-soltura-de-bolsonaro-apos-2o-turno-e-avalia-libertar-ex-presidente-com-liminar.shtml" rel="noopener noreferrer" target="_blank">pretende julgar</a> a revisÃ£o criminal de Bolsonaro depois do segundo turno, independentemente do vencedor, e avalia libertÃ¡-lo por liminar. A matÃ©ria ressalva que levar o caso ao plenÃ¡rio Ã© o cenÃ¡rio mais provÃ¡vel. FlÃ¡vio conta com uma decisÃ£o favorÃ¡vel para subir a rampa acompanhado do pai; a PGR, por sua vez, pediu a rejeiÃ§Ã£o da revisÃ£o. HÃ¡, portanto, uma intenÃ§Ã£o clara do ministro e uma expectativa polÃ­tica explicitada pela famÃ­lia. Somadas ao histÃ³rico de MendonÃ§a, vÃª-se uma clara convergÃªncia polÃ­tica de setores do STF alinhados com o projeto bolsonarista de poder, deixando, portanto, de ser preocupaÃ§Ã£o meramente abstrata.</p>
+<p>â A <a href="https://www.metropoles.com/colunas/reinaldo-azevedo/resposta-de-moraes-aparato-mendonca-imprensa-e-anatomia-do-fascismo" rel="noopener noreferrer" target="_blank">hipÃ³tese formulada por Reinaldo Azevedo </a>Ã© a de que novas indicaÃ§Ãµes, somadas a MendonÃ§a e Nunes Marques, poderiam produzir maioria alinhada no Supremo; eventuais impeachments ampliariam essa possibilidade. Trata-se de um alerta importante no sentido de que uma transformaÃ§Ã£o profunda no regime polÃ­tico pode ocorrer com um alinhamento entre Executivo, Congresso e STF por meio de uma nova correlaÃ§Ã£o de forÃ§as altamente favorÃ¡vel para a extrema-direita. A presenÃ§a formal das instituiÃ§Ãµes, por si sÃ³, nÃ£o assegura que continuem funcionando como limites recÃ­procos ao poder.</p>
+<p>â As declaraÃ§Ãµes de FlÃ¡vio dÃ£o substÃ¢ncia a essa preocupaÃ§Ã£o. Em entrevista Ã  Folha em junho de 2025, <a href="https://www1.folha.uol.com.br/poder/2025/06/flavio-diz-que-candidato-de-bolsonaro-tera-de-garantir-que-stf-nao-derrube-indulto-mesmo-a-forca.shtml" rel="noopener noreferrer" target="_blank">ele afirmou </a>que o candidato apoiado pelo pai deveria garantir seu indulto e enfrentar eventual resistÃªncia do Supremo, chegando a mencionar o âuso da forÃ§aâ. O problema ultrapassa a influÃªncia pessoal de Jair sobre o filho. EstÃ¡ no compromisso de subordinar o funcionamento das instituiÃ§Ãµes Ã  reparaÃ§Ã£o polÃ­tica reivindicada por uma famÃ­lia e por seu grupo.</p>
+<p>A dimensÃ£o internacional tambÃ©m precisa entrar nessa avaliaÃ§Ã£o. O tarifaÃ§o de Trump, associado Ã  pressÃ£o em favor de Bolsonaro, jÃ¡ mostrou que interesses familiares podem buscar apoio externo com custos para o paÃ­s. Nesse sentido, a interferÃªncia estrangeira se dÃ¡ por meio de um grupo polÃ­tico radicado em solo nacional, como uma espÃ©cie de âquinta colunaâ. Uma alianÃ§a polÃ­tica transnacional Ã© capaz, assim, de interferir e ditar os rumos polÃ­ticos do Brasil a partir de um centro nevrÃ¡lgico em Washington. Um projeto democrÃ¡tico brasileiro precisa afirmar sua capacidade de decidir soberanamente os prÃ³prios rumos, negociar internacionalmente e proteger a sua populaÃ§Ã£o de interesses estrangeiros capitaneados por uma potÃªncia estrangeira.</p>
+<p>A tarefa do campo progressista Ã©, portanto, mostrar que seguranÃ§a econÃ´mica e liberdade polÃ­tica podem avanÃ§ar juntas. Quando a defesa institucional parece pedir resignaÃ§Ã£o diante do sofrimento, ela se enfraquece. A superaÃ§Ã£o desse impasse requer um programa capaz de dar uma base material ao conceito abstrato de democracia.</p>
+<p>Ã por isso que a aprovaÃ§Ã£o e o inÃ­cio da execuÃ§Ã£o de um plano nacional de desenvolvimento sÃ£o o maior legado estrutural possÃ­vel de um Lula 4. A ConstituiÃ§Ã£o jÃ¡ prevÃª planejamento estatal e planos nacionais. Falta transformar princÃ­pios abstratos em compromisso concreto de longo prazo, com metas produtivas e sociais, financiamento e responsabilidades. O plano deveria organizar a transformaÃ§Ã£o industrial e tecnolÃ³gica, a transiÃ§Ã£o ambiental e a ampliaÃ§Ã£o dos serviÃ§os pÃºblicos em torno de ganhos de produtividade distribuÃ­dos socialmente.</p>
+<p>Do ponto de vista jurÃ­dico-institucional, isso exigiria uma agenda articulada de reformas monetÃ¡rias, cambiais, fiscais e tributÃ¡rias, com alteraÃ§Ãµes constitucionais e legais especÃ­ficas, sendo, portanto, dispensÃ¡vel uma nova Constituinte. CrÃ©dito de longo prazo, controle eficiente da conta de capitais, proteÃ§Ã£o do investimento pÃºblico e tributaÃ§Ã£o mais progressiva precisariam funcionar de modo coordenado, possibilitando, inclusive, com o aumento da produtividade, uma reduÃ§Ã£o estrutural da taxa bÃ¡sica de juros da economia. Superar as amarras neoliberais significa, nessa perspectiva, criar um arcabouÃ§o normativo-econÃ´mico condizente com objetivos democrÃ¡ticos de desenvolvimento.</p>
+<p>O debate sobre o Real ajuda a precisar essa diferenÃ§a. O fim da hiperinflaÃ§Ã£o foi uma conquista social duradoura, particularmente para quem nÃ£o conseguia proteger sua renda. Mas os instrumentos usados para sustentar a estabilidade tiveram custos. <a href="https://memoria.ebc.com.br/agenciabrasil/noticia/2008-07-01/divida-publica-cresceu-em-14-anos-do-plano-real" rel="noopener noreferrer" target="_blank">Uma reportagem</a> histÃ³rica da AgÃªncia Brasil examinou o peso dos juros elevados sobre a dÃ­vida pÃºblica, situaÃ§Ã£o que permanece <a href="https://agenciabrasil.ebc.com.br/economia/noticia/2026-05/juros-pressionam-divida-mais-que-gastos-publicos-dizem-economistas" rel="noopener noreferrer" target="_blank">idÃªntica atÃ© os dias atuais</a>, reduzindo, por isso, a margem orÃ§amentÃ¡ria para realizaÃ§Ã£o de investimentos pÃºblicos, o que<a href="https://economia.uol.com.br/noticias/redacao/2017/03/07/produtividade-no-brasil-esta-estagnada-ha-35-anos-desde-1981-diz-estudo.htm%E2%81%A0" rel="noopener noreferrer" target="_blank"> reduziu </a>sobremaneira a competitividade nacional. Vencemos a hiperinflaÃ§Ã£o, mas nÃ£o asseguramos uma trajetÃ³ria continuada de prosperidade. Estabilidade monetÃ¡ria e elevaÃ§Ã£o da produtividade precisam integrar o mesmo projeto.</p>
+<p>Um presidente nÃ£o realiza sozinho essa transformaÃ§Ã£o. Reformas duradouras dependem de maioria parlamentar, coordenaÃ§Ã£o federativa, capacidade administrativa e sustentaÃ§Ã£o social. Precisam envolver trabalhadores, universidades, organizaÃ§Ãµes civis e setores produtivos interessados em ampliar a capacidade do paÃ­s. O consenso necessÃ¡rio nÃ£o Ã© unanimidade nem suspensÃ£o dos conflitos: Ã© um acordo suficientemente amplo sobre objetivos, instrumentos e responsabilidades. Sem um movimento nacional, o plano corre o risco de tornar-se uma declaraÃ§Ã£o de intenÃ§Ãµes. Sem metas, orÃ§amento, transparÃªncia e avaliaÃ§Ã£o, a mobilizaÃ§Ã£o pode perder traÃ§Ã£o e engajamento. Governo e a base social que o elegeu tÃªm funÃ§Ãµes distintas, mas precisam atuar de maneira complementar.</p>
+<p>A possibilidade eleitoral continua aberta. Os mais de 33 milhÃµes de ausentes e os votos atribuÃ­dos a outras candidaturas permitem mudanÃ§as relevantes, sem assegurar sua direÃ§Ã£o. Nenhum desses grupos pertence previamente a Lula. Reconhecer esse espaÃ§o nÃ£o autoriza minimizar o resultado de FlÃ¡vio, mas impede tratar a derrota do primeiro turno como sentenÃ§a definitiva. O desafio de Lula Ã© apresentar uma perspectiva de futuro convincente atÃ© o dia da votaÃ§Ã£o. A existÃªncia de projeto de paÃ­s consistente importa tanto para conquistar o governo quanto para disputar democraticamente a sociedade caso se esteja fora dele.</p>
+<p><strong>Mesmo que a virada nas urnas nÃ£o venha, essa formulaÃ§Ã£o pode transformar uma derrota eleitoral no inÃ­cio de uma vitÃ³ria polÃ­tica futura. </strong>Um bloco democrÃ¡tico e soberano, unido por um projeto de desenvolvimento nacional e social, teria condiÃ§Ãµes de organizar uma oposiÃ§Ã£o coesa durante os quatro anos seguintes. A vitÃ³ria do projeto bolsonarista implicarÃ¡ necessariamente em um projeto antipopular, com a subordinaÃ§Ã£o dos <a href="https://www.estadao.com.br/politica/governo-trump-impos-21-exigencias-brasil-negociar-tarifaco/?srsltid=AU7gw4XvPbBc_h3ZccYoBUXO-I2P-gG16sHjnJlHgfEcI0D73T7DjtmO" rel="noopener noreferrer" target="_blank">interesses nacionais </a>aos do centro polÃ­tico da extrema-direita mundial estabelecido em Washington e ao de <a href="https://www1.folha.uol.com.br/mercado/2026/10/flavio-considera-mudar-correcao-da-previdencia-da-saude-e-da-educacao-para-obter-ate-r-250-bi.shtml" rel="noopener noreferrer" target="_blank">setores da burguesia brasileira </a>que defendem um ajuste fiscal agressivo com alta capacidade de enfraquecimento das redes de seguranÃ§a social e econÃ´mica, capaz de frustrar a expectativa de prosperidade que o elegeu. Mas o desgaste de um eventual governo FlÃ¡vio nÃ£o seria automÃ¡tico: a oposiÃ§Ã£o precisaria demonstrar a correlaÃ§Ã£o entre seus atos e consequÃªncias e oferecer alternativas, sem esperar passivamente pelo fracasso adversÃ¡rio.</p>
+<p>Essa frente nÃ£o precisa ficar restrita Ã  esquerda. Pode reunir centro e setores democrÃ¡ticos da direita, desde que tambÃ©m eles se disponham a discutir novos marcos econÃ´micos. Uma alianÃ§a que exige dos progressistas a revisÃ£o de suas posiÃ§Ãµes, mas declara intocÃ¡veis as escolhas econÃ´micas dos parceiros, nasce desequilibrada. Amplitude democrÃ¡tica precisa comportar negociaÃ§Ã£o recÃ­proca e compromissos pÃºblicos. Defender instituiÃ§Ãµes Ã© um ponto de encontro indispensÃ¡vel; construir um paÃ­s capaz de oferecer trabalho, seguranÃ§a e perspectiva de mobilidade social Ã© o passo necessÃ¡rio para dar duraÃ§Ã£o social a esse encontro.</p>
+<p>Uma virada Ã© possÃ­vel, portanto, em dois sentidos. O eleitoral permanece incerto. O polÃ­tico comeÃ§a quando a defesa de Lula deixa de se limitar ao que seus feitos do passado representam e passa a organizar o que o paÃ­s pretende realizar. O candidato de 80 anos ainda pode disputar a ideia de futuro contra uma candidatura de restauraÃ§Ã£o. Para isso, precisa vincular democracia, soberania e transformaÃ§Ã£o econÃ´mica a um compromisso que ultrapasse sua prÃ³pria biografia. Ganhar mais uma eleiÃ§Ã£o seria decisivo; deixar uma forÃ§a social organizada e um projeto nacional capaz de atravessar governos seria um legado mais duradouro. Ã essa possibilidade que torna a disputa relevante para alÃ©m de seu resultado imediato.â </p>
+<p></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/estadoemdisputa/oque-falta-para-tornar-a-virada-possivel/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

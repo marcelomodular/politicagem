@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Marx tardio e as lutas do presente - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O Marx tardio e as lutas do presente</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/10/o-marx-tardio-e-as-lutas-do-presente/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-20-as-12.20.22-1024x643.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O Marx tardio e as lutas do presente
+                            </p>
+                            
+<p>UMA ENTREVISTA DE</p><p>
+
+			Ramiro Parodi		</p>
+<p>Kevin B. Anderson é um distinto professor de sociologia na Universidade da Califórnia, Santa Bárbara. Ele ocupou cargos honorários nos departamentos de estudos feministas e ciência política e é autor de vários livros, incluindo <em>Lenin, Hegel, and Western Marxism: A Critical Study</em> [Lênin, Hegel e o Marxismo Ocidental] (1995), <em>Foucault and the Iranian Revolution</em> [Foucault e a Revolução Iraniana] (2005) e <em>Marx nas margens</em> (2010). Ele também editou diversas coletâneas, como <em>Rosa Luxemburg reader</em> (2004) e <em>Dunayevskaya-Marcuse-Fromm correspondence</em> (2012). Ele escreve regularmente para <em>New Politics</em>, <em>The International Marxist-Humanist</em> e <a href="https://jacobinlat.com/author/kevin-b-anderson/" rel="noopener noreferrer" target="_blank"><em>Jacobin</em></a> sobre marxismo e política internacional, bem como sobre movimentos radicais na África, Europa e Oriente Médio.</p>
+<p>Na próxima semana, ele visitará Buenos Aires e, aproveitando a visita, Ramiro Parodi conversou com ele para a <em>Jacobin</em> sobre seu livro, os significados de considerar Marx “nas margens” e as tarefas que as novas gerações de marxistas enfrentam no século XXI.</p>
+
+<p>RAMIRO PARODI</p>
+<p><strong>Em 1988, Enrique Dussel publicou <em>Hacia um Marx desconocido</em> [Em direção a um Marx desconhecido], um texto que analisava os manuscritos de 1861-63, os quais só foram publicados em 1976. Como você definiria o “Marx tardio”? O que é “tardio” neste caso: a biografia ou os textos cuja descoberta e estudo “chegaram tarde”?</strong></p>
+<p>KEVIN B. ANDERSON</p>
+<p>Costumávamos dizer, há uns 30 ou 40 anos, que essa foi a última década de Marx. Mas agora acho que a maioria das pessoas estende esse período um pouco mais adiante, até depois de 1867. Ou seja, da publicação em alemão do primeiro volume de O <em>Capital</em> até sua morte. E, claro, ele não escreveu nada em seu último ano, pois morreu em março de 1883. Portanto, seus últimos escritos são de 1881 ou 1882.</p>
+<p> RP</p>
+<p><strong>Ao ler <em>Marx nas margens</em>, não pude deixar de me lembrar dos conceitos de Althusser de “leitura sintomática” e “teoria finita” em relação à obra de Marx. Será que o “Marx tardio” implica um <em>tipo específico</em> de leitura, ou se trata mais de um arquivo?</strong></p>
+<p>KA</p>
+<p>Bem, sabe, é curioso o que acontece com Althusser, porque ele próprio passou por diferentes fases. Inicialmente, ele afirma que o verdadeiro Marx começa com <em>A ideologia alemã</em> e O <em>manifesto comunista</em>, mas depois, gradualmente, muda de ideia. E menciono isso brevemente porque ele diz que Marx abandona completamente Hegel apenas com as anotações sobre Wagner, que creio serem de 1881 ou 1882. Portanto, Foucault está certo ao dizer que Marx está errado porque era um humanista — é por isso que não devemos ser marxistas! Mas sim, mais especificamente, em relação ao Marx da fase posterior, sobre o qual a maioria dos estudiosos fala, sempre houve uma tendência a dizer que se trata de uma espécie de ruptura, uma espécie de reorientação radical. E há também a tendência de alguns que simplesmente dizem: “Bem, Marx continuou fazendo coisas interessantes, ele sempre fez coisas interessantes, ele sempre foi criativo; não devemos confinar Marx aos dogmas stalinistas ou a outros materialismos mecânicos.”</p>
+<p>Claro que isso é verdade, mas acho que podemos falar do “jovem Marx”, do “Marx maduro” ou de meia-idade e do “Marx tardio”. Penso que há continuidade e descontinuidade. Não acho que haja qualquer ruptura. Ele não abandona o proletariado. Ele até menciona o <em>Manifesto comunista</em> e escreveu um prefácio para ele em 1882.</p>
+<p>RP</p>
+<p><strong>Em diversas passagens de <em>Marx nas margens</em> aparecem citações de suas cartas. Ali surge uma espécie de cobertura “dos bastidores”, com afirmações intempestivas, políticas e claras como “<em>A Índia é agora nossa melhor aliada</em>”. Que relação você estabelece entre a vida e a obra de Marx?</strong></p>
+<p>KA</p>
+<p>Eles estão obviamente muito interligados, porque Marx nunca se dedicou exclusivamente à pesquisa. Ele queria causar impacto no mundo intelectual. Queria que John Stuart Mill lesse seu livro. Ele tinha a obrigação responder, mas isso não aconteceu. Porém, seu público principal sempre foi o proletariado e o movimento socialista. Ele realmente escreveu para eles.</p>
+<p>E há áreas em que só através da biografia é possível compreender a maior parte do que ele fazia, porque ele nunca escreveu muito sobre a Polônia. Era quase um entendimento tácito entre todos que, claro, apoiávamos a Polônia, claro que apoiávamos a Rússia. A Rússia que era a verdadeira potência reacionária naquela época. Portanto, os escritos de Marx sobre a Polônia não são muitos, embora seja um assunto extremamente importante para ele, o que pode ser visto em algumas de suas cartas.</p>
+<p>Então, em algumas áreas, isso é verdade. E não se esqueça de outra coisa: literalmente, muitas das fontes que temos sobre o pensamento de Marx — e isso é realmente profundo — são cartas, cartas para Engels. Da mesma forma que o período tardio de Marx, se aceitarmos nossa definição, é quando essas cartas praticamente desaparecem, porque Engels se mudou para Londres em 1869. Ele se aposentou depois de vinte anos de seu cargo nos negócios e se tornou um ativista socialista em tempo integral. Então eles se viam todos os dias, e é por isso que não temos registro dessas conversas.</p>
+<p>RP</p>
+<p><strong>Se você tivesse que reconstruir a mentalidade de Marx e Engels após 1848, o que diria que eles estavam pensando? O livro parece sugerir que, apesar da derrota, os teóricos embarcaram em uma busca por revoluções. Isso é realmente verdade? Qual a importância de 1848 na obra de Marx?</strong></p>
+<p>KA</p>
+<p>Eles veem a revolução de 1848 como uma tremenda derrota. Se é isso que você quer dizer, então está claro. E essa é uma das razões pelas quais Marx escreveu <em>O dezoito Brumário de Luís Bonaparte</em>. Ele o publicou no início de 1852, logo após o golpe de Bonaparte na França, que foi como um balde de água fria derramado sobre as revoluções europeias. Portanto, foi uma enorme derrota. Eles passaram grande parte de suas vidas analisando-a.</p>
+<p>Mas há outra, e depois, claro, a Comuna de Paris. Todo marxista no mundo conhece a Comuna de Paris. Essa é a segunda revolução em que eles se envolveram, especialmente Marx. Novamente, uma grande derrota, em última análise. Mas o que as pessoas não reconhecem o suficiente é que a Guerra Civil Estadunidense e a abolição da escravatura também foram consideradas por Marx e Engels como uma revolução. Não apenas uma revolução política, mas também econômica, porque no Sul dos Estados Unidos — que era a parte mais rica do país — a posse de seres humanos, a propriedade escrava, valia mais do que toda a terra.</p>
+<p>Nos Estados Unidos, os escravos foram libertados sem qualquer compensação aos seus antigos donos. Na Grã-Bretanha, por exemplo, até o século XX, esses antigos donos ainda recebiam indenizações. Os haitianos, por exemplo, foram obrigados a pagar indenizações aos franceses. Nos Estados Unidos, não houve compensação, o que tornou essa uma das maiores expropriações de propriedade privada da história. Foi uma vitória parcial, não completa, obviamente, porque os ex-escravos obtiveram liberdade política e direito ao voto por um período, mas não recuperaram suas terras.</p>
+<p>Marx se refere a isso no prefácio de O <em>capital</em>, de 1867. Ele diz que a questão da terra e da propriedade está entrando na agenda do outro lado do oceano, e que isso é um sintoma de nossa época. Portanto, esse processo foi muito importante para eles, tão importante quanto a revolução de 1848. Essas foram as duas grandes revoluções que eles vivenciaram. E, claro, eles sempre se referiam a 1789 e aos jacobinos, e assim por diante, no período da Revolução Francesa.</p>
+<p>RP</p>
+<p><strong>Uma crítica clássica à teoria de Marx é que ela é “eurocêntrica”. Interessa-me tentar compreender o que há de universal em Marx quando aceitamos o impacto das margens. Como você definiria uma “margem”? Seria uma margem teórica ou política? As margens são produzidas pelo próprio capital — ou seja, são “exterioridades imanentes”, para usar o conceito de Rebecca Carson?</strong></p>
+<p>KA</p>
+<p>Inglaterra e França são os dois países capitalistas clássicos para Marx e também para Engels. A Inglaterra, devido ao tipo clássico de revolução industrial, com a acumulação primitiva de capital deslocando o campesinato, o surgimento de fábricas nas cidades e o crescimento do proletariado. A França, devido ao crescimento do Estado moderno, centralizado e burocrático, plenamente desenvolvido sob o primeiro Bonaparte. Esses são, portanto, os dois modelos. Tudo o mais é marginal em algum grau.</p>
+<p>Embora os Estados Unidos dificilmente fossem um país subdesenvolvido ou menos desenvolvido em 1860 ou 1870, permaneciam “à margem” por não possuírem uma aristocracia. A escravidão não era periférica, mas sim central na república. E, claro, fica ainda mais evidente que lugares como a Irlanda, a Rússia ou a Índia estavam fora de qualquer tipo de desenvolvimento capitalista em seu sentido mais amplo.</p>
+<p>Quero dizer, podemos falar sobre subsunção formal ao capital (já começa a haver algo disso, ou até menos, mas algo nessa direção). Mas certamente não há uma subsunção real do trabalho ao capital em nenhuma dessas sociedades que estou chamando de marginais, como a Índia, a Rússia ou a Irlanda naquela época. São sociedades agrárias. Os Estados Unidos não são agrários no mesmo sentido, porque têm pequenos agricultores proprietários de terras. Mas, ainda assim, todas essas são sociedades agrárias em algum grau. Ele não escreve muito sobre a América Latina no final da vida, mas há uma parte significativa. Tenho certeza de que você conhece as notas sobre Kovalevsky.</p>
+<p>RP</p>
+<p><strong><a href="https://jacobinlat.com/author/alvaro-garcialinera/" rel="noopener noreferrer" target="_blank">Álvaro García Linera</a>, ex-vice-presidente da Bolívia, escreveu diversas obras no início da década de 1990 sobre o trabalho de Kovalevsky e sua contribuição para o que você chama de teoria multilinear em Marx. Você diria que a teoria “multilinear” é uma teoria do tempo histórico? Em muitas passagens dos <em>Cadernos etnológicos,</em> Marx menciona a existência do “comunismo”. Como devemos interpretar essas afirmações? Marx é considerado um pensador do progresso: como conciliar isso com a ideia de progresso de Marx se o comunismo já existia nas margens do mundo?</strong></p>
+<p>KA</p>
+<p>Creio que ele percebeu muito cedo, certamente no início da década de 1850, que as aldeias na Índia tinham propriedades comuns e uma organização social comunitária. Acontece que, naquela época, seguindo muitos pensadores liberais, ele considerava isso um sinal de atraso. Que essa era a origem do atraso e da falta de desenvolvimento. Ele realmente acreditava nisso. Portanto, ele não mudou completamente sua avaliação empírica, mas mudou sua interpretação. Isso pode ser observado nos <em>Grundrisse</em>, com essa postura de “modo de produção asiático”.</p>
+<p>Em certa medida, ele apoiou o colonialismo britânico na Índia. Eles definitivamente apoiaram a Guerra da Crimeia contra a Rússia. A Rússia era uma potência reacionária aos olhos deles. Empiricamente, interveio como a maior e mais significativa potência contrarrevolucionária da Europa. Mas também era um país que não teve uma revolução em 1848, e Marx e Engels acreditavam que isso se devia em parte à existência de um sistema de propriedade comunal da terra, que conferia maior controle e freava o progresso social. Assim, a posição deles começa a mudar com os <em>Grundrisse</em>. Encontramos a expressão “despótico ou democrático” no contexto dos modos de produção asiáticos. E então, claro, em obras posteriores de Marx, surge a ideia de um desenvolvimento comunista que poderia ser semelhante ao comunismo moderno, ou pelo menos aliado a ele. Portanto, sua posição muda: de um inimigo que causa atraso para um aliado.</p>
+<p>Concordo com o que você está dizendo: a ideia dele de comunismo está em constante mudança, porque já em 1875 ele a redefine. Em 1875, ele fala pela primeira vez de duas fases do comunismo. Antes disso, era uma ideia mais geral. Então, depois da Comuna de Paris, ele revive constantemente essa ideia de comunismo. E acho que ele começa a fazer isso claramente nesses <em>Cadernos etnológicos,</em> em um sentido amplo.</p>
+<p>Em relação à multilinearidade, há dois aspectos a considerar. Primeiro, o histórico: esse modelo primitivo-escravista-feudal-burguês. Costumava-se tentar — e ainda se tenta — encaixar a Índia ou a China no feudalismo pré-colonial. Marx rompe com isso. Ele o faz claramente em suas anotações sobre Kovalevsky a respeito da Índia por volta de 1879. Segundo, há o aspecto político-revolucionário, os múltiplos caminhos para a revolução. Ou seja, o debate sobre se é possível ter uma revolução baseada nas organizações comunitárias que encontramos em comunidades indígenas, ou talvez na Irlanda, onde aspectos delas ainda permanecem.</p>
+<p>Em certos momentos, Marx afirma que, quando as pessoas migram para as cidades, elas retêm parte disso. Porque nossos apologistas liberais não podem ter as duas coisas. Na Turquia, eles culpam o fundamentalismo, o regime conservador, de certa forma fundamentalista. Culpam por isso todos esses camponeses que se mudam para Istambul. Mas Istambul era melhor antes da chegada de todos esses camponeses com sua religião dogmática, e assim por diante.</p>
+<p>Bem, se isso for verdade, então quando os camponeses se mudam para as grandes cidades da África do Sul ou para Detroit, Michigan — francamente, quando os trabalhadores negros vão para lá — eles trazem consigo algumas das práticas comunitárias, o compartilhamento, as práticas e ideias comunistas indígenas. E eles se tornam partes militantes da classe trabalhadora e também dessas comunidades urbanas em um sentido mais amplo.</p>
+<p>RP</p>
+<p><strong>Isso me lembra muito o trabalho de García Linera, porque ele teve essa discussão com os sindicatos do final dos anos 1980 e início dos anos 1990, que se autodenominavam marxistas, embora tivessem esse pensamento clássico e teleológico. Mas na Bolívia, a diferença era que essa maneira ortodoxa de pensar sobre trabalho, revolução e política os levava a discriminar os povos indígenas, porque eles viam as organizações indígenas como não pertencentes à contradição principal.</strong></p>
+<p><strong>Ao mesmo tempo, Linera percebeu que essas organizações, essas organizações racializadas, tinham um poder político muito forte porque sabiam como fazer política. Então, ele tentou esclarecer os sindicatos, dizendo-lhes: “A Bolívia precisa de um sindicato, uma coalizão, uma aliança com essas organizações indígenas porque elas já praticam o comunismo de maneiras indiretas.”</strong></p>
+<p>KA</p>
+<p>Uma vez que se tem uma comunidade, sempre haverá mulheres e crianças, assim como homens. Quando se começa a falar de operários de fábrica, às vezes o ambiente se torna inteiramente masculino. E eu acho que, no século XX, socialistas e marxistas foram longe demais na defesa do trabalhador industrial. É preciso pensar na Comuna de Paris. Aqueles não eram operários industriais. Eram artesãos. Isso na cidade de Paris. Em 1905, na Rússia, e em 1917, nos sovietes. Estas são gigantescas empresas capitalistas com milhares de trabalhadores. Marx não testemunhou essa fábrica. As grandes fábricas da sua época tinham algumas centenas de pessoas. Ele estava prevendo a direção que as coisas tomariam. Acho que ele estava certo. Mas esse tipo de obreirismo, que ele critica na <em>Crítica do programa de Gotha</em>, essa ideia de que todas as outras classes sociais fora da classe trabalhadora são uma massa reacionária.</p><a href="https://www.instagram.com/solysombrabar/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2021/09/SyS-Banner-site.gif"/></a>
+<p>Porque se usássemos o marxismo clássico para analisar a greve geral que ocorreu em Minneapolis em janeiro contra a agenda reacionária de Trump, encontraríamos a classe trabalhadora clássica. Quero dizer, os sindicatos estavam lá, mas também havia a pequena burguesia; muitos desses setores menores são imigrantes na cidade. Então, o que eles são? Em que categoria se encaixam? Ou, sabe, as pessoas que dirigem para o Lyft, os trabalhadores de plataformas digitais e assim por diante… sim, eles são trabalhadores; é uma mentira que sejam autônomos. Mas é um tipo diferente de relação com os meios de produção.</p>
+<p>Penso que, em certo sentido, Minneapolis se assemelha mais à Comuna de Paris ou à Alemanha de 1918. Portanto, acredito que o próprio Marx sempre foi muito flexível em relação a essas questões. Uma coisa é definir onde reside o valor; outra é definir quem é oprimido e quais são as forças da revolução e da oposição. São duas questões distintas.</p>
+<p>RP</p>
+<p><strong>Não posso deixar de perguntar sobre o contexto da sua pesquisa, mas mais especificamente sobre as ausências latino-americanas. No início de <em>Marx nas margens</em>, você cita José Carlos Mariátegui, mas não encontrei nenhuma referência a José María Aricó, que em 1980 também trabalhou a partir dos “estudos de caso” de Marx, como os irlandeses, os russos ou os poloneses.</strong></p>
+<p><strong>Mais recentemente, Álvaro García Linera também fez referência aos <em>Cadernos etnológicos</em>, aos escritos sobre a Rússia e ao caderno de Kovalevsky. Esses são apenas dois autores dentro de uma tradição mais ampla e rica que refletiu a partir das margens de Marx e sobre elas. Você conhece essa bibliografia? Acha que ela pode trazer algo novo?</strong></p>
+<p>KA</p>
+<p>Infelizmente, não leio espanhol. Sempre li francês e alemão como minhas duas línguas principais. Então, tive que me limitar. A obra de García Linera só agora está sendo traduzida. Trata-se de uma seleção de seus escritos que poderá ser publicada na revista <em>Historical Materialism</em>. Consegui ver isso antes de um segundo livro sobre o assunto, pois publiquei outro livro no ano passado. Então, menciono brevemente, mas não é algo sobre o qual eu tenha dialogado muito.</p>
+<p>Minha orientação empírica — já que escrevo sobre política global — está mais voltada para o Oriente Médio e a Europa Ocidental. Tenho muitos artigos sobre a Guerra do Irã, e assim por diante. Então, suponho que, se não for esse o caso, é simplesmente a natureza do trabalho que venho desenvolvendo ao longo dos anos. Sou cauteloso porque não sou exatamente um especialista em América Latina moderna, enquanto que no Oriente Médio, ou mesmo na Índia e na China, me sinto mais à vontade para escrever sobre a história dessas sociedades.</p>
+<p>Acho que será interessante continuar o diálogo, porque estamos vendo que o jovem Marx e o Marx da fase final… Temos o livro de Saito, depois o livro de Marcello Musto, uma breve biografia do Marx da fase final, e depois meus dois livros. Portanto, é muito difícil ignorar o Marx da fase final agora, pelo menos em inglês e em vários outros idiomas. Acho que este é apenas o começo de um grande projeto de pesquisa.</p>
+<p>E, se me permitem acrescentar algo, acho lamentável criticar Engels… Podemos criticá-lo, e eu o faço, mas Engels estava certo ao observar que os <em>Cadernos etnológicos</em>, e a importância das anotações de Morgan, tratavam em grande parte da questão de gênero. No entanto, esta discussão sobre o Marx da fase final não está aprofundando o suficiente a questão de gênero. Há algumas excelentes estudiosas feministas: Melda Yaman, na Turquia, e Emanuela Conversano, na Itália. Emanuela fez parte da equipe editorial da MEGA (que agora está disponível online, como vocês provavelmente sabem). Portanto, houve algumas estudiosas feministas envolvidas com os <em>Cadernos etnológicos</em>, assim como minha aluna, Heather Brown, e, antes dela, minha mentora, Raya Dunayevskaya. Mas esse foco no aspecto de gênero tem sido um tanto marginalizado nas discussões recentes. E acho que precisamos incorporá-lo de forma muito proeminente em qualquer um desses debates em curso.</p>
+<p>RP</p>
+<p><strong>Isso está intimamente relacionado ao que você disse anteriormente. O que diria que as novas gerações de marxistas deveriam fazer hoje? Quais conceitos parecem mais poderosos para orientar o pensamento político? Os bens comuns ou a comunidade fazem parte deles? Vale a pena revisitar a noção de imperialismo? Como devemos repensar a teoria do trabalho e a mais-valia no contexto de um mercado em processo de “plataformização”?</strong></p>
+<p>KA</p>
+<p>Acredito que o ponto de partida deve ser sempre o método dialético. Foi o que Marx utilizou ao longo de sua vida. E é o que os melhores marxistas têm feito desde então. Portanto, em vários momentos — e hoje é um deles — quando o mundo está mudando tanto, inclusive em relação ao capitalismo neoliberal, precisamos realmente nos aprofundar para entender a natureza do capitalismo contemporâneo e descrevê-lo.</p>
+<p>E sim, acho que existe uma tendência — e falo dos Estados Unidos — quando digo aos meus colegas, acadêmicos de esquerda ou mesmo ativistas, que estou pesquisando Mariátegui, eles dizem: “Nossa, que interessante! Os zapatistas, as comunidades indígenas das Américas.” Mas se digo que estou pesquisando a mudança no perfil da classe trabalhadora na Alemanha, Itália e Grã-Bretanha, e comparando-as, eles dizem: “O quão interessante isso é?” Mas acho que precisamos fazer as duas coisas.</p>
+<p>Um ponto de interseção entre colonialismo e identidade indígena é que todos esses países do Norte Global têm fluxos migratórios massivos. A Alemanha abriga agora todos esses refugiados sírios. São pessoas que fugiram de uma guerra civil. Muitos deles eram revolucionários, em certo sentido, e tiveram que deixar seu país. O mesmo se aplica à comunidade turca. E, obviamente, à chamada comunidade latina nos Estados Unidos. Francamente, uma das razões pelas quais querem expulsá-los é porque eles têm um histórico e um potencial radical.</p>
+<p>Antes do boom da imigração latina, a Califórnia não era o estado que é hoje. Quero dizer, ela nos deu os Panteras Negras e César Chávez — e podemos discutir as questões que eles abordaram —, mas também nos deu Richard Nixon e Ronald Reagan. Ambos eram figuras muito populares na Califórnia. Alguém assim não teria a menor chance de ser eleito hoje. E isso se deve em grande parte à mudança demográfica: pessoas vindas do México, e não apenas do México, mas de muitos outros lugares com uma história de comunidade, sindicalismo e talvez até alguma abertura a ideias socialistas. E isso é um grande enriquecimento para o Norte Global. Obviamente, a imigração cria tensões, permitindo que partidos e grupos de direita se mobilizem contra a imigração, mas não devemos nos esquecer desse outro lado da moeda.</p>
+<p>Acho que tivemos a maior crise econômica da história do capitalismo, depois de 1929. E qual a causa disso? Qual a probabilidade de acontecer novamente? Eu diria que muito alta. Toda a ilusão keynesiana, por assim dizer, de que o capital poderia ser controlado… Quer dizer, porque os neoliberais também eram keynesianos em certo sentido, porque pensavam que se os banqueiros fizessem certas coisas — emprestar dinheiro, aumentar as taxas de juros, não emprestar — poderiam controlar o capitalismo. E descobriu-se que isso não era verdade. Poderíamos dizer, então, que esses foram erros cometidos pelos neoliberais. Muitas pessoas acham que os keynesianos voltarão. Eu não acho. Acho — e precisamos discutir isso — que a crise de 2008 é uma crise sistêmica do capitalismo, enraizada em coisas como a queda da taxa de lucro.</p>
+<p>A terceira questão está relacionada ao que eu disse antes sobre imigração. As classes trabalhadoras não são — e nunca foram — homogêneas, e hoje são ainda menos. Portanto, falar de classe implica falar de gênero e etnia. Isso é verdade em todo o mundo. Mesmo na China, existem grupos étnicos e existe opressão étnica. Porque esses líderes — você sabe, onde o governo reprime, no oeste da China, com sua “reeducação” — os levam para fábricas no continente, e eles se tornam parte da classe trabalhadora lá, e são terrivelmente maltratados. Poderíamos dizer que isso divide a classe trabalhadora, mas o que divide a classe trabalhadora dessa forma geralmente também cria… A parte dominante da classe trabalhadora se separa do que poderíamos chamar de sua verdadeira consciência de classe por causa dessas coisas. Mas isso também significa que existe um grupo duplamente oprimido, que tem uma consciência revolucionária mais aguçada.</p>
+<p>E isso remonta ao que o próprio Marx escreveu sobre os irlandeses na Grã-Bretanha. Os sindicatos britânicos típicos da época de Marx diziam coisas como: “Os irlandeses têm salários mais baixos, não comparecem às reuniões, bebem demais, são indisciplinados” — e tudo mais. Mas, na verdade, eles eram a parte militante e revolucionária da classe trabalhadora. Portanto, essa é uma batalha que precisa ser travada e constantemente. Sei que não se limita ao Norte Global, porque notei que no Chile estão usando a questão da imigração para combater Kast, um sujeito realmente reacionário.</p>
+<p>RP</p>
+<p><strong>Você teve a oportunidade de examinar <em>os Cadernos etnológicos</em> inéditos? O que ainda precisa ser analisado nos arquivos da MEGA?</strong></p>
+<p>KA</p>
+<p>O volume 427 da MEGA foi publicado no verão de 2024, então já está disponível online. Mas, claro, está quase todo em alemão. Então, sim, há algumas novidades. Estamos pensando em publicar uma série provisoriamente intitulada “<em>O Marx desconhecido</em>” ou, mais uma vez, “<em>O último Marx desconhecido</em>”. Porque, como você sabe — não sei se tudo já foi traduzido para o espanhol —, as edições em inglês que temos dos <em>Cadernos etnológicos</em> são compostas apenas por cerca de um quarto em alemão e três quartos em inglês. Então, o que estamos fazendo — com uma equipe da qual faço parte — é publicar uma edição completamente em inglês.</p>
+<p>E sim, há coisas com as quais as pessoas não estão tão familiarizadas, como as anotações sobre Roma a partir de cinco autores, eu acho. História social: aborda a escravidão, as sociedades agrárias. Há também anotações sobre Java — o que hoje é a Indonésia — que são bastante substanciais. Depois, há as anotações sobre Kovalevsky, que abrangem a Índia, a Argélia e principalmente a América do Sul, os Incas e o colonialismo. Está tudo lá.</p>
+<p>Depois, há os <em>Cadernos etnológicos</em> propriamente ditos, que são principalmente anotações sobre Morgan, mas também sobre outros três antropólogos. Então, se você quiser pensar sobre qual país, provavelmente há 100.000 palavras de anotações sobre a Índia. É o que recebe mais atenção. Mas, claro, o que fizemos — e duvido que a edição espanhola tenha feito isso — foi ter uma equipe de pesquisadores trabalhando nisso por 25 anos, realizando o trabalho inicial. Por exemplo, o livro de Kovalevsky estava em russo. Então, nós fomos — não eu, porque não sei russo, mas tínhamos uma equipe de acadêmicos — e revisamos o texto, analisando o que Kovalevsky havia escrito, para ver onde Marx mudou palavras, onde ele reorganizou o material. Fizemos análises com base no que Marx não mencionou ou como ele transpôs a ordem dos materiais.</p>
+<p>Deixe-me dar um exemplo, já que se relaciona com a América Latina. Creio que muitos conhecem as notas de Marx sobre Kovalevsky na América Latina. Elas são bem conhecidas no mundo hispânico. Mas, a menos que você as compare com o texto de Kovalevsky, não percebe que, no final, ele apresenta uma conclusão onde fala sobre uma comunidade indígena no Novo México onde as mulheres guardam toda a comida (tenho certeza de que você conhece esse texto). Bem, isso está em uma nota de rodapé. Marx pega essa informação e a incorpora ao texto principal.</p>
+<p>Qual é o título do livro de Kovalevsky? Tem algo como “ascensão e queda da propriedade comunal” no título. Kovalevsky, e até mesmo Morgan, sabiam que essas coisas pertenciam ao passado. Eram interessantes de se observar na medida em que mostravam — especialmente para Morgan — certas capacidades dos seres humanos. Engels adota a mesma abordagem: usar isso para provar que a natureza humana — embora ele não use essa palavra — em um sentido amplo, é mais coletivista, mais comunista do que a visão burguesa da humanidade. Não acho que essa seja a abordagem de Marx. O foco dele está nas novas forças de mudança e revolução que estão surgindo durante sua vida. Acho que esse é o foco dele.</p>
+<p>RP</p>
+<p><strong>Li que você publicou alguns artigos sobre o governo de Donald Trump. Para concluir, gostaria que comentasse a situação geral nos Estados Unidos e o impacto de Trump no mundo acadêmico. Há algo novo, ou apenas uma continuidade de tendências anteriores?</strong></p>
+<p>KA</p>
+<p>Uma Internacional fascista. Ok, sim, deixe-me começar pela academia, porque já se falou bastante que algumas das maiores universidades cederam a Trump. E, claro, isso foi antes de Trump, porque elas já estavam cedendo ao <em>lobby</em> israelense e a esse tipo de política. Isso aconteceu durante o governo Biden. Já havia muita repressão às vozes pró-Palestina. Harvard resistiu um pouco, mas foi uma resistência que veio do corpo docente e dos alunos. Depois, estados como Califórnia e Massachusetts resistiram um pouco, e Illinois também resistiu um pouco através de seu governo.</p>
+<p>Ellen Schrecker — não sei se você conhece esse nome, ela é uma autora famosa — escreveu vários livros sobre o Macartismo e as universidades. Eles eram muito perturbadores e mostravam como as universidades capitularam. E ela estava dando entrevistas e escrevendo há um ano dizendo que isso era pior do que o Macartismo. Ela estava certa. Algumas das coisas que eles estão fazendo vão muito além do que tentaram durante o Macartismo. Mas este ano, em janeiro, eu acho, ela deu outra entrevista que foi amplamente divulgada, onde disse que teve que reconsiderar sua posição: a resistência de professores e alunos tem sido tão forte que bloqueou boa parte disso até agora. Quer dizer, não é que eles não tenham causado muitos danos, e claro, em lugares como o Texas ou a Flórida, a situação é realmente grave. No Centro-Oeste e no Noroeste, no Extremo Oeste, como na Califórnia, nesses estados, a situação é muito mais multifacetada. E eu diria que há um ano as pessoas estavam com mais medo do que estão agora.</p>
+<p>Duas pessoas de Yale — sabe, aqueles famosos escritores liberais sobre fascismo, Jason Stanle, sabe de quem estou falando? [Nota do editor: Acreditamos que se refira a Timothy Snyder, que, juntamente com sua esposa, Marci Shore, deixou Yale para estudar na Escola Munk da Universidade de Toronto] — foram embora e se mudaram para o Canadá. Eles disseram: “Os EUA estão se tornando fascistas”. Sim. Ninguém mais foi embora. Muito poucos foram embora. Porque, desde a eleição de Zohran Mamdani, primeiro de Los Angeles, mas na verdade desde Minneapolis, há uma sensação maior de que esse esforço fascista trumpista atingiu seu ápice. Agora está na defensiva.</p>
+<p>Claro, sabemos como é… Amanhã de manhã pode haver um ataque terrorista ou algo do tipo. Sim, claro. Mas se as coisas continuarem como têm estado nos últimos seis meses, acho que grande parte do medo já está se dissipando em certa medida, e continuará a se dissipar. Muitos danos foram causados. Muitas pessoas perderam seus empregos e nem todos os recuperarão. Mas acho que preservamos alguma forma de república democrática burguesa nos Estados Unidos. Não acho que esse seja o perigo. Eu via dessa forma até mesmo há um ano.</p>
+<p>“A resistência” nada mais é do que as próprias comunidades imigrantes que vêm resistindo, juntamente com seus aliados. Em Los Angeles, onde moro, a Union of the Barrio é uma grande organização de direitos dos imigrantes que existe há quarenta anos. Eles têm vários grupos nas redes sociais. Eles dizem: “Podemos levar manifestantes a qualquer lugar em 10 ou 15 minutos em Los Angeles.”</p>
+<p>Eu estava cortando o cabelo, e a mulher que estava me atendendo não parecia estar envolvida com política. Ela é mexicana-estadunidense. Ela não falou sobre política. Eu conversei com ela sobre política algumas vezes, e ela simplesmente fingiu que não sabia do que eu estava falando. Um dia, ela estava ali, com seu celular— isso foi uns seis meses atrás, quando a imigração e os soldados estavam em Los Angeles — e recebeu um desses alertas. Ela faz parte do sistema para sair e… Mas ela nem mencionou nada para mim porque eu sou “aquele cara branco” de quem ela corta cabelo. Claro. Acho que existem muitas barreiras aí… Barreiras de classe e outras.</p>
+<p>Sim, foi algo muito generalizado. Acho que surpreendeu a equipe de Trump. Primeiro, o nível de resistência dos próprios imigrantes e, segundo, o nível de simpatia que receberam do resto do país. Isso foi crucial. E as universidades também. Acho que o corpo docente foi mais corajoso do que muita gente imaginava. E isso foi outro ponto. Mas também é preciso entender que a repressão acadêmica começou mesmo com Biden. Tentaram demitir pessoas — na verdade, demitiram várias — durante o governo Biden, e ele não disse nada. E essas pessoas também não disseram nada a respeito. Então, sim, isso foi um grande problema.</p>
+<p>A vitória em Nova York com Mamdani, como mencionei, foi enorme. E depois em Minneapolis, claro, maior do que qualquer coisa até agora. Tivemos um protesto neste fim de semana: dizem que 8 milhões de pessoas marcharam há uma semana. É difícil mensurar os números, mas é muito claro que houve lugares com mais manifestantes do que nunca. Uma mobilização que alguns podem caracterizar como liberal, mas também havia milhares de bandeiras palestinas. Não há dúvida de que a esquerda também estava muito presente.</p>
+<p>Quanto à Argentina, não sei muito, mas os governos parecem semelhantes. Quero dizer, o seu parece muito mais explicitamente neoliberal economicamente, enquanto o de Trump é uma espécie de híbrido, com algumas coisas que seriam fascistas no sentido de Viktor Orbán na Hungria, com talvez mais benefícios sociais para certos grupos. E de vez em quando aprovam alguma coisa, como melhorar um pouco o sistema de saúde. Eles fazem algumas dessas coisas. Se pudessem dar acesso apenas a pessoas brancas, fariam imediatamente, mas ainda não descobriram como. Então, sim, o seu governo parece, moralmente, puramente neoliberal. Mas eu diria que são muito semelhantes. Pelo que pude ver, o seu governo ganhou algum apoio durante a última eleição. O que é… Bem, veremos daqui a seis meses. Mas todas as eleições locais que tivemos foram uma derrota para o pessoal do Trump, praticamente todas, ou pelo menos uma grande queda de apoio. Mesmo quando ganharam em lugares onde se esperava uma vitória com 80% dos votos, ganharam apenas com 60%. Então não sabemos.</p>
+<p>A oposição é uma coalizão estranha, especialmente quando surgem questões como a Palestina. Mas fiquei surpreso com o grau em que até mesmo os liberais permaneceram, de certa forma, contrários à guerra no Irã. Eu esperava que alguns deles aderissem à causa dessa guerra no Irã, mas não é uma guerra popular. Está se tornando menos popular a cada dia. Então, sim, acho que esse é um grande perigo. Um perigo é que tudo seja absorvido por algum tipo de “neo-bidenismo”, um liberalismo moderado. Mas o outro perigo é que a força contra Trump fique tão dividida que os apoiadores de Trump possam vencer as eleições. Não vejo isso acontecendo. Não vejo nenhum dos dois cenários. Vejo até mesmo pessoas de centro no Partido Democrata se movendo lentamente em direção a pelo menos uma política social-democrata, no sentido de taxar os muito ricos. O caso Epstein não ajuda, é claro.</p>
+<p>Não creio que alguém se recusará a cobrar impostos dos ricos se começarem a falar da “classe Epstein”. E também na Palestina… Alguns políticos na Califórnia que costumavam dizer “Apoio Israel incondicionalmente” estão mudando. Estão dizendo que não apoiam o governo Netanyahu. Estão começando a mudar porque parece que, no Partido Democrata, não se consegue a indicação se você for visto como alguém que apoia Israel sem críticas. Existe algo chamado AIPAC, o Comitê de Assuntos Públicos Israelo-Estadunidense. Eles recebem muito dinheiro e miram em democratas e outros que criticam Israel. E conseguiram derrubar alguns. Eles miraram em Mamdani em Nova York, mas o tiro saiu pela culatra. Muitas pessoas, até mesmo centristas, disseram: “Não vou aceitar dinheiro nem apoio dessas pessoas”. Então isso é importante. Há uma evolução lenta — lenta demais — em Gaza.</p>
+<p>Onde não há evolução, e estamos indo na direção errada, é na questão dos direitos de pessoas trans. Até mesmo os progressistas estão se mantendo em silêncio sobre o assunto. Vi recentemente que o Comitê Olímpico se pronunciou sobre isso. E a segunda coisa é que, há cinco ou seis anos, tivemos o enorme movimento Black Lives Matter para confrontar a brutalidade policial. Era uma questão mundial, claro. Mas é uma questão específica dos Estados Unidos. E isso praticamente desapareceu. A questão se dissipou, infelizmente. Ainda assim, eu diria que há uma leve guinada à esquerda na opinião pública nos Estados Unidos.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>é professor de sociologia, ciência política e estudos feministas da Universidade da Califórnia (Santa Bárbara). É autor de <em>Marx nas Margens: nacionalismo, etnia e sociedades não ocidentais</em>, a ser publicado este ano pela Editora Boitempo, bem como diversos livros e artigos sobre teoria política e social, com especialização em Marx, Hegel, Escola de Frankfurt, Foucault e o debate sobre o orientalismo. É também um dos colaboradores da MEGA (<em>Marx-Engels Gesamtausgabe</em>), onde contribui para a edição de um volume sobre gênero e sociedades não ocidentais e pré-capitalistas.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/o-marx-tardio-e-as-lutas-do-presente/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

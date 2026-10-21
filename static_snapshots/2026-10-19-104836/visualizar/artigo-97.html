@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Os vestígios da noite - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Os vestígios da noite</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://piaui.uol.com.br/web/kassio-vorcaro-triplex-noite/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/10/sessao-solene-em-preto-e-branco_85social.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Os vestígios da noite
+                            </p>
+                             <p>Festeiro por vocação, mas sobretudo por estratégia para aliciar autoridades e outros poderosos em sua teia de favores e corrupção, o banqueiro Daniel Vorcaro decidiu dobrar a aposta no Carnaval de 2025, quando estreou como anfitrião na folia para exibir seu poder econômico então intacto. Mandou fechar um andar inteiro do Camarote Café de La Musique Alma Rio, na Marquês de Sapucaí, ao custo de 40 milhões de reais, além de bancar celebrações reluzentes no Parque Lage e em um casarão em Santa Teresa. Na sexta-feira que antecedeu a folia, dia 28 de fevereiro, porém, Vorcaro comandava uma outra festa, desta vez íntima e secreta, em seu tríplex no Itaim Bibi, um dos bairros mais ricos de São Paulo.</p> <p>O que se passou nesse apartamento começou a vir à tona na manhã de 15 de setembro deste ano, quando os jornalistas Andreza Matais e André Shalders, do site <a href="https://www.metropoles.com/colunas/andreza-matais/ela-ficou-com-o-kassio-conversa-de-vorcaro-cita-cobranca-de-r-10-mil-por-encontro" rel="noopener noreferrer" target="_blank">Metrópoles</a>, publicaram diálogos entre Vorcaro e uma agenciadora de garotas de programa. Nessas conversas, um homem de nome Kassio, grafado com K, assim como Kassio Nunes Marques, ministro do Supremo Tribunal Federal, era fartamente citado. Rayanna, a agenciadora das garotas, escreveu ao banqueiro: “A minha amiga lá aquele dia! Deu certo né? […] Ela disse que ficou com o kassio”. E completou: “Ela tá me cobrando aqui.” Vorcaro perguntou o valor. Rayanna respondeu – “10 né!” e mandou seu Pix. </p> <p>Os diálogos vieram a público no dia da fatídica sessão do Supremo Tribunal Federal que discutiu o envolvimento de Alexandre de Moraes com o banco Master. Logo no início da sessão do STF, um desnorteado Kassio Nunes Marques, com quem o ministro André Mendonça contava para afastar Moraes, declarou que não participaria da votação. Disse que, na condição de presidente do Tribunal Superior Eleitoral,  não queria contaminar sua posição de ministro encarregado de presidir a eleição que se avizinhava. Nada se falou do diálogo comprometedor.</p> <p>A história ganhou mais um capítulo na última terça-feira, 13 de outubro, quando o portal UOL publicou que o encontro no tríplex de Vorcaro teve a presença de cinco garotas de programa. O texto da jornalista Daniela Lima mostrou que, no dia da festa no tríplex, Vorcaro escreveu para o ex-diretor jurídico do Master, Luiz Rennó, dizendo que estava “fazendo graça para ministro em SP”. Outras mensagens, todas elas obtidas em um celular de Vorcaro apreendido pela Polícia Federal, contam mais detalhes sobre a noite. O mordomo Michael escreveu o seguinte para Vorcaro às 20h56 daquela noite: “Emprestei quarto do lado para ministro com 5 menina”. Como coordenador da noitada, Vorcaro logo escreveu para Rayanna, a agenciadora das garotas, com uma instrução clara: “Só lembra que sem celular.”</p> <p>Agora, surgiu mais um capítulo na história. A <strong>piauí</strong> teve acesso a um conjunto de 125 mensagens do celular de Vorcaro por meio das quais é possível entender como se deu a noitada. São conversas entre o banqueiro e sete interlocutores encarregados de organizar o encontro do ministro com as garotas. Vorcaro, preocupado em prestar o melhor serviço possível ao ministro, acionou dois motoristas, um chef de cozinha, o mordomo, a agenciadora de garotas de programa, uma faxineira e um amigo arquiteto requisitado para resolver problemas no tríplex. </p> <p>É a primeira vez na história do Supremo Tribunal Federal que um ministro é flagrado recebendo favores sexuais patrocinados por um banqueiro cujo processo por uma gigantesca fraude bancária tramita na própria corte – e, num sinal eloquente de apatia ética, o tribunal até agora não tomou uma única providência sobre o caso. A situação só se agrava diante do fato de que o ministro em questão preside as eleições presidenciais e vem dando decisões claramente favoráveis ao candidato Flávio Bolsonaro, cujo pai indicou o ministro para integrar a corte. A decisão mais recente foi a derrubada do canal de WhatsApp “Exército do Lula”, criado pela militância do petista, feita de ofício, ainda que não houvesse maioria de votos em plenário nessa direção, nem mesmo o do próprio relator do caso, Ricardo Villas Bôas Cueva.</p> <p>Desde a eclosão do escândalo do banco Master, apareceram conexões do ministro Nunes Marques com Vorcaro – e não apenas o fato de que a defesa do Master, por três ocasiões, pediu que o caso do banco ficasse nas mãos de Nunes Marques, e não de André Mendonça. Cinco meses antes da noitada, Nunes Marques desempatou na Segunda Turma do STF o caso Alcídia, estratégico para os precatórios do setor sucroalcooleiro que ajudariam a recompor o balanço da instituição de Vorcaro. Há mensagens mostrando como Vorcaro e seus advogados celebraram o desempate do ministro. Outra coincidência. A festa no tríplex ocorreu no período em que o Master transferia, em catorze operações, um total de 6,6 milhões de reais à Consult Inteligência Tributária. Desse valor, a consultoria repassou 282 mil reais diretamente a <a href="https://piaui.uol.com.br/web/dominado-aqui-kassio-nunes-marques-master-stf/" rel="noopener noreferrer" target="_blank">Kevin Marques</a>, filho do ministro. Outras mensagens mostram que Vorcaro pagou um salário de 500 mil reais mensais para Kevin.<br/><br/></p> <h4>OS PREPARATIVOS</h4> <h4></h4> <p> </p> <p>Os preparativos para a noite no tríplex começaram dois dias antes. Na madrugada de 26 de fevereiro, o desembargador Newton Ramos pediu ao agente de viagens de Vorcaro um quarto no Hotel Fasano, unidade do Itaim Bibi, do qual o banqueiro era sócio: “Essa sexta a sábado pro KN”, redigiu o desembargador do TRF-1, mencionando a sigla de “Kassio Nunes”. No mesmo dia, Vorcaro escreveu ao chef José Maria Meira: “Sexta churrasco animado”. Em seguida, mandou uma mensagem incompleta: “Com min e”. No dia seguinte, véspera da noitada, o chef foi às compras. Na casa de carnes deBetti, gastou 1.772 reais. Em outro endereço, comprou cinco latas de caviar a 15.100 reais, além de trufas. O total das compras feitas por Meira ficou em 21.121,90 reais. (Com a equipe recrutada, as despesas chegaram à casa dos 27 mil reais.)</p> <p>Vorcaro também avisou ao amigo Kiko Sobrinho que iria “receber ministro aqui sexta”. Na véspera, os dois se confundiram sobre o endereço: Vorcaro disse que faria o almoço “na casa” e perguntou pela chave e pela segurança. Kiko entendeu que o banqueiro havia mudado o almoço do ministro para “a casa” e alertou que havia obras na piscina. Mas, às 23h07, o mal-entendido se desfez. Vorcaro determinou ao mordomo Michael que se apresentasse no dia seguinte, às 13 horas, na “Leo”, como era chamado o apartamento na Rua Leopoldo Couto de Magalhães Júnior, no Itaim Bibi. Às 11h14 da sexta, Michael informou que já seguia para lá para ajudar a preparar o churrasco. Mais tarde, Vorcaro mandou à agenciadora Rayanna o endereço do encontro.</p> <p>Na sexta, dia da festança, Vorcaro passou ao chef o número de convidados (“São 15 pax”) e pediu reforço no serviço (“Vamos precisar garçon”). Rayanna, a agenciadora, avisou que não poderia ir, mas mandaria duas mulheres: “Eu mando elas irem e acerto com elas depois.” As mensagens não deixam claro se o próprio Vorcaro estava presente no imóvel em parte ou em todo o tempo, mas é certo que ele deu as cartas o tempo todo.</p> <p>O conjunto das mensagens mostra o grau de preocupação de Vorcaro com todos os detalhes. Às 10h19 da mesma sexta-feira, ele já reclamava para Kiko das falhas em recursos tecnológicos do apartamento: “Cara, essas automações vão me matar um dia”. Em seguida, perguntou se alguém poderia ir à “Leo” consertar o controle automatizado dos ambientes. Pouco depois das 11 horas, disse que havia resolvido sozinho o problema. Às 12h44, disparou quatro mensagens seguidas: “Pelo amor de Deus. Tira aquele sofá da varanda leo. Tô passando vergonha. Melhor deixar sem nada. Ele é logo na entrada, primeira coisa que a pessoa vê”. Às 13h56, surgiu outra emergência: “Agora ar pifou”, escreveu Vorcaro, sobre o ar-condicionado. Kiko prometeu chamar uma assistência técnica. </p> <p></p> <p>As mensagens sobre preparativos seguiram até a chegada dos convidados. Às 14h04, um dos motoristas avisou: “Dr, começou chegar meninas. Pode liberar?” Vorcaro deu o aval: “Todas que chegarem. Pode subir.” Às 14h40, Vorcaro disse ao motorista que os convidados estavam chegando em um Ford Fusion preto e pediu que os recebesse. Em seguida,  escreveu aquela mensagem a Rennó na qual se jacta de que estava “fazendo graça para ministro em SP.” O banqueiro ainda reclamou com o mordomo Michael que as janelas da sala estavam fechadas “parecendo enterro”. “Abre as janelassss!!!”, ordenou. Às 14h54, Michael avisou ao patrão: “Seus convidados subiu reparando bem na localização da sua casa e também avaliando o ap. Estão admirados.” </p> <p>Depois de orientar a chegada dos convidados, Vorcaro aquietou-se. Passou mais de cinco horas sem enviar novas mensagens nas conversas relacionadas à festa analisadas pela <strong>piauí. </strong>Neste intervalo, porém, continuou no celular tratando dos problemas financeiros do Banco Master.</p> <p>Naquela sexta-feira, a instituição corria contra o relógio. Às 16h31, um contato atribuído a um ex-diretor do Banco Central, Paulo Sergio Souza, escreveu: “Daniel, o banco está 800 mm no compulsório. Algum problema maior?” “Não, depois do carnaval vai regularizar tudo”, respondeu Vorcaro. “Fechamos já venda de carteira e captação nova. Na semana após o carnaval devemos ter incremento significativo de caixa”, disse. Vorcaro se referia ao fato de o banco ter usado o depósito compulsório, um valor que as instituições são obrigadas a depositar periodicamente no Banco Central, para garantir a liquidez do Master naquele dia. Ou seja, descumpria requisitos mínimos para operar no país. Àquela altura, o ex-banqueiro contava com a operação feita com o BRB, o banco estatal de Brasília, destinada a injetar capital no Master, e que viria a ser anunciada no mês seguinte.</p> <p>À noite, a situação do banco estava mais complicada. O uso do compulsório do Master havia aumentado. Às 20h20, Vorcaro perguntou a Alberto Felix de Oliveira Neto, um de seus executivos, quanto a instituição havia usado. “1.250”, respondeu Alberto. Ou seja: 1 bilhão e 250 milhões de reais. Vorcaro ficou indignado: “Como assim Alberto. Estava 800. Vocês piraram.” Às 20h26, escreveu a Angelo Silva, outro executivo: “Demite Alberto. Vamos voltar eu e você e tentar salvar. O cara deixou o banco com -1.250.” </p> <p>À noite, a festa voltou a ocupar o banqueiro. O mordomo Michael relatava a Vorcaro os mínimos detalhes do que transcorria no tríplex. Às 20h06, o banqueiro escreveu ao funcionário: “Vem aqui”. No mesmo momento em que discutia a situação do banco, recebeu de Michael a informação de que servira chocolate a um convidado: “Rapaz de preto está pedindo mais chocolate eu estou falando que não tem mais. Pois senhor já brigou comigo que não era pra dar.” Vorcaro respondeu: “Nunca mais faça isso.” Não fica claro de que doce estavam falando, mas na casa de Vorcaro era comum haver chocolate convencional, mas também outra variedade, feita com cogumelos alucinógenos. A censura do banqueiro – “nunca mais faça isso” – sugere que se tratava da droga.</p> <p>Trinta minutos depois do aviso sobre o chocolate, chegara a hora de decidir sobre os quartos. Às 20h56, Michael avisou que havia emprestado um quarto ao ministro e a cinco mulheres. Disse que tentara ligar para pedir autorização, mas Vorcaro não atendera. Às 21h29, o banqueiro assentiu: “Claro. Qie sim”. Oito minutos depois, às 21h37, ele ordenou: “Só fecha meu quarto. E mostra o outro. Se vier o terceiro coloca sala tv”, escreveu ao seu ajudante de ordens. Às 22h08, a coisa ficou mais animada. A festa foi para outro ambiente. “Pessoal tudo pelado na piscina”, escreveu Michael. “Uma passou mal vomitou mais tá bem já.” Às 22h55, Vorcaro perguntou: “Pegou toalha pra eles”. Michael respondeu que sim e acrescentou: “Ministro tá sem pressa nenhuma de ir embora acabou de falar que está renovando para começar tudo novamente.” Às 23h15, novo aviso de Michael: “Ministro se organizando para ir embora já.” Às 23h17: “Indo embora ele.”</p> <p>Às 23h24, o mordomo mandou uma foto para o banqueiro na qual aparecem três preservativos usados espalhados sobre um tapete. “Tô arrumando pra não deixar pra selma essas coisa”, escreveu, referindo-se à faxineira. Às 23h27, mandou outra foto. Desta vez, a imagem de uma calcinha de renda preta ligeiramente enrolada, entre o lençol e a fronha: “Essas menina é artista olha onde achei embaixo do travesseiro.” Vorcaro não respondeu ao comentário do mordomo. Na manhã seguinte, o banqueiro dispensou Selma (“Nao precisa vir hoje”).</p> <p>A <strong>piauí</strong> procurou o ministro Kassio Nunes Marques com o pedido de alguns esclarecimentos: se foi à festa; se houve pagamento a alguma mulher presente; se ele considera que o episódio compromete sua atuação como relator do caso Master e do processo que pede a abertura da CPI do Master no Senado; se ele deveria reconhecer impedimento em relação a votos já proferidos no caso Master; se ele sente que existem condições para continuar como presidente do TSE diante das revelações.</p> <p>Em resposta, o ministro Kassio Nunes Marques enviou uma nota que diz apenas o seguinte: “O ministro Kassio Nunes Marques nunca votou a favor de Daniel Vorcaro (inclusive deu voto pela manutenção da prisão), nunca trocou mensagens com ele e nem pediu nada ao banqueiro. O ministro também nunca autorizou ninguém a falar em nome dele e não pode se responsabilizar por conversas ou ações de terceiros”.</p> <p> </p>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/web/kassio-vorcaro-triplex-noite/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

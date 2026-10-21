@@ -11,20 +11,20 @@ SNAPSHOT_DIR="$1"
 IPFS_CID="$2"
 
 if [ ! -d "$SNAPSHOT_DIR" ]; then
-    echo "❌ Erro: Diretório $SNAPSHOT_DIR não encontrado"
+    echo "[ERRO] Erro: Diretório $SNAPSHOT_DIR não encontrado"
     exit 1
 fi
 
 METADATA_FILE="$SNAPSHOT_DIR/snapshot_metadata.json"
 
 if [ ! -f "$METADATA_FILE" ]; then
-    echo "❌ Erro: Arquivo $METADATA_FILE não encontrado"
+    echo "[ERRO] Erro: Arquivo $METADATA_FILE não encontrado"
     exit 1
 fi
 
-echo "📝 Atualizando metadata do snapshot..."
-echo "📁 Diretório: $SNAPSHOT_DIR"
-echo "🌐 CID: $IPFS_CID"
+echo "Atualizando metadata do snapshot..."
+echo "Diretório: $SNAPSHOT_DIR"
+echo "CID: $IPFS_CID"
 
 # Atualizar o metadata com o CID correto usando Python
 python3 << EOF
@@ -43,17 +43,17 @@ metadata['cid_updated_at'] = json.dumps({"timestamp": "$(date -Iseconds)"})
 with open(metadata_file, 'w', encoding='utf-8') as f:
     json.dump(metadata, f, indent=2, ensure_ascii=False)
 
-print("✅ Metadata atualizado com sucesso!")
+print("[OK] Metadata atualizado com sucesso!")
 EOF
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 CID REGISTRADO NO SNAPSHOT: $IPFS_CID"
+echo "CID REGISTRADO NO SNAPSHOT: $IPFS_CID"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "📋 Links:"
+echo "Links:"
 echo "   Gateway IPFS: https://ipfs.io/ipfs/$IPFS_CID"
 echo "   Gateway local: http://localhost:8080/ipfs/$IPFS_CID"
 echo ""
-echo "💡 Dica: Faça upload novamente para IPFS para incluir o metadata atualizado:"
+echo "Dica: Faça upload novamente para IPFS para incluir o metadata atualizado:"
 echo "   ipfs add -r $SNAPSHOT_DIR"
