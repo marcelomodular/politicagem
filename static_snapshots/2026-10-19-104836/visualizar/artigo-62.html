@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem está votando na extrema-direita na América Latina? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Quem está votando na extrema-direita na América Latina?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://jacobin.com.br/2026/10/quem-esta-votando-na-extrema-direita-na-america-latina/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/leon-overweel-iYajrYkW0Vw-unsplash-scaled.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Quem está votando na extrema-direita na América Latina?
+                            </p>
+                            
+<p>A guinada para a extrema-direita está se impondo na América Latina. O ciclo progressista parece estar se esgotando para dar origem não só a uma direita generalizada, mas a uma espécie de fascistização cada vez mais pronunciada. Esta mudança para uma extrema direita com conotações fascistas ou fascistoides é parcialmente atribuível a fatores externos, como a interferência israelita e estadunidense, mas a interferência não é suficiente para explicar porque é que milhões de eleitores latino-americanos estejam preferindo a atual extrema-direita a projetos da esquerda popular, reformista, social-democrata e nacional-popular.</p>
+<p>A atual guinada parece obedecer não a um único fator explicativo, mas a múltiplas causas estruturais e conjunturais que motivam de forma diferente os vários eleitores de extrema-direita. Considerar estes sujeitos em sua diversidade pode ajudar-nos a compreender algo tão multifacetado e complexo como a fascistização atual. Para entender o que está acontecendo, nada melhor do que tentar caracterizar quem a está fazendo acontecer.</p>
+<p></p>
+<h2>Atualmente podemos distinguir pelo menos trinta classes de eleitores de extrema direita na América Latina:</h2>
+<p>1. Aqueles movidos pelo seu ódio e pelo seu medo, os racistas e sexistas, os xenófobos e homófobos, os misóginos e antifeministas, os islamofóbicos e antissionistas.</p>
+<p>2. Os exploradores e opressores de sempre, os inimigos eternos de impostos e direitos, aqueles que se agarram aos seus privilégios.</p>
+<p>3. Os alienados, aqueles que se apegam ao respeito pelos privilégios alheios, os aliados incondicionais de seus opressores e exploradores, aqueles que se identificam com seus agressores, com seus senhores patriarcais e coloniais, com os próprios poderes que os dominam.</p>
+<p>4. Os complexados, os que traem a si mesmos, os cipaios e malinchistas, os afrancesados ​​e os que vendem a pátria.</p>
+<p>5. Aqueles que se creem empresários por serem empresários de si mesmos, que se convencem de ser capitalistas por encarregarem-se da própria exploração, que fantasiam estar entre os proprietários apenas porque se possuem a si mesmos e colocam-se à venda.</p>
+<p></p>
+<p>6. Aqueles que imaginam ascender ao votar nos que estão em cima, se enriquecem ao votar nos ricos, empoderar-se ao votar nos poderosos, embranquecer-se ao votar nos brancos e nos embranquecidos.</p>
+<p>7. Os que apenas dão crédito à quem tanto os despreza por estes terem aprendido a desprezarem a si mesmos.</p>
+<p>8. Aqueles que foram retirados da pobreza por um governo de esquerda para que se identificassem com os ricos, menosprezando os pobres e odiando a esquerda.</p>
+<p>9. Aqueles fraudados por governos de esquerda que permaneceram subordinados ao capital, que não ousaram fazer nada impossível, que não concretizaram as fantasias que neles foram projetadas ou que eles próprios alimentaram em campanhas eleitorais e discursos demagógicos.</p>
+<p>10. Os marginalizados entre os marginalizados, os mais sofridos e ressentidos, aqueles que invejam e odeiam até mesmo o povo, aqueles esquecidos até pelos governos que fizeram todo o possível para não esquecer ninguém.</p>
+<p></p>
+<p>11. Aqueles que desconfiam de quem fala em justiça, quando no mundo parece haver apenas injustiça.</p>
+<p>12. Aqueles que apenas conseguem confiar em líderes que reafirmam e confirmam o que já existe — líderes abertamente injustos, irracionais e perversos; líderes que, assim, refletem fielmente o mundo capitalista em que vivemos.</p>
+<p>13. Aqueles que confiam apenas no próprio gozo, que desconfiam de todo o resto, que já não aspiram a nenhuma verdade, que querem apenas mentiras das quais possam gozar.</p>
+<p>14. Aqueles que querem apenas gozar, enxergam tudo como um espetáculo e entediam-se com algo tão sensato, cinzento, monótono e previsível quanto às opções da esquerda moderada.</p>
+<p>15. Aqueles que não decidem, aqueles que simplesmente se deixam arrastar, aqueles que agora seguem a moda neofascista.</p>
+<p></p>
+<p>16. Aqueles que acreditaram em um fascista porque não havia um comunista com quem pudessem compreender o que sentiam — sua fúria, seu desespero e seu desejo de mudar tudo.</p>
+<p>17. Aqueles que buscam uma firmeza, uma ousadia e uma radicalidade que se perderam na esquerda, e que vão procurar na extrema-direita.</p>
+<p>18. Aqueles que preferem a contundência do pior à indefinição do medíocre.</p>
+<p>19. Aqueles que preferem uma extrema-direita conservadora a uma esquerda inconsistente, que se deslocou para a direita.</p>
+<p>20. Aqueles que, de forma empática, não se envergonham da extrema-direita sem vergonha, mas sim da esquerda que se envergonha de si mesma.</p>
+<p></p>
+<p>21. Aqueles que preferem submeter-se ao capital diretamente, em vez de fazê-lo por meio de mediações políticas e mistificações ideológicas.</p>
+<p>22. Aqueles que deixaram de entender o que significam a esquerda e a direita.</p>
+<p>23. Aqueles que votam como se estivessem participando de um video game; os inconscientes do que está em jogo, absortos diante de suas telas que, em vez de mostrar o planeta devastado pelo capitalismo, o ocultam.</p>
+<p>24. Os bots encarnados, aqueles que já não possuem mais inteligência além da artificial, programados algoritmicamente por figuras de extrema-direita como Elon Musk, Peter Thiel, David Sacks, Marc Andreessen e Ben Horowitz.</p>
+<p>25. Os pervertidos por um cristianismo perverso, presos nas redes evangélicas pentecostais e neopentecostais, obcecados pela teologia da prosperidade, apoiadores incondicionais de Israel e firmemente posicionados contra o aborto, contra o feminismo e contra o casamento igualitário.</p>
+<p></p>
+<p>26. Os conservadores, os reacionários, aqueles que reagem defensivamente ao desgaste e ao descrédito de velhos poderes patriarcais, raciais e de classe.</p>
+<p>27. Aqueles que são assombrados pelo fantasma do comunismo que volta a rondar o mundo.</p>
+<p>28. Os fascistas de sempre, aqueles que permaneciam escondidos e que, finalmente, podem sair do armário e exibir, sem qualquer pudor, a sua vilania.</p>
+<p>29. Aqueles que, de forma pragmática, preferem estar entre os algozes do que entre as suas vítimas; entre os canalhas do que entre os derrotados; entre os israelenses do que entre os palestinos.</p>
+<p>30. Aqueles capazes de celebrar o genocídio em Gaza, de rir diante dos escombros, de se alegrar ou zombar ao ver fotografias de crianças palestinas assassinadas ou mutiladas.</p>
+<p></p>
+<p>Cada tipo de eleitor personifica uma razão para votar na ultradireita. Cada razão deve ser refutada de forma diferente. Cada refutação exige uma perspectiva estratégica particular. Não pode haver uma estratégia única para enfrentar, de maneira eficaz, o atual voto latino-americano na extrema-direita.</p>
+<p></p>
+<p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/quem-esta-votando-na-extrema-direita-na-america-latina/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

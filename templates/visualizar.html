@@ -310,7 +310,9 @@
 
         <div class="viewer-controls">
             <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
-            <a href="{{ url }}" target="_blank" class="btn">Abrir no Site Original →</a>
+            {% if url %}
+            <a href="{{ url }}" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            {% endif %}
 
             <div class="view-toggle">
                 <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
@@ -319,6 +321,14 @@
         </div>
 
         <div class="viewer-content">
+            {% if url_invalida %}
+            <div class="content-error">
+                <p>Link inválido ou bloqueado por política de segurança.</p>
+                <p style="font-size: 0.9rem; margin-top: 12px;">
+                    Só são permitidos endereços http:// e https:// de veículos de notícias.
+                </p>
+            </div>
+            {% else %}
             <div id="extracted-view">
                 {% if static_mode and article_data %}
                     <div id="extracted-content" class="content-text">
@@ -358,10 +368,12 @@
 
             <div id="iframe-view" style="display: none;">
                 <div class="iframe-container">
-                    <iframe src="{{ url }}" sandbox="allow-same-origin allow-scripts allow-forms"
+                    <iframe src="{{ url }}" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
                         onload="hideIframeLoading()"></iframe>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
         <script>
@@ -414,7 +426,7 @@
                 // Em modo estático, o conteúdo já está renderizado no HTML
                 return;
             {% else %}
-                const url = '{{ url }}';
+                const url = {{ url | tojson }};
 
                 fetch(`/extrair_conteudo?url=${encodeURIComponent(url)}`)
                     .then(async response => {

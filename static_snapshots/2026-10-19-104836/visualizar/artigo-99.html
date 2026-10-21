@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A emenda ficou pior que o soneto - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A emenda ficou pior que o soneto</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://passapalavra.info/2026/10/160110/" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/10/Ismael-Nery-Autorretratos-ru9zchjkrzfiei92xv1ee8ksm21x54v4xq5ilb6plg.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A emenda ficou pior que o soneto
+                            </p>
+                            
+<h3>Por vidaventovela</h3>
+<p>10 de outubro de 2026</p>
+<h4><strong>O mesmo dilema, oito anos depois</strong></h4>
+<p>Estamos a poucos dias do segundo turno das eleições de 2026, entre Lula e Flávio Bolsonaro. Flávio está na frente. O campo bolsonarista tem maioria no Congresso.</p>
+<p>E nós vivemos de novo o dilema de oito anos atrás. Naquela época, a esquerda afirmou que, se Bolsonaro ganhasse, o terror tomaria conta de tudo e toda perspectiva de ganho social seria perdida. Depois, mobilizou-se pela prisão de Bolsonaro, com uma postura que lembra o populismo penal que as gestões petistas praticam nos governos estaduais.</p>
+<p>O fato é que, mesmo com Bolsonaro preso e apenas o filho como porta-voz, o Flávio venceu o primeiro turno e chega ao segundo com vantagem. A pergunta, então, é uma só: qual é a visão estratégica que devemos ter para este momento?</p>
+<h4><strong><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/m_Toureiro.jpg"/>Um saldo negativo</strong></h4>
+<p>O saldo das organizações e dos movimentos sociais que se mobilizaram para fins eleitorais é, em geral, negativo. O melhor exemplo é a última eleição presidencial: foi seguida essa mesma lógica e hoje o povo está ainda mais à direita.</p>
+<p>Se for repetida a fórmula, daqui a quatro anos a tendência é piorar ainda mais. Já vivemos um período difícil no país. Os movimentos sociais perderam credibilidade, assim como a maioria das instituições sindicais e associativas da classe trabalhadora.</p>
+<p>O governo não corresponde aos anseios das pessoas frente a seus problemas. O voto no Flávio Bolsonaro, muitas vezes, é mais um voto contra o governo.</p>
+<h4><strong>Nem mais nem menos ingênuos</strong></h4>
+<p>É preciso ter claro: os milhões de brasileiros que votaram em Bolsonaro não são nem mais nem menos ingênuos que os que votaram em Lula. São, em sua maioria, trabalhadores muito explorados. Estão buscando construir uma interpretação da realidade, muitas vezes movidos por uma indignação que nasce da sua própria condição de classe.</p>
+<p>Do outro lado, quem vota no candidato do PT não está, necessariamente, despertando uma consciência de classe. Muitas vezes esse voto também está ligado a visões ingênuas ou simplistas da realidade, por mais que agradem ao gosto da esquerda.</p>
+<p>Portanto, a questão não é louvar quem aposta no governo Lula, com voto crítico ou não, e demonizar quem vota em Bolsonaro. A questão é: os movimentos vão às ruas disputar a consciência do povo? E de que forma?</p>
+<h4><strong><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/ismael-nery5.webp"/>O limite da campanha do medo</strong></h4>
+<p>A campanha não diz “o governo Lula tem vários problemas, mas o projeto de Bolsonaro é pior”. Diz “Lula, Lula, Lula, é 13, para sonhar de novo, para ser feliz”. E completa: se for o Flávio, vai acabar o bolsa família, as universidades, vai acabar tudo.</p>
+<p>Mas o que vimos? Houve desmontes, sim, só que nem sempre generalizados como foi alarmado. Que conquistas são essas que se desmancha logo nos primeiros meses do governo Bolsonaro. São como casas sem fundamento.</p>
+<p>Por isso, o melhor movimento estratégico não é tentar virar o voto de quem não votou em Lula. No curto prazo pode render um benefício momentâneo. No médio prazo, traz enormes contradições: a massa convencida agora tende, como nos últimos anos, a se decepcionar, se frustrar e migrar para os candidatos da direita.</p>
+<p>Também é preciso dizer: esse clima de terror e alarmismo tem, muitas vezes, influência de quem ocupa cargos no governo federal e nos partidos. Gente que teme perder o posto e ter que procurar outro emprego ou se pendurar em outro governo.</p>
+<p>E quando a base, passada a eleição, começar a ver as capitulações, a corrupção e a miséria que continua, ficará mais indignada ainda com o processo eleitoral. Mesmo que houvesse intenção de mudar, o Estado não tem capacidade de responder. Parte dessa base irá para a abstenção; outra parte, para a direita. Não à toa a abstenção é alta, mesmo enquanto deputados mantêm verdadeiros currais no interior, levando gente para votar como gado em troca de cargos e contratos temporários nas prefeituras.</p>
+<h4><strong><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/images.jpg"/>A luta não é entre esquerda e direita</strong></h4>
+<p>Não é a disputa entre esquerda e direita que rege a história. É a luta de classes. A democracia representativa está em frangalhos e já não dá conta das necessidades do povo.</p>
+<p>Se gastarmos nossa energia tentando convencer, pelo mal menor, o trabalhador que votou em Bolsonaro, o resultado será pequeno. E quem for convencido tem grande chance de voltar para a direita daqui a quatro anos. Essa dinâmica já se esgotou.</p>
+<p>Nós, lutadores do povo, não podemos ser os funcionários mal pagos de partido, que irão arcar com a ressaca pós-eleição enquanto outros estão em seus cargos. Precisamos construir uma alternativa a partir da organização de base, que não caia no mesmo ciclo da redemocratização da década de 1980, quando grande grande parte do acúmulo dos movimentos sociais foi absorvida pela institucionalidade para disputar o Estado. Basta disso.</p>
+<h4><strong>O que barra um golpe</strong></h4>
+<p>Um dos argumentos para deixar de lado qualquer questão para a campanha de Lula é a ameaça de um golpe de Estado e intervenção estrangeira. Mas a história mostra que o golpe pode vir com a direita no poder ou com a esquerda eleita. Na Espanha, em fevereiro de 1936, a Frente Popular venceu as eleições. Em julho, os militares deram o golpe mesmo assim. O mesmo se repetiu em outros momentos da história.</p>
+<p>Na Espanha, o que impediu o golpe militar foi os trabalhadores, em sua maioria envolvidos pelo anarquismo e sindicalismo revolucionário, que fez frente aos ataques dos poderosos com greves, barricadas e confrontos nas ruas.</p>
+<p>Assim, o que pode barrar um golpe, ou resistir a ele, é justamente o que ainda temos de mais fraco: a organização de base. É nela que precisamos focar para sair de um ciclo que só tende a piorar. Daqui a quatro anos, se nada mudar, será muito pior.</p>
+<h4><strong><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/N6SIPJLLTRA2HLFOGS37JSG2AU.avif"/>Organize-se</strong></h4>
+<p>Lula ou Flávio eleitos, a perspectiva para o futuro é de mais arrocho salarial, precarização das condições de vida e perda de direitos. Desse modo, seja o trabalhador que votou em Lula, o que votou em Bolsonaro, o que votou em outro candidato ou o que se absteve: nosso papel é construir a organização de base. Organização de classe, no local de trabalho e no local de moradia, fortalecendo as lutas e a solidariedade nas comunidades, independente do voto de cada um. Esse é o nosso grande desafio.</p>
+<p>Muito mais do que dizer “vote” ou “não vote”, temos que dizer: organize-se.</p>
+<ul>
+<li>
+<p>Participe da assembleia na sua comunidade e no seu local de trabalho.</p>
+</li>
+<li>
+<p>Apoie as greves e as paralisações.</p>
+</li>
+<li>
+<p>Apoie as ocupações de terra e a construção de hortas.</p>
+</li>
+<li>
+<p>Construa grupos de autodefesa das mulheres nas favelas, nas comunidades rurais e nos territórios indígenas, em todos os cantos.</p>
+</li>
+</ul>
+<p>É assim que vamos criar o futuro, sem cair no imediatismo nem no alarmismo que querem nos impor.</p>
+<p><strong>MAIS DO QUE VOTAR OU NÃO VOTAR, É PRECISO SE ORGANIZAR.</strong></p>
+<p><em>As imagens que ilustram o artigo são de Ismael Nery.</em></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/10/160110/" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

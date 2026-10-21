@@ -20,7 +20,7 @@ As notícias são buscadas em tempo real via **RSS**, sem armazenamento em banco
 - Visualização completa de artigos via scraping
 - Layout responsivo com 4 colunas para desktop
 - Correção de quebra de texto em colunas
-- Popup de doação PIX configurado para 10 minutos
+- **Arquivo em linha do tempo** das edições já publicadas, com o CID do IPFS
 - **Geração de snapshots estáticos para IPFS** (descentralização)
 
 ---
@@ -157,6 +157,7 @@ politicagem/
 ├── scraper.py                # Lógica de scraping via RSS (+40 fontes)
 ├── main.py                   # Modo terminal
 ├── snapshot_generator.py     # Gerador de snapshots estáticos para IPFS
+├── snapshot_archive.py       # Leitura das edições e montagem da linha do tempo
 ├── security_utils.py         # Utilitários de segurança para URLs
 ├── requirements.txt          # Dependências Python
 ├── README.md                 # Esta documentação
@@ -167,7 +168,26 @@ politicagem/
 ├── static_snapshots/         # Diretório para snapshots estáticos gerados
 └── templates/
     ├── index.html            # Interface estilo jornal com 4 colunas
+    ├── arquivo.html          # Linha do tempo das edições
     └── visualizar.html       # Página para visualização completa de artigos
+```
+
+---
+
+## Arquivo de edições
+
+O botão **Arquivo**, ao lado da busca, abre a linha do tempo das edições
+já geradas. Cada entrada mostra a data, a contagem de notícias e matérias
+e o CID do IPFS quando a edição já foi publicada.
+
+- `/arquivo` — página da linha do tempo
+- `/api/arquivo` — os mesmos dados em JSON
+- `/arquivo/<slug>` — abre o índice estático de uma edição
+
+Para registrar o CID de uma edição no acervo:
+
+```bash
+./update_snapshot_cid.sh static_snapshots/2026-10-20-175123 QmdBj24h2txArU6j6gcYps7xPSvRD1KB4Rr7FbgTr7YeZn
 ```
 
 ---

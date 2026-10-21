@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where did all the vegan restaurants go? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Where did all the vegan restaurants go?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/the-highlight/503739/vegan-restaurants-closing-animal-rights" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/09/BethWalrond_VeganRestaurants.jpg?quality=90&strip=all&crop=0%2C13.58064045629%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Why are so many vegan restaurants closing?
+                            </p>
+                            <p>My favorite restaurant, here in Madison, Wisconsin, closed this week.</p><p>It was not my favorite because it had the greatest food I’d ever had, nor the most memorable ambiance. But I loved the <a href="https://www.themadrabbitcafe.com/" rel="noopener noreferrer" target="_blank">Mad Rabbit Cafe</a> because it had become my anchor in the neighborhood — it felt like home to me and a core group of friends as surely as the century-old houses lining the surrounding city blocks. Most importantly, it was entirely vegan — a rarity in this city, which, despite its ultra-progressive politics, embraces Wisconsin’s identity as “America’s Dairyland.” It was a refuge where my <a href="https://www.vox.com/climate/24131229/vegan-vegetarian-meatless-climate-solutions-recipes-connection" rel="noopener noreferrer" target="_blank">most closely held values</a> found expression.</p><p>Mad Rabbit owner Nate Anger. Marina Bolotnikova/Vox</p><p>Inside the Mad Rabbit. Marina Bolotnikova/Vox</p><p>That closure is part of a <a href="https://vegnews.com/vegan-restaurant-closures" rel="noopener noreferrer" target="_blank">national</a> <a href="https://www.grubstreet.com/article/veganism-movement-decline-vegan-diet-popularity.html" rel="noopener noreferrer" target="_blank">trend</a>. US plant-based restaurants appear to be going through a contraction, amid the tumultuous aftermath of the Covid-19 pandemic and, perhaps, an anti-plant-based cultural vibe shift.</p><p>VegNews magazine <a href="https://vegnews.com/vegan-restaurant-closures" rel="noopener noreferrer" target="_blank">reported</a> that data from <a href="https://www.happycow.net/" rel="noopener noreferrer" target="_blank">HappyCow</a>, an app that lists vegan and vegetarian restaurants, finds the number of vegan restaurants in three of the country’s top destinations for vegan dining — New York City, Los Angeles, and Portland, Oregon — decreased by between 21 and 25 percent from 2022 to late 2024. Those cities alone make up a significant share of America’s vegan restaurants. Then, in 2025 and 2026, some of the country’s most renowned, long-running plant-based restaurants also announced that they’d shut down: <a href="https://ny.eater.com/2025/5/16/24430231/modern-love-closing-nyc-vegan-restaurant-isa-chandra-moskowitz" rel="noopener noreferrer" target="_blank">Modern Love</a> and <a href="https://vegnews.com/jorge-pineda-candle-closure" rel="noopener noreferrer" target="_blank">Candle</a> in New York City, the <a href="https://vegnews.com/the-vegan-joint-closing-all-locations" rel="noopener noreferrer" target="_blank">Vegan Joint</a> in LA, <a href="https://www.sfgate.com/food/article/oakland-vegan-restaurant-millennium-22192430.php" rel="noopener noreferrer" target="_blank">Millennium</a> in Oakland, a more than three-decade-old institution (though it later <a href="https://www.sfchronicle.com/food/restaurants/article/millennium-oakland-reopening-22298428.php" rel="noopener noreferrer" target="_blank">reopened</a> as a leaner operation), <a href="https://pdx.eater.com/closings/106197/gnarlys-closing-vegan-burgers-fast-food" rel="noopener noreferrer" target="_blank">among</a> <a href="https://seattle.eater.com/2025/1/13/24342689/plum-bistro-vegan-restaurant-capitol-hill" rel="noopener noreferrer" target="_blank">many</a> <a href="https://chicago.eater.com/restaurant-news/166682/recent-chicago-restaurant-and-bar-closures-to-know-in-december-2025" rel="noopener noreferrer" target="_blank">others</a>.</p><p>According to a <a href="https://www.vegansociety.com/sites/default/files/uploads/downloads/Veganism_Around_the_World_2025_%20The_Vegan_Society.pdf" rel="noopener noreferrer" target="_blank">Vegan Society report</a>, in October 2025, HappyCow (which is like Yelp but for plant-based dining) listed 1,717 all-vegan restaurants in the US. As of this writing, <a href="https://www.happycow.net/north_america/usa/?filters=vegan" rel="noopener noreferrer" target="_blank">HappyCow lists</a> 1,509.</p><p>Madison has never had anything like the vegan riches of New York or San Francisco, but even we are having our own vegan recession. When Mad Rabbit opened in early 2024, the city had four fully vegan restaurants; now, depending on how you count, one or two remain (and even the <a href="https://www.thewalkingjerk.com" rel="noopener noreferrer" target="_blank">one that’s unambiguously vegan</a> is a food-court-style stall). I visited Mad Rabbit at its last Sunday brunch, where it served what many people have described as the best tofu scramble they’ve ever had, and a crowd-pleasing rotation of crepe specials (this month, it was mango lassi). It’s a culinary niche that, once gone, is hard to replace in a mid-tier city like this one.</p><p></p><p><h2>What vegan restaurants do you love — or miss?</h2></p><p>We want to hear about the plant-based restaurants that have meant something to you — whether they’re still in business or dearly missed. Did they change your mind about vegan food, make you feel at home, or become part of your routine? What do you wish you could order one more time? Email me at marina@vox.com.</p><p>Mad Rabbit’s owner, Nate Anger, told me the business hadn’t been in particularly bad financial shape; it was profitable for each of the three years in which it operated, but not profitable enough to justify the punishing time commitment required to run it. Managing it had taken over his life, as it’s wont to do for many people in the food service industry. “I live here. I spend far more time here than anywhere else,” he told me in a recent interview at the restaurant. “I’ve missed my kids’ baseball game and tournaments and school band recitals.” I looked around at the oddball, DIY space he’d conjured — walls covered in houndstooth print, an Alice in Wonderland-like vortex, and art of rabbits in mischievous-looking moods, one brandishing a pair of large knives (the sort of room you wouldn’t want to encounter while stoned).</p><p>The animal rights movement has two very different emotional registers: the grief and terror of looking squarely at factory farming, and the joy of discovering how much creativity, abundance, and pleasure can exist outside it. All-vegan restaurants represent perhaps the fullest embodiment of that second feeling — like “a little heaven,” as Krupa Panchal, co-owner of Bombay Food Junkies, a vegan Indian spot in suburban St. Louis, put it to me.</p><p>Even as vegan businesses struggle to survive, plant-based options at non-vegan restaurants have become far more mainstream than they were a decade or two ago. Set against the stagnating (if not <a href="https://news.gallup.com/poll/510038/identify-vegetarian-vegan.aspx" rel="noopener noreferrer" target="_blank">declining</a>) share of Americans who identify as vegan or vegetarian, that raises difficult and even paradoxical questions for the animal movement.</p><p>For that reason, the mass die-off of plant-based restaurants has been much dissected and lamented in the vegan community. As I faced losing my own — a possibility I’d always feared and tried to forestall by supporting it as much as possible — the problem became much more visceral for me. I found myself thinking about why it mattered to me so much: What is lost when these places disappear, and what does that tell us about whether the plant-based movement can grow and endure?</p><p><h2><strong>What vegan restaurants are for</strong></h2></p><p>The vegan restaurant predates the word “vegan” itself — and so, apparently, do questions about whether they can be financially viable. More than a century ago, French anarchist Georges Butaud <a href="https://www.linkedin.com/posts/georges-butaud-1868-to-1926-was-a-belgian-born-share-7241732639584317441-_Gya/" rel="noopener noreferrer" target="_blank">co-founded the Foyer Végétalien</a> in Paris, writing in a 1923 letter that he was unsure whether it would attract a sufficient “clientèle végétalienne” to sustain itself. Why start such a business at all, when the audience for plant-based food is so vanishingly small? “I already have some positive results. A few people have become vegan since we opened,” Butaud wrote. The restaurant “is a school where we reciprocally teach one another…I have believed in the usefulness of creating it, and I will be happy if, over the months to come, the number of vegans increases.”</p><p>Many vegan restaurant proprietors today still share that ambition — to be good enough to help the movement grow.</p><p>Bombay Food Junkies in Creve Coeur, Missouri, outside St. Louis, serves a range of Indian street food and eclectic plant-based comfort food. Photo courtesy of Bombay Food Junkies</p><p>Long before it became routine to find plant-based options on normie restaurant menus (iceberg lettuce leaves don’t count), plant-based restaurants compensated for vegans’ exclusion from mainstream cuisine. But they have also aimed to provide proof of concept of the diverse, surprising possibilities of plant-based food for a larger audience, showing that plant-based food need not be confined to marginalia.</p><p>Today, of course, restaurants are far more central to our daily lives than they were in Butaud’s time. Americans <a href="https://www.ers.usda.gov/sites/default/files/_laserfiche/publications/105956/EIB-249.pdf" rel="noopener noreferrer" target="_blank">consume about a third of their calories</a> and the <a href="https://www.ers.usda.gov/data-products/charts-of-note/114212" rel="noopener noreferrer" target="_blank">majority of their food budgets</a> outside the home, and food-serving businesses are perhaps our most important third spaces. Meanwhile, the problems associated with animal agriculture and overconsumption of animal products grow unabated in America and around the world. The US alone <a href="https://www.vox.com/future-perfect/24079424/factory-farming-facts-meat-usda-agriculture-census" rel="noopener noreferrer" target="_blank">slaughters</a> 10 <em>billion</em> land animals for meat every year, the overwhelming share of them raised in appalling conditions, and those farmed for <a href="https://www.vox.com/future-perfect/403444/dairy-industry-cow-life-milk-america" rel="noopener noreferrer" target="_blank">milk</a> <a href="https://www.vox.com/the-highlight/480529/calf-ranches-grimmius-investigation-dairy-confinement" rel="noopener noreferrer" target="_blank">and</a> <a href="https://www.vox.com/future-perfect/500005/cage-free-eggs-cruelty-climate-reductionism" rel="noopener noreferrer" target="_blank">eggs</a> endure no better. Reciting these grim facts tends not to be a very fruitful path toward making friends or convincing people that veganism can be a positive and enjoyable lifestyle. Plant-based restaurants, on the other hand, make veganism feel less like a prohibition than an invitation; hospitality rather than horror.</p><p>Anyone who has ever gone vegan knows what it’s like to incessantly be asked the well-meaning but bewildering question: “What do you eat?” (And, I get it! It’s confusing for those of us who grew up viewing food free of animal products as side salad or overcooked green beans.) Plant-based businesses have long been laboratories for answering it, developing techniques that draw richness and variety from ingredients not often treated as the main event in Western cuisines.</p><p>The more than 50-year-old <a href="https://moosewood.com" rel="noopener noreferrer" target="_blank">Moosewood Restaurant</a> (although mostly vegetarian, not fully vegan) was an early conduit between restaurant experimentation and home cooking, its recipes spreading far beyond Ithaca, New York, through its enormously popular cookbooks. <a href="https://www.theatlantavoice.com/food/the-west-ends-soul-vegetarian-atlantas-oldest-black-owned-vegan-restaurant-bids-farewell-cce232ed" rel="noopener noreferrer" target="_blank">Soul Vegetarian</a> in Atlanta, opened in 1979, developed a plant-based soul food repertoire that helped cut a path for dozens of other vegan soul restaurants across the US; the Chicago Diner, in the city long identified with stockyards and slaughterhouses, helped popularize plant-based versions of American diner and deli staples. And chef Miyoko Schinner, at her erstwhile San Francisco restaurant Now &amp; Zen, experimented with <a href="https://www.eater.com/22315684/vegan-cheese-history-ingredients-process-grocery-brands" rel="noopener noreferrer" target="_blank">plant-based cheeses</a> long before launching Miyoko’s Creamery, one of the most acclaimed and influential vegan dairy companies of the past decade.</p><p>The 21st century in particular has seen a flowering of vegan restaurants serving every palate and national cuisine, in every possible aesthetic — punk, hippie, psychedelic, fussy and upscale. They still expand my mind today, showing that a lifetime wouldn’t be enough to discover all the ways we can eat without the exploitation of animals.</p><p>The longtime Grasshopper restaurant in Boston, whose pan-Asian fare <a href="https://bahistory.org/Newspapers/News_ABTab_19980707.pdf" rel="noopener noreferrer" target="_blank">draws</a> partly from Vietnamese Buddhist temple cuisine, makes mock meats that are worlds away from the rubbery substitutes that many Americans associate with the category (it closed its beloved, homey restaurant space in 2024, later reopening a stall inside a food court). Mad Rabbit changed even this longtime vegan’s idea of what tofu could be. Chicago-based <a href="https://penelopesvegantaqueria.com/" rel="noopener noreferrer" target="_blank">Penelope’s Vegan Taqueria</a> makes, as far as I’m concerned, the most exceptional Mexican food — vegan or not — this side of the Rio Grande. V-Grits, a Southern comfort spot in Louisville, Kentucky (RIP, 2024), provided evidence that some of America’s most exciting plant-based food could be found far from the big coastal cities best known for it.</p><p>So why are so many of these places shuttering now?</p><p><h2><strong>The vegan restaurant death spiral? </strong></h2></p><p>Some of the casualties, it must be said, just weren’t very good in the first place. The raw vegan boom of the 2000s and 2010s, for example, produced numerous establishments built around that especially unforgiving constraint — no cooking. The result was often less-than-thrilling food (which isn’t to say it’s never good!), all in service of a restriction with scant evidence of health benefits to support it. <a href="https://chicago.eater.com/restaurant-news/165747/recent-chicago-restaurant-and-bar-closures-november-2025" rel="noopener noreferrer" target="_blank">Lots</a> <a href="https://www.charlotteobserver.com/charlottefive/c5-around-town/c5-development/article284286528.html" rel="noopener noreferrer" target="_blank">of</a> <a href="https://www.puravegan.com/" rel="noopener noreferrer" target="_blank">these</a> restaurants have closed in the 2020s, reflecting diminishing demand for that particular variant of vegan food.</p><p>But the 2010s weren’t merely a golden age for zucchini noodles and date-walnut brownies — vegan restaurants of all stripes <a href="https://www.vrg.org/blog/2018/04/10/the-number-of-vegan-restaurants-on-vrgs-online-veggie-restaurant-guide-continues-to-grow/" rel="noopener noreferrer" target="_blank">were</a> <a href="https://onlinelibrary.wiley.com/doi/10.1111/1467-923X.13404" rel="noopener noreferrer" target="_blank">multiplying</a>, as was interest in the new generation of plant-based meats (Beyond and Impossible). It really did appear, for a minute there, that the future might be plant-based, vindicating decades of animal advocates’ work to push veganism into the mainstream.</p><p>“I felt like veganism had really hit a big stride” in that period, Anger, the Mad Rabbit founder, said. Everyone was streaming documentaries advocating for plant-based diets — <em>Forks Over Knives, Cowspiracy, What the Health</em>, among others. Some polls suggested the share of Americans who called themselves <a href="https://news.gallup.com/poll/510038/identify-vegetarian-vegan.aspx" rel="noopener noreferrer" target="_blank">vegan was growing</a>. Anger said his market research led him to believe that the overall trend line for veganism would continue going up, even a little. Instead, “it just rolled right back over.” His restaurant had a core customer base of committed vegans, but its heavy reliance on regulars also showed how limited its reach was; stagnating interest in veganism may have been putting a ceiling on its growth. Keith Uruski, owner of <a href="https://noochwindsor.com/" rel="noopener noreferrer" target="_blank">Nooch</a>, a vegan restaurant in Windsor, Ontario, open since 2018, told me that the business had thrived in its first few years, but has since slowed considerably, and he hasn’t paid himself in three years.</p><p>Nooch, a vegan restaurant in Windsor, Ontario, has been struggling in recent years. Marina Bolotnikova/Vox</p><p>In the years leading up to the pandemic, the assumption that the audience for vegan food would keep growing shaped much bigger bets than Mad Rabbit. Vegan chain restaurants including <a href="https://www.latimes.com/business/la-fi-mo-veggie-grill-funding-20130125-story.html" rel="noopener noreferrer" target="_blank">Veggie Grill</a>, <a href="https://www.nrn.com/emerging-chains/native-foods-caf-acquired-by-millstone-capital-advisors" rel="noopener noreferrer" target="_blank">Native Foods</a>, and <a href="https://vegconomist.com/gastronomy-food-service/food-service/planta-us-expansion-new-locations-concepts/" rel="noopener noreferrer" target="_blank">Planta</a> had pursued aggressive growth plans in the 2010s and early 2020s <a href="https://www.restaurantbusinessonline.com/operations/veggie-grill-has-closed-12-restaurants-right-sizing-portfolio" rel="noopener noreferrer" target="_blank">but</a> <a href="https://www.restaurantbusinessonline.com/emerging-brands/bankruptcy-judge-approves-liquidation-vegan-chain-planta" rel="noopener noreferrer" target="_blank">eventually</a> retrenched, closing locations and abandoning the scale they’d once envisioned. (Again, some of this may be merit-based rather than evidence of a broad rejection of veganism — YMMV, but I found Veggie Grill, at least last time I had it pre-Covid, to be mid.) “Most dedicated vegan chains are now in kind of a managed decline,” Lizzy Bartlett, senior director of menu research and insights at Technomic, a food service industry research firm, told me.</p><p>The cultural winds have certainly shifted. The Make America Healthy Again (MAHA) movement has probably contributed to a thermostatic swing away from “unnatural”-seeming diets and simulacra of traditional foods, like plant-based meat and milk. I also think society has deep <a href="https://www.vox.com/2019/3/27/18174374/eating-meat-veganism-vegetarianism" rel="noopener noreferrer" target="_blank">carnist</a> antibodies that activate whenever meat-eating faces heightened moral scrutiny. In the last few years, that’s taken the form of a <a href="https://www.vox.com/future-perfect/410565/protein-muscle-gain-weightlifting-plant-based-vegan" rel="noopener noreferrer" target="_blank">protein obsession</a> that has hijacked the minds of otherwise rational people, convincing them tofu and beans lack sufficient protein to build muscle.</p><p>But perhaps my favorite explanation was <a href="https://www.ft.com/content/866ae54f-bc13-4624-b16c-212366be4d4a" rel="noopener noreferrer" target="_blank">articulated</a> by Financial Times journalist Henry Mance last year: “The decline in idealism,” reflected in the reelection of Donald Trump — the triumph of our collective id.</p><p>There’s a risk of reading too much into all this, however. Many restaurants, vegan or not, suffered during Covid and from prolonged inflation in food and energy prices. This year, consumers are <a href="https://www.reuters.com/world/us/us-restaurant-sales-drop-iran-war-pushes-gasoline-prices-higher-2026-05-04/" rel="noopener noreferrer" target="_blank">spending less</a> at restaurants because of elevated fuel prices due to the war in Iran. Panchal, of Bombay Food Junkies, said that her sales have been down in 2025 and 2026 compared to the years prior, but she doesn’t believe vegan restaurants have been faring worse than non-vegan ones. Some vegan businesses have recently closed in St. Louis for personal reasons rather than failing in the market, she told me.</p><p>This is part of the natural life cycle of independent restaurants — many disappear within a <a href="https://news.osu.edu/restaurant-failure-rate-much-lower-than-commonly-assumed-study-finds/" rel="noopener noreferrer" target="_blank">few years</a>, and even highly successful ones eventually run their course. US cities had many vegan restaurants open in the 2000s and 2010s, so we might now be seeing a wave of closures that reflects the aging of that cohort.</p><p>Preliminary results shared with Vox from a 2026 survey of the global vegan restaurant industry, by the nonprofit <a href="https://www.veganhospitality.com" rel="noopener noreferrer" target="_blank">Vegan Hospitality</a>, also complicate the idea that plant-based restaurants are being killed off because of waning demand for vegan food. In responses from about 59 vegan restaurants (a self-selected group, to be sure), mostly in the US and Mexico, roughly four in five said they’d still choose to be fully vegan if they were opening today. Of 13 businesses that were closing or had been sold, six said that being vegan actually helped them, and four said it made no meaningful difference.</p><p>And there’s some tension between the “death of veganism” hypothesis and what may be one of the biggest forces now disadvantaging dedicated vegan restaurants: the widespread adoption of plant-based options on omnivorous restaurant menus. That it’s now easier to be vegan at mainstream establishments is “unquestionable,” Anger said. He viewed Mad Rabbit’s competitors as not just fully plant-based businesses, but any restaurant that offers “more than two or three” vegan options; it was located just a block away from one of Madison’s best-regarded restaurants, a <a href="https://www.ahanmadison608.com/" rel="noopener noreferrer" target="_blank">Laotian place</a> with several very good plant-based offerings.</p><p>Likewise, Michael Fifelski, general manager of Red Sushi in downtown Madison, which has a solid list of vegan options, told me, “Our vegetarian and vegan rolls actually are quite popular” — a foundational part of the menu. There can be a real advantage to simply letting vegan food blend in — Amanda Byrd, the manager of Everly, an eclectic, globally inspired restaurant in Madison, told me that its top dish, a butternut squash and forbidden rice curry, is incidentally plant-based. In many cases, “if you de-emphasize the vegan statement, but the dish happens to be vegan,” it will sell better, Claire Conaghan of the food industry research firm Datassential said.</p><p>Though nothing compares, for me, to the feeling of total alignment that comes with dining at an all-vegan restaurant, there is also something affirming about seeing plant-based food finally taken seriously by the wider culture — and vegan dishes surviving on their own merits alongside everything else on the menu.</p><p><h2><strong>Do vegan restaurants still matter?</strong></h2></p><p>In a world where you can find a satisfying vegan entrée at Chipotle or Taco Bell or your local brewpub, are fully vegan restaurants still needed? What purpose do they serve?</p><p>The most fundamental problem beneath the downturn in vegan businesses is simply that the vegan population does not seem to be growing much at all. Polling on the question is messy and often inconsistent, but according to Gallup’s 2026 <a href="https://news.gallup.com/poll/713645/marijuana-smoking-record-high-cigarettes-low.aspx" rel="noopener noreferrer" target="_blank">survey</a>, 2 percent of Americans call themselves vegan, the <a href="https://news.gallup.com/poll/510038/identify-vegetarian-vegan.aspx" rel="noopener noreferrer" target="_blank">same figure</a> as in 2012, when the firm first started asking the question. If expanding the number of people who abstain from animal products remains an important goal (<a href="https://sandcastlesblog.substack.com/p/meat-without-misery-welfare-tech" rel="noopener noreferrer" target="_blank">a</a> <a href="https://www.vox.com/future-perfect/362321/factory-farming-veganism-animal-rights-movement-meat" rel="noopener noreferrer" target="_blank">point</a> <a href="https://forum.effectivealtruism.org/posts/imoynWhpY5AqxcaDG/ea-should-invest-in-animal-liberation-and-diet-change" rel="noopener noreferrer" target="_blank">debated</a> <a href="https://tobiasleenaert.substack.com/p/the-vegan-trap" rel="noopener noreferrer" target="_blank">within</a> the animal movement, though I think dietary change still matters a great deal), then which is more likely to move that objective forward: vegan restaurants, or an abundance of vegan options at omnivorous ones? Which does more to increase the number of plant-based meals consumed rather than animal-based ones and generate excitement about vegan food?</p><p>Mother Fool’s, a vegan coffee and dessert shop in Madison, Wisconsin. Marina Bolotnikova/Vox</p><p>I put those questions to Seth Ariel Green, a research scientist at Stanford’s <a href="https://www.foodlabstanford.com" rel="noopener noreferrer" target="_blank">Humane and Sustainable Food Lab</a>, who writes the Substack “<a href="https://regressiontothemeat.substack.com/p/scaled-up-i-expect-defaults-to-reduce" rel="noopener noreferrer" target="_blank">Regression to the Meat</a>.” He’s one of the most intellectually honest researchers anywhere on meat reduction. His answer, via email, is that we don’t really know: “I have no idea how to weigh the pros and cons of, when I’m choosing between meals, 1) signaling to the world that vegan businesses are viable or 2) signaling to a particular business that their vegan options are viable. That’s a hard problem!” (It might be “a microeconomic structural equation modeling paper waiting to be written,” he added.)</p><p>Reducing prevailing levels of meat consumption even a tiny bit, much less convincing people to become vegan, is really, maddeningly hard, as Green has <a href="https://regressiontothemeat.substack.com/p/scaled-up-i-expect-defaults-to-reduce" rel="noopener noreferrer" target="_blank">written</a>. One frequently cited obstacle to growing the animal rights movement — its “central unsolved problem,” as one movement leader recently <a href="https://hatchingplans.substack.com/p/what-did-the-pro-life-movement-get" rel="noopener noreferrer" target="_blank">put it</a> — is that it lacks much in the way of an in-person social world and sense of community. Vegan restaurants alone can’t fix that, of course, but they <em>are</em> among the few physical institutions the movement has. At their best, they provide a space where a private dietary choice can be reinforced by a shared sense of identity — a place to run into someone you already know or meet someone new, at a speaker event or <a href="https://www.instagram.com/p/DavaNnLiSr1/" rel="noopener noreferrer" target="_blank">social mixer</a>. These spontaneous, embodied connections made Mad Rabbit such a warm presence in my life, and its final days all the more melancholy.</p><p>That function may be especially useful when plant-based restaurants are rooted in traditions people already belong to — cultural, religious, or otherwise — and help them view veganism as continuous with an identity they already have rather than as something alien to it. As Green has <a href="https://regressiontothemeat.substack.com/p/scaled-up-i-expect-defaults-to-reduce" rel="noopener noreferrer" target="_blank">suggested</a>, “let’s tap into pre-existing identities, explain how plant-based diets are consistent with them, and then take folks somewhere to enjoy convenient, <a href="https://regressiontothemeat.substack.com/p/it-helps-if-the-vegan-food-is-delicious" rel="noopener noreferrer" target="_blank">delicious</a> plant-based food together.”</p><p>On the other hand, plant-based options at omnivorous establishments matter for almost the opposite reason. People often <a href="https://pubmed.ncbi.nlm.nih.gov/36341862/" rel="noopener noreferrer" target="_blank">struggle</a> to stay vegan because eating differently isolates them from non-vegan friends and family; restaurants that can accommodate mixed-diet social groups help remove that social penalty. These options also need a customer base — if no one orders them, they’re unlikely to remain on menus.</p><p>I’m enough of a weirdo that I try to almost exclusively support plant-based restaurants whenever I eat out. I desperately want them to survive, and at the end of the day, no one is more invested in advancing the craft of plant-based cooking than vegan restaurants themselves.</p><p>Not everyone needs to be like me — in a world where almost all people still eat animal products, a healthy ecosystem needs both places built entirely around veganism and those where plant-based food is woven into broader food culture. It needs, most of all, excellent vegan food, wherever it might be found. And now that veganism has made at least a small breach into mainstream dining, vegan restaurants still offer something their meat-serving counterparts cannot. They’re like miniature utopias where the normal order of things is inverted and, for the length of a meal, we can see what a future without animal exploitation would look like.</p><p><em>This story was originally published in </em><a href="https://www.vox.com/the-highlight/504076/welcome-to-the-october-issue-of-the-highlight" rel="noopener noreferrer" target="_blank"><em>The Highlight</em></a><em>. To get access to member-exclusive stories like this every month, </em><a href="https://www.vox.com/support-membership?itm_campaign=article-header-Q42024&amp;itm_medium=site&amp;itm_source=in-article" rel="noopener noreferrer" target="_blank"><em>become a Vox Member today</em></a><em>.</em></p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/the-highlight/503739/vegan-restaurants-closing-animal-rights" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

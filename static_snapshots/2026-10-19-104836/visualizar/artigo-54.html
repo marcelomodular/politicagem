@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The dark side of optimizing fertility - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The dark side of optimizing fertility</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="/" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            <a href="https://www.vox.com/explain-it-to-me/506710/fertility-ivf-genetic-testing-embryos-eugenics" target="_blank" class="btn">Abrir no Site Original →</a>
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/10/gettyimages-2149287420.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Should you get genetic screening before you have a child?
+                            </p>
+                            <p>We live in an era of endless optimization. <a href="https://www.vox.com/technology/414264/apple-watch-oura-diabetes-blood-sugar-rfk-maha" rel="noopener noreferrer" target="_blank">Fitness trackers</a> help us measure our lifespan, people are consuming <a href="https://www.vox.com/future-perfect/410565/protein-muscle-gain-weightlifting-plant-based-vegan" rel="noopener noreferrer" target="_blank">piles of protein</a> in an attempt to be their best selves, and there’s even an urge to <a href="https://www.vox.com/the-highlight/387570/moral-optimization" rel="noopener noreferrer" target="_blank">maximize our morality</a>. In a world of constant self-improvement, it’s no wonder that journey has reached our attempts at reproduction.</p><p>Kristen V. Brown is a journalist and author of the forthcoming book <em>The Immortal Womb: The Centuries-Long Quest to Control the Female Body and Hack Human Reproduction</em>. As the title suggests, she writes about all of the ways people are trying to exert more control over the process of having children.</p><p>“I think that what we’re seeing right now is that people will do anything they can to have the healthiest baby possible,” she told Vox. “So much is out of your control, and people are just trying to figure out, how do I get more control? How do I skew the odds in my favor?” She says that one way people try to get more agency is through a technology called PGT-P, or preimplantation genetic testing for polygenic risk.</p><p>“If you go through IVF, very often they’ll have you do a basic genetic screening that can detect things like Down syndrome. This screening takes that up a notch,” Brown said. “It uses that same preimplantation genetic testing to look for the likelihood of complex genetic conditions — stuff like heart disease, like diabetes — in order to, quote, ‘let people have the healthiest baby.’”</p><p>But what can potential parents do with that knowledge? How far can this technology go? And what are the ethics of using it in the first place? We discuss that and more on the latest episode of <em>Explain It to Me</em>, Vox’s weekly call-in podcast.</p><p>Below is an excerpt of my conversation with Brown, edited for length and clarity. You can listen to the full episode on<a href="https://podcasts.apple.com/us/podcast/explain-it-to-me/id1042433083" rel="noopener noreferrer" target="_blank"> Apple Podcasts</a>,<a href="https://open.spotify.com/show/1vSUO6Bg4abtjRF7fnGpT1" rel="noopener noreferrer" target="_blank"> Spotify</a>, or wherever you get your podcasts. If you’d like to submit a question, send an email to askvox@vox.com or call 1-800-618-8545.</p><p><strong>What other things are they testing embryos for?</strong></p><p>For conditions that are only impacted by one gene, like Huntington’s disease, it’s very easy to say, ‘Does this embryo have it or not?’ with a pretty good degree of confidence. But that’s not how this technology works. Something like heart disease, for example, is impacted by hundreds of genes. Also, something like heart disease is not only genetic. It’s affected by environment and lifestyle.</p><p>I think that what’s motivating most people is the health aspect. But a lot of these companies are marketing these tests, saying they can also look for height. They can look at eye color. Some of them are promising IQ. How do you even define intelligence, let alone how do you define the genetics of intelligence? Alzheimer’s disease, longevity, which embryo is going to live the longest life. So it’s already gone beyond disease into some of these more aesthetic concerns.</p><p><strong>Do we know how many people are doing this? </strong></p><p>I think it’s a very small number of people at this point. But I think that we’re seeing more and more companies in the space, and we’re seeing more and more support from fertility doctors.</p><p>I want to emphasize that most mainstream medical societies are against this. Most of the IVF doctors I know do not think this has value. Most people in the genetic space do not think this technology has value either for embryos or for adults, but I think we’re seeing support growing.</p><p>I think that a lot of people in the fertility space are already envisioning a future where this does become more mainstream because the idea is just so appealing, even if the technology has flaws.</p><p><strong>What about embryo editing? Is that something we’re seeing? Can people go in and change things around?</strong></p><p>Not right now. Embryo editing is very much illegal in the United States. It is illegal in most countries. How can you be sure enough that it’s safe? Because you won’t know for sure until an embryo grows up into an adult whether anything went awry.</p><p>Right now it is illegal, but there is growing interest as the technology has gotten better. Most of the support right now for embryo editing is for disease. The argument for it is that, let’s say you are a carrier for Huntington’s disease or you have Huntington’s disease. Right now, there is something that you can do. You can use polygenic screening to select the embryos that don’t have the disease, but in IVF, even if you don’t have a terrible disease hiding in your DNA, it’s hard to get a lot of embryos.</p><p>You have these situations where couples have to do rounds and rounds and rounds of IVF to get one or two embryos that aren’t carriers for a harmful variant, right? And so the argument for it is, let’s give these people a better shot.</p><p><strong>But I imagine there are people out there who aren’t looking into editing simply for making children more resistant to diseases. They are looking at those things like eye color and height.</strong></p><p>There’s actually a name for that. This tech executive called Brian Armstrong coined this term, the Gattaca stack, [named] after the movie. The vision is to use a suite of fertility technologies to make the perfect human.</p><p>The first thing they want to use is this technology called in vitro gametogenesis, which is where you take a skin cell and you turn it into an egg and a sperm, and then you make an embryo with it, so women don’t have to go through rounds of IVF.</p><p>The idea is that you can get tons and tons and tons of embryos, and then you can use PGT-P to then screen for the best ones, and then you can use an artificial womb to incubate and grow them.</p><p><strong>This brings to mind a certain E word, and that word is eugenics. What are the ethics here? </strong></p><p><strong>Because on one hand, I can understand that there are parents who are like, “I just want to have a healthy baby. I want to bring a child into this world. I just want to put my best foot forward with this human that I’m going to bring to Earth.” And then on the other hand, it gets a little weird.</strong></p><p>It gets weird fast. In some ways, we’ve already gone down that slippery slope. Right now, even if you don’t go through IVF, we screen against Down syndrome early in pregnancy. Down syndrome is a condition in which you have a disability, but you can live a full, happy, healthy life. For a long time, parents of kids with Down syndrome have argued that already selecting and screening against Down syndrome pregnancies is a form of [eugenics].</p><p>As technology gets more advanced, we see that same question applied to more and more conditions. I think that one of the things that we don’t talk about enough is that the genome is complicated. You can’t actually just go in there and be like, ‘I want a tall baby with blue eyes and a great laugh.’</p><p>I think that becoming a parent is an exercise in giving up control, and that’s easier for some people than others. I have so much sympathy and empathy for people who are trying to stack the deck. But I think there are just so many variables when it comes to human reproduction that we are never going to be able to fully control the process, as much as we might want to and as appealing as that might sound.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/explain-it-to-me/506710/fertility-ivf-genetic-testing-embryos-eugenics" sandbox="allow-same-origin allow-scripts allow-forms"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
