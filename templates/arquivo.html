@@ -788,7 +788,13 @@
                         <div class="entry-date">{{ item.rotulo }}</div>
                         <div class="entry-title">
                             {% if item.tem_indice %}
-                            <a href="{% if static_mode %}../{{ item.slug }}/index.html{% else %}/arquivo/{{ item.slug }}{% endif %}" target="_blank" rel="noopener noreferrer">Edição de {{ item.data_curta }}</a>
+                                {% if item.cid %}
+                                <a href="https://ipfs.io/ipfs/{{ item.cid }}/" target="_blank" rel="noopener noreferrer">Edição de {{ item.data_curta }}</a>
+                                {% elif static_mode %}
+                                Edição de {{ item.data_curta }}
+                                {% else %}
+                                <a href="/arquivo/{{ item.slug }}" target="_blank" rel="noopener noreferrer">Edição de {{ item.data_curta }}</a>
+                                {% endif %}
                             {% else %}
                             Edição de {{ item.data_curta }}
                             {% endif %}
@@ -803,7 +809,13 @@
                         {% endif %}
                         <div class="entry-actions">
                             {% if item.tem_indice %}
-                            <a href="{% if static_mode %}../{{ item.slug }}/index.html{% else %}/arquivo/{{ item.slug }}{% endif %}" target="_blank" rel="noopener noreferrer">Abrir Edição</a>
+                                {% if item.cid %}
+                                <a href="https://ipfs.io/ipfs/{{ item.cid }}/" target="_blank" rel="noopener noreferrer">Abrir no IPFS</a>
+                                {% elif static_mode %}
+                                <span class="disabled" title="Edição não publicada no IPFS">Apenas no Servidor Local</span>
+                                {% else %}
+                                <a href="/arquivo/{{ item.slug }}" target="_blank" rel="noopener noreferrer">Abrir Edição</a>
+                                {% endif %}
                             {% else %}
                             <span class="disabled">Sem índice</span>
                             {% endif %}
@@ -899,11 +911,66 @@
             return `${d} de ${monthsPt[m - 1]} de ${y}`;
         }
 
-        function getEditionUrl(slug) {
-            const isStatic = window.location.protocol === 'file:' || 
-                             window.location.pathname.endsWith('.html') || 
-                             window.location.pathname.includes('/static_snapshots/');
-            return isStatic ? `../${slug}/index.html` : `/arquivo/${slug}`;
+        function resolveEditionAction(ed) {
+            const hostname = window.location.hostname;
+            const pathname = window.location.pathname;
+            const protocol = window.location.protocol;
+
+            const isIpfsSubdomain = hostname.includes('.ipfs.'); // ex: <cid>.ipfs.inbrowser.link
+            const isIpfsPath = pathname.startsWith('/ipfs/');    // ex: /ipfs/<cid>/...
+            const isLocalFile = protocol === 'file:';
+
+            if (!ed.tem_indice) {
+                return {
+                    url: '#',
+                    label: 'Sem índice',
+                    enabled: false
+                };
+            }
+
+            // Caso IPFS (subdomínio ou path gateway)
+            if (isIpfsSubdomain || isIpfsPath) {
+                if (ed.cid) {
+                    if (isIpfsSubdomain) {
+                        const parts = hostname.split('.');
+                        const gatewayHost = parts.slice(1).join('.');
+                        return {
+                            url: `${protocol}//${ed.cid}.${gatewayHost}/index.html`,
+                            label: 'Abrir no IPFS &rarr;',
+                            enabled: true
+                        };
+                    } else {
+                        return {
+                            url: `https://ipfs.io/ipfs/${ed.cid}/`,
+                            label: 'Abrir no IPFS &rarr;',
+                            enabled: true
+                        };
+                    }
+                }
+
+                // Se não tem CID registrado, no IPFS essa outra pasta não existe dentro deste CID
+                return {
+                    url: '#',
+                    label: 'Sem CID IPFS (Apenas Servidor Local)',
+                    enabled: false
+                };
+            }
+
+            // Caso arquivo local no disco (file://)
+            if (isLocalFile) {
+                return {
+                    url: `../${ed.slug}/index.html`,
+                    label: 'Abrir Edição Local &rarr;',
+                    enabled: true
+                };
+            }
+
+            // Caso servidor Flask dinâmico (localhost:5000, etc.)
+            return {
+                url: `/arquivo/${ed.slug}`,
+                label: 'Abrir Edição Completa &rarr;',
+                enabled: true
+            };
         }
 
         // Renderizar Painel de Edições do Dia Selecionado
@@ -929,7 +996,7 @@
             }
 
             dayEditions.forEach((ed, idx) => {
-                const targetUrl = getEditionUrl(ed.slug);
+                const action = resolveEditionAction(ed);
                 const card = document.createElement('div');
                 card.className = 'edition-card';
                 card.innerHTML = `
@@ -938,9 +1005,10 @@
                         <span class="edition-badge">Edição #${dayEditions.length - idx}</span>
                     </div>
                     <div class="edition-headline">
-                        <a href="${targetUrl}" target="_blank" rel="noopener noreferrer">
-                            Edição do Diário de ${ed.data_curta}
-                        </a>
+                        ${action.enabled ? 
+                            `<a href="${action.url}" target="_blank" rel="noopener noreferrer">Edição do Diário de ${ed.data_curta}</a>` :
+                            `<span>Edição do Diário de ${ed.data_curta}</span>`
+                        }
                     </div>
                     <div class="edition-meta">
                         <span>${ed.noticias} despachos reunidos</span>
@@ -948,9 +1016,9 @@
                     </div>
                     ${ed.cid ? `<div class="edition-cid">CID IPFS: ${ed.cid}</div>` : ''}
                     <div class="edition-actions">
-                        ${ed.tem_indice ? 
-                            `<a href="${targetUrl}" target="_blank" rel="noopener noreferrer">Abrir Edição Completa &rarr;</a>` : 
-                            `<span class="disabled">Sem índice</span>`
+                        ${action.enabled ? 
+                            `<a href="${action.url}" target="_blank" rel="noopener noreferrer">${action.label}</a>` : 
+                            `<span class="disabled">${action.label}</span>`
                         }
                     </div>
                 `;

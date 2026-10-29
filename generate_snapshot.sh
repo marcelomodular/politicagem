@@ -47,6 +47,11 @@ fi
 IPFS_OUTPUT=$(ipfs add -r "$SNAPSHOT_DIR")
 ROOT_CID=$(echo "$IPFS_OUTPUT" | tail -n 1 | awk '{print $2}')
 
+# Registrar automaticamente o CID nos metadados para que o calendário de edições o reconheça
+if [ -f "./update_snapshot_cid.sh" ] && [ -n "$ROOT_CID" ]; then
+    ./update_snapshot_cid.sh "$SNAPSHOT_DIR" "$ROOT_CID" >/dev/null 2>&1 || true
+fi
+
 echo "[OK] Upload concluído!"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
