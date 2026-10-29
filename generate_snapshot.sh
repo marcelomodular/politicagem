@@ -26,11 +26,9 @@ else
     python3 snapshot_generator.py --output "$SNAPSHOT_DIR" --limit "$LIMIT_PER_SOURCE" --no-extract
 fi
 
-# Limpar snapshots antigos (manter últimos 5)
-echo "Limpando snapshots antigos (mantendo últimos 5)..."
-cd static_snapshots
-ls -t | tail -n +6 | xargs -r rm -rf
-cd ..
+# Preservar histórico para o acervo e calendário
+echo "Preservando snapshot no arquivo histórico..."
+
 
 echo "[OK] Snapshot gerado com sucesso!"
 echo "Diretório: $SNAPSHOT_DIR"

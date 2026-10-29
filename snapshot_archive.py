@@ -137,6 +137,10 @@ def list_snapshots(base_dir=None) -> list:
                 "rotulo": format_label(moment),
                 "data_curta": moment.strftime("%d/%m/%Y"),
                 "hora": moment.strftime("%H:%M"),
+                "ano": moment.year,
+                "mes": moment.month,
+                "dia": moment.day,
+                "data_iso": moment.strftime("%Y-%m-%d"),
                 "noticias": news_count,
                 "artigos": articles,
                 "cid": cid,
@@ -145,6 +149,45 @@ def list_snapshots(base_dir=None) -> list:
         )
 
     return items
+
+
+def build_calendar_data(snapshots: list) -> dict:
+    """
+    Agrupa os snapshots em formato propicio para montagem de calendario.
+    Retorna mapa de datas ISO -> lista de edicoes, anos e meses disponiveis.
+    """
+    days_map: dict[str, list[dict]] = {}
+    years_set: set[int] = set()
+    months_by_year: dict[int, set[int]] = {}
+
+    for item in snapshots:
+        iso = item["data_iso"]
+        if iso not in days_map:
+            days_map[iso] = []
+        days_map[iso].append(item)
+
+        ano = item["ano"]
+        mes = item["mes"]
+        years_set.add(ano)
+        if ano not in months_by_year:
+            months_by_year[ano] = set()
+        months_by_year[ano].add(mes)
+
+    years_sorted = sorted(years_set, reverse=True)
+    months_map_sorted = {
+        ano: sorted(months_by_year[ano])
+        for ano in years_sorted
+    }
+
+    latest_date = snapshots[0]["data_iso"] if snapshots else None
+
+    return {
+        "days_map": days_map,
+        "years": years_sorted,
+        "months_by_year": months_map_sorted,
+        "latest_date": latest_date,
+        "months_pt": MONTHS_PT,
+    }
 
 
 def resolve_snapshot_path(slug: str, base_dir=None) -> Path:
@@ -167,9 +210,55 @@ def resolve_snapshot_path(slug: str, base_dir=None) -> Path:
     return target
 
 
+def resolve_snapshot_file(slug: str, relative_path: str = "index.html", base_dir=None) -> tuple[Path, str]:
+    """
+    Resolve com seguranca um arquivo interno de um snapshot (ex: index.html ou
+    visualizar/artigo-1.html), prevenindo path traversal.
+    Retorna a tupla (caminho_absoluto_diretorio, nome_arquivo_relativo).
+    """
+    snapshot_dir = resolve_snapshot_path(slug, base_dir)
+
+    clean_rel = Path(relative_path).as_posix().lstrip("/")
+    if not clean_rel:
+        clean_rel = "index.html"
+
+    target_file = (snapshot_dir / clean_rel).resolve()
+
+    if target_file != snapshot_dir and snapshot_dir not in target_file.parents:
+        raise ValueError("Acesso a arquivo fora do snapshot bloqueado.")
+
+    if not target_file.is_file():
+        raise FileNotFoundError("Arquivo nao encontrado no snapshot.")
+
+    return snapshot_dir, clean_rel
+
+
 def build_archive_payload(base_dir=None) -> dict:
-    """Payload JSON com as edicoes, usado pela API e pela interface."""
+    """Payload JSON com as edicoes e calendario, usado pela API e pela interface."""
     snapshots = list_snapshots(base_dir)
+    calendar = build_calendar_data(snapshots)
+
+    serializable_days_map = {
+        date_iso: [
+            {
+                "slug": item["slug"],
+                "rotulo": item["rotulo"],
+                "data_curta": item["data_curta"],
+                "hora": item["hora"],
+                "ano": item["ano"],
+                "mes": item["mes"],
+                "dia": item["dia"],
+                "data_iso": item["data_iso"],
+                "noticias": item["noticias"],
+                "artigos": item["artigos"],
+                "cid": item["cid"],
+                "tem_indice": item["tem_indice"],
+            }
+            for item in items
+        ]
+        for date_iso, items in calendar["days_map"].items()
+    }
+
     return {
         "total": len(snapshots),
         "snapshots": [
@@ -178,6 +267,10 @@ def build_archive_payload(base_dir=None) -> dict:
                 "rotulo": item["rotulo"],
                 "data_curta": item["data_curta"],
                 "hora": item["hora"],
+                "ano": item["ano"],
+                "mes": item["mes"],
+                "dia": item["dia"],
+                "data_iso": item["data_iso"],
                 "noticias": item["noticias"],
                 "artigos": item["artigos"],
                 "cid": item["cid"],
@@ -185,4 +278,12 @@ def build_archive_payload(base_dir=None) -> dict:
             }
             for item in snapshots
         ],
+        "calendar": {
+            "days_map": serializable_days_map,
+            "years": calendar["years"],
+            "months_by_year": calendar["months_by_year"],
+            "latest_date": calendar["latest_date"],
+            "months_pt": calendar["months_pt"],
+        },
     }
+

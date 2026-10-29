@@ -174,15 +174,16 @@ politicagem/
 
 ---
 
-## Arquivo de edições
+## Arquivo & Calendário de edições
 
-O botão **Arquivo**, ao lado da busca, abre a linha do tempo das edições
-já geradas. Cada entrada mostra a data, a contagem de notícias e matérias
-e o CID do IPFS quando a edição já foi publicada.
+O botão **Arquivo**, ao lado da busca, abre a hemeroteca com o **calendário mensal interativo**
+e a linha do tempo das edições preservadas (sem exclusão automática das anteriores). Cada entrada
+mostra o horário, contagem de despachos e matérias arquivadas, além do CID do IPFS quando publicado.
 
-- `/arquivo` — página da linha do tempo
-- `/api/arquivo` — os mesmos dados em JSON
-- `/arquivo/<slug>` — abre o índice estático de uma edição
+- `/arquivo` — hemeroteca com calendário mensal navegável e linha do tempo
+- `/api/arquivo` — dados completos do arquivo e agrupamento de calendário em JSON
+- `/arquivo/<slug>` e `/arquivo/<slug>/visualizar/...` — navegação completa da edição estática arquivada
+
 
 Para registrar o CID de uma edição no acervo:
 

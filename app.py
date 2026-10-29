@@ -12,9 +12,12 @@ from scraper import get_all_news
 from security_utils import is_public_http_url, is_safe_embed_url, parse_published_date
 from snapshot_archive import (
     build_archive_payload,
+    build_calendar_data,
     list_snapshots,
+    resolve_snapshot_file,
     resolve_snapshot_path,
 )
+
 
 app = Flask(__name__)
 
@@ -175,10 +178,13 @@ def index():
 
 @app.route('/arquivo')
 def arquivo():
-    """Linha do tempo das edicoes (snapshots) ja geradas."""
+    """Linha do tempo e calendario das edicoes (snapshots) ja geradas."""
+    payload = build_archive_payload()
     return render_template(
         'arquivo.html',
-        snapshots=list_snapshots(),
+        snapshots=payload['snapshots'],
+        calendar=payload['calendar'],
+        payload_json=payload,
     )
 
 
@@ -189,24 +195,22 @@ def api_arquivo():
 
 
 @app.route('/arquivo/<slug>')
-def abrir_snapshot(slug):
-    """Abre o indice estatico de um snapshot especifico."""
+@app.route('/arquivo/<slug>/')
+@app.route('/arquivo/<slug>/<path:filename>')
+def abrir_snapshot(slug, filename="index.html"):
+    """Abre o indice ou qualquer arquivo estatico de um snapshot especifico."""
     try:
-        snapshot_dir = resolve_snapshot_path(slug)
+        snapshot_dir, safe_filename = resolve_snapshot_file(slug, filename)
     except ValueError:
-        return jsonify({'error': 'Identificador de snapshot invalido.'}), 400
+        return jsonify({'error': 'Identificador de snapshot ou arquivo invalido.'}), 400
     except FileNotFoundError:
-        return jsonify({'error': 'Snapshot nao encontrado.'}), 404
-
-    index_file = snapshot_dir / "index.html"
-    if not index_file.is_file():
-        return jsonify({'error': 'Snapshot sem pagina inicial.'}), 404
+        return jsonify({'error': 'Snapshot ou arquivo nao encontrado.'}), 404
 
     return send_from_directory(
         snapshot_dir,
-        "index.html",
-        mimetype="text/html",
+        safe_filename,
     )
+
 
 
 @app.route('/visualizar')

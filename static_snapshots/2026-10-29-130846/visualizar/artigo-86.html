@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma radiografia do endividamento no Brasil - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Uma radiografia do endividamento no Brasil</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/mercadovsdemocracia/uma-radiografia-do-endividamento-no-brasil/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/photo_5120954069429195164_y-1.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Uma radiografia do endividamento no Brasil
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/photo_5120954069429195164_y-1.jpg"/>Foto: Marcelo Casagrande/Agencia RBS
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Por <strong>Marcelo Martins Fiorelli</strong>, <strong>Gilberto Tadeu Lima </strong>e <strong>Marina da Silva Sanches</strong> no <a href="https://madeusp.com.br/" rel="noopener noreferrer" target="_blank"><em>Made-USP</em></a></p>
+<p>O endiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as tem ocuÂ­paÂ­do um lugar imporÂ­tanÂ­te no debaÂ­te eleiÂ­toÂ­ral, e os dois canÂ­diÂ­daÂ­tos do segunÂ­do turÂ­no apreÂ­senÂ­taÂ­ram proÂ­posÂ­tas para enfrenÂ­tÃ¡-lo. Lula jÃ¡ coloÂ­cou em vigor sua mais recenÂ­te proÂ­posÂ­ta: a terÂ­ceiÂ­ra ediÂ­Ã§Ã£o do proÂ­graÂ­ma DesenÂ­roÂ­la BraÂ­sil. A <a href="https://www.congressonacional.leg.br/materias/medidas-provisorias/-/mpv/175870" rel="noopener noreferrer" target="_blank">mediÂ­da proÂ­viÂ­sÃ³Â­ria</a>, ediÂ­taÂ­da em 25 de setemÂ­bro de 2026, desÂ­tiÂ­nou R$ 15 bilhÃµes Ã  comÂ­pra de dÃ­viÂ­das em atraÂ­so de <a href="https://www.serasa.com.br/limpa-nome-online/desenrola-brasil/" rel="noopener noreferrer" target="_blank">atÃ© R$ 10 mil</a>, com desÂ­conÂ­tos e praÂ­zos ampliÂ­aÂ­dos para os deveÂ­doÂ­res. FlÃ¡Â­vio BolÂ­soÂ­naÂ­ro, por sua vez, tem anunÂ­ciava, com insuÂ­fiÂ­ciÂ­enÂ­te detaÂ­lhaÂ­menÂ­to, uma mediÂ­da semeÂ­lhanÂ­te, caso fosse eleiÂ­to: o goverÂ­no comÂ­praÂ­ria dÃ­viÂ­das de inaÂ­dimÂ­plenÂ­tes e as refiÂ­nanÂ­ciÂ­aÂ­ria junÂ­to Ã  CaiÂ­xa EconÃ´Â­miÂ­ca FedeÂ­ral, nos molÂ­des do DesenÂ­roÂ­la 3.0, jÃ¡ em vigor no manÂ­daÂ­to atual.</p>
+<p>ReduÂ­zir o endiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as, no entanÂ­to,  exiÂ­ge mais do que polÃ­Â­tiÂ­cas focaÂ­liÂ­zaÂ­das. Ã preÂ­ciÂ­so uma ecoÂ­noÂ­mia cuja taxa de cresÂ­ciÂ­menÂ­to seja adeÂ­quaÂ­da e proÂ­lonÂ­gaÂ­da. DianÂ­te da abranÂ­gÃªnÂ­cia do proÂ­bleÂ­ma, Ã© de inteÂ­resÂ­se pÃºbliÂ­co avaÂ­liÂ­ar como os goverÂ­nos de Jair BolÂ­soÂ­naÂ­ro e de Luiz InÃ¡Â­cio Lula da SilÂ­va conÂ­triÂ­buÃ­Â­ram para a alta do endiÂ­viÂ­daÂ­menÂ­to famiÂ­liÂ­ar. TodaÂ­via, nÃ£o basÂ­ta anaÂ­liÂ­sar em qual goverÂ­no a dÃ­viÂ­da cresÂ­ceu mais, Ã© necesÂ­sÃ¡Â­rio avaÂ­liÂ­ar tamÂ­bÃ©m qual tipo de dÃ­viÂ­da mais cresÂ­ceu em cada gestÃ£o. </p>
+<p>DÃ­viÂ­das no cheÂ­que espeÂ­ciÂ­al e no rotaÂ­tiÂ­vo do carÂ­tÃ£o de crÃ©Â­diÂ­to apreÂ­senÂ­tam as taxas de juros mais altas do merÂ­caÂ­do â 136,41% e 444,89%, resÂ­pecÂ­tiÂ­vaÂ­menÂ­te, em agosÂ­to de 20261. Os dados de taxa de juros mÃ©dia, praÂ­zos mÃ©diÂ­os e inaÂ­dimÂ­plÃªnÂ­cia por modaÂ­liÂ­daÂ­de de crÃ©Â­diÂ­to foram extraÃ­Â­dos do BanÂ­co CenÂ­tral do BraÂ­sil pelo SisÂ­teÂ­ma GerenÂ­ciÂ­aÂ­dor de SÃ©riÂ­es TemÂ­poÂ­rais. SÃ£o modaÂ­liÂ­daÂ­des de crÃ©Â­diÂ­to conÂ­traÂ­taÂ­das autoÂ­maÂ­tiÂ­caÂ­menÂ­te, uma quanÂ­do nÃ£o hÃ¡ salÂ­do na conÂ­ta corÂ­renÂ­te, a outra quanÂ­do a fatuÂ­ra do carÂ­tÃ£o nÃ£o Ã© paga. Essas duas modaÂ­liÂ­daÂ­des, junÂ­to com o crÃ©Â­diÂ­to nÃ£o conÂ­sigÂ­naÂ­do para reneÂ­goÂ­ciÂ­aÂ­Ã§Ã£o de dÃ­viÂ­das, apreÂ­senÂ­tam as trÃªs maiÂ­oÂ­res taxas de inaÂ­dimÂ­plÃªnÂ­cia denÂ­tre todas as demais. Em agosÂ­to de 2026, a inaÂ­dimÂ­plÃªnÂ­cia do cheÂ­que espeÂ­ciÂ­al foi de 15,34%, a do rotaÂ­tiÂ­vo foi de 66,15%, enquanÂ­to a das reneÂ­goÂ­ciÂ­aÂ­Ã§Ãµes de dÃ­viÂ­da foi de 18,42%. Assim, essas trÃªs modaÂ­liÂ­daÂ­des de crÃ©Â­diÂ­to reveÂ­lam a difiÂ­culÂ­daÂ­de de muiÂ­tas famÃ­Â­liÂ­as em cumÂ­prir seus comÂ­proÂ­misÂ­sos finanÂ­ceiÂ­ros bÃ¡sicos. </p>
+<p>Por outro lado, as dÃ­viÂ­das para aquiÂ­siÂ­Ã§Ã£o de veÃ­Â­cuÂ­los, imÃ³Â­veis e demais bens tenÂ­dem a indiÂ­car melhoÂ­ra na conÂ­diÂ­Ã§Ã£o finanÂ­ceiÂ­ra das famÃ­Â­liÂ­as e podem refleÂ­tir bem-estar econÃ´Â­miÂ­co. Em razÃ£o disÂ­so e deviÂ­do Ã  natuÂ­reÂ­za e ao valor dos bens adquiÂ­riÂ­dos, essas cateÂ­goÂ­riÂ­as tenÂ­dem a apreÂ­senÂ­tar taxas de juros mais baiÂ­xas, praÂ­zos mais lonÂ­gos e inaÂ­dimÂ­plÃªnÂ­ciÂ­as menoÂ­res. Em parÂ­tiÂ­cuÂ­lar, o crÃ©Â­diÂ­to habiÂ­taÂ­ciÂ­oÂ­nal Ã© a linha de crÃ©Â­diÂ­to com (1) o maiÂ­or voluÂ­me do merÂ­caÂ­do braÂ­siÂ­leiÂ­ro, repreÂ­senÂ­tanÂ­do, em agosÂ­to de 2026, 42,34% do total da dÃ­viÂ­da das famÃ­Â­liÂ­as2Esse total nÃ£o inclui a modaÂ­liÂ­daÂ­de de carÂ­tÃ£o de crÃ©Â­diÂ­to Ã  visÂ­ta e parÂ­ceÂ­laÂ­do com o lojisÂ­ta. Se incluirÂ­mos, a cifra cai para 36,36%, mas conÂ­tiÂ­nua senÂ­do a prinÂ­ciÂ­pal modaÂ­liÂ­daÂ­de de crÃ©Â­diÂ­to. ExpliÂ­caÂ­mos na nota 9 o motiÂ­vo desÂ­sa excluÂ­sÃ£o. A nota 4 tamÂ­bÃ©m inclui inforÂ­maÂ­Ã§Ãµes releÂ­vanÂ­tes.; (2) as menoÂ­res taxas de juros, com uma taxa mÃ©dia de 11,28%  ao ano em agosÂ­to3Essa taxa de juros Ã© menor que a taxa bÃ¡siÂ­ca de juros do paÃ­s, que, no final de agosÂ­to de 2026 era de 14% ao ano, e atuÂ­alÂ­menÂ­te, em outuÂ­bro de 2026, Ã© de 13,75% ao ano. ; (3) e a menor inaÂ­dimÂ­plÃªnÂ­cia, com 1,24% do voluÂ­me de crÃ©Â­diÂ­to inadimplente. </p>
+<p>O endiÂ­viÂ­daÂ­menÂ­to nÃ£o Ã© necesÂ­saÂ­riÂ­aÂ­menÂ­te negaÂ­tiÂ­vo. No caso do crÃ©Â­diÂ­to imoÂ­biÂ­liÃ¡Â­rio, por exemÂ­plo, ele perÂ­miÂ­te que muiÂ­tas famÃ­Â­liÂ­as reaÂ­liÂ­zem o legÃ­Â­tiÂ­mo sonho da casa prÃ³Â­pria, sob conÂ­diÂ­Ã§Ãµes mais vanÂ­taÂ­joÂ­sas. AlÃ©m disÂ­so, a demanÂ­da por imÃ³Â­veis novos aqueÂ­ce o setor de consÂ­truÂ­Ã§Ã£o civil, conÂ­triÂ­buinÂ­do para o cresÂ­ciÂ­menÂ­to econÃ´Â­miÂ­co, o que seria basÂ­tanÂ­te difiÂ­culÂ­taÂ­do sem essa fonÂ­te de financiamento.</p>
+<p>Em conÂ­traÂ­parÂ­tiÂ­da, no caso do cheÂ­que espeÂ­ciÂ­al e rotaÂ­tiÂ­vo do carÂ­tÃ£o de crÃ©Â­diÂ­to, o endiÂ­viÂ­daÂ­menÂ­to refleÂ­te uma incaÂ­paÂ­ciÂ­daÂ­de das famÃ­Â­liÂ­as em arcar com seu cusÂ­to de vida, se dÃ¡ com as taxas de juros mais caras do merÂ­caÂ­do, e, a parÂ­tir da alta inaÂ­dimÂ­plÃªnÂ­cia, conÂ­triÂ­bui para a insÂ­taÂ­biÂ­liÂ­daÂ­de do sisÂ­teÂ­ma financeiro. </p>
+<p>DeveÂ­mos, porÂ­tanÂ­to, fazer uma disÂ­tinÂ­Ã§Ã£o entre linhas de crÃ©Â­diÂ­to de emerÂ­gÃªnÂ­cia â como Ã© o caso do cheÂ­que espeÂ­ciÂ­al, do rotaÂ­tiÂ­vo do carÂ­tÃ£o de crÃ©Â­diÂ­to e do crÃ©Â­diÂ­to para reneÂ­goÂ­ciÂ­aÂ­Ã§Ã£o de dÃ­viÂ­das â e o crÃ©Â­diÂ­to para conÂ­suÂ­mo plaÂ­neÂ­jaÂ­do â como Ã© o caso da aquiÂ­siÂ­Ã§Ã£o e arrenÂ­daÂ­menÂ­to de veÃ­Â­cuÂ­los e, parÂ­tiÂ­cuÂ­larÂ­menÂ­te, o crÃ©Â­diÂ­to habitacional.</p>
+<p>A FiguÂ­ra 1 reproÂ­duz a mÃ©triÂ­ca publiÂ­caÂ­da pelo <a href="https://www3.bcb.gov.br/sgspub/" rel="noopener noreferrer" target="_blank">BanÂ­co CenÂ­tral do BraÂ­sil</a> para acomÂ­paÂ­nhar o endiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as: a fraÂ­Ã§Ã£o do estoÂ­que de dÃ­viÂ­da, excluinÂ­do o crÃ©Â­diÂ­to para aquiÂ­siÂ­Ã§Ã£o de imÃ³Â­veis, sobre uma estiÂ­maÂ­tiÂ­va da renÂ­da disÂ­poÂ­nÃ­Â­vel das famÃ­Â­liÂ­as acuÂ­muÂ­laÂ­da em 12 meses4. âO endiÂ­viÂ­daÂ­menÂ­to Ã© apuÂ­raÂ­do com base na relaÂ­Ã§Ã£o entre o salÂ­do das dÃ­viÂ­das das famÃ­Â­liÂ­as no SFN [SisÂ­teÂ­ma FinanÂ­ceiÂ­ro NaciÂ­oÂ­nal] e a RNDBF [RenÂ­da NaciÂ­oÂ­nal DisÂ­poÂ­nÃ­Â­vel BruÂ­ta das FamÃ­Â­liÂ­as] resÂ­triÂ­ta acuÂ­muÂ­laÂ­da dos ÃºltiÂ­mos doze meses. (â¦) ConÂ­ceiÂ­tuÂ­alÂ­menÂ­te, a RenÂ­da NaciÂ­oÂ­nal DisÂ­poÂ­nÃ­Â­vel BruÂ­ta das FamÃ­Â­liÂ­as corÂ­resÂ­ponÂ­de Ã  renÂ­da total das famÃ­Â­liÂ­as, que inclui os renÂ­diÂ­menÂ­tos obtiÂ­dos pelo uso de fatoÂ­res de proÂ­duÂ­Ã§Ã£o (traÂ­baÂ­lho e capiÂ­tal) e as transÂ­feÂ­rÃªnÂ­ciÂ­as receÂ­biÂ­das desÂ­conÂ­taÂ­dos das transÂ­feÂ­rÃªnÂ­ciÂ­as pagas, como imposÂ­tos e conÂ­triÂ­buiÂ­Ã§Ãµes sociÂ­ais. Essa mediÂ­da expresÂ­sa a renÂ­da agreÂ­gaÂ­da das famÃ­Â­liÂ­as disÂ­poÂ­nÃ­Â­veis para conÂ­suÂ­mo final e pouÂ­panÂ­Ã§a. (â¦) [O endiÂ­viÂ­daÂ­menÂ­to] Inclui todas as dÃ­viÂ­das conÂ­traÃ­Â­das por pesÂ­soÂ­as fÃ­siÂ­cas com o SFN desÂ­tiÂ­naÂ­das a conÂ­suÂ­mo e finanÂ­ciÂ­aÂ­menÂ­to imoÂ­biÂ­liÃ¡Â­rio, exceÂ­to desÂ­conÂ­to de cheÂ­ques, microÂ­crÃ©Â­diÂ­to, crÃ©Â­diÂ­to rural (Taxas reguÂ­laÂ­das e de merÂ­caÂ­do), crÃ©Â­diÂ­to com recurÂ­sos do BNDES (FinanÂ­ciÂ­aÂ­menÂ­to agroinÂ­dusÂ­triÂ­al e CapiÂ­tal de giro e FinanÂ­ciÂ­aÂ­menÂ­to a invesÂ­tiÂ­menÂ­tos) e outros crÃ©Â­diÂ­tos direÂ­ciÂ­oÂ­naÂ­dos. Assim, foram excluÃ­Â­das opeÂ­raÂ­Ã§Ãµes desÂ­tiÂ­naÂ­das a atiÂ­viÂ­daÂ­des proÂ­duÂ­tiÂ­vas exerÂ­ciÂ­das pelas famÃ­Â­liÂ­as, clasÂ­siÂ­fiÂ­caÂ­das na modaÂ­liÂ­daÂ­de âoutros crÃ©Â­diÂ­tos livresâ. Para incluÂ­sÃ£o das comÂ­pras com carÂ­tÃ£o de crÃ©Â­diÂ­to parÂ­ceÂ­laÂ­das sem juros (parÂ­ceÂ­laÂ­do lojisÂ­ta), foi necesÂ­sÃ¡Â­rio desaÂ­greÂ­gÃ¡-las do total do carÂ­tÃ£o de crÃ©Â­diÂ­to Ã  visÂ­ta, posÂ­to que apeÂ­nas as comÂ­pras parÂ­ceÂ­laÂ­das impacÂ­tam o orÃ§aÂ­menÂ­to das famÃ­Â­liÂ­as ao lonÂ­go do temÂ­po. Com base nas estaÂ­tÃ­sÂ­tiÂ­cas de pagaÂ­menÂ­tos, estiÂ­mou-se que as opeÂ­raÂ­Ã§Ãµes parÂ­ceÂ­laÂ­das resÂ­ponÂ­dem por aproÂ­xiÂ­maÂ­daÂ­menÂ­te 70% dos salÂ­dos da modaÂ­liÂ­daÂ­de âcarÂ­tÃ£o de crÃ©Â­diÂ­to Ã  visÂ­taâ. As sÃ©riÂ­es 20399 e 20400 tamÂ­bÃ©m nÃ£o incluÂ­em os finanÂ­ciÂ­aÂ­menÂ­tos imoÂ­biÂ­liÃ¡Â­riÂ­os (â¦) Os salÂ­dos sÃ£o apuÂ­raÂ­dos de acorÂ­do com regras conÂ­tÃ¡Â­beis, pelo regiÂ­me de comÂ­peÂ­tÃªnÂ­cia, e corÂ­resÂ­ponÂ­dem ao valor nomiÂ­nal da carÂ­teiÂ­ra.â (MetaÂ­daÂ­dos da sÃ©rie 29038 â SGS/BCB) âA RNDBF resÂ­triÂ­ta exclui o exceÂ­denÂ­te opeÂ­raÂ­ciÂ­oÂ­nal bruÂ­to e as renÂ­das de proÂ­priÂ­eÂ­daÂ­des, que sÃ£o parÂ­ceÂ­las de renÂ­da, em teoÂ­ria, menos corÂ­reÂ­laÂ­ciÂ­oÂ­naÂ­das com o ciclo econÃ´Â­miÂ­co ou que nÃ£o sÃ£o tipiÂ­caÂ­menÂ­te desÂ­tiÂ­naÂ­das ao conÂ­suÂ­mo imeÂ­diÂ­aÂ­to.â (MetaÂ­daÂ­dos da sÃ©rie 29030)5Ambas as sÃ©riÂ­es corÂ­resÂ­ponÂ­dem a agreÂ­gaÂ­dos macroÂ­eÂ­conÃ´Â­miÂ­cos. O numeÂ­raÂ­dor Ã© a soma da dÃ­viÂ­da das famÃ­Â­liÂ­as, enquanÂ­to o denoÂ­miÂ­naÂ­dor Ã© a soma da renÂ­da das famÃ­Â­liÂ­as. . No inÃ­Â­cio do goverÂ­no BolÂ­soÂ­naÂ­ro, em 2018,  o estoÂ­que de dÃ­viÂ­da era equiÂ­vaÂ­lenÂ­te a 23,21% da renÂ­da das famÃ­Â­liÂ­as. QuaÂ­tro anos depois, ele havia se eleÂ­vaÂ­do para 31,16%. Esse aumenÂ­to expresÂ­siÂ­vo ocorÂ­reu, como mosÂ­tra a figuÂ­ra, com relaÂ­tiÂ­va rapiÂ­dez. Em 2023, porÂ­tanÂ­to, Lula iniÂ­cia seu terÂ­ceiÂ­ro manÂ­daÂ­to com um enorÂ­me desaÂ­fio herÂ­daÂ­do da gesÂ­tÃ£o anteÂ­riÂ­or. DesÂ­de entÃ£o, a dÃ­viÂ­da manÂ­teÂ­ve-se relaÂ­tiÂ­vaÂ­menÂ­te estÃ¡Â­vel, atinÂ­ginÂ­do 30,81% da renÂ­da em julho de 2026. </p>
+<img alt="" src="https://madeusp.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-23-as-10.50.35.png"/>
+<p>Em meaÂ­dos desÂ­te ano, porÂ­tanÂ­to, o goverÂ­no Lula se defronÂ­taÂ­va com um endiÂ­viÂ­daÂ­menÂ­to praÂ­tiÂ­caÂ­menÂ­te no mesÂ­mo nÃ­vel daqueÂ­le com o qual a gesÂ­tÃ£o BolÂ­soÂ­naÂ­ro terÂ­miÂ­nou, o que reforÂ­Ã§a a hipÃ³Â­teÂ­se de heranÂ­Ã§a do goverÂ­no anteÂ­riÂ­or. O mÃ¡xiÂ­mo do atuÂ­al goverÂ­no, por volÂ­ta de 31,4% no inÃ­Â­cio de 2026, ficou praÂ­tiÂ­caÂ­menÂ­te no nÃ­vel do pico de 2022, ao fim da gesÂ­tÃ£o BolÂ­soÂ­naÂ­ro. Ou seja, a sÃ©rie volÂ­tou a encosÂ­tar no teto herÂ­daÂ­do sem supeÂ­rÃ¡-lo de forÂ­ma claÂ­ra. Em julho de 2026, o indiÂ­caÂ­dor estaÂ­va em cerÂ­ca de 30,8%, basÂ­tanÂ­te prÃ³Â­xiÂ­mo do ponÂ­to de parÂ­tiÂ­da no inÃ­Â­cio do governo.</p>
+<p>Vale notar, porÃ©m, que essa mÃ©triÂ­ca anaÂ­liÂ­sa conÂ­junÂ­taÂ­menÂ­te dois valoÂ­res â o estoÂ­que de dÃ­viÂ­da famiÂ­liÂ­ar e a renÂ­da das famÃ­Â­liÂ­as (RenÂ­da NaciÂ­oÂ­nal DisÂ­poÂ­nÃ­Â­vel BruÂ­ta das FamÃ­Â­liÂ­as âRNDBF). Assim, o indiÂ­caÂ­dor Ã© senÂ­sÃ­Â­vel Ã s mudanÂ­Ã§as em ambas as variÃ¡Â­veis, no numeÂ­raÂ­dor e no denoÂ­miÂ­naÂ­dor. Ao obserÂ­var o perÃ­oÂ­do entre 2018 e 2022, a eleÂ­vaÂ­Ã§Ã£o do endiÂ­viÂ­daÂ­menÂ­to como proÂ­porÂ­Ã§Ã£o da renÂ­da foi influÂ­enÂ­ciÂ­aÂ­da nÃ£o apeÂ­nas por um aumenÂ­to absoÂ­luÂ­to do estoÂ­que de dÃ­viÂ­da, mas tamÂ­bÃ©m pelo seu cresÂ­ciÂ­menÂ­to em relaÂ­Ã§Ã£o Ã  renÂ­da, que expanÂ­diu pouÂ­co. DuranÂ­te o goverÂ­no BolÂ­soÂ­naÂ­ro, em mÃ©dia, o estoÂ­que de dÃ­viÂ­da , sem excluir o crÃ©Â­diÂ­to habiÂ­taÂ­ciÂ­oÂ­nal, cresÂ­ceu, em mÃ©dia, 7,94% ao ano, enquanÂ­to a renÂ­da das famÃ­Â­liÂ­as cresÂ­ceu, em mÃ©dia, 1,9% ao ano, ambas desÂ­conÂ­taÂ­das pela inflaÂ­Ã§Ã£o (IPCA)6. Os dados de cresÂ­ciÂ­menÂ­to do estoÂ­que da dÃ­viÂ­da foram calÂ­cuÂ­laÂ­dos a parÂ­tir das sÃ©riÂ­es â29038 â EndiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as com o SisÂ­teÂ­ma FinanÂ­ceiÂ­ro NaciÂ­oÂ­nal exceÂ­to crÃ©Â­diÂ­to habiÂ­taÂ­ciÂ­oÂ­nal em relaÂ­Ã§Ã£o Ã  renÂ­da acuÂ­muÂ­laÂ­da dos ÃºltiÂ­mos 12 meses (RNDBF)â e â29030 â RenÂ­da NaciÂ­oÂ­nal DisÂ­poÂ­nÃ­Â­vel BruÂ­ta das FamÃ­Â­liÂ­as resÂ­triÂ­ta â em valoÂ­res corÂ­renÂ­tes, acuÂ­muÂ­laÂ­da em doze mesesâ. O estoÂ­que da dÃ­viÂ­da e a renÂ­da naciÂ­oÂ­nal disÂ­poÂ­nÃ­Â­vel bruÂ­ta das famÃ­Â­liÂ­as resÂ­triÂ­ta foram deflaÂ­ciÂ­oÂ­naÂ­dos pelo IPCA. A parÂ­tir desÂ­se nÃºmeÂ­ro, calÂ­cuÂ­laÂ­mos as taxas de cresÂ­ciÂ­menÂ­to mÃ©dio anuÂ­al das variÃ¡Â­veis para cada manÂ­daÂ­to.. Esse resulÂ­taÂ­do conÂ­trasÂ­ta com o perÃ­oÂ­do posÂ­teÂ­riÂ­or: entre 2023 e 2026, terÂ­ceiÂ­ro manÂ­daÂ­to de Lula,  a renÂ­da cresÂ­ceu mais â em mÃ©dia, 5,49% ao ano â e a dÃ­viÂ­da famiÂ­liÂ­ar aumenÂ­tou menos â em mÃ©dia, 5,92% ao ano.</p>
+<p>A FiguÂ­ra 2 mosÂ­tra a evoÂ­luÂ­Ã§Ã£o do crÃ©Â­diÂ­to habiÂ­taÂ­ciÂ­oÂ­nal como proÂ­porÂ­Ã§Ã£o da renÂ­da das famÃ­Â­liÂ­as para ambos os goverÂ­nos7Esta sÃ©rie foi obtiÂ­da a parÂ­tir da subÂ­traÂ­Ã§Ã£o de duas sÃ©riÂ­es do BCB: â29037 â EndiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as com o SisÂ­teÂ­ma FinanÂ­ceiÂ­ro NaciÂ­oÂ­nal em relaÂ­Ã§Ã£o Ã  renÂ­da acuÂ­muÂ­laÂ­da dos ÃºltiÂ­mos doze meses (RNDBF)â e â29038 â EndiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as com o SisÂ­teÂ­ma FinanÂ­ceiÂ­ro NaciÂ­oÂ­nal exceÂ­to crÃ©Â­diÂ­to habiÂ­taÂ­ciÂ­oÂ­nal em relaÂ­Ã§Ã£o Ã  renÂ­da acuÂ­muÂ­laÂ­da dos ÃºltiÂ­mos 12 meses (RNDBF)â. Os mesÂ­mos valoÂ­res podem ser obtiÂ­dos a parÂ­tir da diviÂ­sÃ£o entre a sÃ©rie â20612 â SalÂ­do â PesÂ­soÂ­as fÃ­siÂ­cas â FinanÂ­ciÂ­aÂ­menÂ­to imoÂ­biÂ­liÃ¡Â­rio totalâ e a sÃ©rie â29030 RenÂ­da NaciÂ­oÂ­nal DisÂ­poÂ­nÃ­Â­vel BruÂ­ta das FamÃ­Â­liÂ­as resÂ­triÂ­ta â em valoÂ­res corÂ­renÂ­tes, acuÂ­muÂ­laÂ­da em doze mesesâ.. Antes de anaÂ­liÂ­sar a figuÂ­ra, Ã© imporÂ­tanÂ­te recoÂ­nheÂ­cer que  essa forÂ­ma de endiÂ­viÂ­daÂ­menÂ­to acomÂ­paÂ­nhou de perÂ­to as polÃ­Â­tiÂ­cas de moraÂ­dia dos goverÂ­nos Lula e DilÂ­ma, com desÂ­taÂ­que para o Minha Casa Minha Vida, que ofeÂ­reÂ­ce subÂ­sÃ­Â­diÂ­os e taxas de juros abaiÂ­xo das praÂ­tiÂ­caÂ­das pelo merÂ­caÂ­do na comÂ­pra de imÃ³Â­veis. Entre janeiÂ­ro de 2005 e agosÂ­to de 2016, perÃ­oÂ­do de pouÂ­co mais de onze anos e meio que abranÂ­ge os goverÂ­nos Lula 1, Lula 2 e DilÂ­ma, o salÂ­do de crÃ©Â­diÂ­to imoÂ­biÂ­liÃ¡Â­rio pasÂ­sou de 2,67% para 16,02% da renÂ­da das famÃ­lias. </p>
+<img alt="" src="https://madeusp.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-23-as-10.51.14.png"/>
+<p>DuranÂ­te o goverÂ­no Temer, de agosÂ­to de 2016 atÃ© o fim de 2018,  o indiÂ­caÂ­dor ficou praÂ­tiÂ­caÂ­menÂ­te estÃ¡Â­vel, em torÂ­no de 15,81% da renÂ­da. No goverÂ­no BolÂ­soÂ­naÂ­ro, esse endiÂ­viÂ­daÂ­menÂ­to, mediÂ­do pelo mesÂ­mo indiÂ­caÂ­dor, apreÂ­senÂ­tou uma alta de aproÂ­xiÂ­maÂ­daÂ­menÂ­te 3 ponÂ­tos perÂ­cenÂ­tuÂ­ais. Essa variÂ­aÂ­Ã§Ã£o equiÂ­vaÂ­le a cerÂ­ca de um quarÂ­to da expanÂ­sÃ£o regisÂ­traÂ­da entre 2005 e 2016, em um interÂ­vaÂ­lo bem mais curÂ­to. Esse moviÂ­menÂ­to coinÂ­ciÂ­de com a vigÃªnÂ­cia do Casa VerÂ­de e AmaÂ­reÂ­la, lanÂ­Ã§aÂ­do em 2020 como nova denoÂ­miÂ­naÂ­Ã§Ã£o do Minha Casa Minha Vida e em vigor a parÂ­tir de 2021.</p>
+<p>No atuÂ­al goverÂ­no Lula, o indiÂ­caÂ­dor ficou entre 17,5% e 18% da renÂ­da entre 2023 e 2024 e volÂ­tou a subir, cheÂ­ganÂ­do a cerÂ­ca de 19,05% em meaÂ­dos de 2026, em boa mediÂ­da como resulÂ­taÂ­do da expanÂ­sÃ£o do Minha Casa Minha Vida. O crÃ©Â­diÂ­to habiÂ­taÂ­ciÂ­oÂ­nal, porÂ­tanÂ­to, segue em expanÂ­sÃ£o, emboÂ­ra em ritÂ­mo mais graÂ­duÂ­al do que no perÃ­oÂ­do 2003â2016. </p>
+<p>Para as famÃ­Â­liÂ­as, a dÃ­viÂ­da Ã© uma adverÂ­siÂ­daÂ­de na mediÂ­da em que comÂ­proÂ­meÂ­te parÂ­te do orÃ§aÂ­menÂ­to com o pagaÂ­menÂ­to das parÂ­ceÂ­las menÂ­sais. O comÂ­proÂ­meÂ­tiÂ­menÂ­to da renÂ­da mede jusÂ­taÂ­menÂ­te essa fatia, isto Ã©, o perÂ­cenÂ­tuÂ­al da renÂ­da das famÃ­Â­liÂ­as desÂ­tiÂ­naÂ­do ao serÂ­viÂ­Ã§o da dÃ­viÂ­da, comÂ­posÂ­to por juros e amorÂ­tiÂ­zaÂ­Ã§Ã£o. A amorÂ­tiÂ­zaÂ­Ã§Ã£o Ã© a parÂ­ceÂ­la que abaÂ­te o prinÂ­ciÂ­pal, ou seja, a quanÂ­tia oriÂ­giÂ­nalÂ­menÂ­te empresÂ­taÂ­da. QuanÂ­to maiÂ­oÂ­res os juros, manÂ­tiÂ­do tudo o mais consÂ­tanÂ­te, maiÂ­or serÃ¡ o comÂ­proÂ­meÂ­tiÂ­menÂ­to da renÂ­da. Por outro lado, quanÂ­to maiÂ­oÂ­res forem os praÂ­zos e parÂ­ceÂ­las, tudo o mais consÂ­tanÂ­te, <a href="https://dadosabertos.bcb.gov.br/dataset/29038-endividamento-das-familias-com-o-sistema-financeiro-nacional-exceto-credito-habitacional-em-r" rel="noopener noreferrer" target="_blank">menor serÃ¡ o comÂ­proÂ­meÂ­tiÂ­menÂ­to da renÂ­da</a>8;âComÂ­proÂ­meÂ­tiÂ­menÂ­to de renÂ­da â RelaÂ­Ã§Ã£o entre o valor corÂ­resÂ­ponÂ­denÂ­te aos pagaÂ­menÂ­tos espeÂ­raÂ­dos para o serÂ­viÂ­Ã§o da dÃ­viÂ­da com o SisÂ­teÂ­ma FinanÂ­ceiÂ­ro NaciÂ­oÂ­nal e a renÂ­da menÂ­sal das famÃ­Â­liÂ­as, em mÃ©dia mÃ³vel triÂ­mesÂ­tral, ajusÂ­taÂ­do sazoÂ­nalÂ­menÂ­te.â . </p>
+<p>A FiguÂ­ra 3 mosÂ­tra a evoÂ­luÂ­Ã§Ã£o desÂ­se indiÂ­caÂ­dor, em mÃ©diÂ­as mÃ³veis triÂ­mesÂ­trais e com ajusÂ­te sazoÂ­nal. Aqui, conÂ­siÂ­deÂ­raÂ­mos no cÃ¡lÂ­cuÂ­lo todas as modaÂ­liÂ­daÂ­des de crÃ©Â­diÂ­to, incluÂ­siÂ­ve a dÃ­viÂ­da com imÃ³Â­veis. SegunÂ­do dados do BanÂ­co CenÂ­tral do BraÂ­sil, no goverÂ­no BolÂ­soÂ­naÂ­ro, o comÂ­proÂ­meÂ­tiÂ­menÂ­to da renÂ­da subiu de 22,58% para 27,57%, uma alta de cerÂ­ca de 5 ponÂ­tos perÂ­cenÂ­tuÂ­ais. No terÂ­ceiÂ­ro manÂ­daÂ­to de Lula, a mÃ©triÂ­ca cheÂ­gou a 28,72% em meaÂ­dos desÂ­te ano, com um aumenÂ­to bem menor, de 1,15 ponÂ­to percentual.</p>
+<img alt="" src="https://madeusp.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-23-as-10.51.35-1024x718.png"/>
+<p>A traÂ­jeÂ­tÃ³Â­ria sob BolÂ­soÂ­naÂ­ro nÃ£o foi lineÂ­ar. O indiÂ­caÂ­dor subiu atÃ© cerÂ­ca de 25% em 2019, caiu em 2020, atÃ© prÃ³Â­xiÂ­mo de 20% em meaÂ­dos daqueÂ­le ano, e volÂ­tou a cresÂ­cer com forÂ­Ã§a a parÂ­tir de 2021, apeÂ­sar da taxa de juros mais baiÂ­xa no perÃ­oÂ­do. Entre o fim de 2020 e o fim de 2022, a alta foi de cerÂ­ca de 8 ponÂ­tos percentuais.</p>
+<p>No goverÂ­no Lula, o indiÂ­caÂ­dor comeÂ­Ã§ou no pataÂ­mar herÂ­daÂ­do, em torÂ­no de 27,5%, cheÂ­gou a cerÂ­ca de 28% em meaÂ­dos de 2023 e recuÂ­ou para cerÂ­ca de 25,5% no inÃ­Â­cio de 2024. A parÂ­tir daÃ­, volÂ­tou a subir atÃ© cerÂ­ca de 28,7% em meaÂ­dos de 2026, repreÂ­senÂ­tanÂ­do, porÃ©m, um aumenÂ­to de apeÂ­nas 1,15 ponÂ­to perÂ­cenÂ­tuÂ­al em relaÂ­Ã§Ã£o ao inÃ­Â­cio do governo.</p>
+<p>EntreÂ­tanÂ­to, essa Ã© apeÂ­nas parÂ­te da hisÂ­tÃ³Â­ria. A mÃ©triÂ­ca do BanÂ­co CenÂ­tral do BraÂ­sil expresÂ­sa os pagaÂ­menÂ­tos espeÂ­raÂ­dos para o serÂ­viÂ­Ã§o da dÃ­viÂ­da  em relaÂ­Ã§Ã£o Ã  renÂ­da menÂ­sal das famÃ­Â­liÂ­as, mas nÃ£o disÂ­tinÂ­gue o crÃ©Â­diÂ­to que finanÂ­cia a casa prÃ³Â­pria daqueÂ­le que paga as conÂ­tas do mÃªs. Ã nesÂ­sa disÂ­tinÂ­Ã§Ã£o, mais do que no nÃ­vel agreÂ­gaÂ­do, que Ã© posÂ­sÃ­Â­vel idenÂ­tiÂ­fiÂ­car os conÂ­trasÂ­tes mais sigÂ­niÂ­fiÂ­caÂ­tiÂ­vos entre os dois perÃ­odos.</p>
+<p>Nem toda dÃ­viÂ­da Ã© conÂ­traÃ­Â­da nas mesÂ­mas conÂ­diÂ­Ã§Ãµes. No finanÂ­ciÂ­aÂ­menÂ­to de um imÃ³Â­vel, o tomaÂ­dor cosÂ­tuÂ­ma estar em situÂ­aÂ­Ã§Ã£o mais estÃ¡Â­vel e plaÂ­neÂ­ja-se finanÂ­ceiÂ­raÂ­menÂ­te para adquiÂ­rÃ­-lo. JÃ¡ o cheÂ­que espeÂ­ciÂ­al e o rotaÂ­tiÂ­vo do carÂ­tÃ£o de crÃ©Â­diÂ­to tipiÂ­caÂ­menÂ­te refleÂ­tem a difiÂ­culÂ­daÂ­de das famÃ­Â­liÂ­as em quiÂ­tar todas as conÂ­tas no mÃªs. O mesÂ­mo vale para a recomÂ­poÂ­siÂ­Ã§Ã£o de dÃ­viÂ­das, que conÂ­sisÂ­te na reneÂ­goÂ­ciÂ­aÂ­Ã§Ã£o de dÃ©biÂ­tos jÃ¡ venÂ­ciÂ­dos: quem recorÂ­re a essa modaÂ­liÂ­daÂ­de jÃ¡ estÃ¡ inaÂ­dimÂ­plenÂ­te e busÂ­ca sair do verÂ­meÂ­lho. A FiguÂ­ra 4 mosÂ­tra o cresÂ­ciÂ­menÂ­to mÃ©dio anuÂ­al do salÂ­do de cada modaÂ­liÂ­daÂ­de no goverÂ­no atuÂ­al e no anteÂ­riÂ­or. Os valoÂ­res sÃ£o mÃ©diÂ­as simÂ­ples das variÂ­aÂ­Ã§Ãµes anuÂ­ais, e nÃ£o taxas comÂ­posÂ­tas do perÃ­odo.</p>
+<img alt="" src="https://madeusp.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-23-as-10.52.10.png"/>
+<p>DuranÂ­te o GoverÂ­no BolÂ­soÂ­naÂ­ro, as modaÂ­liÂ­daÂ­des emerÂ­genÂ­ciÂ­ais cresÂ­ceÂ­ram expresÂ­siÂ­vaÂ­menÂ­te. A recomÂ­poÂ­siÂ­Ã§Ã£o de dÃ­viÂ­das avanÂ­Ã§ou 16,70% ao ano, o cheÂ­que espeÂ­ciÂ­al e o rotaÂ­tiÂ­vo, 9,01%, e o crÃ©Â­diÂ­to pesÂ­soÂ­al nÃ£o conÂ­sigÂ­naÂ­do, 15,04%. Sob Lula, o quaÂ­dro se inverÂ­teu: a recomÂ­poÂ­siÂ­Ã§Ã£o de dÃ­viÂ­das recuÂ­ou 2,77% ao ano, e o cheÂ­que espeÂ­ciÂ­al e o rotaÂ­tiÂ­vo subiÂ­ram 4,82%. Esse ÃºltiÂ­mo ficou abaiÂ­xo do cresÂ­ciÂ­menÂ­to mÃ©dio da dÃ­viÂ­da total no terÂ­ceiÂ­ro manÂ­daÂ­to (5,92% ao ano), o que ajuÂ­da a expliÂ­car a queÂ­da da parÂ­tiÂ­ciÂ­paÂ­Ã§Ã£o desÂ­sa linha no endiÂ­viÂ­daÂ­menÂ­to. O aumenÂ­to do crÃ©Â­diÂ­to conÂ­sigÂ­naÂ­do tamÂ­bÃ©m desaÂ­ceÂ­leÂ­rou entre os dois goverÂ­nos: cresÂ­ceu 8,37% ao ano sob BolÂ­soÂ­naÂ­ro e 3,70% sob Lula.</p>
+<p>O conÂ­trasÂ­te apaÂ­reÂ­ce tamÂ­bÃ©m nas modaÂ­liÂ­daÂ­des com finaÂ­liÂ­daÂ­de defiÂ­niÂ­da, como a aquiÂ­siÂ­Ã§Ã£o de bens e veÃ­Â­cuÂ­los e o crÃ©Â­diÂ­to imoÂ­biÂ­liÃ¡Â­rio. Nelas, o cresÂ­ciÂ­menÂ­to foi mais rÃ¡piÂ­do sob Lula: 5,31% para 7,94% ao ano no caso dos veÃ­Â­cuÂ­los e 5,22% para 7,49% no caso do crÃ©Â­diÂ­to imoÂ­biÂ­liÃ¡Â­rio. JÃ¡ o parÂ­ceÂ­laÂ­menÂ­to no carÂ­tÃ£o de crÃ©Â­diÂ­to foi a modaÂ­liÂ­daÂ­de que mais cresÂ­ceu sob Lula (11,35% ao ano), seguiÂ­do pelo crÃ©Â­diÂ­to pesÂ­soÂ­al nÃ£o conÂ­sigÂ­naÂ­do (8,47%).</p>
+<p>ObserÂ­va-se um conÂ­trasÂ­te na natuÂ­reÂ­za do crÃ©Â­diÂ­to tomaÂ­do em cada gesÂ­tÃ£o. Sob BolÂ­soÂ­naÂ­ro, avanÂ­Ã§aÂ­ram sobreÂ­tuÂ­do as dÃ­viÂ­das emerÂ­genÂ­ciÂ­ais, como o cheÂ­que espeÂ­ciÂ­al, o rotaÂ­tiÂ­vo do carÂ­tÃ£o e a recomÂ­poÂ­siÂ­Ã§Ã£o de dÃ©biÂ­tos. Sob Lula, o cresÂ­ciÂ­menÂ­to foi susÂ­tenÂ­taÂ­do por linhas de finaÂ­liÂ­daÂ­de defiÂ­niÂ­da, como o crÃ©Â­diÂ­to imoÂ­biÂ­liÃ¡Â­rio e o finanÂ­ciÂ­aÂ­menÂ­to de veÃ­Â­cuÂ­los, mas tamÂ­bÃ©m pelo parÂ­ceÂ­laÂ­menÂ­to no carÂ­tÃ£o e pelo crÃ©Â­diÂ­to pesÂ­soÂ­al nÃ£o conÂ­sigÂ­naÂ­do, que cresÂ­ceÂ­ram mais rapiÂ­daÂ­menÂ­te que as demais modaÂ­liÂ­daÂ­des, mas menos do que no goverÂ­no Bolsonaro.</p>
+<p>A traÂ­jeÂ­tÃ³Â­ria das linhas de crÃ©Â­diÂ­to mais caras ilusÂ­tra esse cenÃ¡Â­rio. ExcluinÂ­do as modaÂ­liÂ­daÂ­des de finanÂ­ciÂ­aÂ­menÂ­to habiÂ­taÂ­ciÂ­oÂ­nal e carÂ­tÃ£o de crÃ©Â­diÂ­to Ã  visÂ­ta9A modaÂ­liÂ­daÂ­de de carÂ­tÃ£o de crÃ©Â­diÂ­to Ã  visÂ­ta inclui nÃ£o sÃ³ comÂ­pras no carÂ­tÃ£o que sÃ£o quiÂ­taÂ­das no prÃ³Â­prio mÃªs, mas tamÂ­bÃ©m comÂ­pras parÂ­ceÂ­laÂ­das com o lojisÂ­ta, na qual o banÂ­co proÂ­veÂ­dor da linha nÃ£o interÂ­meÂ­dia. Ou seja, parÂ­te desÂ­sa dÃ­viÂ­da de carÂ­tÃ£o de crÃ©Â­diÂ­to conÂ­fiÂ­guÂ­ra-se como dÃ­viÂ­da das famÃ­Â­liÂ­as, apeÂ­sar de nÃ£o ser posÂ­sÃ­Â­vel menÂ­suÂ­rÃ¡-la. O BanÂ­co CenÂ­tral conÂ­torÂ­na esse proÂ­bleÂ­ma estiÂ­manÂ­do o perÂ­cenÂ­tuÂ­al de gasÂ­tos no carÂ­tÃ£o de crÃ©Â­diÂ­to Ã  visÂ­ta desÂ­tiÂ­naÂ­dos a comÂ­pras parÂ­ceÂ­laÂ­das para comÂ­puÂ­tar sua mÃ©triÂ­ca de endiÂ­viÂ­daÂ­menÂ­to, como foi expliÂ­caÂ­do na nota de rodaÂ­pÃ© 4. Como nÃ£o temos acesÂ­so a essas estiÂ­maÂ­tiÂ­vas, simÂ­plesÂ­menÂ­te excluiÂ­reÂ­mos do monÂ­tanÂ­te essa modaÂ­liÂ­daÂ­de de crÃ©Â­diÂ­to., o salÂ­do do cheÂ­que espeÂ­ciÂ­al, rotaÂ­tiÂ­vo do carÂ­tÃ£o de crÃ©Â­diÂ­to e reneÂ­goÂ­ciÂ­aÂ­Ã§Ã£o de dÃ­viÂ­das repreÂ­senÂ­taÂ­va 12,17% das dÃ­viÂ­das famiÂ­liÂ­aÂ­res no inÃ­Â­cio do goverÂ­no BolÂ­soÂ­naÂ­ro e subiu para 13,34%  ao fim do manÂ­daÂ­to. Sob Lula, esse Ã­ndiÂ­ce recuÂ­ou e foi para um nÃ­vel infeÂ­riÂ­or ao pataÂ­mar iniÂ­ciÂ­al, com 11,61% em agosÂ­to de 2026.</p>
+<p>A aquiÂ­siÂ­Ã§Ã£o de bens e veÃ­Â­cuÂ­los segue outra lÃ³giÂ­ca. Sob BolÂ­soÂ­naÂ­ro, sua parÂ­tiÂ­ciÂ­paÂ­Ã§Ã£o na dÃ­viÂ­da caiu de 24,53% no inÃ­Â­cio do manÂ­daÂ­to para 20,95% ao final. Sob Lula, a parÂ­tiÂ­ciÂ­paÂ­Ã§Ã£o volÂ­tou a subir e cheÂ­gou a 22,71% em julho de 2026, fruÂ­to de uma demanÂ­da aquecida.</p>
+<p>Os dados sugeÂ­rem que o alto endiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as Ã© uma caracÂ­teÂ­rÃ­sÂ­tiÂ­ca estruÂ­tuÂ­ral da ecoÂ­noÂ­mia braÂ­siÂ­leiÂ­ra conÂ­temÂ­poÂ­rÃ¢Â­nea, refleÂ­xo de uma estruÂ­tuÂ­ra parÂ­tiÂ­cuÂ­lar de demanÂ­da e de oferÂ­ta de crÃ©Â­diÂ­to. EntreÂ­tanÂ­to, a anÃ¡Â­liÂ­se tamÂ­bÃ©m indiÂ­ca que osciÂ­laÂ­Ã§Ãµes nesÂ­ta sÃ©rie hisÂ­tÃ³Â­riÂ­ca tÃªm efeiÂ­tos perÂ­sisÂ­tenÂ­tes. NesÂ­se senÂ­tiÂ­do, Ã© imporÂ­tanÂ­te entenÂ­der a oriÂ­gem e a cauÂ­sa dos moviÂ­menÂ­tos subÂ­jaÂ­cenÂ­tes. Como obserÂ­vaÂ­do, o goverÂ­no BolÂ­soÂ­naÂ­ro deiÂ­xou para o goverÂ­no Lula um legaÂ­do de alto endiÂ­viÂ­daÂ­menÂ­to das famÃ­Â­liÂ­as. PorÃ©m, esse endiÂ­viÂ­daÂ­menÂ­to nÃ£o foi refleÂ­xo de uma melhoÂ­ria no padrÃ£o de conÂ­suÂ­mo da popuÂ­laÂ­Ã§Ã£o, mas sim prinÂ­ciÂ­palÂ­menÂ­te de uma incaÂ­paÂ­ciÂ­daÂ­de de finanÂ­ciÃ¡-lo. No atuÂ­al manÂ­daÂ­to, o indiÂ­caÂ­dor anaÂ­liÂ­saÂ­do manÂ­teÂ­ve-se relaÂ­tiÂ­vaÂ­menÂ­te estÃ¡Â­vel, em um conÂ­texÂ­to de atiÂ­viÂ­daÂ­de econÃ´Â­miÂ­ca aqueÂ­ciÂ­da e de renÂ­da em cresÂ­ciÂ­menÂ­to. Essa estaÂ­biÂ­liÂ­daÂ­de decorÂ­re da proÂ­xiÂ­miÂ­daÂ­de entre o ritÂ­mo de expanÂ­sÃ£o da dÃ­viÂ­da (5,92% ao ano) e o da renÂ­da (5,49% ao ano). QuanÂ­to Ã  comÂ­poÂ­siÂ­Ã§Ã£o, houÂ­ve melhoÂ­ra em um aspecÂ­to releÂ­vanÂ­te: reduÂ­ziu-se o peso do cheÂ­que espeÂ­ciÂ­al e do rotaÂ­tiÂ­vo, as cateÂ­goÂ­riÂ­as mais caras. Ao mesÂ­mo temÂ­po, a aquiÂ­siÂ­Ã§Ã£o de veÃ­Â­cuÂ­los, imÃ³Â­veis e o parÂ­ceÂ­laÂ­menÂ­to no carÂ­tÃ£o de crÃ©Â­diÂ­to ganhaÂ­ram espaÂ­Ã§o, o que quaÂ­liÂ­fiÂ­ca essa leiÂ­tuÂ­ra na mediÂ­da em que tais moviÂ­menÂ­tos tÃªm alta proÂ­baÂ­biÂ­liÂ­daÂ­de de estaÂ­rem relaÂ­ciÂ­oÂ­naÂ­dos com o aqueÂ­ciÂ­menÂ­to da ecoÂ­noÂ­mia e o aumenÂ­to de renÂ­da da popuÂ­laÂ­Ã§Ã£o. Em sÃ­nÂ­teÂ­se, a alta do endiÂ­viÂ­daÂ­menÂ­to no goverÂ­no BolÂ­soÂ­naÂ­ro foi marÂ­caÂ­do sobreÂ­tuÂ­do por dÃ­viÂ­das emerÂ­genÂ­ciÂ­ais, sem necesÂ­saÂ­riÂ­aÂ­menÂ­te refleÂ­tir uma melhoÂ­ria nas conÂ­diÂ­Ã§Ãµes econÃ´Â­miÂ­cas da popuÂ­laÂ­Ã§Ã£o. No goverÂ­no Lula 3, as forÂ­mas domiÂ­nanÂ­tes de endiÂ­viÂ­daÂ­menÂ­to se alteÂ­raÂ­ram: comÂ­biÂ­nou-se crÃ©Â­diÂ­to para aquiÂ­siÂ­Ã§Ã£o de bens, veÃ­Â­cuÂ­los e imÃ³Â­veis com a expanÂ­sÃ£o do parÂ­ceÂ­laÂ­menÂ­to no carÂ­tÃ£o, refleÂ­tinÂ­do um momenÂ­to disÂ­tinÂ­to da ecoÂ­noÂ­mia brasileira.</p>
+<p></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/mercadovsdemocracia/uma-radiografia-do-endividamento-no-brasil/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

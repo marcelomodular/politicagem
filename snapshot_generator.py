@@ -17,6 +17,8 @@ from readability import Document
 
 from scraper import get_all_news
 from security_utils import is_public_http_url, parse_published_date
+from snapshot_archive import build_archive_payload
+
 
 REQUEST_TIMEOUT_SECONDS = 15
 MAX_REDIRECTS = 3
@@ -325,11 +327,28 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
     metadata_path = output_dir / "snapshot_metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding='utf-8')
     
+    # Gerar pagina de arquivo historico / calendario estatica para o snapshot
+    try:
+        archive_template = env.get_template('arquivo.html')
+        archive_payload = build_archive_payload(base_dir=output_dir.parent)
+        archive_html = archive_template.render(
+            snapshots=archive_payload['snapshots'],
+            calendar=archive_payload['calendar'],
+            payload_json=archive_payload,
+            static_mode=True,
+        )
+        archive_path = output_dir / "arquivo.html"
+        archive_path.write_text(archive_html, encoding='utf-8')
+        print(f"Arquivo e Calendário estáticos: {archive_path}")
+    except Exception as e:
+        print(f"[AVISO] Não foi possível gerar arquivo.html estático: {e}")
+    
     print(f"[OK] Snapshot gerado em: {output_dir}")
     print(f"{len(noticias)} notícias processadas")
     print(f"Index HTML: {index_path}")
     if extract_articles:
         print(f"Artigos estáticos: {articles_dir}")
+
     
     return str(output_dir), str(index_path)
 
