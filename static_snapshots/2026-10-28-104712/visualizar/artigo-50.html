@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The global war on citizenship - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The global war on citizenship</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/politics/508003/citizenship-ilhan-omar-imran-khan-naza-trump-modi-israel" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/10/gettyimages-2288901342.jpg?quality=90&strip=all&crop=0%2C10.666475120249%2C100%2C78.667049759503&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: The global war on citizenship
+                            </p>
+                            <p>What do a Bollywood actor, a member of Congress, and Israeli directors have in common?</p><p>It sounds like the beginning of a bad joke. The punchline, though, is that governments of India, the United States, and Israel, respectively, think they should be stripped of their national status.</p><p>Bollywood star Imran Khan, nephew of Bollywood superstar Aamir Khan, was told he has until October 28 (and since <a href="https://www.reuters.com/business/media-telecom/indian-court-allows-actor-imran-khan-stay-until-november-2-media-report-2026-10-27/" rel="noopener noreferrer" target="_blank">extended to November 2</a>) to leave India, where he resides on an Overseas Citizen of India (OCI) card. India doesn’t allow dual citizenship, but OCI status gives individuals of Indian descent and their family members the right to permanently live, work, and study in India; its revocation uproots its holders from their homes and their lives. Khan had protested in a demonstration demanding the resignation of Gyanesh Kumar, India’s chief election commission. He is <a href="https://variety.com/2026/film/news/imran-khan-fight-order-leave-india-high-court-1236913007/" rel="noopener noreferrer" target="_blank">challenging the order in court</a>.</p><p>Earlier this month, US Rep. Ilhan Omar’s home was raided by federal authorities who are reportedly preparing a case to <a href="https://www.wsj.com/politics/policy/ilhan-omar-investigation-aims-to-build-case-for-stripping-her-citizenship-6adf1edc" rel="noopener noreferrer" target="_blank">strip</a> her of citizenship, alleging that her father said she was 17 when she was really 18 when he filed her naturalization paperwork. President Donald Trump subsequently <a href="https://www.yahoo.com/news/politics/articles/trump-calls-ilhan-omar-resign-013602514.html?guccounter=1&amp;guce_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&amp;guce_referrer_sig=AQAAACTMpYRZrvy-jRpls0JheKHP1ITp4qewzahyrpVNqvF0wwX0xhwCd4Q6PwLLx-7v9RIjIT4mFkXu1scpPS104-QibNi0Bp5Q-3CaIVUjgKcTOs74OHxScF-PRYz4FQBYG9se-0sfP13BCwcetmYa81VHdmLJikzDeFr3rN0ehRed" rel="noopener noreferrer" target="_blank">said</a> that, because a federal court filing allegedly referred to her as “Ilhan Nur Said Elmi, a/k/a Ilhan Abdullahi Omar,” she should have to resign from Congress.</p><p>Israeli Prime Minister Benjamin Netanyahu has intimated that Yuval Abraham and Rachel Szor, directors of the film <em>NAZA</em>, in which Abraham interviews Israeli soldiers and intelligence officers on Tel Aviv rooftops about how they assessed and decided to kill civilians in Gaza, could <a href="https://www.reuters.com/world/middle-east/netanyahu-steps-up-threats-against-directors-gaza-documentary-naza-2026-09-16/" rel="noopener noreferrer" target="_blank">be stripped of their Israeli citizenship</a>, saying he would pursue legislation to go after critics of the military who crossed a line. “We will revoke citizenship for anyone who defames IDF soldiers around the world — he will be deeply hurt in his pocket,” said Netanyahu, who cited the filmmakers as a potential example and called their work “intolerable.”</p><p>The move to strip citizens of their passports and their rights is not a new one, nor is it limited to these three countries. Perhaps most famously, Jews were stripped of citizenship by the Nazis in Germany and elsewhere in Europe in the 1930s and ’40s. To take a more recent example, over the summer, Russia passed legislation that effectively <a href="https://www.euronews.com/2026/07/23/russia-strips-rights-of-dissidents-abroad-in-sweeping-new-traitor-law" rel="noopener noreferrer" target="_blank">strips Russians abroad facing domestic prosecution</a> on political grounds of their citizenship (the law takes away their property, freezes their bank accounts, and refuses them consular services).</p><p>Still, that three high-profile cases are coming from three countries that claim to be democracies raises the question: Why do reactionary leaders in democracies reach for denaturalization (or quasi-denaturalization, in the case of loss of OCI) as a weapon against political and cultural elites? What do they hope to gain? And, relatedly: What might they lose instead?</p><p><h2><strong>It’s not just about the high-profile targets</strong></h2></p><p>Reactionary leaders do not typically threaten to make an example of high-profile political opponents or cultural elites as a first step. In each of these cases, there are demographic groups — whole swathes of the population — whose governments have been trying to disenfranchise, denaturalize, or deport them (or some combination of the three) long before the recent spate of high-profile headlines.</p><p>In India, there’s currently a <a href="https://www.nytimes.com/2026/10/02/world/asia/india-vote-theft-protest-police.html" rel="noopener noreferrer" target="_blank">politicized election integrity push</a> that experts warn could illegitimately prevent tens of millions of voters from marginalized groups, especially Muslims, from participating in elections. What should have been a routine clean up of voter rolls ended up with <a href="https://www.theguardian.com/world/2026/oct/14/india-protests-election-commission-gyanesh-kumar" rel="noopener noreferrer" target="_blank">130 million</a> — nearly 10 percent of the population — struck off the lists. The sweeping approach has raised widespread concern from critics that many voters will be incorrectly removed — and <a href="https://www.reuters.com/world/india/what-is-fuelling-indias-protests-over-changes-voter-lists-2026-10-13/" rel="noopener noreferrer" target="_blank">deep suspicions</a> that this disenfranchisement is targeted and intentional.</p><p>Mukulika Banerjee, a professor of anthropology at the London School of Economics, noted this happened after the position of chief election commissioner was made partisan and given immunity for life. And while normally in India (unlike in the United States) the onus is on the state, not individuals, to register voters, in this case, the state said that if people were to be put back on the voter rolls, they “had to produce a whole bunch of documents…which by implication affected the socially disadvantaged,” per Banerjee.</p><p>That meant women, people from lower castes, rural voters — and, since “the Muslim population amongst the most seriously socially disadvantaged, the likelihood of Muslims falling in this category is very high,” Banerjee, author of <em><a href="https://newbooksnetwork.com/cultivating-democracy" rel="noopener noreferrer" target="_blank">Cultivating Democracy: Politics and Citizenship in Agrarian India</a></em>, said. In places like West Bengal, where Muslims make up nearly 30 percent of the population, there were some assembly constituencies where, in elections earlier this year, the number of names deleted from the rolls was greater than the margin of victory, and while anti-incumbent sentiment was high and the BJP may well have won anyway, some, per Banerjee, are asking, “was this an attempt to choose the electorate, so to speak.”</p><p>In the United States, the Trump administration has <a href="https://www.brennancenter.org/our-work/research-reports/stripping-naturalized-americans-citizenship-faces-high-legal-hurdles" rel="noopener noreferrer" target="_blank">made denaturalization a priority,</a> hoping to find people they can make an example of as part of their broader immigration crackdown. They have already filed to strip dozens of Americans of their citizenship by claiming they lied on their naturalization paperwork (“<a href="https://www.uscis.gov/newsroom/news-releases/justice-department-moves-to-strip-citizenship-from-40-criminals-in-largest-single-period-filing" rel="noopener noreferrer" target="_blank">Justice Department Moves to Strip Citizenship</a> from 40 Criminals in Largest Single-Period Filing Under the Trump Administration,” a press release from earlier this month crowed). The White House also tried, unsuccessfully, to revoke America’s <a href="https://www.vox.com/culture/493694/supreme-court-birthright-citizenship-trump-barbara" rel="noopener noreferrer" target="_blank">constitutional right to birthright citizenship</a>, which could have left future generations far more vulnerable to removal or persecution.</p><p>And in Israel, Palestinians have long been made to feel the weight of citizenship — and the heft of its absence. This is not only true in, say, the West Bank, where Jews live as citizens but Palestinians live under occupation and military law, but in East Jerusalem, where most Palestinians are permanent residents, not citizens, meaning they cannot vote in general elections for the Israeli legislature.</p><p>“That is a tool that Israel has used in a different way that could easily be transplanted to <em>citizens</em>,” said Mairav Zonszein, senior analyst on Israel at Crisis Group. And if you can <a href="https://www.hrw.org/news/2017/08/08/israel-jerusalem-palestinians-stripped-status" rel="noopener noreferrer" target="_blank">strip residency from Palestinians in Jerusalem</a>, maybe you can strip citizenship, too. “If this government is reelected, I could see that becoming a less and less crazy idea” as what was once unthinkable becomes “normalized.” <a href="https://jewishcurrents.org/a-jewish-currents-guide-to-the-israeli-elections" rel="noopener noreferrer" target="_blank">Palestinian citizens in Israel</a> have expressed the same concern.</p><p><h2><strong>The chilling effect of deportation threats </strong></h2></p><p>How — and why — does an aspiring authoritarian move from threatening the rights and status of demographic groups to going after elites?</p><p>Sometimes, the elites are — in addition to being outspoken and high profile — from the demographic group under threat.</p><p>Several years before Khan’s OCI status came under threat, the Modi government took journalist Aatish Taseer’s OCI card from him. This happened in 2019 — months after Taseer authored a Time story with “India’s Divider in Chief” plastered across the cover, after which the prime minister himself said, “Time Magazine is foreign. The writer has also said he comes from a Pakistani political family. That is enough for his credibility.” Taseer’s father was indeed a <a href="https://time.com/7297264/exile-from-india-aatish-taseer-essay/" rel="noopener noreferrer" target="_blank">Pakistani political figure</a>, but this was hardly some secret of which Taseer had made offhand mention; Taseer had written about his father and the role his absence and rediscovery in his life, including in his first book, <em>Stranger to History: A Son’s Journey Through Islamic Lands</em>.</p><p>And so with Imran Khan, Taseer said in a phone interview, there is an element of, “Just get the Muslim out” (Khan’s mother is Muslim). In Taseer’s own case, he said, he became “the Paki.”</p><p>The same is true at least in one high-profile case in the United States: Omar is Muslim and from Somalia, two groups that frequently attract the ire of the Trump administration. Recently, <a href="https://www.nbcnews.com/politics/immigration/president-donald-trump-urges-minnesotans-fight-back-somali-immigrants-rcna602431" rel="noopener noreferrer" target="_blank">Trump urged Minnesotans to “fight back”</a> against Somali immigrants before the state is “taken over.” Omar is also a prominent and progressive member of Congress.</p><p>“It’s got these two levels,” Taseer said. “One is an ethnonationalist agenda. The other is a blunt instrument of coercion.” If you speak out too freely, Taseer added, “you won’t be able to return home.”</p><p>The blunt instrument, though, is more narrowly applied than, say, stripping people from voter rolls en masse. It is designed to cause fear among elites: journalists and actors and academics.</p><p>And it is meant, Banerjee said, to raise the price of protest.</p><p>The government’s first instinct, she said, is to call protesters terrorists and anti-nationals, rather than citizens exercising their rights: “They don’t seem to understand that to peacefully protest is there in…the constitution.”</p><p>And by taking a Bollywood star’s OCI status, the government can “make an example and say, look, we can take the biggest and the richest and the most prominent.” It is a message to the rich and the famous and the powerful: Do not think you are bigger than government coercion. You are not.</p><p>Whether it works is almost beside the point. Trump is facing an <a href="https://www.wsj.com/politics/policy/ilhan-omar-investigation-aims-to-build-case-for-stripping-her-citizenship-6adf1edc" rel="noopener noreferrer" target="_blank">uphill legal battle</a> in proving that an error committed by Omar’s father, if indeed any error exists, means she should lose her citizenship. Omar has said she sees the administration’s goal as exhausting and intimidating her to the point she leaves politics — something she says <a href="https://x.com/IlhanMN/status/2113339172618662165" rel="noopener noreferrer" target="_blank">will not happen</a>.</p><p>And, it’s unlikely, Zonszein said, that Abraham and Szor will actually be stripped of citizenship given Israel’s own judicial protections. But, “It’s an empty threat, but one that works, because it chills dissent, it stifles it, it makes people scared.”</p><p>It also suggests that, regardless of whether you’re a member of the targeted group, or have some special status that could set you apart, power can come for you, too. That can scare people out of speaking out for the marginalized. It can also alert them into the need for doing so.</p><p>“When it happens in a democracy, one has to always keep one’s radar attuned to who is suddenly becoming prey, whether it’s LGBT in Russia or now in Turkey or in this case in India, Muslims, Taseer said. ”It’s sort of — what they’re going to those people, they’re going to eventually do to the population at large. It’s not one of those things where they’re like, ah, let us do this little thing, and then you guys can all live happily ever after. It’s generally always accompanied by a deeper authoritarian turn.”</p><p>For example, in addition to threatening Abraham and Szor, <a href="https://forward.com/news/843806/israel-west-bank-protective-presence-entry-permits-revoked/" rel="noopener noreferrer" target="_blank">Israel has revoked the entry permits of American Jews</a> who volunteered to work with and protect Palestinian farmers during harvests and froze aliyah — the name for the process by which Jews abroad immigrate — of two Jews over their pro-Palestinian West Bank activism, which, as Israeli outlet <a href="https://www.haaretz.com/israel-news/2026-09-28/ty-article/.premium/israel-freezes-aliyah-of-two-jewish-protective-presence-activists/000001a0-e38d-db4b-a7a5-f3fffde00000" rel="noopener noreferrer" target="_blank">Haaretz</a> reported, could be a violation of Israeli law guaranteeing the right of all Jews around the world the right to move to Israel and become citizens.</p><p>“I mean, anybody with their head on straight would say, if you treat one person this way, it’s not that hard to treat another person this way,” Zonszein said. “That’s pretty basic, obvious stuff.”</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/politics/508003/citizenship-ilhan-omar-imran-khan-naza-trump-modi-israel" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

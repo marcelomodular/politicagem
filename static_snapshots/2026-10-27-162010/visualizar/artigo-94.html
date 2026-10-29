@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma alternativa para proteger os plataformizados - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Uma alternativa para proteger os plataformizados</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/trabalhoeprecariado/uma-alternativa-para-proteger-os-plataformizados/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5116171485906144767.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Uma alternativa para proteger os plataformizados
+                            </p>
+                            
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Motoristas e entregadores de aplicativos poderão ter uma alternativa para buscar melhores remunerações, comparar serviços e contestar bloqueios injustificados. Essa proposta foi encampada pelo candidato Lula. A iniciativa prevê a criação de uma infraestrutura digital pública para integrar aplicativos de transporte de passageiros e entrega de mercadorias, com regras comuns para os participantes.</p>
+<p>Em vez de concorrer diretamente com plataformas como Uber e iFood por meio de um único aplicativo estatal, a ideia é reunir serviços privados, cooperativas, sindicatos e iniciativas municipais em um ambiente compartilhado. Entre as principais medidas estão limitar a 10% as taxas de intermediação, garantir transparência sobre os valores pagos e criar mecanismos de proteção contra abusos.</p>
+<p>A proposta também prevê um aplicativo nacional gratuito para os trabalhadores, remuneração mínima para determinadas atividades, pagamentos via Pix após a conclusão dos serviços, uma ouvidoria pública e a participação dos profissionais nas decisões sobre o funcionamento da rede.</p>
+<p>Para Nicolas Souza Santos, entregador e diretor jurídico da Associação dos Motoboys, Motogirls e Entregadores de Juiz de Fora (AMMEJUF), a adesão dependerá dos resultados concretos oferecidos aos trabalhadores. Ele também integra a Aliança Nacional dos Entregadores por Aplicativos e participa de grupos de trabalho do Ministério do Trabalho e Emprego e da Presidência da República. “Os trabalhadores aderem a qualquer plataforma que garanta renda, respeito, clientes. Se o aplicativo for funcional e garantir renda justa e previsibilidade, o trabalhador irá aderir”, afirma.</p>
+<h3><strong>Regulamentação ainda enfrenta impasses</strong></h3>
+<p>A professora Ana Carolina Reis Paes Leme, doutora em Direito pela Universidade Federal de Minas Gerais (UFMG), participou de audiências públicas no Supremo Tribunal Federal (STF) e na Câmara dos Deputados em defesa dos direitos de motoristas e entregadores. Para ela, o debate foi marcado por disputas econômicas e divergências dentro da própria categoria. “Foi de uma ingenuidade imensa imaginar que esse debate seria simples. Houve uma verdadeira guerra de narrativas, que foi do estilingue ao drone a laser”, afirma.</p>
+<p>O governo federal apresentou o Projeto de Lei Complementar (PLP) 12/2024, que propunha um regime de trabalho autônomo com direitos específicos para motoristas de aplicativos, mas a proposta não avançou como esperado. Posteriormente, o PL 152/2025 também enfrentou críticas e discussões sobre o enquadramento jurídico dos profissionais.</p>
+<p>Para Ana Paes Leme, é necessário superar a oposição entre autonomia e proteção social. Uma das possibilidades, segundo ela, seria construir um regime semelhante ao dos trabalhadores avulsos, capaz de garantir direitos sem reproduzir integralmente o modelo tradicional de emprego.</p>
+<p>Em meio às dificuldades para estabelecer regras para o trabalho por aplicativos no Brasil surgiu a Rede Corre. As discussões envolvem divergências sobre o vínculo empregatício, a autonomia dos profissionais e a extensão dos direitos trabalhistas. A Rede Corre procura atuar nesse intervalo, estabelecendo condições mínimas para os aplicativos que aderirem à rede, sem substituir uma regulamentação mais ampla.</p>
+<p>Acrisio Sena, presidente do Instituto Centro de Ensino Tecnológico (Centec), também defende que as duas frentes caminhem juntas. “São políticas complementares. Uma enfrenta o poder econômico e os custos de intermediação; a outra precisa enfrentar a vulnerabilidade e ampliar a proteção de quem trabalha”, afirma.</p>
+<h3><strong>Taxa de 10% pode aumentar a remuneração</strong></h3>
+<p>Uma das principais medidas da Rede Corre é limitar a 10% as taxas de intermediação cobradas dos trabalhadores participantes. Em uma corrida ou entrega de R$ 50, por exemplo, a cobrança seria de R$ 5, deixando R$ 45 para o profissional, antes dos custos com combustível, manutenção, seguro e depreciação do veículo.</p>
+<p>O limite não seria aplicado automaticamente a todas as plataformas do mercado, mas apenas às que integrarem a rede. A expectativa é que taxas menores e maior transparência atraiam trabalhadores e consumidores, aumentando a concorrência. O projeto prevê que o profissional saiba quanto receberá antes de aceitar uma corrida ou entrega, com informações sobre remuneração por quilômetro e por minuto. Também propõe valores mínimos para entregas, a serem definidos pelo conselho responsável.</p>
+<p>Para Acrisio Sena, o teto pode pressionar as empresas existentes a rever suas condições, mas o resultado dependerá da capacidade de a alternativa pública conquistar usuários. “Quando você oferece uma plataforma com taxa de intermediação de até 10%, maior transparência e uma parcela maior do valor da corrida ou da entrega destinada a quem efetivamente presta o serviço, você cria pressão competitiva sobre todo o setor”, afirma.</p>
+<p>Sena cita como referência uma plataforma pública de transporte individual em São Paulo, à qual atribui uma taxa fixa de administração de 10,95%. Uma iniciativa nacional, ressalta, teria desafios maiores de escala e tecnologia.</p>
+<h3><strong>Integração de aplicativos, sem criar um “Uber do governo”</strong></h3>
+<p>A proposta é que a Rede Corre funcione como um ambiente de integração e comparação de serviços, e não como uma empresa pública responsável por disputar individualmente cada corrida ou entrega. “A Rede Corre não será um Uber do governo. Para entender a proposta, podemos pensar em plataformas como Skyscanner e Kayak, que permitem comparar opções disponíveis em um mesmo ambiente digital”, explica Ana Paes Leme.</p>
+<p>Nesse modelo, os consumidores poderiam comparar preços e serviços de diferentes aplicativos, enquanto empresas privadas, cooperativas e iniciativas especializadas continuariam responsáveis pelas próprias operações.</p>
+<p>A infraestrutura compartilhada também permitiria estabelecer condições para os participantes, como limites de taxas, regras de remuneração e mecanismos de contestação de bloqueios. A integração, porém, dependerá da adesão dos operadores e de definições sobre sistemas, responsabilidades, compartilhamento de dados e fiscalização.</p>
+<p>Para Acrisio Sena, outro desafio é assegurar que a iniciativa sobreviva às mudanças de governo e não dependa indefinidamente de subsídios públicos. “Uma política dessa dimensão não pode pertencer a um governo, muito menos a um partido. Precisa ser construída como política pública permanente, com regras de governança, transparência, controle social e sustentabilidade econômica”, defende.</p>
+<h3><strong>Bloqueios e algoritmos sob questionamento</strong></h3>
+<p>Além da remuneração, a Rede Corre pretende combater bloqueios arbitrários, assédio e discriminação. O documento prevê que as suspensões de contas sejam justificadas e possam passar por revisão humana, além da criação de uma ouvidoria pública para receber denúncias.</p>
+<p>Para Nicolas, a falta de atendimento humano pode deixar trabalhadores sem renda, sem que tenham a oportunidade de contestar uma decisão. “A maior questão é a ausência de possibilidade de recurso com atendimento humano, a impossibilidade de o trabalhador mostrar seu ponto de vista”, afirma.</p>
+<p>Ana Paes Leme ressalta que os problemas da categoria incluem também acidentes, assaltos, assédio e falta de proteção. Na avaliação dela, muitos profissionais se sentem abandonados tanto pelas empresas quanto pelo poder público.</p>
+<p>Acrisio Sena defende que a transparência alcance também os algoritmos. Para ele, os trabalhadores precisam compreender como são calculados os valores, como são distribuídas as corridas e entregas e quais critérios orientam decisões que podem resultar em avaliações negativas ou bloqueios.</p>
+<p>A proposta ainda precisará definir os procedimentos de apuração das denúncias, os prazos para resposta e as medidas aplicáveis em caso de irregularidades.</p>
+<h3><strong>Trabalhadores participariam das decisões</strong></h3>
+<p>A governança prevista para a Rede Corre inclui um conselho com representantes do poder público, dos municípios, dos usuários e dos trabalhadores. A proposta também abre espaço para associações, lideranças independentes e outros representantes da categoria, além dos sindicatos formalizados.</p>
+<p>Nicolas defende que a participação seja efetiva, com mecanismos de escolha dos representantes pelas próprias bases. Ana Paes Leme também considera importante contemplar profissionais que defendem a autonomia e têm ressalvas em relação aos modelos tradicionais de regulamentação.</p>
+<p>Acrisio Sena avalia que motoristas e entregadores devem participar permanentemente do acompanhamento e da avaliação da plataforma, ao lado de representantes do poder público e da sociedade.</p>
+<p>O formato definitivo do conselho ainda precisará estabelecer como os representantes serão escolhidos, qual será o peso de cada segmento e como serão garantidas a transparência e a prestação de contas.</p>
+<h3><strong>Proteção social e viabilidade são desafios</strong></h3>
+<p>A Rede Corre prevê ainda medidas complementares, como a ampliação de pontos de apoio para descanso e manutenção, iniciativas de crédito e o uso de contratos públicos para ajudar a gerar demanda pelos serviços.</p>
+<p>Mas melhorar a remuneração não resolve, por si só, a falta de proteção previdenciária e de cobertura em situações de doença ou acidente. Acrisio Sena defende que a concorrência entre plataformas seja acompanhada por regras que ampliem a segurança dos profissionais. “Limitar a taxa de intermediação a 10% e estabelecer remuneração mínima são medidas importantes, mas precisamos avançar paralelamente na construção de uma regulamentação que garanta proteção social sem retirar a autonomia que muitos desses profissionais desejam preservar”, afirma.</p>
+<p>A proposta prevê planejamento técnico e institucional, elaboração de um projeto de lei e preparação de um projeto-piloto. O documento sugere testes em três a cinco cidades no segundo semestre de 2027, com expansão em 2028. As datas são metas indicativas dos autores, não um calendário oficial de execução.</p>
+<p>Para sair do papel, a iniciativa dependerá de orçamento, desenvolvimento tecnológico, proteção de dados, integração de sistemas e mecanismos de fiscalização. Também precisará atrair consumidores em quantidade suficiente para garantir demanda aos trabalhadores e sustentar a operação.</p>
+<p>A adesão de aplicativos privados não será automática, e a redução das taxas só produzirá os efeitos esperados se vier acompanhada de remuneração adequada, qualidade dos serviços e transparência.</p>
+<p>A Rede Corre aposta em uma infraestrutura pública capaz de ampliar a concorrência e melhorar as condições de trabalho sem eliminar as plataformas privadas. Para Ana Paes Leme, a iniciativa pode ajudar a enfrentar problemas urgentes enquanto continua a discussão sobre os direitos trabalhistas.</p>
+<p>O desafio será transformar as medidas previstas em uma estrutura funcional, financeiramente sustentável e capaz de garantir resultados concretos para quem trabalha, sem deixar a proteção social em segundo plano.</p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, seja nosso apoiador e fortaleça o jornalismo crítico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/trabalhoeprecariado/uma-alternativa-para-proteger-os-plataformizados/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

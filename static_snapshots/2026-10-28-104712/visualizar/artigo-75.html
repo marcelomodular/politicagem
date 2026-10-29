@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O voto não encerra a tarefa - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O voto não encerra a tarefa</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/estadoemdisputa/o-voto-nao-encerra-a-tarefa/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5118423285719829884.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O voto não encerra a tarefa
+                            </p>
+                            
+<h3><strong>A virada veio de baixo</strong></h3>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>A virada de 25 de outubro foi obra de grande mobilização. Se essa mobilização recuar e se recolher à passividade, o que se ganhou na urna se perde no dia a dia. Com a extrema-direita à frente da maior bancada do Congresso e, somada à direita tradicional, em maioria, a disputa não será vencida nos gabinetes. Ela terá de ser travada em todo lugar: na fábrica, no comércio, nos escritórios, nos aplicativos de entrega, nos bairros e nos pontos de ônibus.</p>
+<p>No primeiro turno, em 4 de outubro, Flávio Bolsonaro terminou à frente, com 47,03% dos votos válidos contra 45,16% de Lula. Foram 2,2 milhões de votos de diferença, e a abstenção chegou a 21,08%, a maior numa eleição presidencial desde 1998.1</p>
+<p>Três semanas depois, o quadro se inverteu. Lula venceu com 51,79% e 64,3 milhões de votos, contra 48,21% e 59,8 milhões de Flávio. A abstenção caiu para 19,22%.2 Lula somou mais de 10 milhões de votos entre um turno e outro, e cerca de três milhões de eleitores que tinham ficado em casa foram votar.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/image-41-1500x900.png"/>
+<p>Voto não cai do céu nem sai pronto do horário eleitoral. Esses milhões foram buscados em portas de fábrica, escritórios, pontos de ônibus, filas de posto de saúde, grupos de família e conversas de vizinho. A virada teve o rosto de quem fez campanha sem cargo, sem salário de assessor e sem promessa de nomeação.</p>
+<p>O cientista político André Singer atribuiu a virada às mobilizações populares que tomaram as ruas de várias cidades entre os dois turnos. Para ele, o desafio do quarto mandato é isolar a extrema direita e unir o país.3 A pergunta é onde essa unidade será construída: nos acordos de cúpula do Congresso ou nas mobilizações que fizeram a virada.</p>
+<p>O risco agora é conhecido. Passada a apuração, essa energia se dispersa, a militância volta à rotina e a política retorna aos gabinetes. É contra essa dispersão que vale reler um livro de Mauricio Tragtenberg.</p>
+<h3><strong>O voto como terreno, não como procuração</strong></h3>
+<p><em>A falência da política</em> reúne artigos que Tragtenberg escreveu sobretudo para jornais, a maior parte nos anos 1980.4 Neles, ele desconfia do eleitoralismo, mas nunca do voto como tal. O que recusava era a delegação: a ideia de que, eleito o candidato certo, a luta passa a ser dele.</p>
+<p>Em “O voto e as ilusões”, escrito para as eleições de 1982, ele diz que a ilusão eleitoral leva o povo a esperar “que alguém lute por ele”. E dá a frase que serve de eixo a este artigo: “Vença quem vencer as eleições, nada muda no interior das fábricas, nos campos e nas oficinas”. As relações hierárquicas de mando e exploração continuam as mesmas. Muda apenas quem as administra.5</p>
+<p>No mesmo texto, ele separa duas coisas que costumam ser confundidas: a “mobilização popular real”, que parte dos próprios interessados, e a arregimentação de gente para ouvir alguém falar em seu nome no comício.5 A virada de outubro teve muito da primeira. É ela que precisa sobreviver à apuração.</p>
+<p>O mesmo autor, em 1990, pediu voto. Em “Barre a escalada fascista de Maluf”, chamou os trabalhadores a impedir a vitória malufista no segundo turno paulista e lembrou que, para o povo, “não haverá Papai Noel”. Mas não confundiu o voto com o fim da tarefa. Mesmo com a vitória do adversário de Maluf, escreveu, “para os assalariados a luta continuará”, só que em condições menos fascistas.6</p>
+<p>É a chave para ler 2026. A eleição de Lula não resolve a vida de quem trabalha. Decide em que terreno essa vida será disputada: com liberdade de organização e de greve, ou sob um governo empenhado em fechá-las. Tragtenberg resumia o princípio numa frase: “não há luta por procuração”.5</p>
+<h3><strong>O fim da 6×1 está na lei. </strong><strong>F</strong><strong>alta chegar ao turno</strong></h3>
+<p>O melhor exemplo do que está em jogo veio no meio da campanha. Em 14 de outubro, o Senado aprovou por 75 votos a 1 a emenda que acaba com a escala 6×1 e reduz a jornada de 44 para 40 horas semanais, sem redução de salário. O Congresso a promulgou dois dias depois, como Emenda Constitucional 141.7 Pelo texto, as empresas têm 60 dias para adotar a escala 5×2 com limite de 42 horas, e mais doze meses para chegar às 40.</p>
+<p>A conquista não nasceu no Congresso, nem num sindicato, nem num partido. Começou em 2023 com o vídeo de um balconista de farmácia, Rick Azevedo, contando a própria rotina. Milhares de trabalhadores do comércio e dos serviços se reconheceram, e o desabafo virou o movimento Vida Além do Trabalho, um abaixo-assinado com mais de 3 milhões de assinaturas e manifestações de rua.8 Só depois os partidos e as centrais incorporaram a pauta. Tragtenberg reconheceria o caminho. Num artigo sobre a Constituinte e os turnos de trabalho, notou que, enquanto parlamentares e ministros discutiam o assunto, o trabalhador, “o diretamente interessado”, ainda não tinha sido ouvido.9</p>
+<p>Agora começa a parte que não sai no Diário Oficial. Em cada loja, galpão e escritório, a nova jornada será traduzida em escalas, bancos de horas, folgas que caem ou não no fim de semana, metas redistribuídas em menos dias. Num texto sobre a comissão de fábrica da Ford, Tragtenberg formulou uma lei que vale para esse momento: “quanto mais regulamentado é um direito, mais perde quem deveria gozá-lo”.10 O direito escrito só se torna direito vivido onde há gente organizada para cobrá-lo.</p>
+<h3><strong>Uma maioria de direita no Congresso</strong></h3>
+<p>Depois da urna, continuar a luta significa enfrentar uma extrema-direita que saiu das eleições mais forte no Parlamento do que no Palácio do Planalto. O PL elegeu 121 deputados, a maior bancada de um só partido na Câmara desde a Constituição de 1988.11 Com o Novo (10), a federação União-PP (87) e o Republicanos (41), a direita soma 259 das 513 cadeiras, acima da maioria absoluta de 257. As bancadas de esquerda, a federação PT-PCdoB-PV (88), o PSB (15), o PSOL-Rede (15) e o PDT (6), somam 124, menos de um quarto da Casa.12</p>
+<p>No Senado, o PL terá 28 dos 81 senadores a partir de 2027, a maior bancada; o PT terá 9.13 Uma emenda constitucional exige 308 votos na Câmara e 49 no Senado. Nenhuma pauta dos trabalhadores passa ali apenas com os votos da base do governo.</p>
+<p>O fim da 6×1 mostra o caminho. A emenda foi aprovada por 75 votos a 1 num Senado em que a esquerda é minoria. Os votos não vieram da conversão dos senadores, mas do custo de votar contra uma pauta que milhões levaram às redes e às ruas. Tragtenberg advertia, em “O voto e as ilusões”, contra o hábito de atribuir aos parlamentos o que é devido à ação popular.5</p>
+<p>Singer tem razão ao dizer que o desafio é isolar a extrema-direita. Mas no Congresso ela não se isola com acordos de cúpula, que costumam custar caro justamente a quem trabalha. Ela se isola quando cada voto contra os trabalhadores passa a ter preço nas bases eleitorais de quem o dá. Essa pressão só existe se a mobilização que virou a eleição continuar de pé.</p>
+<h3><strong>Onde se trabalha no Brasil</strong></h3>
+<p>Se a luta se desdobra onde o trabalho acontece, vale mapear esse terreno. Os dados mais recentes do Cadastro Central de Empresas do IBGE mostram a dimensão desse mapa: em dezembro de 2024, o país contava com 10,6 milhões de empresas e 11,9 milhões de unidades locais — de fábricas e galpões a lojas, escritórios e agências. Nesses espaços concentravam-se 68 milhões de trabalhadores, divididos entre 54,2 milhões de assalariados (incluindo o funcionalismo público) e 13,8 milhões de sócios e proprietários.</p>
+<p>A geografia dessa estrutura reflete as desigualdades históricas do país. O Sudeste concentra metade dos estabelecimentos e abocanha a maior fatia da massa salarial. Já o Norte e o Nordeste abrigam uma proporção de trabalhadores assalariados superior à sua participação no número de empresas, registrando os salários médios mais baixos do Brasil.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/image-42-1500x986.png"/>
+<p>Em números absolutos, a edição de 2022 do cadastro, a última que os divulga por região, contava 5,5 milhões de unidades locais no Sudeste, 2,1 milhões no Sul, 1,7 milhão no Nordeste, 897 mil no Centro-Oeste e 496 mil no Norte.15</p>
+<p>Dois números importam mais do que o mapa. Primeiro, a maioria dos estabelecimentos não tem nenhum empregado: em 2022, eram cerca de 7,3 milhões de unidades sem assalariados, contra 3,2 milhões com. Segundo, o emprego formal é concentrado. As empresas com 250 pessoas ou mais são só 0,2% do total, mas empregam 55,7% dos assalariados e pagam 69% dos salários.14</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/image-43-1500x729.png"/>
+<p>Para quem pensa organização, isso tem duas consequências. Há um núcleo de grandes locais de trabalho, uma fração mínima das empresas, onde está a maioria dos trabalhadores com carteira. E há uma imensa periferia de pequenos negócios, conta própria e trabalho por aplicativo, onde não há portão de fábrica, escritório onde distribuir boletim. As duas pedem formas diferentes de presença.</p>
+<h3><strong>Fora da catraca: informais e trabalhadores por aplicativo</strong></h3>
+<p>O cadastro de empresas só enxerga quem trabalha em organização formal. Fora dele está quase quatro em cada dez ocupados. No segundo trimestre de 2026, a taxa de informalidade foi de 37,4%, sobre 103,1 milhões de ocupados, o que dá perto de 38,6 milhões de pessoas.16,17 Os empregados do setor privado sem carteira somavam 13,6 milhões, e os trabalhadores por conta própria eram 25,3% de todos os ocupados.</p>
+<p>A informalidade tem endereço. No Maranhão, ela atinge 56,9% dos ocupados; no Pará, 55,9%; no Amazonas, 51,7%. Em Santa Catarina, 25,4%. Mesmo entre os empregados do setor privado, só 74,4% têm carteira no país, e no Maranhão a proporção cai para 53,6%.16 O mapa da informalidade é quase o inverso do mapa dos estabelecimentos formais: onde há menos empresas registradas, há mais trabalho sem proteção.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/image-44-1500x857.png"/>
+<p>Os trabalhadores por aplicativo são a face mais visível desse mundo. Eram 1,7 milhão no terceiro trimestre de 2024, 25,4% a mais que em 2022. Quase 1 milhão trabalhava em transporte de passageiros e 485 mil em entregas. Mais da metade estava no Sudeste.18</p>
+<p>O IBGE mostra o que a palavra “autônomo” esconde. Sete em cada dez plataformizados são informais, e só 35,9% contribuem para a previdência. Trabalham 5,5 horas por semana a mais que os demais e ganham menos por hora: R$ 15,4, ante R$ 16,8. Mais da metade dos motoristas e entregadores diz que bônus, incentivos e promoções que mudam o preço influenciam sua jornada, e mais de 30% relatam ameaças de punição ou bloqueio.18 O patrão não aparece, mas manda.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/image-45-1500x943.png"/>
+<p>Para essa gente, a 5×2 não chega por decreto, porque não há jornada legal a reduzir. Vale para eles o que Tragtenberg escreveu sobre os trabalhadores poloneses e brasileiros: sem Papai Noel, “só pela auto-organização de base terá voz para se fazer ouvir”.19 As greves e paralisações de entregadores dos últimos anos mostram que essa organização é possível, mesmo sem portão de fábrica.</p>
+<h3><strong>Para além do portão: a luta no território e na reprodução da vida</strong></h3>
+<p>Se a disciplina do capital nasce no local de trabalho, a reprodução e a sobrevivência da classe trabalhadora dependem do território. A jornada de trabalho de uma operária, de um entregador ou de um atendente de telemarketing não termina ao passar pelo ponto digital: ela se estende nas duas horas de condução lotada, na espera pela vaga na creche, na falta de água na periferia, na luta por moradia digna e na batalha pelo lazer.</p>
+<p>A própria força do movimento pelo fim da escala 6×1 demonstrou que a disputa pelo tempo de trabalho é, acima de tudo, uma disputa pelo direito à vida no território — pelo tempo de convivência comunitária, familiar e pessoal. Tomar a fábrica ou o local de trabalho como único polo de organização ignora a realidade de milhões de informais, autônomos e desempregados que constroem a vida nos bairros.</p>
+<p>A resistência que nasce no chão da fábrica ou do comércio precisa se desdobrar nos locais onde o trabalhador habita, transita e se articula:</p>
+<ul>
+<li><strong>Nos bairros e periferias:</strong> impulsionando associações de moradores, coletivos culturais, cursinhos populares e redes de apoio solidário.</li>
+<li><strong>No transporte e nos serviços públicos:</strong> organizando a pressão comunitária por tarifas acessíveis, postos de saúde estruturados, saneamento e creches públicas.</li>
+<li><strong>Nas redes e pontos de vivência:</strong> criando laços de acolhimento e organização onde trabalhadores sem patrão fixo (entregadores, vendedores ambulantes, prestadores de serviços) possam se reunir e definir suas pautas.</li>
+</ul>
+<h3><strong>Organizar onde o conflito nasce</strong></h3>
+<p>Em “Questão social: ainda caso de polícia?”, Tragtenberg observa que o capitalismo organiza a mão de obra em seus locais de trabalho e que, por isso, o local de trabalho “aparece como local de origem do conflito social”.20 É também ali que a organização dos trabalhadores está mais fraca.</p>
+<p>As grandes viradas do trabalho no Brasil começaram assim, de baixo. Em 12 de maio de 1978, os operários da Scania, em São Bernardo, entraram na fábrica e cruzaram os braços diante das máquinas desligadas. A parada foi combinada por operários da própria fábrica e não foi assumida oficialmente pela direção do sindicato.21 Em 1º de julho de 2020, entregadores de aplicativo pararam em várias cidades no Breque dos Apps, organizado em grupos de WhatsApp, sem comando centralizado.22 Em 2023, um vídeo bastou para pôr a 6×1 na agenda do país.</p>
+<p>Nenhum desses movimentos esperou que o sindicato chegasse. Em 2025, só 8,8% dos ocupados eram sindicalizados, pouco acima do piso de 8,4% registrado em 2023 e cerca de metade dos 16,1% de 2012. Na construção civil, a taxa é de 3,6%.23 A organização que existe nos locais de trabalho hoje é, na maior parte, informal: o grupo de mensagens da equipe, a conversa no refeitório, a combinação de não aceitar a hora extra.</p>
+<p>Tragtenberg confiava mais nessa auto-organização do que nos aparelhos. Ao contar a história da Ford de São Bernardo, destacou que, nas greves de 1978, surgiu uma comissão de trabalhadores que a empresa reconhecia de fato, embora não de direito. E advertiu que as comissões de fábrica degeneram quando viram “correias de transmissão de diretorias sindicais”. Por isso preferia a comissão da metalúrgica Asama, onde o sindicato era só um “órgão consultivo” e a comissão pertencia “aos trabalhadores que nela trabalham”.10</p>
+<p>No mesmo texto, criticou as organizações que se dizem vanguarda e, a pretexto da “falta de consciência” do trabalhador, pretendem falar por ele e dirigir sua luta. O local de trabalho, escreveu, deve ser entendido “como o local de luta”.10 Na mesma chave, via no Solidariedade polonês, nascido de greves com ocupação dos estaleiros, a prova de que a libertação dos trabalhadores passa pela “auto-organização, nos locais de trabalho”.24</p>
+<p>Traduzido para o presente, isso significa que a energia que fez a virada não precisa de uma nova diretiva de topo, mas de presença na vida cotidiana. O mesmo grupo de mensagens que fez circular panfletos e esclareceu dúvidas sobre o voto pode virar o espaço onde se comparam escalas, denunciam-se abusos e se combinam respostas à pressão do dia a dia.</p>
+<p>A batalha pela jornada 5×2, por exemplo, não se resolve com a promulgação da lei: ela ganha corpo quando os próprios trabalhadores se reúnem nas pausas e nos refeitórios para expor quem tenta burlar as folgas ou sobrecarregar as metas. Onde houver espaço — inclusive usando o instrumento de comissões de representação previsto na lei —, essa organização pode ganhar forma própria, desde que responda à base que a elegeu e não vire apêndice burocrático de quem quer que seja.</p>
+<p>Para os milhões que trabalham sem portão de fábrica nem chão de loja — os entregadores nos pontos de apoio, os motoristas nas esquinas, a turma do pequeno comércio e dos serviços —, a organização se faz no próprio território, onde a rotina se cruza e a conversa acontece.</p>
+<p>Sindicatos e partidos podem somar a essa força, mas não têm como inventá-la de fora. Quando a pressão nasce da base, quem senta à mesa de negociação fala com a força de quem tem gente disposta a cruzar os braços. Sem essa presença viva nas ruas, nas empresas e nos bairros, qualquer governo eleito fica refém de um Congresso e de um empresariado que não perderam um milímetro de poder no dia da eleição.</p>
+<h3><strong>A urna fechou. O turno não</strong></h3>
+<p>A vitória de 25 de outubro tem dono, e não é só o candidato. É de quem trocou dias de descanso por uma tarde de panfletagem, de quem convenceu o tio, de quem arrastou o vizinho até a seção. Essa capacidade de mobilizar é o único patrimônio que a classe trabalhadora leva da eleição para os próximos quatro anos.</p>
+<p>Tragtenberg escreveu, em 1982, que a união das lutas organizadas nos locais de trabalho valeria mais do que qualquer resultado eleitoral.5 Em 1990, pediu voto e avisou que a luta continuaria no dia seguinte.6 As duas posições não se contradizem. Juntas, dizem o que fazer agora: não desmobilizar, não entregar a iniciativa a uma Brasília onde a direita tem maioria e levar para dentro das 11,9 milhões de unidades produtivas do país a energia que virou a eleição.</p>
+<p>A 5×2 começa a valer em dezembro. Se vai valer de verdade, depende menos do Diário Oficial do que de quem estiver organizado no turno da manhã.</p>
+
+<p><strong>Notas</strong></p>
+<p>1. <a href="https://portaldeprefeitura.com.br/bastidores-da-politica/eleicoes-2026-com-100-das-secoes-totalizadas-flavio-tem-4703-e/633498/" rel="noopener noreferrer" target="_blank">“Eleições 2026: com 100% das seções totalizadas, Flávio tem 47,03% e Lula, 45,16%”</a>, Portal de Prefeitura, 5 out. 2026.</p>
+<p>2. <a href="https://www.tse.jus.br/comunicacao/noticias/2026/Outubro/presidente-do-tse-anuncia-reeleicao-de-lula-e-faz-balanco-do-2o-turno-das-eleicoes-2026" rel="noopener noreferrer" target="_blank">“Presidente do TSE anuncia reeleição de Lula e faz balanço do 2º turno das Eleições 2026”</a>, TSE, 25 out. 2026; <a href="https://revistaoeste.com/politica/confira-os-numeros-do-2o-turno-com-100-da-apuracao-concluida/" rel="noopener noreferrer" target="_blank">“Confira os números do 2º turno, com 100% da apuração concluída”</a>, Revista Oeste, com dados do TSE, 26 out. 2026.</p>
+<p>3. <a href="https://www.reporterpb.com.br/noticia-extra/2026/10/26/desafio-de-lula-e-isolar-extrema-direita-para-unir-o-pais-afirma-andre-singer/135655.html" rel="noopener noreferrer" target="_blank">“Desafio de Lula é isolar extrema direita para unir o país, afirma André Singer”</a>, Folha de S.Paulo, republicado por Repórter PB, 26 out. 2026.</p>
+<p>4. Maurício Tragtenberg, <em>A falência da política</em>, org. Evaldo A. Vieira, São Paulo, Editora UNESP (Coleção Maurício Tragtenberg).</p>
+<p>5. Tragtenberg, “O voto e as ilusões”, em <em>A falência da política</em>, p. 50-53.</p>
+<p>6. Tragtenberg, “Barre a escalada fascista de Maluf”, em <em>A falência da política</em>, p. 258-260.</p>
+<p>7. <a href="https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/senado-aprova-fim-da-escala-6x1-e-reducao-da-jornada-de-trabalho" rel="noopener noreferrer" target="_blank">“Senado aprova fim da escala 6×1 e redução da jornada de trabalho”</a>, Agência Brasil, 14 out. 2026; <a href="https://www.congressoemfoco.com.br/noticia/123310/com-a-presenca-de-lula-congresso-promulga-fim-da-escala-6x1" rel="noopener noreferrer" target="_blank">“Com a presença de Lula, Congresso promulga fim da escala 6×1”</a>, Congresso em Foco, 16 out. 2026.</p>
+<p>8. <a href="https://www.correio24horas.com.br/politica/fim-da-escala-6x1-video-de-balconista-de-farmacia-viralizou-e-iniciou-mobilizacao-no-brasil-0526" rel="noopener noreferrer" target="_blank">“Fim da escala 6×1: vídeo de balconista de farmácia viralizou e iniciou mobilização no Brasil”</a>, Correio.</p>
+<p>9. Tragtenberg, “Constituinte e turnos de trabalho”, em <em>A falência da política</em>, p. 418-420.</p>
+<p>10. Tragtenberg, “Comissões de Fábrica e sindicatos”, em <em>A falência da política</em>, p. 41-49.</p>
+<p>11. <a href="https://www12.senado.leg.br/radio/1/noticia/2026/10/05/pl-tera-a-maior-bancada-da-camara-dos-deputados" rel="noopener noreferrer" target="_blank">“PL terá a maior bancada da Câmara dos Deputados”</a>, Rádio Senado, 5 out. 2026.</p>
+<p>12. <a href="https://www.cnnbrasil.com.br/eleicoes/bancada-partidos-camara/" rel="noopener noreferrer" target="_blank">“PL terá maior bancada da Câmara; federação do PT mantém segundo lugar”</a>, CNN Brasil, 5 out. 2026. A soma dos blocos é do autor.</p>
+<p>13. <a href="https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/pl-elege-19-senadores-e-soma-28-mdb-conquista-sete-vagas-e-pt-seis" rel="noopener noreferrer" target="_blank">“PL elege 19 senadores e soma 28; MDB conquista sete vagas e PT, seis”</a>, Agência Brasil, 5 out. 2026.</p>
+<p>14. IBGE, <a href="https://agenciadenoticias.ibge.gov.br/media/com_mediaibge/arquivos/e1be87301fe780c6ccf8aeab200e71ea.pdf" rel="noopener noreferrer" target="_blank"><em>Estatísticas do Cadastro Central de Empresas 2024</em></a>, divulgação de 2026, posição em 31 dez. 2024.</p>
+<p>15. IBGE, <a href="https://agenciadenoticias.ibge.gov.br/media/com_mediaibge/arquivos/cb7c87a4a8ecdf732c70d6486248d498.pdf" rel="noopener noreferrer" target="_blank"><em>Estatísticas do Cadastro Central de Empresas 2022</em></a>, 18 jun. 2024.</p>
+<p>16. IBGE, <a href="https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/47774-pnad-continua-trimestral-desocupacao-cai-em-13-das-27-ufs-no-2-trimestre-de-2026" rel="noopener noreferrer" target="_blank">“PNAD Contínua Trimestral: desocupação cai em 13 das 27 UFs no 2º trimestre de 2026”</a>, 14 ago. 2026.</p>
+<p>17. <a href="https://www.dgabc.com.br/Noticia/4338286/desemprego-no-2-trimestre-e-5-4-o-menor-ja-registrado-no-periodo" rel="noopener noreferrer" target="_blank">“Desemprego no 2º trimestre é 5,4%, o menor já registrado no período”</a>, Diário do Grande ABC, com dados do IBGE, 30 jul. 2026. O número de informais (38,6 milhões) é estimativa do autor: 37,4% de 103,1 milhões de ocupados.</p>
+<p>18. IBGE, <a href="https://agenciadenoticias.ibge.gov.br/media/com_mediaibge/arquivos/59722d4ac24bd853f52f54f12b9514f7.pdf" rel="noopener noreferrer" target="_blank"><em>PNAD Contínua: Trabalho por meio de plataformas digitais 2024</em></a>, estatística experimental, 3º trimestre de 2024.</p>
+<p>19. Tragtenberg, “Trabalhador não ganha ‘boas festas’ nem ‘feliz ano novo'”, em <em>A falência da política</em>, p. 335-337.</p>
+<p>20. Tragtenberg, “Questão social: ainda caso de polícia?”, em <em>A falência da política</em>, p. 238-240.</p>
+<p>21. <a href="https://fpabramo.org.br/os-subversivos-de-1978/" rel="noopener noreferrer" target="_blank">“Os subversivos de 1978”</a>, Fundação Perseu Abramo, ed. 37, fev. 1998.</p>
+<p>22. <a href="https://canaltech.com.br/apps/brequedosapps-a-paralisacao-dos-entregadores-dos-aplicativos-ganha-o-brasil-167326/" rel="noopener noreferrer" target="_blank">“#BrequeDosApps: a paralisação dos entregadores dos aplicativos ganha o Brasil”</a>, Canaltech, 1º jul. 2020.</p>
+<p>23. IBGE, <a href="https://agenciadenoticias.ibge.gov.br/agencia-noticias/2012-agencia-de-noticias/noticias/48112-em-2025-taxa-de-sindicalizacao-fica-em-8-8-da-populacao-ocupada" rel="noopener noreferrer" target="_blank">“Em 2025, taxa de sindicalização fica em 8,8% da população ocupada”</a>, 23 set. 2026; IBGE, <a href="https://agenciadenoticias.ibge.gov.br/pt/agencia-noticias/45174-com-taxa-de-8-9-sindicalizacao-cresce-pela-primeira-vez-desde-2012.html" rel="noopener noreferrer" target="_blank">“Com taxa de 8,9%, sindicalização cresce pela primeira vez desde 2012”</a>, 19 nov. 2025.</p>
+<p>24. Tragtenberg, “Uma revolução na Revolução Russa”, em <em>A falência da política</em>, p. 139-147.</p>
+<p>As páginas indicam a extensão de cada artigo segundo o sumário do volume.</p>
+<p></p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, seja nosso apoiador e fortaleça o jornalismo crítico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/estadoemdisputa/o-voto-nao-encerra-a-tarefa/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

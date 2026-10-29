@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Um Gramsci para a estratégia - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Um Gramsci para a estratégia</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/10/um-gramsci-para-a-estrategia/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/2018_05_gramsci.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Um Gramsci para a estratégia
+                            </p>
+                            
+<p>O texto a seguir é o prólogo de <a href="https://www.sylone.org/los-usos-de-gramsci-c2x42907706" rel="noopener noreferrer" target="_blank"><em>Los usos de Gramsci</em></a>, de Juan Carlos Portantiero, Sylone e Viento Sur, 2026.</p>
+
+<h2>Um legado contestado</h2>
+<p>Um espectro ronda o pensamento político contemporâneo: o espectro de Gramsci. Quem hoje não se identifica como gramsciano, entre social-democratas, eurocomunistas, populistas, trotskistas, liberais e até mesmo representantes da extrema direita? Quem não acusou seus adversários de abandonar a luta pelo bom senso ou de ignorar a necessidade de construir uma nova hegemonia? Duas consequências decorrem desse fato. A primeira é que Gramsci se tornou um ponto de referência transversal em todo o espectro político, cujos diversos setores encontram em sua fragmentada obra uma contribuição de tal magnitude que transcende suas origens políticas. A segunda é que um legado invocado para sustentar posições opostas obriga a explicitar a própria interpretação.</p>
+<p>A história de Gramsci é, em grande medida, a história de seus usos. O mais influente foi também o primeiro. Togliatti publicou os <em>Cadernos</em> para legitimar a virada de Salerno e disseminou a imagem de um Gramsci de consenso, um defensor da conciliação de classes e do pacto nacional. O próprio formato da edição serviu nesse sentido. A comissão do Partido Comunista Italiano, presidida por Togliatti, agrupou os cadernos tematicamente, em vez de cronologicamente, facilitando assim uma leitura sistemática, ao custo de apagar os vínculos entre o pensamento de Gramsci e o contexto que o produziu. Dessa forma, tomou forma a figura de um mito-mártir, cuja autoridade histórica serviu para justificar o abandono da perspectiva revolucionária no presente.</p>
+<p>Essa interpretação, contudo, não pode ser reduzida a uma simples falsificação. O trabalho subsequente de Valentino Gerratana mostrou que manipulações diretas do texto tiveram pouca consequência.¹ Havia algo mais eficaz: uma cuidadosa orientação da leitura, uma seleção que apresentava Gramsci como um precursor da “democracia avançada” e da “via italiana para o socialismo” promovidos pela liderança do Partido Comunista Italiano.</p>
+<p>Lucio Magri, um líder histórico da ala esquerda do partido e fundador do <em>il</em> <em>manifesto</em>, confirma isso citando uma confissão feita pelo próprio Togliatti no final de sua vida: “Nós, comunistas italianos, temos uma dívida com Antonio Gramsci. Construímos copiosamente sobre ele nossa identidade e estratégia, mas, ao fazê-lo, o reduzimos à nossa medida, às necessidades de nossa política, sacrificando o que ele considerava ‘muito além’”².</p>
+<p>Essa operação, contudo, teve efeitos contraditórios. Ao resgatar Gramsci do esquecimento, apresentou-o ao mundo como um grande pensador. A mesma leitura que o dissolveu na política consensual do Partido Comunista Italiano o afastou da ortodoxia soviética e abriu, em outras mãos, o grande debate sobre a estratégia revolucionária no Ocidente. Dessa contradição surgiu o debate gramsciano, no qual este livro intervém a partir da perspectiva oposta.</p>
+<p></p>
+<h2>Portantiero e Pasado y Presente</h2>
+<p>Juan Carlos Portantiero, juntamente com José Aricó, foi uma das forças motrizes por trás de <em>Pasado y Presente</em>, um dos mais importantes projetos editoriais marxistas em língua espanhola. Esse projeto era gramsciano em um sentido quase literal. Ele tornava os principais debates do marxismo europeu acessíveis aos ativistas, tirando o pensamento de esquerda do provincianismo e, ao mesmo tempo, ancorando-o nas formações sociais latino-americanas, particularmente na Argentina, evitando todo eurocentrismo ou cosmopolitismo abstrato. Era um projeto que subordinava a teoria às exigências da análise concreta. Os ensaios reunidos em <em>Los usos de Gramsci</em> pertencem a esse empreendimento editorial.</p>
+<p>O livro corresponde a um momento preciso de uma trajetória que posteriormente tomaria um rumo diferente. Nos anos seguintes, Portantiero aproximou-se de posições mais próximas da social-democracia e cada vez mais distantes da perspectiva revolucionária. Seria um erro, contudo, ler retrospectivamente <em>Los usos de Gramsci</em> sob essa ótica. A obra conserva a intensidade de uma busca anterior: a de uma estratégia socialista para o Ocidente capaz de lidar com a complexidade do Estado moderno sem abandonar a ruptura com o capitalismo. Sobre esse ponto, não há dúvida: o Gramsci que Portantiero resgata não é um pensador social-democratizante nem um populista <em>avant la lettre</em>. Seu propósito é restabelecer o vínculo entre o proletariado e a revolução, partindo da premissa de que a tarefa histórica da classe trabalhadora não consiste na expansão progressiva da democracia liberal, mas sim na abertura da transição para o socialismo.</p>
+<p>Os ensaios, contudo, pertencem a dois períodos distintos. Os dois textos centrais, “Os usos de Gramsci” e “Gramsci e a análise da situação atual”, são anteriores ao golpe de 1976. Os demais foram escritos sob o peso da ditadura e da derrota, quando o pensamento de Portantiero começou a se voltar para outras questões. O cerne do livro reside nos primeiros.</p>
+<p>Portantiero escreveu esses textos durante a revolta popular que precedeu a ditadura, quando o Cordobazo e a ascensão do sindicalismo classista levaram a luta de classes argentina a um ponto de ebulição e a questão da revolução em uma sociedade complexa deixou de ser puramente teórica. O debate global daqueles anos, marcado pelo movimento operário pós-1968, pela virada eurocomunista e por experiências como a Revolução dos Cravos em Portugal e o governo da Unidade Popular no Chile, constituía o horizonte mais amplo. Mas o ponto de partida imediato de sua reflexão foi o movimento de massas argentino, e Portantiero se deparou com um fenômeno nacional-popular tão enigmático quanto poucos: o peronismo. </p>
+<p>Atento ao <em>Mezzogiorno</em> como um problema político e territorial, ao folclore e às diversas formas de cultura popular como repositórios do senso comum subalterno, e aos núcleos de senso comum sedimentados na cultura dos oprimidos, Gramsci ofereceu ferramentas para conceber uma política capaz de se engajar com fenômenos populares ambíguos sem se dissolver neles ou rejeitá-los de maneira sectária. A relevância dessa perspectiva não se limita ao peronismo da década de 1970: todo processo histórico real é híbrido, impuro e contraditório. Diante da orientação cada vez mais moderada dos partidos comunistas, Portantiero encontrou em Gramsci a possibilidade de abrir um caminho alternativo: o de um analista atento às complexidades e ambiguidades dos fenômenos políticos e da cultura popular, que era, ao mesmo tempo, um teórico da revolução no Ocidente, e não um precursor da prudência de Togliatti.</p>
+<p>Os principais partidos comunistas da Europa Ocidental alcançaram, naqueles anos, níveis de influência nunca vistos desde o pós-guerra. Herdeiros da abordagem gradualista da Frente Popular, haviam abandonado seu otimismo histórico sem substituí-lo por uma perspectiva ofensiva: enquanto para a social-democracia clássica a revolução podia esperar por ser inevitável, para eles ela tinha que esperar por ser improvável. Diante desse gradualismo conservador, uma nova esquerda revolucionária, influenciada pelo trotskismo e pelo maoísmo, passou a enxergar o reformismo dos principais partidos como um obstáculo estrutural, em vez de considerá-los a inevitável representação política da classe trabalhadora. A experiência chilena polarizou essa divergência: o Partido Comunista Italiano aproximou-se do Compromisso Histórico, o Partido Comunista Francês do Programa Comum, enquanto a esquerda revolucionária interpretou o golpe de Pinochet como a confirmação do beco sem saída do caminho democrático. Um movimento operário marcado por uma fratura histórica que permanecia aberta desde 1914 enfrentava o mesmo ponto de inflexão.</p>
+<p>A leitura que Togliatti fez de Gramsci pavimentou o caminho para o eurocomunismo, oferecendo fundamentos intelectuais para uma trajetória gradual rumo ao socialismo, baseada na acumulação de posições dentro da democracia vigente e desvinculada de qualquer perspectiva de ruptura. Contudo, nenhuma das alternativas disponíveis conseguiu resolver o impasse estratégico: enquanto o eurocomunismo consolidava uma guinada social-democrata, o crescente movimento operário e a Nova Esquerda não encontravam forma de capitalizar politicamente a radicalização. A força do movimento operário era medida pela solidez de um Estado capitalista que, longe de ruir, se transformava e se adaptava. Revisitar os debates passados ​​tornou-se, então, uma necessidade estratégica: seria possível conceber a revolução em condições substancialmente diferentes daquelas que tornaram possível outubro de 1917?</p>
+<p>Portantiero responde a essa questão recuperando, neste livro, um Gramsci que não é influenciado por interpretações eurocomunistas: a conquista da hegemonia é a maneira especificamente ocidental de se preparar para a luta revolucionária pelo poder. A guerra de posição é a transposição da estratégia revolucionária para as condições ocidentais, distintas daquelas do terreno “oriental” onde os bolcheviques atuaram, onde “o Estado era tudo” e “a sociedade civil era primitiva e gelatinosa”. Este Gramsci é herdeiro dos debates por meio dos quais a Internacional Comunista tentou abordar o problema da revolução na Europa Ocidental, especialmente na Alemanha: a frente única, o governo operário e a conquista das massas.</p>
+<p></p>
+<h2>As massas dentro do Estado: Gramsci e Weber</h2>
+<p>Na leitura de Portantiero, o ponto de partida do pensamento gramsciano é a irrupção das massas no Estado. Daí a importância de analisar as relações entre Estado e sociedade sob o capitalismo, no momento em que as classes subalternas deixam de ser um objeto passivo do governo. Crise e massas formam, nessa leitura, “um único tema contrapontístico”: é a presença das massas como sujeitos que define o caráter da crise e a forma que as tentativas de restabelecer a ordem assumem. É por isso que Gramsci rejeita a hipostasia das metáforas de base e superestrutura e prefere a linguagem das relações de poder, na qual as classes se tornam sujeitos da ação histórica.</p>
+<p>Para avaliar a originalidade dessa interpretação, vale a pena analisar a perspectiva de alguém que considerou o mesmo limiar sob outro ponto de vista. Em 1917, Max Weber escreveu sobre a crise alemã e, além da Alemanha, sobre as transformações das formas capitalistas de dominação. Seu diagnóstico foi lúcido e conservador. O liberalismo tradicional havia morrido porque a relação clássica entre Estado e sociedade civil havia se rompido: a sociedade estava se politizando, enquanto a esfera de tomada de decisões se tornava mais autônoma e burocratizada. As massas haviam entrado na política para nunca mais sair.</p>
+<p>Para Weber, o Estado moderno é definido por um meio específico: o monopólio da coerção física, organizado na forma de uma corporação. Assim como o capital separa o produtor dos meios de produção, o Estado moderno separa o funcionário público dos meios de administração e concentra a disposição do poder político em um único ápice. A burocracia cresce em paralelo com a socialização da vida, e com ela torna-se crucial a questão de quem opera essa máquina e com qual legitimidade. Os escritos de Weber sobre a reorganização política e constitucional da Alemanha são os textos de um liberal conservador que sabe que as massas não podem mais ser excluídas da nova configuração política: elas devem ter um lugar, ser canalizadas e guiadas. Sua resposta é a democracia plebiscitária, uma liderança capaz de guiar e controlar o aparato burocrático, apoiando-se na legitimidade eleitoral das massas. Weber chega a vislumbrar o horizonte que o perturba: o momento em que alguém tentará expropriar esse expropriador dos meios políticos. Esse horizonte é o ponto em que Gramsci entra em cena.</p><a href="https://autonomialiteraria.com.br/loja/america-latina/o-fantasma-do-comunismo-no-brasil-13-ensaios-contos-e-causos-sobre-o-espectro-que-assombra-os-poderosos/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2021/09/01_quotes_O-Fantasma-do-Comunismo-no-Brasil.jpg"/></a>
+<p>Se Weber era o Marx da burguesia, Portantiero propõe ver Gramsci como o “Weber das classes subalternas”: alguém que compreendeu plenamente essas transformações e as considerou a partir da perspectiva dos oprimidos. Se a dominação não se sustenta mais apenas pela coerção silenciosa do mercado ou pela repressão estatal, mas precisa, antes, produzir ativamente consenso, abre-se um terreno no qual os dominados podem contestá-la. Enquanto Weber busca garantir a estabilidade da ordem burguesa, Gramsci questiona como construir uma hegemonia das classes subalternas. E isso tem uma consequência estratégica. Se a política deve ser concebida como a construção de uma liderança intelectual e moral sobre toda a sociedade, essa liderança não se constrói em um terreno abstrato de uma luta de ideias, mas sim dentro de um conjunto de instituições e se condensa, em última instância, no aparato estatal. O Estado não pode mais ser entendido como o mero vigia noturno do liberalismo. É algo completamente diferente, e Gramsci dedica algumas das melhores páginas de seus <em>Cadernos do cárcere</em> à compreensão dessa “outra coisa”.</p>
+<p></p>
+<h2>O Estado integral e a guerra de posição</h2>
+<p>Na reconstrução de Portantiero, essa “outra coisa” é o Estado integral, um conceito que Peter Thomas, e antes dele Christine Buci-Glucksmann em seu célebre estudo sobre Gramsci e o Estado, consideram a principal contribuição de Gramsci para o marxismo.³ O Estado não aparece aqui como um mero instrumento, mas como o conjunto de atividades por meio das quais uma classe dominante mantém seu domínio e conquista o consentimento ativo dos governados. Ele abrange duas dimensões: a sociedade política, onde se concentra o aparato de coerção, e a sociedade civil, a rede de instituições na qual a hegemonia se organiza. Esta última, longe de constituir o domínio liberal da liberdade, integra a estrutura ampliada do Estado e contribui para moldá-lo.</p>
+<p>Aqui começam as conclusões estratégicas. Se o poder da burguesia repousa sobre uma densa rede de fortalezas institucionais, não pode ser conquistado em um único dia. Gramsci então traça a distinção entre a guerra de movimento, o ataque frontal que triunfou na Rússia em 1917, onde a sociedade civil era fluida e o Estado todo-poderoso, e a guerra de posição, o longo processo que cabe ao Ocidente, onde o robusto tecido da sociedade civil está por trás do Estado. Para Gramsci, a guerra de posição e a construção da hegemonia designam o mesmo processo: a forma que a estratégia revolucionária assume quando precisa se desenrolar em Estados complexos, profundamente enraizados na sociedade civil. Gramsci, assim, adota, contra a tática de “classe contra classe” imposta pela Internacional no final da década de 1920, o conselho do Lênin tardio, que havia instado os comunistas a estudarem as especificidades do Ocidente.</p>
+<p>A burguesia testou suas próprias respostas a esse desafio, e a história as revelou antes que a teoria pudesse conceituá-las plenamente. Entre as duas guerras mundiais, o antigo Parlamento liberal perdeu sua capacidade de mediar os conflitos de uma sociedade organizada em grandes partidos, sindicatos e grupos de interesse. Gramsci compreendeu as respostas burguesas a essa crise sob a categoria de revolução passiva: processos de modernização de cima para baixo que incorporam parcialmente as demandas das classes subordinadas, neutralizando sua iniciativa autônoma. </p>
+<p>O New Deal, o reformismo trabalhista e os pactos social-democratas entre capital e trabalho são expressões dessa lógica: transformações reais que atenuam a pressão revolucionária sem alterar as relações de classe. O fascismo foi uma forma alternativa e extrema de responder à mesma crise. Em vez de absorver parcialmente as demandas das classes subordinadas, destruiu a autonomia política da classe trabalhadora e reorganizou autoritariamente sua integração ao Estado por meio da organização corporativista e da mobilização plebiscitária.</p>
+<p></p>
+<h2>Hegemonia e seus mal-entendidos</h2>
+<p>O conceito de hegemonia tem estado no centro de grande parte do debate em torno do legado de Gramsci. Perry Anderson, em sua célebre obra <em>Antinomias</em>, argumenta que Gramsci estava errado ao localizar o consenso na sociedade civil, porque o que é específico do Ocidente reside na peculiaridade de sua sociedade política. No capitalismo avançado, o Estado representativo, a democracia burguesa, constitui “o principal cadeado ideológico do capitalismo ocidental”.</p>
+<p>A crítica tem algum mérito. As instituições representativas possuem peso e substância reais próprios, algo que Gramsci não teorizou completamente, e a hegemonia burguesa é amplamente determinada por essa configuração institucional. Mas Anderson paga por essa percepção com um dualismo que o próprio conceito de Estado integral desmantela. Sua objeção trata a sociedade civil e a sociedade política como locais alternativos de hegemonia, quando o Estado integral designa precisamente a sua unidade. A hegemonia opera por meio do Estado que as articula e é, em última instância, protegida pelo monopólio da violência concentrado na sociedade política. Gramsci desconsidera parcialmente a especificidade da democracia representativa, mas a separação rígida introduzida por Anderson perde de vista o cerne de sua contribuição: a análise da interpenetração entre o Estado e a sociedade civil.</p>
+<p>O mesmo conceito nos permite distanciar-nos da leitura de Gramsci feita por Ernesto Laclau. Vale a pena reconhecer um ponto forte: Laclau aprofundou a ideia de que a hegemonia é liderança cultural e moral tanto quanto liderança política, especificando as formas que a dimensão simbólica de toda luta política assume. Mas ele radicalizou esse aspecto a ponto de transformar qualquer construção hegemônica em um horizonte puramente discursivo. A centralidade da classe trabalhadora foi diluída em uma pluralidade de posições de sujeito, enquanto as restrições estruturais do capitalismo perderam peso na análise. A hegemonia gramsciana, por outro lado, opera sobre condições objetivas que nenhuma articulação de significado pode suprimir e mantém uma âncora de classe que Laclau dilui. Se o capitalismo é uma estrutura social organizada em torno da exploração do trabalho, a posição da classe trabalhadora dificilmente pode ser irrelevante para uma estratégia voltada à sua superação.</p>
+<p>Em última análise, Anderson e Laclau erram por caminhos opostos: Anderson divide o que Gramsci concebeu como unidade; Laclau hipostasia a dimensão simbólica e dissolve as âncoras materiais e econômicas. Em ambos os casos, perde-se a articulação gramsciana entre coerção, consenso e relações de classe, que molda o Estado integral.</p>
+<p></p>
+<h2>De qual Gramsci a esquerda precisa hoje?</h2>
+<p>Este Gramsci, o estrategista da hegemonia, é também o pensador da derrota. Sua obra madura responde ao fracasso do ciclo que começou com a Revolução Russa e terminou com a ascensão do fascismo. A partir dessa avaliação, ele relança o debate estratégico. Nossa situação guarda algumas semelhanças com aquela. O longo ciclo que começou em 1968 culminou, após as derrotas operárias da década de 1980, a ofensiva neoliberal e a queda da União Soviética, em uma derrota histórica para o movimento operário. O neoliberalismo fragmentou a classe trabalhadora e a decompôs politicamente, enquanto o colapso soviético desencadeou uma contrarrevolução duradoura cujos efeitos persistem até hoje. A essa decomposição soma-se agora um período reacionário e uma ofensiva autoritária. Mesmo assim, o impulso para a reorganização das forças populares não desapareceu.</p>
+<p>Esse impulso exige uma estratégia. A questão que Portantiero encontrou em Gramsci volta a ser relevante para a esquerda hoje: como contestar o poder em complexos Estados capitalistas, onde a dominação se organiza como hegemonia por meio do Estado integral. As duas respostas predominantes já demonstraram suas limitações. A confiança na acumulação parlamentar resultou na administração da própria ordem que buscava superar; o recuo para a batalha cultural leva a uma guerra de narrativas sem uma luta efetiva pelo poder social e político. A perspectiva gramsciana nos obriga a articular a formação de uma vontade coletiva com sua orientação para a conquista do poder. Dentro dessa estrutura, a guerra de posição mantém seu significado revolucionário.</p>
+<p>Contudo, Gramsci deixa um legado necessariamente incompleto. A guerra de posição, a hegemonia e o Estado integral abrem um novo caminho para a reflexão estratégica, mas constituem apenas o seu início. Gramsci pensava num contexto marcado pela crise da ordem liberal e pela ascensão do fascismo, não pela estabilização das democracias capitalistas do pós-guerra nem pela sua mutação em formas híbridas como o que Poulantzas chamou de “estatismo autoritário”. A questão de como contestar o poder nesses cenários permaneceu sem solução, e é essa questão que a esquerda ainda enfrenta.</p>
+<p>Na década de 1970, Poulantzas revisitou um dos problemas deixados em aberto pelo pensamento gramsciano. Se o Estado integral se ramifica na sociedade civil por meio de suas instituições, a relação também funciona no sentido inverso: a sociedade civil penetra e transforma o Estado, e as lutas travadas nessa arena deixam sua marca nele. Apesar de seu caráter capitalista, o Estado incorpora, portanto, conquistas populares obtidas ao longo de mais de um século de luta: sistemas públicos de educação e saúde, liberdades democráticas e direitos trabalhistas. </p>
+<p>Como não pode ser reduzido ao mero vigia noturno do liberalismo ou a um bando de homens armados, deve ser concebido como um campo contraditório, atravessado pela luta de classes. Assim, uma estratégia socialista deve operar tanto dentro quanto fora do Estado: transformando e expandindo as conquistas populares que ele incorpora, enquanto simultaneamente constrói uma força autônoma capaz de transbordar as instituições existentes em tempos de crise e fraturar seu núcleo de classe. As formas concretas dessa estratégia não podem ser predeterminadas: devem ser desenvolvidas a partir de novas experiências históricas.</p>
+<p>A questão das instituições socialistas também permanece em aberto. Gramsci não desenvolveu uma teoria do Estado pós-ruptura. A questão das instituições representativas ficou sem solução: seu pensamento não delineia claramente quais elementos da democracia representativa devem ser preservados e transformados, nem como combiná-los com formas de democracia direta ou poder no local de trabalho. Restam pistas dispersas: o lema “República Federal dos Operários e Camponeses”, que articulava uma alternativa constituinte ao Estado liberal italiano, ou suas reflexões sobre a Assembleia Constituinte como o momento em que a liderança intelectual e moral de um bloco histórico se cristaliza em uma arquitetura institucional. Mas não há uma elaboração sistemática. </p>
+<p>Pensar em uma democracia socialista exige ir além. Uma transição para o socialismo deve preservar e radicalizar os mecanismos representativos herdados, ainda que transformados e em relação a outras formas de poder popular. Nenhuma sociedade complexa pode ser governada unicamente por meio de mobilização permanente. Representação, pluralismo, liberdades civis e mecanismos de controle do poder têm uma história ligada à sociedade burguesa, mas não se limitam a ela. Constituem também conquistas históricas sem as quais dificilmente se sustentará uma forma duradoura de autogoverno. Como articular essas ideias com formas de poder popular e democracia no local de trabalho é uma das tarefas estratégicas que a esquerda anticapitalista ainda precisa resolver.</p>
+<p>Ler Gramsci hoje com essa perspicácia exige, em última análise, duas coisas. A primeira é o rigor histórico e filológico no tratamento de sua obra. A segunda é o esforço de pensar além dela: historicizar seus conceitos e traduzi-los para um presente que não é mais o seu, sem fingir que nada mudou. A classe trabalhadora não é mais a mesma dos anos 1930, e as democracias capitalistas se transformaram. Gramsci continua sendo um campo de debate, mas para nós, ele é, acima de tudo, uma ferramenta para uma esquerda que precisa repensar a estratégia socialista e a questão do poder em condições adversas. Aí reside a importância política de reeditar este livro hoje.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>é graduado em filosofia, professor da Universidade de Buenos Aires, membro do conselho editorial da Revista Intersecciones e militante da Democracia Socialista.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+
+<p>é membro editorial da Viento Sur e um ativista no Anticapitalistas na Espanha.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/um-gramsci-para-a-estrategia/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

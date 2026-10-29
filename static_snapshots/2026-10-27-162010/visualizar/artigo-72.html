@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Papal ‘Homecoming’ - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A Papal ‘Homecoming’</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/10/27/pope-leo-south-america-trip-peru-argentina-uruguay-cancer/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/10/Pope-Leo-GettyImages-2215662755.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Pope Leo to Travel to Latin America Despite Cancer Diagnosis
+                            </p>
+                            
+<p>In the early 1990s, conditions in parts of Peru were brutal. Poverty was widespread, and the <a href="https://insightcrime.org/peru-organized-crime-news/shining-path-profile/" rel="noopener noreferrer" target="_blank">Shining Path insurgency</a> was terrorizing communities. The <a href="https://foreignpolicy.com/2024/09/12/alberto-fujimori-obituary-dead-age-86-peru-human-rights/" rel="noopener noreferrer" target="_blank">authoritarian government</a> tried to crush the far-left militant group, at times committing human rights abuses. Hundreds of thousands of people fled the violence.</p>
+<p>After the August 1991 murders of three Catholic priests in the Diocese of Chimbote, many missionaries were among them. Augustinian missionaries who stayed in Peru were told by their superiors in the United States to develop an exit plan.</p>
+<p>Robert Prevost, an American priest in his mid-30s who had arrived in 1985, was among those who refused to leave. He ultimately spent 20 years in Peru across four decades, ministering to the poor, distributing food and clothing to displaced migrants, helping parishioners through personal difficulties, and naturalizing as a Peruvian citizen. Last year, he became <a href="https://foreignpolicy.com/2025/05/07/conclave-elect-american-pope/" rel="noopener noreferrer" target="_blank">Pope Leo XIV</a>.</p>
+<p>On Nov. 6, Leo is scheduled to begin an 11-day visit to Latin America that includes a return to Peru along with stops in Uruguay and Argentina. The pope was diagnosed with lung cancer this month and had part of his right lung removed. But the Vatican <a href="https://www.vaticannews.va/en/pope/news/2026-10/pope-leo-xiv-statement-confirms-latin-america-visit.html" rel="noopener noreferrer" target="_blank">confirmed on Monday</a> that Leo will proceed with the trip—the <a href="https://press.vatican.va/content/salastampa/es/bollettino/pubblico/2026/09/21/210926e.html" rel="noopener noreferrer" target="_blank">longest</a> of his pontificate so far, covering more than 19,000 miles, 12 plane flights, two helicopter rides, and significant changes in altitude.</p>
+<p>Dr. Stefano Margaritora, the surgeon who operated on the pope, <a href="https://www.vaticannews.va/en/pope/news/2026-10/pope-leo-xiv-interview-surgeon-stefano-margaritora.html" rel="noopener noreferrer" target="_blank">said</a> on Oct. 17 that Leo’s recovery was proceeding well and that “there are no clinical reasons why [the trip] should not take place.” And Luigi Carbone, the physician responsible for coordinating Leo’s medical care, said in a statement on Monday that “there are no contraindications that would prevent him from undertaking his upcoming Apostolic Journey to Latin America as planned.”</p>
+
+<p>Latin America is a traditional stronghold of the Catholic Church, with around <a href="https://zenit.org/2026/03/05/this-is-how-catholicism-declined-in-latin-america-during-pope-francis-pontificate/" rel="noopener noreferrer" target="_blank">40 percent</a> of the world’s <a href="https://www.vaticannews.va/en/vatican-city/news/2026-03/new-data-from-annuario-pontificio-2026-shows-catholics-growing.html" rel="noopener noreferrer" target="_blank">1.42 billion</a> Catholics in the region. But the share of people who consider themselves Catholic has fallen by nine percentage points in six of Latin America’s most populous countries in the last decade, according to a 2024 Pew Research Center <a href="https://www.pewresearch.org/religion/2026/01/21/catholicism-has-declined-in-latin-america-over-the-past-decade/" rel="noopener noreferrer" target="_blank">survey</a>.</p>
+<p>The rise of Protestant and evangelical churches has meant a <a href="https://www.pewresearch.org/religion/2014/11/13/religion-in-latin-america" rel="noopener noreferrer" target="_blank">decline</a> in Catholic affiliation in the region, particularly since the 1970s. But over the last 10 years, the Pew study <a href="https://www.pewresearch.org/religion/2026/01/21/catholicism-has-declined-in-latin-america-over-the-past-decade/" rel="noopener noreferrer" target="_blank">showed</a> a sharper increase in the percentage of people who describe themselves as atheist, agnostic, or “nothing in particular.” Sexual abuse scandals involving Catholic clergy have also alienated members.</p>
+<p>The declining percentages of Catholics in Latin America mirror a worldwide trend. A global Pew <a href="https://www.pewresearch.org/short-reads/2026/04/23/catholicism-has-lost-people-to-religious-switching-in-many-countries-while-protestantism-has-gained-in-some/" rel="noopener noreferrer" target="_blank">survey</a> conducted between 2023 and 2024 showed that more adults left the Catholic Church since childhood than joined it in 21 of 24 countries surveyed across all six inhabited continents.</p>
+<p>The church’s leadership is aware of this decline. When fellow cardinals elevated Leo to the papacy, they selected a U.S.-born prelate who was known for <a href="https://www.reuters.com/world/young-priest-peru-pope-leo-xiv-survived-bomb-threat-charmed-locals-2025-05-14/" rel="noopener noreferrer" target="_blank">ministering</a> to communities in Peru, including far-flung ones where transportation was difficult. Leo would take crucifixes and ceremonial wine with him, sometimes traveling by foot or on horseback. He once said that he intended to live in the country for the rest of his life.</p>
+<p>“It will be a massive homecoming,” said Rev. John Lydon, a fellow <a href="https://foreignpolicy.com/2025/05/21/pope-leo-augustinian-trump-vatican/" rel="noopener noreferrer" target="_blank">Augustinian</a> who attended Villanova University with Leo in the 1970s and lived and worked alongside him in Peru. The Augustinian order emphasizes the values of truth, unity, and charity. “The Peruvian people are very warm and welcoming. They loved [Leo] because he treated them with dignity and respect,” Lydon added.</p>
+<p>Peru is where many of Leo’s social priorities solidified. Central to his <a href="https://www.vatican.va/content/leo-xiv/en/apost_exhortations/documents/20251004-dilexi-te.html" rel="noopener noreferrer" target="_blank">outlook</a> are love for the poor, treating migrants with dignity, and addressing income inequality.</p>
+<p>Living among the poor “deeply affected him—on a personal, human level,” Lydon said. Leo “would go out to where the people were … They really loved him for that. They were poor, and society treated them badly, and here was someone who was conscious of their human dignity.” Lydon spent nearly 40 years as a missionary in Peru and is now the director of the Mother Cabrini Institute on Immigration at Villanova.</p>
+<p>Five soup kitchens that Leo established in Peru are still operating, according to Lydon. During the COVID-19 pandemic, the now-pope helped secure oxygen supplies for hospitals. Leo was so beloved by his parishioners that his <a href="https://www.osvnews.com/popes-brother-friends-in-the-chicago-area-will-mark-pontiffs-70th-birthday/" rel="noopener noreferrer" target="_blank">birthday celebrations</a> each September couldn’t be confined to a single day and instead were stretched out over a week.</p>
+<p>His fellow missionaries and church leaders saw him as someone who listened thoughtfully to parishioners and fellow clergy, including those he had differences with, to get things done.</p>
+<p>When Leo’s predecessor, Pope Francis, sent him to lead the Diocese of Chiclayo in 2014, it was <a href="https://www.ncronline.org/vatican/vatican-news/pope-francis-pick-peru-bishop-prevost-reshaped-opus-dei-diocese" rel="noopener noreferrer" target="_blank">heavily influenced</a> by the controversial Opus Dei organization, which Francis did not see eye to eye with. (Opus Dei has <a href="https://www.abc.net.au/news/2023-01-30/what-is-opus-dei-secretive-catholic-church-group-prelature/101905802" rel="noopener noreferrer" target="_blank">faced accusations</a> of secrecy and coercive recruitment.) Francis was confident that Leo would be able to engage in dialogue and be accepted, Lydon said: “I think he was picked because of his personality of working well with people who think differently.”</p>
+<p>The cardinals who selected Prevost as pope may have seen him as an American counterweight to U.S. President Donald Trump. Leo has <a href="https://www.reuters.com/world/pope-leo-criticizes-inhuman-treatment-immigrants-us-2025-09-30/" rel="noopener noreferrer" target="_blank">characterized</a> the treatment of immigrants in the United States as “inhuman” and <a href="https://www.reuters.com/world/europe/pope-leo-calls-trumps-threat-against-iran-truly-unacceptable-2026-04-07/" rel="noopener noreferrer" target="_blank">called</a> Trump’s threats against the Iranian people “truly unacceptable.” Trump later <a href="https://truthsocial.com/@realDonaldTrump/posts/116394704213456431" rel="noopener noreferrer" target="_blank">lashed out</a> at Leo on Truth Social, calling him “WEAK on Crime” and “terrible” for foreign policy.</p>
+<p>Though Leo has avoided attacking Trump personally, the pope has <a href="https://www.reuters.com/world/trump-issues-scathing-attack-pope-leo-calls-him-weak-terrible-2026-04-13/" rel="noopener noreferrer" target="_blank">said</a> that he has “no fear of the Trump administration or speaking out loudly.” The public tension between Trump and Leo has done little to dent the pontiff’s popularity in the United States, where around eight in 10 Catholics had a favorable view of Leo in a June Pew <a href="https://www.pewresearch.org/short-reads/2026/06/18/most-us-catholics-view-pope-leo-favorably-many-think-trump-has-been-too-critical-of-him/" rel="noopener noreferrer" target="_blank">survey</a>. Just over half of those polled said that Trump has been too critical of the pope.</p>
+<p>Leo’s ability to shape U.S. policy toward Latin America is limited. However, his credibility among U.S. Catholics, moral authority, Latin American background, and access to top U.S. officials—last May, he <a href="https://www.vaticannews.va/en/pope/news/2026-05/pope-leo-xiv-marco-rubio-usa-secretary-state.html" rel="noopener noreferrer" target="_blank">met</a> with U.S. Secretary of State Marco Rubio, who is Catholic—give him an unusual platform from which to challenge Washington’s approach to issues including migration, poverty, and the use of force.</p>
+<p>Though popes make public pronouncements on issues important to them, one of their main sources of influence comes through their power to appoint bishops in dioceses around the world. Just as Francis had goals in mind when he sent Leo to Chiclayo, Leo’s bishop appointments reflect messages that he wants local congregations to hear. From 2023 to 2025, Leo became well acquainted with potential appointees as he headed the Vatican’s Dicastery for Bishops, which reviews bishop candidates and recommends them to the pope.</p>
+<p>Since becoming pope, Leo named <a href="https://www.washingtonpost.com/religion/2026/05/01/pope-leo-bishops-menjivar-boxie/" rel="noopener noreferrer" target="_blank">Evelio Menjivar-Ayala</a>, a native of El Salvador who was once an undocumented immigrant, as West Virginia’s bishop. He tapped <a href="https://www.theguardian.com/us-news/2025/dec/28/catholic-bishop-michael-pham-protecting-immgrants" rel="noopener noreferrer" target="_blank">Michael Pham</a>, who fled communist Vietnam as a child, as bishop of San Diego. In Latin America, he named <a href="https://www.thetablet.co.uk/news/new-archbishop-for-former-stronghold-of-dissolved-peruvian-sodality/" rel="noopener noreferrer" target="_blank">Luciano Maza Huamán</a>, known for having deep local roots and serving his community, to lead the Archdiocese of Piura in Peru.</p>
+<p>While Leo relies on bishops and other local clergy to connect with their congregations from week to week, his trip to Latin America will energize Catholics who get to hear from him directly, said Archbishop Gustavo García-Siller of San Antonio, a native of Mexico. “I don’t have any doubt that he will empower the laypeople,” he said.</p>
+
+<p>Leo’s itinerary starts with a visit to Uruguay, where more than half of the population is <a href="https://www.pewresearch.org/religion/2025/06/09/religion-in-latin-america-and-the-caribbean/" rel="noopener noreferrer" target="_blank">religiously unaffiliated</a>, making it the only country in the region without a Christian majority. No pope has visited Uruguay since 1988. Leo’s visit to Uruguay gives him a chance to generate interest in the faith and connect with non-Catholics who may share his views on social issues.</p>
+<p>Uruguay has among the region’s most developed welfare states. Its government <a href="https://www.gub.uy/ministerio-economia-finanzas/node/1582" rel="noopener noreferrer" target="_blank">defines</a> poverty reduction, income redistribution, development of human capabilities, and protection of social rights as major social spending goals. Leo has spoken about reducing poverty and removing its “<a href="https://www.vatican.va/content/leo-xiv/en/apost_exhortations/documents/20251004-dilexi-te.html" rel="noopener noreferrer" target="_blank">social and structural causes</a>,” the hope of a “<a href="https://www.vatican.va/content/leo-xiv/en/audiences/2025/documents/20251004-udienza-giubilare.html" rel="noopener noreferrer" target="_blank">different distribution of wealth</a>,” and <a href="https://www.vaticannews.va/en/pope/news/2026-04/pope-leo-xiv-italy-inps-national-social-security-right-work.html" rel="noopener noreferrer" target="_blank">protecting vulnerable people</a> during hardships. Such statements will find a receptive audience in Uruguay.</p>
+<p>From Uruguay, Leo will head to Argentina, Francis’s home country. Francis never traveled back to Argentina after becoming pope. (No pontiff has visited the country since 1987.) Seven months before he died in April 2025, he <a href="https://www.vatican.va/content/francesco/en/speeches/2024/september/documents/20240913-singapore-voloritorno.html" rel="noopener noreferrer" target="_blank">told</a> journalists that he wanted to return but there were “several things that need to be resolved first.”</p>
+<p>Francis likely wanted to avoid being seen as taking a side in Argentina’s polarized political climate, Jimmy Burns, the author of a 2015 biography of Francis, <a href="https://www.reuters.com/world/pope-francis-argentine-pontiff-never-returned-home-2025-04-21/" rel="noopener noreferrer" target="_blank">told</a> Reuters last year. During his stop in Argentina, Leo won’t bring the same complicated history as Francis. Leo will lead a <a href="https://www.reutersconnect.com/item/leo-xiv-will-lead-a-tribute-to-pope-francis-at-the-cathedral-during-his-visit-to-argentina/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX09XTFRBQzNXQkFHS0oyME1OSlI0UjlFV0pEQVJQVjU" rel="noopener noreferrer" target="_blank">tribute</a> to his predecessor at the Metropolitan Cathedral of Buenos Aires, where Francis regularly celebrated mass as archbishop before becoming pope.</p>
+<p>Leo’s final stop will be Peru, where he will spend as much time as in Uruguay and Argentina combined. He will travel to the capital, Lima, as well as the cities of Chiclayo, Cusco, and Pucallpa.</p>
+<p>The visit promises to be emotion-filled for the pontiff, who served as Chiclayo’s bishop from 2015 to 2023. He is <a href="https://www.reuters.com/world/young-priest-peru-pope-leo-xiv-survived-bomb-threat-charmed-locals-2025-05-14/" rel="noopener noreferrer" target="_blank">remembered</a> in Peru for hiring basketball, swimming, and karate coaches to keep young people away from crime and taking them on weekend trips to the beach, as well as for being close to his parishioners and calmly staying in Peru despite the threats in the 1980s and 1990s.</p>
+<p>“It’s going to be like a pastor coming home,” said Rev. Matthew Carnes, a Jesuit priest and vice president for mission and ministry at Santa Clara University in California. “People will just flock to see him and really savor the sense that they’re being seen, as well.”</p>
+<p>Correction, Oct. 27, 2026: Due to an editing error, a previous version of this article misdated the years that Robert Prevost served as Chiclayo’s bishop.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/10/27/pope-leo-south-america-trip-peru-argentina-uruguay-cancer/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

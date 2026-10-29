@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O último ato da virada - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O último ato da virada</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://piaui.uol.com.br/web/lula-eleito-virada/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/10/35655233-high_85social.jpeg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O último ato da virada
+                            </p>
+                             <p>O barulho da multidão que se aglomerava na Avenida Paulista na tarde de 24 de outubro era tão intenso que chegava como uma espécie de eco em uma de suas ruas transversais, a Alameda Campinas – onde Luiz Inácio Lula da Silva subiu em uma picape adaptada como palanque, acompanhado por Janja, Geraldo Alckmin, Fernando Haddad, Marina Silva e Simone Tebet. O carro aberto avançou aos poucos, protegido por dois cordões humanos de isolamento. Um deles era composto por seguranças vestidos de preto. O outro, formado por integrantes do MST vestidos com camisetas brancas e bonés vermelhos. De braços dados, formavam o paredão que não à toa costumam chamar de “elo da corrente” e usam em grandes manifestações. Alguns de seus integrantes, como uma mulher baixinha vinda de um assentamento no interior de São Paulo, estavam chorando.  </p> <p>Anunciada pelo carro de som, a picape virou a esquina da Paulista às 16h10 e iniciou um cortejo que seguiria até a rua Haddock Lobo, sete quarteirões adiante. Era o último ato eleitoral da carreira de Lula, o brasileiro que perdeu três eleições até ganhar outras quatro e se consolidar como um dos personagens políticos mais extraordinários da atualidade. “O Lula que entra nessa avenida, nos braços do povo, não sabe se está indo para um réquiem ou para um recomeço”, me disse um dos integrantes da campanha, enquanto olhava o carro dobrar a esquina. Nos bastidores, a tensão corria solta. A cada atualização, os trackings do partido mostravam a evolução de um gráfico aflitivo. Havia dias, Lula ia subindo nas intenções de voto, Flávio Bolsonaro caía. Mas, até o momento em que o presidente entrou na avenida, as linhas não trocaram de lugar.  Era o retrato de uma onda que estava a caminho mas, ao que tudo indicava, não chegaria a tempo para reelegê-lo.</p> <p>Espalhados nas horas anteriores ao cortejo por mesas do restaurante La Caballeriza, na própria Alameda Campinas, pesos pesados do comando da campanha de Lula em São Paulo contavam com um milagre que só poderia vir das ruas, por obra da junção entre a surpreendente mobilização dos jovens que começou entre estudantes da Universidade Federal Fluminense, em Niterói, no dia seguinte ao primeiro turno, e depois se espalhou pelo Brasil inteiro e pelo mais surpreendente ainda efeito Janones, aquele em que um deputado federal da Rede escanteado pelo PT conseguiu, em duas semanas, fazer o letramento da esquerda no uso das redes sociais.</p> <p>“Veja aqui que são linhas que vão se cruzar mais adiante no horizonte. O problema é que esse horizonte já acaba amanhã, nas eleições”, mostrou um dos marketeiros da campanha, apontando para um gráfico em seu celular que mostrava cada atualização dos trackings. “A gente chega aqui esperando que essa onda quebre, em vez de se espraiar”, completou, mostrando o fim da linha.</p> <p> </p> <p>No final do primeiro turno, todos os trackings do PT já apontavam uma disputa acirrada. Com exceção de um, que dava uma vantagem de seis pontos para o petista. E foi justamente nesse que Lula e, especialmente Janja, resolveram se fiar. Estavam, portanto, otimistas. Quando Flavio Bolsonaro venceu a rodada com uma diferença de 2.224.965 votos, Lula ficou surpreso; seu entorno, abatido. A movimentação nas ruas e nas redes ajudou a colocá-los no prumo. Em duas semanas, seus apoiadores realmente se organizaram em iniciativas completamente fora do controle do partido.</p> <p>Em pouco mais de duas horas percorrendo lugares de grande circulação em São Paulo na  tarde de sexta-feira, por exemplo, a reportagem da piauí topou com uma militância independente, às vezes até quixotesca, por onde passou. Na frente da estação Tiradentes do metrô, uma banquinha fazia serigrafias em camisetas com o rosto de um Lula ainda jovem, de barba fechada. Na Avenida São João, um jovem casal caminhava com adesivos nas roupas e cartazes pendurados no pescoço em que se lia “Você tem um minuto para uma conversa?”. Na estação Marechal Deodoro, um grupo de quatro pessoas se revezava para segurar um buquê e uma cartolina com os dizeres “Troca uma flor por uma conversa?”, e parava pessoas para longas conversas sobre os perigos de eleger Flávio Bolsonaro. Diante da escada rolante da estação República, uma mulher distribuía um panfleto com o aviso:  “Antes de votar, pesquise no Google ‘Lancha e Rolex na pandemia’”, em referência à matéria Uma tarde no lago, publicada no site da piauí. Enquanto isso, o Exército do Lula, o grupo de WhatsApp de Janones, como se sabe, chegava a dez milhões de membros, um prodígio digital sob qualquer critério.</p> <p>Notícias dessa movimentação orgânica, vindas de todos os pontos de São Paulo, chegavam ao comitê e davam pistas do tamanho que o último ato eleitoral de Lula teria. Na manhã de sábado, o comando da campanha petista chegou cedo à sede do comitê de São Paulo, montado em uma casa onde funcionou o antigo escritório de Delfim Netto, no Pacaembu. A briga, naquele dia, seria sobretudo jurídica, em mais um desdobramento da campanha mais judicializada da história do Brasil — até aquele sábado, mais de oitocentas ações eleitorais, disparadas de lado a lado, já haviam corrido no TSE (e, no dia seguinte, se multiplicaria em ações que, entre outras coisas, resultaram na prorrogação do horário de votação até 19hs em todo o Brasil). Havia um nervosismo no ar – qualquer coisa que saísse errada na avenida Paulista poderia não só destruir as chances de uma vitória como macular um evento simbólico na biografia de Lula.</p> <p>Na noite anterior, o PT começara a instalar tapumes nos acessos às estações Trianon-Masp e Consolação, a pedido do próprio Metrô. A campanha foi então avisada de que teria de retirá-los, porque a companhia se encarregaria da proteção das estações, usando gradis.  Um dos três caminhões que circulariam no evento foi parado na marginal Pinheiros e vasculhado durante horas pela Polícia Militar.</p> <p>Os petistas acharam que eram sinais estranhos e convocaram uma entrevista coletiva, na qual anunciaram que haviam pedido à Polícia Militar que os agentes destacados para o ato estivessem identificados e mantivessem as câmeras corporais ligadas. Para evitar focos de tumulto, a campanha espalhou 140 pessoas pela avenida, encarregadas de tentar conter eventuais conflitos e pedir ajuda caso fosse necessário. Duas horas antes do evento, dois grupos de advogados, ligados ao grupo Prerrogativas e ao Sindicato dos Advogados de São Paulo, se encontraram em frente à Fiesp e foram distribuídos em pontos estratégicos, como saídas de metrô e cruzamentos, para atuar em caso de abordagens indevidas por policiais. Minutos antes da chegada de Lula à avenida, os advogados Luzia Cantal e Arnóbio Rocha, destacados para atuar como mediadores durante o evento, trocaram telefones com os comandantes da operação da PM.</p> <p> </p> <p>O cortejo popular na Paulista aconteceu sem registro de problemas, algo surpreendente para o tamanho da manifestação. A multidão tomou não só toda a Avenida Paulista como também suas ruas transversais. Havia uma profusão de pessoas segurando cartazes — confessionais (“pela vida do meu filho trans e da minha filha autista”, “sobrevivi a um coma por Covid e estou com Lula”), afirmativos (“lute como uma mulher preta”), esperançosos (“pulsão de vida combate o culto à morte”), orgulhosos  (“o Nordeste construiu o Brasil”), desbocados (“Flávio Surubinha”) e, sobretudo, cívicos (“pelo nosso povo, pela nossa história, pelo nosso futuro, pela soberania, pela democracia”). O clima geral era de congraçamento contra um perigo iminente. A certa altura, o presidente pediu para o povo abrir caminho para ele trocar a picape por um caminhão de som: “Eu quero ver esse mar de gente.”</p> <p></p> <p>O que deveria ter sido a despedida de Lula depois de sete campanhas eleitorais para a Presidência da República — uma outra, em 2018, chegou a ser registrada pelo PT, mas foi barrada pelo TSE porque Lula estava inelegível pela Lei da Ficha Limpa e preso — se transformou em uma colossal manifestação popular pela democracia. Na manhã seguinte, ao sair de casa, no Alto de Pinheiros, antes de seguir para São Bernardo do Campo para votar, Lula comentou: “O que o povo fez comigo nesses dias é uma coisa que não tem como pagar. É muita generosidade, é muito carinho, é muito amor. E eu serei eternamente grato.” A essa altura, o tracking da campanha começou a mostrar as linhas cruzando. No dia seguinte, a onda quebrou.</p>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/web/lula-eleito-virada/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

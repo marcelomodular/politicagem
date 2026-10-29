@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Quiet Power of International Orders - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The Quiet Power of International Orders</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/10/28/international-order-liberal-norms-west-colonial-empire-china/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/10/Milk_GettyImages-1245006812.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: The Quiet Power of the Liberal International Order
+                            </p>
+                            
+<p>When I walk into my neighborhood grocery store and choose to buy a bottle of 2 percent milk, I don’t think about the international order. But I should. My blind trust that I have indeed bought 2 percent milk and not cream or whole milk, which would send my poor stomach into a spin, is a consequence of the order in place today—the liberal international order created by the United States and its allies after World War II.</p>
+<p>This topic of international order has occupied academics, analysts, and policymakers for the past decade. The arguments made about its unprecedented benefits, such as nonproliferation, global prosperity, and preventing world wars, or the criticisms that it was a myth with liberal ideas selectively applied, are sweeping and grand. But they have little practical meaning for anyone besides elites. Without knowing how the liberal international order, or any international order, is felt in someone’s daily life, it is hard to make the case for either an order’s preservation or its demise.</p> 
+
+<p>When I walk into my neighborhood grocery store and choose to buy a bottle of 2 percent milk, I don’t think about the international order. But I should. My blind trust that I have indeed bought 2 percent milk and not cream or whole milk, which would send my poor stomach into a spin, is a consequence of the order in place today—the liberal international order created by the United States and its allies after World War II.</p>
+<p>This topic of international order has occupied academics, analysts, and policymakers for the past decade. The arguments made about its unprecedented benefits, such as nonproliferation, global prosperity, and preventing world wars, or the criticisms that it was a myth with liberal ideas selectively applied, are sweeping and grand. But they have little practical meaning for anyone besides elites. Without knowing how the liberal international order, or any international order, is felt in someone’s daily life, it is hard to make the case for either an order’s preservation or its demise.</p>
+<p>International order is an encompassing idea of the world—the norms and rules that govern how political entities, countries, empires, and kingdoms do business with each other. But it is also very ordinary. In other words, many of the rules and norms are not splashy; they are quiet, even granular.</p>
+<p>Let’s take my choice of grocery store milk. In making my choice, I benefit from a norm and rule of the liberal international order. The norm is about extending trust, and the rule is about standardization. I trust the label’s information of 2 percent fat to be accurate, and I can see with my own eyes the ingredients listed. I can trust this information because it is standardized. This standardization of products, in turn, comes about because the very concept of an international standard for a product exists at all. The company that is producing the milk knows what to include on the label because there is a global standard that it can reference. Such standards are created by institutions with admittedly wonky names such as the International Organization for Standardization that make up the core of the liberal international order. In the case of milk, ISO 1211 and ISO 8968 specify how fat and protein are measured. Many governments coordinate on international standards so that once a product is made in one place, it can be sold in many different markets with the same information. So, whether I buy milk in Boston, Beijing, or Berlin, the fat content of milk is measured in the same way, allowing me to control my diet and nutrition.</p>
+<p>This is not just the case with food. A bottle of shampoo made in, let us say India, is required to have all its ingredients listed when marketed for export to Canada. When a Canadian buys that shampoo in their local shop, they know exactly what they are getting. The label may not have those ingredients listed if the Canadian flies to India and buys that same shampoo in a New Delhi shop. This disclosure of ingredients, required in the shampoo’s case by many domestic governments, exists because of the rule of standardization pushed by the United States as part and parcel of the liberal international order, solidifying a norm of trust. Such quiet rules and norms allow trade and commerce to flow without interruption. They create transparency by making it easy for countries to know what to do when they export goods and create trust between the consumer and the firms that make the products we buy.</p>
+<p>The international orders that existed before the liberal international order also had quiet rules and norms that affected the daily lives of people. The colonial order dominated by powers such as Great Britain, France, Germany, Japan, and the Netherlands prevailed for more than 200 years, with decolonization speeding up after the end of World War II. The framework of that order hinged on a small group of countries that owned far-flung territories all over the globe with millions of imperial subjects, only a fraction of whom were full citizens of those nations. The acquisition of colonies was seen as a right and an obligation, considered vital to the development of countries into great powers. This was decidedly not the liberal international order that was nominally founded on the norm of sovereign equality among nations. But this order, too, had unstated guidelines. Japan’s colonial rule is an excellent illustration of this. As the only non-Western colonial power, Japan was inordinately keen to be seen by its Western peers as an exemplar. It was therefore assiduous in applying Western colonial rules to its own territories. In Korea, for example, Japan structured and <a href="https://www.tandfonline.com/doi/abs/10.1080/10357823.2016.1193122?casa_token=HxG8bDIuy5AAAAAA:JRY0Lqm0rAVFPZarX8Bj7yR29u7loJ1RYo0AKeF1Qs7EJxmAhP-sUsKJwmOVrFiyAmQyXoIxg-2" rel="noopener noreferrer" target="_blank">modernized prisons</a> according to Western and “enlightened” laws—fewer people were sentenced to death and floggings were more selectively meted out, but imprisonment and fines increased. In India, racialized norms of colonizer and colonized meant that even though in theory the prestigious Indian Civil Service was open to all who qualified through a rigorous exam, in practice it was designed to <a href="https://www.epw.in/engage/article/indian-civil-service-examinations-and-dalit" rel="noopener noreferrer" target="_blank">exclude</a> native Indians, partly by mandating the tests be held in London.</p>
+<p>China’s order under the Qing empire had similarly quiet rules and norms. The Qing emperors based their order on <em>tianxia</em> or “all under heaven.” This was a world where the Chinese emperor was <em>tianzi</em>, or the “son of heaven,” ruling China or <em>zhongguo</em> (the Middle Kingdom) and its peripheries. The barbarians at the peripheries kowtowed to the emperor and, in turn, he bestowed gifts upon them. Tianxia was not fixed but <a href="https://books.google.com/books?hl=en&amp;lr=&amp;id=0ubaDwAAQBAJ&amp;oi=fnd&amp;pg=PA173&amp;dq=qing+china+tianxia+jimi+restriction&amp;ots=UE_jGvVyKw&amp;sig=LThfeVnT2p3DlOqzNnbxDM6k9Wk#v=onepage&amp;q&amp;f=false" rel="noopener noreferrer" target="_blank">changed</a> as and when the empire expanded its geographical knowledge or changed its social, political, and cultural interactions with other communities. The boundaries of tianxia were not ruled by a Westphalian sense of strict territorial sovereignty. They were concentric territories: The nearer lands faced an inner frontier with China, and the furthest lands were an outer frontier with the territories beyond it. The strength of the emperor’s hierarchical system depended on the military power of the empire at the time. In other words, in some eras, the emperor was strong enough to control the peripheral areas; in others, the emperor’s suzerainty was entirely nominal. But tianxia also translated into granular impact on Chinese subjects. The Qing emperors were ethnic Manchu outsiders from the periphery regions—not members of the majority Han Chinese population. To emphasize their legitimacy at the heart of tianxia and, worried about Han elites rebelling, the Qing <a href="https://books.google.com/books?hl=en&amp;lr=&amp;id=0ubaDwAAQBAJ&amp;oi=fnd&amp;pg=PA173&amp;dq=qing+china+tianxia+jimi+restriction&amp;ots=UE_jGvVyKw&amp;sig=LThfeVnT2p3DlOqzNnbxDM6k9Wk#v=onepage&amp;q&amp;f=false" rel="noopener noreferrer" target="_blank">enacted laws</a> to keep ethnic groups apart. Non-Han were forbidden to marry or even interact with Han Chinese. In the province of Xinjiang, non-Han and Han residing in the same community was a punishable crime.</p>
+<p>Quiet, even granular, rules are at the very heart of any order, whether the liberal international order or those that came before it. Some benefit us, others do not. But they have an impact on our daily lives. This is not something that ordinary people—non-wonks—think about. But we should, particularly when it comes to the weakening order today. Should the liberal international order cease to exist, perhaps our first inkling would not be a declaration of war but changes to the quiet norms that we have come to trust over the past eight decades. And if the new great power setting these rules and norms were to be China, then we need to ask ourselves whether we would be willing to trust Beijing’s influence over our humdrum lives, even perhaps our grocery list. An annoying and inconvenient change on our supermarket shelves has far wider implications for our way of life than we realize.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/10/28/international-order-liberal-norms-west-colonial-empire-china/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

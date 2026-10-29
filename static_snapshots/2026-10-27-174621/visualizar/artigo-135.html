@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E aí, combinou com os russos? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">E aí, combinou com os russos?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/10/160208/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/10/texto1.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: E aí, combinou com os russos?
+                            </p>
+                            
+<p>Feola, técnico do Brasil na Copa de 1958, antes do jogo contra os russos, apresentou um plano para a vitória, no que Garrincha teria levantado e dito: “O plano é ótimo, mas você combinou com os russos?”.</p>
+<p>Em 2026 a história se repete. Mudam os titulares e o campo de jogo, mas o causo se encaixa perfeitamente.</p>
+<p>O PT tinha o plano perfeito: derrotar Flávio nas urnas, muito porque seria “…mais fácil, porque Bolsonaro é também mais fácil do que Tarcísio” <strong>[1]</strong>. Endossando esse plano, um experiente dirigente do centrão disse: “<em>As pesquisas mostram, pela intenção de voto e pela rejeição, que Flávio Bolsonaro não vence a eleição. O PT não tem atacado essa candidatura pois está claro que é a mais fácil de ser batida no segundo turno. Lula quer Flávio </em><em>Bolsonaro, pois é vitória certa do PT.”</em> <strong>[2]</strong><em>. </em>Mas como Garrincha na Copa de 58, sempre há quem desconfie dos planos. Aquele que cravou sua posição foi um político petista que volta ao jogo depois de um tempo fora dos gramados, o ex-presidente da Câmara, João Paulo Cunha. Observemos o que ele disse bem antes das eleições: “Do meu ponto de vista, a candidatura do Tarcísio era mais fácil de ser derrotada do que a do Flávio. É o contrário. A rejeição do Flávio, ou dos Bolsonaros, é uma rejeição já medida, precificada. Sabemos que qualquer coisa que a gente jogar no Flávio não vai pegar, porque a rejeição já está no limite, assim como a do Lula” <strong>[3]</strong>.</p>
+<p>Os resultados do primeiro turno mostraram quem estava certo. O PT apostou no desgaste de Flávio com seus costumeiros escândalos, mas ele já tinha alta rejeição. Quem já vota nele não deixaria de votar e, pior, Flávio conseguiu ampliar a porcentagem eleitoral, abrindo vantagem sobre Lula.</p>
+<p>Nesse texto vamos perseguir as peças que se moveram na economia política e quais os cenários futuros da corrida presidencial ao Estado Nacional Burguês.</p>
+<p><strong>Os números do 1º Turno</strong></p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/texto2.png"/>Em uma primeira observação dos dados das duas últimas eleições, somados os dois candidatos principais, temos 92% dos votos, sobrando apenas 8% para os outros, ou seja, essa é uma eleição polarizada em apenas dois candidatos. Outra observação é que, em relação à eleição de 2022, Lula perdeu 3,27 pontos percentuais dos votos e Flávio Bolsonaro aumentou 3,83 p.p., ou seja, aproximadamente que o Lula perdeu, Flávio ganhou, além de tomar mais um tantinho dos outros candidatos. Na tabela 2 vemos que Lula perdeu por volta de 3% dos votos na região Sudeste e Nordeste.</p>
+<p><strong>Tabela 1.</strong></p>
+
+
+
+
+<strong>Candidato</strong>
+<strong>votos válidos 2022</strong>
+<strong>votos válidos 2026</strong>
+<strong>variação</strong>
+
+
+<strong>Lula</strong>
+48,43%
+45,16%
+-3,27p.p
+
+
+<strong>Bolsonaros</strong>
+43,2%
+47,03%
++3,83 p.p
+
+
+<strong>outros</strong>
+8,37%
+7,81%
+-0,56
+
+
+
+
+<p><strong>Fonte: poder 360</strong></p>
+<p><strong>Tabela 2. Variação dos votos de LULA por região</strong></p>
+
+
+
+
+<strong>Região</strong>
+<strong>2022</strong>
+<strong>2026</strong>
+<strong>variação (p.p.)</strong>
+
+
+<strong>Sudeste</strong>
+42,63%
+39,68
+-2,95%
+
+
+<strong>Nordeste</strong>
+66,76%
+63,77
+-2,99%
+
+
+<strong>Sul</strong>
+36,78%
+31,28
+-5,50%
+
+
+<strong>Norte</strong>
+47,09%
+44,65
+-2,44%
+
+
+<strong>Centro-Oeste</strong>
+37,83%
+32,62
+-5,21%
+
+
+
+
+<p>Fonte: Poder 360</p>
+<p>Analisando as tabelas acima, podemos concluir que existem dois grupos consolidados e a eleição é definida pelo deslocamento de votos de uma pequena fração dos eleitores.</p>
+<p>Muitos estão tentando entender qual a causa desse deslocamento de votos e não faltam especialistas com explicações estatísticas, sociológicas, filosóficas, antropológicas, místicas, astrológicas, etc. A crise sistêmica, a crise estrutural, a financeirização, a saudade dos anos dourados do pós-guerra, o fim do padrão ouro-dólar. A tese do capital especulativo engolindo a tudo e a todos também é divertida.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/texto3.png"/>Voltando ao núcleo duro do governo, se o afastamento de um conselheiro como João Paulo Cunha já fez falta, imaginem 3. A perda de Luiz Gushiken e os tortuosos caminhos seguidos por Mantega deixaram um buraco grande no núcleo duro petista. E, como em toda inquisição cirandeira, logo se iniciou a caça às bruxas, afinal, é importante achar um culpado. A vítima foi o secretário de comunicação do Governo, Sidronio. Dizem que o Governo não soube comunicar bem suas realizações e os influencers de esquerda falam que a campanha perdeu a batalha nas redes, outros dizem que para ganhar a eleição Lula precisa comunicar a possibilidade de futuro. A velha desculpa de que a direita tem uma máquina de comunicação, assim, a esquerda precisa se adequar e montar uma máquina própria. Os “exércitos” de hoje em dia são espelhos dessa necessidade se concretizando.</p>
+<p>Enquanto escrevíamos o texto, um desses especialistas do jornal da FIESP reforçou a perspectiva dominante. Em uma entrevista para o Estadão, ele nos disse o seguinte <strong>[4]</strong>:</p>
+<blockquote>
+<p>“Minha experiência diz que o governo Lula deixou passar, <strong>desde 2024, incólume a percepção da maioria da opinião pública de que a economia do País seguia no rumo errado. </strong>Várias pesquisas detectaram isso. O governo Lula não enfrentou essa questão, não desenvolveu uma narrativa coerente, para dar conta dessa questão. Quando chega a campanha eleitoral, uma parte importante da população que via o País indo na direção errada e, como tal, reclamando por mudança, foi atraída com relativa facilidade pelo discurso de mudança, de transformação, do candidato oposicionista.”</p>
+</blockquote>
+<p>Bom, concordamos que a comunicação é uma arma política, utilizada para atingir determinados objetivos, concordamos que existe uma operação midiática para manufaturar a opinião pública, mas, afinal, se as condições de vida dessas pessoas estivessem realmente razoáveis, elas dificilmente acreditariam nas mentiras, pois teriam a realidade para contradizer.</p>
+<p>Nossos interlocutores podem argumentar que existe um grupo fiel ao bolsonarismo, mesmo com as mortes na pandemia, destruição ambiental, ataque aos direitos trabalhistas, etc. Mas, convenhamos, o PT tem uma quantidade de ataques bem ampla: liberação dos transgênico, flexibilização das leis ambientais, reformas da previdência, regularização da grilagem de terras na Amazônia, explosão da população carcerária no país, privatizações (pré-sal, rodovias, etc.), e por aí vai. A velocidade e o grau de intensidade foram lentas, com jeitinho, mas fez. A distinção entre eles é diferente do que se apresenta nas propagandas ideológicas. Como resumiu muito bem Gustavo Machado, do ILAESE, “…a nova direita, por ser ligada ao mercado exportador quer uma mudança radical, flexibilização total das leis trabalhistas e enxugamento máximo da máquina estatal a fim de baratear sua produção e direcionar os recursos públicos cada vez mais para si, leia-se: partir pro tudo ou nada, mudança pra pior – condições de trabalho análogas a escravidão, flexibilidade total de todas as condições de trabalho, nenhuma proteção social, extermínio dos serviços públicos existentes (SUS, educação pública, assistência social, etc), etc. Já o setor de esquerda se apresenta como mantenedor das instituições, as garantias legais, o Estado, a estrutura jurídica existente, etc., soando como a mantenedora da ordem” <strong>[5]</strong>.</p>
+<p>As questões culturais, religiosas, ideológicas, dentre outras, podem explicar parte da polarização, como falamos acima, mas a esquerda deixou muito a desejar aos trabalhadores quando governou e a vida concreta, o dia a dia mesmo, consolida as visões de mundo. Enfim, existem dois grupos consolidados, mas, para nossos amigos teóricos , falta explicar qual a motivação do deslocamento de uma parte que definiu as eleições.</p>
+<p>Para nós estão relacionados aos movimentos que ocorreram na economia no período anterior à eleição. Podemos estar errados, nem sempre acertamos, afinal, não temos bola de cristal, mas estamos com um bom placar à frente.</p>
+<p>Veremos agora como a economia moveu-se nos no período anterior ao fracasso do Plano perfeito.</p>
+<p><strong>Por onde escaparam os votos da esquerda?</strong></p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/texto4.png"/>Em junho de 2025 escrevemos:</p>
+<blockquote>
+<p>“Na imagem 03, vemos o último quadrimestre da indústria. Observemos que a capacidade instalada em utilização está parada nos últimos meses. Mesmo assim, nos 3 últimos meses houve um crescimento do faturamento, das horas trabalhadas e do emprego. E para somar a isto, redução da massa salarial e do rendimento médio real.</p>
+<p>(…) Didaticamente, o ciclo econômico brasileiro está chegando ao ápice, ou no topo da produção de riqueza e acumulação. Acumulação esta que é a parte da mais-valia reinjetada no processo produtivo, acumulando Capital e aumentando a máquina produtiva.</p>
+<p>Estamos perto do momento em que estas relações de produção de acumulação de capital chegarão ao ápice da contradição com as forças produtivas materiais da sociedade. “De formas de desenvolvimento das forças produtivas, estas relações transformam-se nos seus entraves”. Queda da taxa de lucro em alto e bom som. A roda vai parar por produzir demais, abrindo um período de crise e destruição de capital, fixo e <strong>variável</strong>. Do nosso lado, fome, miséria e morte. Eles vão fazer de tudo para jogar a crise no nosso colo. <strong>[6]</strong>” [grifo nosso]</p>
+</blockquote>
+<p><strong>É meu amigos, com o arrocho salarial, inflação e aumento das horas trabalhadas: eles estão jogando a crise no nosso colo.</strong></p>
+<p>Como identificamos naquele momento, a economia tinha atingido seu ápice, tinha produzido demais, consumo demais e empregos demais para os padrões da burguesia brasileira, e ela começou a reclamar. Pode parecer um contra senso, mas é assim que funciona na sociedade capitalista e em particular numa economia dominada. Para a burguesia era necessário pôr um fim nessa festa.</p>
+<p>No mesmo texto citamos a fala do Presidente do Banco Central que cumpriria o papel de chato no rolê,aquele que acaba com a festa; Nas palavras do próprio Galipolo: <strong>“Quando a festa está ficando muito aquecida e o pessoal está subindo em cima da mesa, tira a bebida da festa”, </strong>foi exatamente o que aconteceu, como podemos ver nos dados do PIB segundo o IBGE.</p>
+<p>Principais resultados do PIB — do 2º trimestre de 2025 ao 2º trimestre de 2026</p>
+
+
+
+
+<strong>Taxas (%)</strong>
+<strong>2025.II</strong>
+<strong>2025.III</strong>
+<strong>2025.IV</strong>
+<strong>2026.I</strong>
+<strong>2026.II</strong>
+
+
+Acumulado ao longo do ano / mesmo período do ano anterior
+2,7
+2,4
+2,3
+1,8
+1,9
+
+
+Últimos quatro trimestres / quatro trimestres imediatamente anteriores
+3,3
+2,7
+2,3
+2,0
+1,9
+
+
+Trimestre / mesmo trimestre do ano anterior
+2,4
+1,8
+1,8
+1,8
+2,0
+
+
+Trimestre / trimestre imediatamente anterior (com ajuste sazonal)
+0,4
+0,1
+0,2
+1,1
+0,5
+
+
+
+
+<p>Fonte: IBGE — Diretoria de Pesquisas, Coordenação de Contas Nacionais.</p>
+<p>Chegar em uma eleição presidencial com a economia desacelerando não é uma boa notícia para um postulante à reeleição, por isso o governo lançou mão de várias medidas para segurar a queda: fim da escala 6×1, reajuste no Bolsa Família, proibição das bets, Desenrola 1, 2 e 3, divulgação da aprovação da distribuição de canetas emagrecedoras pelo SUS, Pé de Meia, Reforma Brasil, Gás do Povo, Luz do Povo, isenção do Imposto de Renda para quem recebe até cinco mil reais, reforma do Minha Casa, Minha Vida, uma singela quantia de a R$ 59,5 bilhões para o Plano Brasil Soberano e R$ 140 bilhões à <a href="https://www.brasildefato.com.br/2024/01/22/governo-federal-anuncia-politica-industrial-com-investimento-de-r-300-bilhoes-ate-2026/" rel="noopener noreferrer" target="_blank" title="https://www.brasildefato.com.br/2024/01/22/governo-federal-anuncia-politica-industrial-com-investimento-de-r-300-bilhoes-ate-2026/">Nova Indústria Brasil (NIB)</a>, dentre outra medidas menores.</p>
+<p>Mesmo com tudo isso, acreditamos que a desaceleração da economia joga luz sob o deslocamento dos votos. E o que mais pode ter acontecido nos trimestres anteriores ao período eleitoral.</p>
+<p>A flor que desabrocha, mesmo vermelho sangue, chega ao ápice e definha.</p>
+<p>Ainda bem que existem pessoas no país que buscam investigar a realidade, como o pesquisador da FGV Manoel Pires <strong>[7]</strong>. Intrigado com o fato de a inflação estar baixa, o desemprego baixo e mesmo assim a popularidade do Presidente da República não decolar, resolveu analisar os dados do índice de consumo das famílias e descobriu um dado interessante. Vamos a ele:</p>
+<blockquote>
+<p>(…) depois de uma boa recuperação na saída da pandemia,<strong> há uma quebra estrutural a partir do terceiro trimestre de 2024</strong> que indica que o comportamento mudou e o crescimento do consumo praticamente encontra-se estagnado desde então. De fato, entre o terceiro trimestre de 2024 e o segundo de 2026, ou seja, nos últimos sete trimestres, o consumo das famílias cresceu de forma acumulada – ponta contra ponta – apenas 0,84% ao passo que o PIB no mesmo período e na mesma métrica cresceu 3,65%.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/10/grafico.png"/>(…) Se o PIB está crescendo mais de 3% de forma acumulada no período, mas o consumo está com esse comportamento, de onde vem o crescimento? O principal vetor de crescimento nesse período tem vindo das exportações que no mesmo período – ponta contra ponta – cresceu 8,3% oriundo da expansão da agropecuária e do setor extrativo mineral.</p>
+<p>O problema é que esses setores não geram o famoso efeito gotejamento, (…) para os demais setores da economia. Além disso, outras variáveis são boas candidatas para explicar o comportamento do consumo, tais como o elevado endividamento das famílias. O que está acontecendo com o consumo das famílias deveria receber maior atenção.</p>
+</blockquote>
+<p>Ou seja, o Presidente Lula chegou nas eleições com quase 2 anos de consumo estagnado, leia-se: desaceleração da economia. Parece fazer sentido que esses fatores são suficientes para uma porcentagem de eleitores com expectativas de melhoria mudar o voto. Ou pensar assim seria muito economicismo? Muito para aqueles que esquecem que é do salário que vem os gastos com cultura, lazer, educação, igreja, supermercado, drogas lícitas e ilícitas e toda a vida dos trabalhadores, aposentados e seus agregados.</p>
+<p><strong>Cenários</strong></p>
+<p>No dia após o primeiro turno o clima era de velório entre os trabalhadores mais conscientes e de euforia no mercado. A bolsa de São Paulo subiu, o dólar e os juros futuros caíram. Rebbaca Nossig, estrategista de ações da Nomad <strong>[8]</strong>, explicou o motivo da euforia:</p>
+<blockquote>
+<p>Mais do que o alívio imediato, o resultado das urnas trouxe uma sensível melhora nas perspectivas para a trajetória da dívida pública, ancorando a confiança do mercado em um cenário econômico mais estável a partir de 2027 <strong>[9]</strong>.</p>
+</blockquote>
+<p>Traduzindo o vocabulário dos analistas de mercado, uma melhora na trajetória da dívida significa ajuste fiscal, cortes de gastos com saúde,educação e etc.</p>
+<p>Voltando no tempo, há um ano o editorial da Folha de Sẫo Paulo <strong>[10]</strong>, na seção “ O que a Folha Pensa”, era didático já pelo título <strong>“Desaceleração do PIB é necessária neste momento”. </strong>Nele, a Folha defende que a elevação da taxa de juros é necessária :</p>
+<blockquote>
+<p>A tarefa dos juros, em português claro, é dificultar o consumo e o investimento, de modo que a queda da demanda tire o fôlego de uma inflação que está acima dos 5% em 12 meses, ante uma meta de 3%.</p>
+</blockquote>
+<p>E diz eufemisticamente que é necessário uma desaceleração da economia por muito tempo :</p>
+<blockquote>
+<p>Em tal cenário, não se pode considerar mau resultado a alta de 0,4% do Produto Interno Bruto no segundo trimestre, bem abaixo do 1,3% do primeiro. O desaquecimento, que não sugere uma guinada traumática, é necessário e, pela lógica, deve continuar por algum tempo.</p>
+</blockquote>
+<p>Está claro que a classe dominante quer um pesado ajuste fiscal e não querem crescimento econômico, sabem bem que se a coisa continuar como está não teremos um pouso forçado, mas sim uma queda livre da economia. Como<strong> disse o amigo Armando há uns tempos atrás: “ A Argentina é a antessala do Brasil, acontece lá, tá chegando aqui!”, </strong>ou seja, a quebradeira e limpeza dos gastos públicos para o orçamento da união se voltar unicamente para as necessidades das classes dominantes é a demanda de uma parcela importante dela.</p>
+<p>O resultado das eleições do primeiro turno já definiu elementos fundamentais para o cenário dos próximos anos, o PL terá uma bancada importante de deputados na Câmara e maioria no senado, todos de prontidão para defender os interesses do grande capital exportador.<strong> Caso Flávio Bolsonaro ganhe as eleições,</strong> terá facilidade para passar todas as medidas contra os trabalhadores, como o ajuste fiscal já anunciado. Não que o centrão seja algo diferente, mas dentro do mesmo partido a coisa facilita, são menos acordos e conchavos nas festinhas privadas, tudo em casa já alinhado desde antes da eleição.</p>
+<p>Caso Lula vença, será um cenário parecido com a vitória da presidenta Dilma em 2014. A classe dominante com pressa e pressionando o governo para implementar medidas de ajuste fiscal, reforma da previdência, fim do aumento real do salário mínimo, contrato de trabalho por horas e o governo emparedado no congresso nacional. Do outro lado, pressionado pelos segmentos de trabalhadores que foram às ruas e às redes sociais para derrotar a extrema direita.</p>
+<p>Começamos o texto lembrando do técnico Feola, no final ele saiu vitorioso, levando a copa de 58 por 2×0 contra Rússia, pois ele tinha Didi, Nilton Santos, Belini, Vavá, Garrincha e Pelé. E nós, temos quem?</p>
+<p>O mesmo cheiro de revolta está no ar, a juventude cheira revolta, organiza autonomamente, mesmo que contra o 22, não tão revoltosos como na Europa <strong>[11]</strong>, mas milhões estão nas ruas. Negro Drama, é a hora de funcionar…e como bem disse mano Brown “… E de onde vem os diamante?”</p>
+<p><strong>Notas</strong></p>
+
+<p><strong>[8] </strong>A Nomad é uma fintech brasileira fundada em 2019 que permite a brasileiros abrir uma conta digital e de investimentos nos Estados Unidos diretamente pelo aplicativo Nomad Global.</p>
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/10/160208/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

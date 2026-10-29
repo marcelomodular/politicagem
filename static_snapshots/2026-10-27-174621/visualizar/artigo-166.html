@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Como a imaginação radical pode nos salvar - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Como a imaginação radical pode nos salvar</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/10/como-a-imaginacao-radical-pode-nos-salvar/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/imaginacion-al-poder-2.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Como a imaginação radical pode nos salvar
+                            </p>
+                            
+<p>UMA ENTREVISTA DE</p><p>
+
+			Maruscka Grassano		</p>
+<p>Em um continente marcado pelas cicatrizes da espoliação colonial e pelas constantes tentativas de coerção imperialista, a disputa pela memória e pela narrativa é uma trincheira política fundamental. Se o <em>mainstream</em> cultural e as plataformas globais frequentemente capturam as potências estéticas do Sul Global para transformá-las em mercadoria pasteurizada, a riqueza da imaginação latino-americana resiste nas margens. É nessa interseção entre o resgate das lutas históricas e a invenção de novas formas de linguagem que a literatura independente reafirma sua vocação radical: a de não apenas denunciar as estruturas de opressão, mas de imaginar outros mundos possíveis.</p>
+<p>Conversamos com Livia Almendary, idealizadora e fundadora da <a href="https://kipuka.com.br/" rel="noopener noreferrer" target="_blank">editora Kipuka</a>, fundada em 2025 para tensionar e expandir nossa própria compreensão sobre a América Latina. Nascida sob a inspiração dos <em>bachilleratos populares</em> e das redes de cooperação intercontinental, a editora aposta na bibliodiversidade e no intercâmbio político-cultural entre o Brasil e nossos vizinhos. </p>
+<p><em>Kipuka</em> é a porção de terra viva que sobrevive à passagem da lava — refúgio verde que permanece em meio ao caos. Pensar o livro como uma <em>kipuka</em> é enxergá-lo como esse porto seguro para a escuta, a pausa e a reinvenção crítica em momentos de crise. No entanto, esse território poético e político na América Latina contemporânea não é estático: sua capacidade de expandir ou encolher depende diretamente da força e da capacidade coletiva de sustentação do ecossistema editorial sob diferentes cenários. </p>
+<p>Ao articular forma e conteúdo em obras que transitam do combate ao antissionismo e ao genocídio na Palestina à denúncia da violência das fronteiras imperialistas nos Estados Unidos, a Kipuka nos mostra que editar livros no Sul Global é, acima de tudo, um ato de subversão política e embate coletivo.</p>
+
+<p>Maruscka Grassano</p>
+<p><strong>Existe um fio invisível que une as inquietações sociais, políticas e estéticas dos países da América Latina — das pautas de gênero e direitos humanos às memórias coloniais até as novas formas de fazer quadrinhos e literatura. Ao colocar o Brasil no centro dessa conversa, qual é o retrato do nosso continente que a Kipuka está ajudando a desenhar através dos seus livros?</strong></p>
+<p>Livia Almendary</p>
+<p>O desejo de criar uma editora surgiu justamente quando morei em Buenos Aires, lá pelos idos de 2008. Na época, cursava o Mestrado em Literatura e Cultura Latino-americanas na UBA. Fui ficar uns meses por conta dessa pós, e acabei ficando quatro anos, mas abandonei a academia e mergulhei nas traduções, na militância nos chamados <em>bachilleratos populares</em>, nas tertúlias e outras cenas culturais ligadas principalmente à literatura. </p>
+<p>O mercado editorial brasileiro naquele momento era bem diferente e fiquei muito impressionada com o que rolava ali no vizinho: as feiras de livros em praças e parques, a quantidade de editoras pequenas de muitos tipos, as livrarias de rua que são também editoras e espaços culturais, os saraus, a profusão de pessoas de outros países da América Latina trabalhando e estudando. Um caldeirão cultural de pessoas vindas de países falantes de espanhol do qual, não só pelo idioma, mas também por outras questões políticas, o Brasil não fazia tão parte, pelo menos no âmbito da cultura. E naquele momento me perguntei: por que não há tanto intercâmbio de música, cinema e literatura entre o Brasil e os outros países da América Latina?</p>
+<p>É uma pergunta retórica, claro, e a resposta não é simples. No campo da literatura, por exemplo, a produção latino-americana que tinha maior visibilidade por aqui ainda era muito associada aos grandes autores do <em>boom</em>. Na música, artistas que circulavam enormemente e com shows massivos em outros países da região tinham uma presença muito pequena no Brasil – como a banda porto-riquenha Calle 13, ou mesmo o Cerati e sua Soda Stereo, que representavam algo muito distinto para a América de língua espanhola e para nós; um baile de cumbia estava longe de ter o apelo que tem hoje em certos circuitos culturais brasileiros.</p>
+<p>Isso mudou bastante nos últimos dez, quinze anos. O Brasil vem se aproximando mais desses circuitos, na verdade tem iniciativas políticas mais institucionais como o Mercosul Cultural na década de 90, mas tem outras coisas… a criação de uma universidade federal como a Unila, mais intercâmbios universitários, festivais de cinema e literatura que dialogam entre nossas fronteiras, traduções e editoras interessadas em fazer os livros circularem dentro da própria região. Também estamos mais presentes em feiras de livros importantes, como as de Guadalajara, Buenos Aires, Bogotá. Acho que hoje participamos desse ecossistema de maneira mais orgânica, embora ainda muito aquém do que poderíamos; sabemos que ainda há inúmeras barreiras, a língua bem ou mal ainda é uma delas, assim como os custos e a logística, a descontinuidade das políticas de integração e uma tradição cultural ainda muito mediada pela Europa e pelos Estados Unidos.</p>
+<p>“Abraçar o fascismo pela via institucional como o Brasil está fazendo nesta eleição pode ter consequências drásticas e retrocessos brutais em todos os âmbitos da vida, do cotidiano, das relações.”</p>
+<p>Tudo isso para contextualizar que, hoje, nosso cenário editorial é bastante diferente de quando comecei a pensar na Kipuka, e nossa relação cultural com outros países da América Latina também vem se transformando. Fala-se, por exemplo, em um “novo <em>boom</em>” de autoras hispano-americanas, cuja circulação no Brasil tem sido impulsionada por projetos editoriais dedicados à tradução e à descoberta de outras vozes da região. Esse interesse não se restringe à literatura, está, por exemplo, na projeção global de artistas como Bad Bunny e Shakira, na expansão do reggaeton e da cumbia e na transformação de obras como <em>Cem anos de solidão</em> e <em>O eternauta</em> em grandes produções audiovisuais.</p>
+<p>Claro que essas mudanças também estão relacionadas às lutas que se dão aqui, de povos historicamente marginalizados a racializados que vêm conquistando visibilidade, direitos, apesar das idas e vindas políticas do continente. E isso acaba configurando uma tensão: em que medida essa crescente valorização da cultura latino-americana no cenário mais mainstream fortalece os ecossistemas culturais da própria região e em que medida extrai deles autores, repertórios e estéticas para alimentar plataformas e grandes conglomerados globais? </p>
+<p>A Kipuka chega nesse terreno mais fértil, construído por iniciativas que há algum tempo reconhecem essa ambivalência, trabalham para ampliar e fortalecer a diversidade do campo editorial com essa perspectiva crítica latino-americana, e de Sul Global. É a partir desse legado de quem veio antes, e ainda movida por aquela inquietação inicial, embora com questões um pouco diferentes, que estamos construindo o caminho da Kipuka. </p>
+<p>E é por isso que buscamos, na curadoria, não simplesmente “aproximar o Brasil” desse contexto  – quantas vezes nos referimos à América Latina sem incluir o Brasil, como se a gente estivesse fora? – mas disputar a própria imagem que temos do continente. E os livros do catálogo (poucos ainda, mas virão outros nessa toada!) fortalecem a perspectiva de que essa imagem é plural, contemporânea, atravessada por deslocamentos e conflitos, e também por muita invenção estética.</p>
+<p>MG</p>
+<p><strong>O ineditismo das obras publicadas pela Kipuka, abordando temas contemporâneos, é um dos pontos altos da editora. O catálogo também promove um diálogo constante entre a literatura, as artes visuais e a performance. De que forma se dá essa curadoria tão atenta aos atravessamentos entre diferentes linguagens e temas?</strong></p>
+<p>LA</p>
+<p>Acho que a curadoria na Kipuka acontece menos por uma lista prévia de temas (apesar de termos uma lista! rs) e mais por perguntas como: o que este livro poderia trazer de diferente nesse assunto, e qual o trabalho de linguagem para que isso aconteça? Nos interessa muito quando forma e conteúdo são inseparáveis, quando um livro encontra uma maneira própria de narrar aquilo que quer colocar no mundo. </p>
+<p><em>Projeto Desandar</em>, da Beatriz Cruz, nosso primeiro título, nasceu exatamente nesse lugar. É uma obra que vem da intervenção urbana e da performance e que, ao se tornar livro, vai além de documentar uma experiência anterior, e encontra uma forma editorial para continuá-la. A publicação ganhou um formato de coleção, reunida em um box, cujos volumes propõem diferentes formas de interação e leitura. E por ter várias facetas – fotografias e propostas de derivas urbanas, registros sonoros acessíveis por QR Code, diário, relatos eróticos –, oferece diferentes portas de entrada e acaba chegando a leitores muito distintos, seja do campo das artes ou não. Isso foi bastante fundador para a Kipuka, inclusive porque nos colocou desde o começo diante da pergunta sobre o que um livro pode ser.</p>
+<p>O segundo título, “Quadrinhos, diversidade e insurgência”, é um projeto original da editora em parceria com o projeto Mina de HQ, e propõe um mergulho na cena dos quadrinhos do ponto de vista da diversidade. Ensaios, memória, entrevistas, indicações de leitura e uma antologia de quadrinhos convivem em uma mesma publicação, permitindo múltiplos percursos de leitura. Esse livro inclui ainda tirinhas inéditas no formato impresso (originalmente publicados nas redes da Mina) e um pôster encartado com a <em>ilustra </em>da capa.</p>
+<p>“Talvez o maior campo de batalha dessa guerra ideológica da extrema direita seja, justamente, a cultura.”</p>
+<p><em>Ver e não ver a Palestina</em>, de Ana Gebrim e Marie-Caroline Saglio-Yatzimirsky, nosso título mais recente, aborda um tema urgente e sobre o qual não faltam livros no mercado. Mas o que ele tem de diferente? Parte, sobretudo, da psicanálise e se constrói no encontro com a antropologia, a história, o cinema, a literatura, o teatro, as artes visuais e uma multiplicidade de referências que ajudam a pensar aquilo que, muitas vezes, parece escapar à possibilidade de representação. E essa perspectiva, de múltiplas referências (que chamamos de “biblioteca de aliados” no fim do livro, com as referências comentadas), determina também a própria forma desse texto. </p>
+<p>Não há uma narrativa linear nem a pretensão de oferecer uma explicação totalizante sobre a Palestina, ainda que o posicionamento contra o genocídio e a perspectiva antisionista sejam explícitos.</p>
+<p>A escrita avança por cenas, imagens, memórias, conceitos, obras e associações. Daí a ideia de “ensaio em fragmentação” e o diálogo com a palavra árabe <em>ashlâ’</em>, que significa fragmentos, restos, pedaços, inclusive restos de corpos. A fragmentação, portanto, não é um recurso estético aplicado posteriormente ao texto; ela nasce do próprio problema que o livro enfrenta, que é a dificuldade de narrar uma realidade estilhaçada pela violência sem reconstruí-la artificialmente como narrativa totalizante ou fechada.</p>
+<p>Há, ainda, outra dimensão da curadoria, ligada à construção de um catálogo de perspectiva latino-americana. Tentamos encontrar autoras e autores que permitam estabelecer relações mais diretas entre diferentes contextos da região.</p>
+<p><em>Não volte</em>, por exemplo, traz, pela primeira vez ao Brasil, a obra do argentino Leonardo Tarifeño, radicado no México. É uma crônica jornalística construída a partir da experiência de pessoas deportadas dos Estados Unidos para Tijuana; combina escuta, investigação, documentação histórica e reflexão sobre migração, fronteiras e direitos. Não cabe muito bem na prateleira de livro-reportagem, nem em nenhuma outra. Ler esse livro é se aproximar de histórias de vida que muitas vezes são mencionadas como estatísticas. Abominamos a postura política de Trump em relação à imigração e a abominamos ainda mais quando nos aproximamos de quem vive na pele as consequências dela. </p>
+<p><em>Queima</em>, por sua vez, apresenta ao público brasileiro Ariadna Castellarnau, escritora catalã que viveu durante anos em Buenos Aires. Foi lá que seu primeiro romance foi publicado, em 2015, e depois reconhecido com o prêmio internacional Las Américas. Seu segundo livro, publicado na Espanha, receberia anos mais tarde o Grand Prix de l’Imaginaire, na França. É uma trajetória interessante porque embaralha um pouco aquela ideia de um fluxo de legitimação mais tradicional. </p>
+<p>Para o ano que vem, temos no forninho uma coedição com uma editora chilena, com essa vontade de fortalecer vínculos na região por projetos conjuntos. Esse trânsito entre fronteiras também pode gerar intercâmbio e colaboração com outras editoras, de forma mais direta. Já temos alguns exemplos muito legais por aqui nesse sentido, esperamos contribuir para que se multipliquem. </p>
+<p>Agora pensando nisso que acabei de dizer e olhando para o futuro que desejo para a Kipuka, talvez o fio da curadoria esteja aí: buscar livros que unem forma e conteúdo e, ao mesmo tempo, pensar o catálogo como uma rede de relações entre linguagens, territórios, autores, artistas, tradutores, editoras e leitores.</p>
+<p>MG</p>
+<p><strong>Aproveitando o gancho: como nasceu o projeto original do livro em celebração aos 10 anos da Mina de HQ, concebido e encabeçado pela editora?</strong></p>
+<p>LA</p>
+<p>Esse projeto, nosso segundo título, é muito significativo na trajetória da editora. Nasceu de uma conversa com a Gabriela Borges sobre os dez anos da Mina de HQ, plataforma da qual Gabi é fundadora e coordenadora. A Mina construiu, ao longo da última década, um trabalho muito importante de pesquisa, crítica, divulgação e formação em torno da produção de quadrinhos feitos por mulheres e pessoas trans no Brasil. E nos pareceu que o aniversário de 10 anos da iniciativa, em 2025, era uma oportunidade de celebrar essa trajetória e ao mesmo tempo produzir uma reflexão sobre o que mudou na cena em relação à diversidade, na última década.</p>
+<p>A ideia do livro veio daí. Mas, desde o início, não queríamos fazer simplesmente algo comemorativo ou uma retrospectiva dos dez anos. A proposta foi pensar a Mina como uma espécie de ponto de partida para olhar para transformações mais amplas no campo dos quadrinhos: quem produz, quem publica, quem faz curadoria, crítica, quais histórias passam a ser contadas, que debates surgiram e que redes foram construídas nesse período.</p>
+<p>Foi um projeto encabeçado editorialmente pela Kipuka, mas construído de forma muito coletiva com a Gabriela Borges e a Dani Marino, que assinam a organização e a autoria da maioria dos textos, além da curadoria da antologia de quadrinhos que o livro traz. O pré-lançamento foi na CCXP de 2025, edição em que Gabriela também foi homenageada pela trajetória da Mina. </p>
+<p>A capa do livro é algo à parte, adoramos: é uma ilustração original da Helô D’Angelo pensada exclusivamente para o projeto, que reúne quadrinistas brasileiras de todos os cantos do país, suas personagens e seus livros (se olhar de perto, você verá que as capas dos livrinhos existem mesmo), na lombada estão as autoras. O pôster encartado é essa ilustração. Nessa mesma toada, no fim do livro tem um listão inédito com mais de 250 quadrinistas mulheres e trans para conhecer. Não é uma lista exaustiva, se propõe a ser um ponto de partida para quem quer ampliar esse repertório.</p>
+<p>Então, acho que isso conversa bastante com o que eu dizia antes sobre a editora. Interessa à Kipuka fazer livros que sejam também espaços de encontro e circulação de pensamento. No caso deste livro, buscamos reunir num mesmo objeto memória, produção artística, pesquisa e reflexão crítica sobre uma experiência que nasceu no Brasil, mas que dialoga com uma transformação mais ampla dos quadrinhos na América Latina. E essa dimensão também aparece no livro, que conta com um texto de Mariela Acevedo, grande pesquisadora argentina de quadrinhos e gênero, que faleceu em 2025 e é homenageada na publicação.</p>
+<p>MG</p>
+<p><strong>Quando a possibilidade de criar uma editora começou a despontar no seu horizonte e quais foram os maiores desafios enfrentados ao ingressar no mercado editorial independente?</strong></p>
+<p>LA</p>
+<p>A vontade de criar uma editora vem de muito tempo, desde a experiência em Buenos Aires de que falei antes, mas a possibilidade concreta começou a aparecer muito mais tarde. Desde o início dos anos 2000, trabalhei com edição, tradução, comunicação e projetos culturais, cofundei e fui, por mais de dez anos, codiretora da Taturana, uma organização de cinema e impacto social que desenvolveu formas de distribuição e circulação de filmes voltadas à formação de público, ampliação de redes de exibição para além dos cinemas e que fomenta o diálogo entre cinema e lutas sociais na América Latina. Então, de alguma maneira, fui acumulando repertório, relações e também uma ideia mais clara do tipo de editora que gostaria de criar. A Kipuka nasce em 2025, quando senti que havia chegado o momento e estavam dadas as condições de transformar esse desejo em um projeto editorial propriamente dito. </p>
+<p>E aí você descobre rapidamente que publicar bons livros é só uma parte do trabalho. Talvez o maior desafio seja justamente compreender e conseguir existir dentro de todo um ecossistema: autores, tradutores, revisores, designers, gráficas, distribuidoras, livrarias, feiras, bibliotecas, imprensa, políticas públicas e, óbvio, leitores. Uma editora pequena depende muito da vitalidade de todos esses elos.</p>
+<p>Isso pauta inclusive a maneira como penso a “concorrência”. Para uma editora como a Kipuka, interessa que existam muitas outras editoras independentes (ou interdependentes, como prefiro dizer), muitas livrarias de rua, feiras, clubes de leitura, bons distribuidores que atendam a diversidade do mercado. Quanto mais diverso e saudável for esse ambiente, maiores são as possibilidades de circulação dos nossos próprios livros. Fortalecer o ecossistema é também fortalecer a editora.</p>
+<p>“Salvar muitas vezes pode ter uma conotação messiânica, esse recurso que pode ser apelativo ao nos propor uma saída pronta e simples… mas salvar pela imaginação pode ser impedir que a gente aceite o presente como o único mundo possível.”</p>
+<p>A precificação talvez seja um dos lugares em que essa questão fique mais evidente. O preço de um livro precisa remunerar uma cadeia bastante extensa e, ao mesmo tempo, continuar acessível ao leitor. Quando uma grande plataforma digital consegue oferecer descontos arrebatadores, por exemplo, parece ótimo para o consumidor no curto prazo, mas existe uma discussão importante sobre o que isso pode produzir no longo prazo: concentração do mercado, desaparecimento de pontos de venda que não pertencem a grandes grupos, e redução da bibliodiversidade. É justamente uma das discussões por trás da Lei Cortez, e de tantos outros debates que acontecem no mercado editorial e ainda são pouco apropriados por quem está fora. É possível e desejável que a gente qualifique e discuta o senso comum de que “o livro está caro”. E está mesmo, sentimos na pele: nosso livro mais vendido é também nosso livro mais acessível em termos de valor, por uma engenharia pouco usual de precificação. Mas responder a essa provocação não pode se reduzir a uma suposta “má vontade” dos editores, ou culpar os descontos praticados em feiras universitárias, para citar polêmicas recentes.  Há uma cadeia muito mais complexa por trás do preço, e é sobre ela que precisamos falar. E ela envolve necessariamente diálogo com políticas públicas.</p>
+<p>Então, acho que um dos maiores aprendizados desse primeiro ano foi perceber que fazer uma editora in(ter)dependente é pensar o livro para muito além do objeto. É pensar nas condições que permitem que livros diferentes existam e encontrem seus leitores. Claro que há desafios muito concretos de capital, distribuição, escala e visibilidade, sobretudo para uma editora que está começando. Mas há também uma dimensão coletiva: não me interessa construir uma Kipuka forte num ecossistema frágil. Interessa que a editora cresça junto com uma rede diversa de editoras, livrarias, profissionais e espaços culturais. Porque é essa diversidade que permite que livros menos óbvios, experimentais ou de circulação mais difícil continuem sendo publicados e encontrem um público cada vez mais interessado.</p>
+<p>Então, para concluir, recorro a um exercício de memória histórica, algo que fazemos pouco como sociedade no Brasil [risos nervosos em tempos de eleição]. Da primeira ideia da Kipuka até 2025, quando finalmente tomamos forma, muita água rolou debaixo dessa ponte. É fundamental reconhecer que chegamos a um cenário muito mais favorável do que aquele que eu encontraria se tivesse criado a editora quando comecei a imaginá-la, lá no fim dos anos 2000. Não necessariamente porque o mercado editorial brasileiro tenha se tornado mais fácil ou crescido em vendas – muito pelo contrário, ele atravessou crises muito profundas nesse período –, mas porque, sobretudo nos últimos 15 anos, se consolidou um ecossistema de pequenas e médias editoras comprometidas com a bibliodiversidade, acompanhado pelo surgimento de feiras, livrarias, distribuidoras, clubes de leitura e outros espaços fora dos grandes conglomerados do setor. Tudo ainda bastante concentrado no Sudeste, é fato, mas para que isso mude, o problema precisa ser nomeado, como tem sido nas últimas pesquisas e nos diálogos setoriais.</p>
+<p>Então, é um privilégio nascer depois de uma geração de colegas que, lá por 2010, 2012, começaram a abrir picadas na base do facão, trazendo outras preocupações e modos de fazer, inventando modelos, criando circuitos próprios, formando leitores, contribuindo para a multiplicação das livrarias de rua e, sobretudo, mostrando que outros projetos editoriais são possíveis.</p>
+<p>Aprendi e continuo aprendendo muito com essas experiências, que acompanho com enorme admiração. Se hoje a Kipuka encontra algum terreno para florescer, é também porque muita gente veio antes, plantou, experimentou, errou, insistiu e tornou esse ecossistema mais fértil. E porque muitos colegas e amigos desse campo me dão a mão. Os desafios são enormes, mas a criatividade para lidar com eles também.</p>
+<p>MG</p>
+<p><strong>Qual o possível cenário para o ecossistema das editoras independentes a partir de um avanço da extrema direita no Brasil após essas eleições?</strong></p>
+<p>LA</p>
+<p>É uma pergunta difícil… tento refletir aqui como trabalhadora e pesquisadora da cultura, e agora à frente de uma editora pequena. Abraçar o fascismo pela via institucional como o Brasil está fazendo nesta eleição pode ter consequências drásticas e retrocessos brutais em todos os âmbitos da vida, do cotidiano, das relações. Mas para manter o foco aqui na nossa conversa, acho que talvez o maior campo de batalha dessa guerra ideológica da extrema direita seja, justamente, a cultura.</p>
+<p>A gente já vê no Congresso propostas que tentam mudar os critérios da Lei Rouanet e de outras políticas de fomento, inclusive privilegiando determinadas manifestações entendidas como “cultura nacional”. Com esse avanço da extrema direita, esse tipo de disputa se acirra em torno de temas como gênero, direitos LGBTQIAPN+, questões raciais, direitos humanos e perspectivas anticoloniais — que são justamente questões muito presentes na produção artística independente, e nos temas editoriais de muitas editoras e outros atores independentes do ecossistema a que me refiro, de forma mais ou menos explícita. Haverá perseguição, e a experiência de 2019 a 2022 no governo Bolsonaro já mostrou que isso chega facilmente aos livros, com tentativas de censura, retirada de circulação, constrangimento de determinadas obras. Se os discursos forem colocados em prática (e serão, temos lastro histórico) qualquer livro pode estar na mira, não precisa sequer ter alguma tese política explícita. A revista<em> Quatro cinco um</em> pode se tornar uma espécie de profecia de ficção científica à brasileira rs. Brincadeiras à parte, chegamos a ficar sem MinC, lembram?</p>
+<p>E sem falar no tanto de deputados eleitos no primeiro turno que em suas campanhas falaram em “acabar com a doutrinação nas universidades”, desqualificando os ambientes de ensino superior, as políticas afirmativas… Em última instância, estão atacando a produção de conhecimento científico em todas as áreas, humanas e exatas. Já vimos isso também de 2019 a 2022, certo? E agora está sendo anunciado novamente, em alto e bom tom, nesses discursos de ódio que temos escutado todos os dias, antes e depois de ter ido às urnas.</p>
+<p>Ao mesmo tempo, quanto mais esse espaço institucional se fecha (e não podemos esquecer que votamos por isso enquanto sociedade, pela segunda vez, mas que ainda dá tempo de reverter um pouco  nesse segundo turno!), mais importantes podem se tornar pequenas editoras, livrarias, feiras, universidades, coletivos e redes latino-americanas. Nesse ecossistema, acabam se formando outros circuitos por onde determinadas experiências e formas de conhecimento circulam e somam forças para disputar outros espaços (e corações e mentes rs). </p>
+<p>Então, com esse cenário eleitoral e com os próximos anos que se desenham, a questão deixa de ser só como sobreviver comercialmente, e passa a ser também como manter e construir mais autonomia e garantir diversidade. Talvez a resposta coletiva mais importante entre os que prezam pela democracia seja fortalecer essas nossas redes e a luta por políticas públicas de bibliodiversidade; trabalhar com mais formação de público; diversificar fontes de receita; ampliar circuitos de circulação que não dependam exclusivamente nem do Estado nem das grandes plataformas; intensificar práticas como se reunir, ler juntos, lembrar, se organizar. E acho que isso vale para qualquer campo ou instância da vida nesse momento.</p>
+<p>MG</p>
+<p><strong>Como a imaginação radical pode nos salvar?</strong></p>
+<p>LA</p>
+<p>Ela pode?! Não sei. Talvez a imaginação radical possa nos ajudar justamente porque ela permite imaginar que as coisas não precisam ser necessariamente como são. Quando falo em imaginação radical para a jornada da Kipuka, muito inspirada por Saidiya Hartman, não estou falando de fantasia ou de fuga da realidade. Pelo contrário: é uma forma de olhar para nossos contextos e perceber que aquilo que parece dado – as relações de poder, as desigualdades, as fronteiras, as maneiras de produzir, trabalhar, amar, viver – foi historicamente construído e, portanto, também pode ser transformado.</p>
+<p>Acho que a arte e a literatura têm uma força enorme nesse sentido. Um livro não precisa necessariamente apresentar um programa político ou oferecer respostas. Às vezes sua força está simplesmente em deslocar nosso olhar, tornar visível uma experiência que não víamos, produzir uma linguagem para alguma coisa que ainda não sabíamos nomear, nos permitir imaginar uma relação diferente com o mundo ou com qualquer detalhe do nosso cotidiano. </p>
+<p>“Salvar” muitas vezes pode ter uma conotação messiânica, esse recurso que pode ser apelativo ao nos propor uma saída pronta e simples… mas salvar pela imaginação pode ser impedir que a gente aceite o presente como o único mundo possível.</p>
+<p>Tem uma dimensão disso que me interessa muito na Kipuka, porque criar uma editora também é um exercício de imaginação radical: pensar em quais livros e vozes publicar, que é possível criar outros caminhos entre países, autores, tradutores, livrarias, leitores. E fazer isso tentando desfrutar o caminho enquanto ele está sendo trilhado.</p>
+<p>A imaginação, nesse sentido, deixa de ser apenas uma capacidade de pensar outros mundos, passa a ser uma maneira de construí-los. Gosto muito de aproximar a ideia de imaginação radical à de política prefigurativa: quando tentamos construir e vivenciar, aqui e agora, no presente, relações e valores que desejamos para o futuro, sem esperar, justamente, uma “salvação”.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>Maruscka Grassano é jornalista e assessora de imprensa e redes em projetos anti-hegemonicos.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Lívia Almendary				
+</h5>
+</p>
+
+<p>é idealizadora e fundadora da editora Kipuka.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/como-a-imaginacao-radical-pode-nos-salvar/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
