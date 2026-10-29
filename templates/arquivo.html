@@ -911,6 +911,9 @@
             return `${d} de ${monthsPt[m - 1]} de ${y}`;
         }
 
+        // Identificador da edição atual (caso seja snapshot estático)
+        const currentSnapshotSlug = "{{ current_slug or '' }}";
+
         function resolveEditionAction(ed) {
             const hostname = window.location.hostname;
             const pathname = window.location.pathname;
@@ -928,10 +931,24 @@
                 };
             }
 
+            // SE FOR A PRÓPRIA EDIÇÃO ATUAL:
+            // Clicar nela sempre abre a capa da edição atual (./index.html), sem erro de rede
+            if (currentSnapshotSlug && ed.slug === currentSnapshotSlug) {
+                return {
+                    url: './index.html',
+                    label: 'Capa Desta Edição &rarr;',
+                    enabled: true,
+                    isCurrent: true
+                };
+            }
+
             // Caso IPFS (subdomínio ou path gateway)
             if (isIpfsSubdomain || isIpfsPath) {
                 if (ed.cid) {
-                    if (isIpfsSubdomain) {
+                    // Apenas CIDs em Base32 (bafy...) podem ser usados como subdomínio DNS.
+                    // CIDs no formato antigo Qm... são Base58btc case-sensitive e NÃO funcionam
+                    // em subdomínio (o DNS força lowercase). Para eles, usamos o gateway canônico.
+                    if (isIpfsSubdomain && ed.cid.startsWith('b')) {
                         const parts = hostname.split('.');
                         const gatewayHost = parts.slice(1).join('.');
                         return {
@@ -940,19 +957,21 @@
                             enabled: true
                         };
                     } else {
+                        // Gateway oficial IPFS compatível com todos os CIDs (Qm... e bafy...)
                         return {
-                            url: `https://ipfs.io/ipfs/${ed.cid}/`,
+                            url: `https://ipfs.io/ipfs/${ed.cid}/index.html`,
                             label: 'Abrir no IPFS &rarr;',
                             enabled: true
                         };
                     }
                 }
 
-                // Se não tem CID registrado, no IPFS essa outra pasta não existe dentro deste CID
+                // Se for a mesma edição detectada pelo slug do momento
                 return {
-                    url: '#',
-                    label: 'Sem CID IPFS (Apenas Servidor Local)',
-                    enabled: false
+                    url: './index.html',
+                    label: 'Capa Desta Edição &rarr;',
+                    enabled: true,
+                    isCurrent: true
                 };
             }
 

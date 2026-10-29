@@ -336,6 +336,7 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
             calendar=archive_payload['calendar'],
             payload_json=archive_payload,
             static_mode=True,
+            current_slug=output_dir.name,
         )
         archive_path = output_dir / "arquivo.html"
         archive_path.write_text(archive_html, encoding='utf-8')

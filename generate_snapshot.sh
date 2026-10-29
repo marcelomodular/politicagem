@@ -44,7 +44,7 @@ if ! command -v ipfs >/dev/null 2>&1; then
     exit 0
 fi
 
-IPFS_OUTPUT=$(ipfs add -r "$SNAPSHOT_DIR")
+IPFS_OUTPUT=$(ipfs add -r --cid-version 1 "$SNAPSHOT_DIR")
 ROOT_CID=$(echo "$IPFS_OUTPUT" | tail -n 1 | awk '{print $2}')
 
 # Registrar automaticamente o CID nos metadados para que o calendário de edições o reconheça
