@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nada será como antes - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Nada será como antes</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Brasil de Fato</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.brasildefato.com.br/colunista/boletim-ponto/2026/10/30/nada-sera-como-antes/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.brasildefato.com.br/wp-content/uploads/2026/10/556102286785373e8ce1cc-a7f5b90e.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Nada será como antes
+                            </p>
+                            <p>Olá!</p><p>Nem a esquerda nem a direita saíram das urnas da mesma forma que entraram.</p><p><strong>.Esperança equilibrista.</strong> Foi uma vitória histórica. Lula não apenas derrotou Flávio Bolsonaro, como também Donald Trump, Javier Milei, a extrema direita latino-americana e mundial, as big techs e, de lambuja, André Mendonça e Kássio Nunes. Tudo isso com uma votação expressiva, impossível de ser questionada, apesar das tentativas iniciais dos derrotados.</p><p>Mais do que à trajetória do maior líder popular da história do país, a vitória se deve às mobilizações de milhões de pessoas nas ruas e nas redes, como o próprio Lula reconheceu em seu discurso, indicando que a comunicação digital e a participação popular devem ter maior espaço no próximo governo.</p><p>Com um Congresso controlado pela extrema-direita, <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpSa1zp0fFm99TTLXPlmk9M-2BS31sLRgX7EUMu5CGiO-2FKJS9b782pGL4Lb9g6r8nV5b9UsOArqFwZmu9x-2FWLX-2FFgYH-2FDFRiHqNH6Zf-2FwMm883lWE1ro1ogxX4n7SVeGGkOZI8-2F06uedqLp4wp2EAZTfpCT3Rz6I2aerUEf6u43voIwXXEK1Pyh76xx59mdHqh1y-2BFKuwuEjIah0R4UjWs6s8yZ7hwpNOxqCsRC7i2UfMp5GWfa2-2BOARZOOLLuozUlpj7R08pFVAnEd1H8WbNc13KY-3D7CwJ_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja0VAWN22tAHw9BLr8TYLL5BV25cqZLqAusWFYLJEjyscoWj3ynUwH-2FY2sFKjHfP6-2B95EaZMNZI3qtT2NYWVeyC9Dlyn3W-2FzbNaBVdSjZ4m1bqnQejBjeQlNCEu4ognCZiS7fqA3w2BAZ-2BrG2U0uh1WI-3D" rel="noopener noreferrer" target="_blank">a ficha no Planalto caiu de que as mobilizações serão mais decisivas</a> para garantir a governabilidade do que os acordos com o centrão. É verdade que <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpfx0tZMPqD1pr1mBR0v-2BTWFx-2Bnp0jgDB5m46vVLX1-2BZhSwIEhm6qV-2BzEsNKD9j6O5MlwfZxSpSqynO-2B-2FVoYz2FUy5ox6ypnKgLWMHR3jKGW78Kw2RHjqSn6DtcXGI0Pdfef5MVkM2fhz4W9J-2Bcuqq5mlqkOgwaopzIMpE3aabdBTJfAV_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKjazME0Pg03ZTMgjR-2BtoSt66zIzwA5K8AaAvEz2UcDtEZh4EOY7uytisfya21mtzJjtPEJy9eVsmx13UdgEL6nPA9vo-2BYrnaO75hN2LFXZEje-2FrtaWLLQsA4K6Mp1tJEPSyNTlGk39jD9A9gT9WK8sC54-3D" rel="noopener noreferrer" target="_blank">o governo precisa dos votos do centrão</a>, mas <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpX-2Fv7sW8KpjkcI1iC2aIGBVRTnhECkNng5e5wjGmhRgSoK5LYWmlNgZ1EA1rgjo1-2F6XOb-2FhsZPgK-2FxDLQLSurtwSewVZ80-2F-2FKDj4A1YEvH87Lq75ZthIjVd6hjQwWKNJJvaa2T1Jk1ZBkT07hQLKM-2Bf2kS1kd6ShYX3oa01GfeQKQrI4ixQYN74NCl4VuF8QVwBJSN6rEgykDkA9SDno7cQZTljxr-2F50naHi1U8vJ-2Fngwfu6XI-2Bgb29nQcR-2B499qCdlQuOzM5gX0c0IUZ-2FU3Z10-3Dybic_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja5ehyPOJf3ZYTeLnUZa-2F-2FzpaE2AUZjhuV6VeSrurvoajWXxH92SfejiF6Sh9QdnemLUpUkceQxdl0P2FPBrjlM5-2FwaGC75IsHgTNifq5FLrKA9sPQXLTi-2BgLUYLvc-2BpTVHbh5mYQGs2PAqGTU7uFopk-3D" rel="noopener noreferrer" target="_blank">a expansão do PL também assustou a outra turma da direita,</a> e as conveniências mútuas podem levar à recondução de Hugo Motta e Davi Alcolumbre, além de nomes para compor o governo. Mas, vitaminado pelas ruas e pelas urnas, <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpRZQGkReQWqL-2BbFsv4diog1rJFGLmzcCFlePNbF3tczNvLKUV-2Frp5uWkORO-2FPx8HaZ4dXk-2F6-2FCCWWQhRhFneaexANmsRY6oepqQmc6zKYV22Kr2Fj2uvCHa2xsmzkmoIPL7OKJz1-2FHiUBdlh3gr3T6H5aBhLwc4PBs1jBCYRf-2Fztb2xcy1VRxfUz0SvMnAF0zj2XagCule0FOJeM5tQqJquA-2BPEuKrlWcfeERDDsgoHPmhSQ8tTlWb9Bvi9U77MBnLCIvhqsaxb1eswr90-2BxRjyfTb1NozPLnYGFEG0JV5fokoG1_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja-2BWlOmjg7Ok-2F2n1hqmANDmfFmJgSCpkgtRpQmscOei1sFR3qvcq-2B49ib60T8p8ZO3YZ-2BTVSEZge8LdDrCu7kiO720kXO9sm5aajplHGSz02kLSBm9T2txx-2FbB52CTsD4c1ihkpPx-2BYZzchUTt9f-2FReQ-3D" rel="noopener noreferrer" target="_blank">o Planalto já avisou que desta vez não vai admitir traição</a>.</p><p>Lula contabiliza tudo isso olhando para os muitos desafios pela frente: a bomba da dívida pública e o fracasso do arcabouço fiscal; a pressão da Faria Lima por cortes sociais — outra que não sabe perder e usou a bolsa para chantagear o governo no dia seguinte; a reforma do Judiciário; a regulação das big techs e, claro, <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpe9LmeLHWfU1KfxmsUwJYLIJLSGqjukqsBDDaNYYuBWtpqMWetg6B8AoQ9OyvmfZCkwTPkwsPdjcw-2B8hSQd-2F-2BKe161LQFW8PgsVsz6JnnLD4s97Jr6Lac4H6fJ58Lnv7UqhVev9Iq8ZRhIlKFYMz9kzbuMGLbYQwN4YtgmTugI2-2F9urUzfeUVf7rCmkLq6AXXM1syfAd8KRNOxAPl80ICMrWu2FfXTZB-2BwGHBnA5NIQFNaESkb2fO9fVVKng04jYtA-3D-3DByZh_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja3Dg9CLcQFj2ZpwTOAax4dL0uibG623euSGh6LQfQmSahdlInar67KRe5FS-2B-2FTPEfGtGIgTbNhtvUSJYA7q23rXyUq-2BSvkFupAzJAMjgddkgSIslOFp3ppnAPiHhhRJXslFPA09tWo8izg8NEm09lwI-3D" rel="noopener noreferrer" target="_blank">a relação com os Estados Unidos</a>. Sem contar que o governo Lula 3 ainda não terminou e <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpWT0rcJvvuHzCyfUpTXi4rPjqSVFgYb5mWpzkCa3znI-2FSxi4sSxyyL0stmg-2BKYClCAinMqml9bckWAwq4SCbScJwrjrjJxIwV3uIHTw1hViqO441-2BTXbE-2FaqP4fZgQCbntyK8TqvgZX3iHdonags-2FEozW3lxlAlsQXiN508vP-2F-2FUdCEDbPqTg-2BcF4uFEYqZEZyZyrXvHS4oZ3eaHP6SK5pvcJdPKxxqLi983pDcX8WB7WshSgq6Iy-2BZ5M6vfuUr8EMF7i0sLcXt3Wofd-2BeZgN-2FM-3Db545_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja4IE38LflxFvdLph1FH5O0Wk-2BHqIdnP9z2COTu3oCHEjTOy5LIl7fK39pFgnRtE7kLq4Dp-2B-2F2CUqIBPjxn-2F6lfQgDM75zmflbJzm7I4X6vDWFX5BdrluaQCoOXcoLhlIkJJvAsN-2FvZaG1pONMl8YRAI-3D" rel="noopener noreferrer" target="_blank">o Planalto ainda quer fechar o ano limpando a pauta</a>, aprovando a PEC da Segurança, a MP das Bets e apresentar o projeto da Tarifa Zero.</p><p><strong>.Wilson!</strong> A trajetória de Flávio Bolsonaro nessas eleições acabou tão desacertada quanto começou. Feito sucessor por peso do sobrenome e por capricho do pai, o <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpd9swAOVlqG4V-2BXdboitq28-2Fue4DNsL8cywvfLGMBhlGT-2BmWwvG5wtOYDNseYIwIOlW2V8awcoZpGwChoGtWdfTtRczAf-2B40TduTpCUhLwYf8CqRwzijW47fWgI0zyT6oxEsb-2F-2Fb-2FJWehm06g5-2BB66XIOB6bUVEQamMRpcMMnXC-2FpzaBy2p4SaRmw3XLBFybIKCmp7no81pJPjPmPqa9dLqljGJPrebh4mmhZ-2FlwS2ZjpWwQD-2B-2FaQmj4xYDtuVzTPLzlFPVr9b5EejjoSD5-2BUt94uOpb-2BRcTJnLbSXZ-2FhoFTfIJzDAJr4kukO5ZyY9csHg-3D-3DF7Ik_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja43u-2FEJu8LowJ4mjYZvW0JoSa-2BGrRs37Wu-2BviK3s4-2FNjv7sYb6-2Fi0dSX5X8pxXwdf9JX-2F2oqSJ5CcPTwnrVOzbbgZwLbnwrlc-2FXEcS6veVscCw9mMs9ZP1ifOBDep-2FRyHMhhxz9HOnnUk0O37dYORyY-3D" rel="noopener noreferrer" target="_blank">zero-um chegou a cogitar sua desistência logo de saída</a> se lhe pagassem o preço certo. Mas, ao longo de 2026, a candidatura emplacou, derrubando concorrentes como Ronaldo Caiado e Romeu Zema e mostrando que o bolsonarismo continuava encantando o eleitor conservador. Com um programa vago e aproveitando os ventos do antipetismo e da insatisfação com o governo, o barco avançou apesar das <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpRZQGkReQWqL-2BbFsv4diog1rJFGLmzcCFlePNbF3tczNBXC9Tzr6pu4j0vPewB18UvR8wjObXnIwh4obrSl3rcVBqHueSs5Z8e3-2FVS0y74m5FUsm6IFH-2FtfNCP2M7eLT2og5CHri9upHIXaskkq6MunUYYZwWByUfGZMS3aTjPWtQYQoRGcVaReiRal1oLLo-2FGPm53mUAMDCVEdyMdq0URPpWKoi4bGyGQ13eVpmX1grsPhTDvUjZod9dd-2F-2BMxdPjQ-3D-3DEC6N_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja-2FPzADYXndo7xjb6Wqhy58ghnOw51WNEFZpHG8bjfWGbMD5q46SSxo1ZZdnm7F51wVpw3GPKO1KvJ2YTFD5OqHz5X6f43Vaxsu7PYq4527t6RsxYKfXf6-2FxJIOomm69FwlJsqIw-2FonuQZkGuKSfrduo-3D" rel="noopener noreferrer" target="_blank">intempéries dos incontáveis escândalos em que Flávio estava metido</a>.</p><p>Não se pode dizer que o saldo da aventura foi negativo. No primeiro turno, a candidatura de Flávio saiu na frente e ainda ajudou a puxar votos para o PL, que elegeu 121 deputados e 19 senadores, tornando-se o maior partido dentro do Congresso, além de 6 governadores. Porém, quando a mobilização dos eleitores de Lula ganhou corpo, a confusão tomou conta da campanha bolsonarista, <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpeoHG-2BtghEk-2BFBqjDI01fEi37unH07IBunQOAtMu4r7DjI9ffwCs4QqJhsJyqmj8BAPmcH8aeKPahi556qkvJa2aq0hqwecFi2YBJZrkDr7-2BFu8Xwr8uwD6mnd0dYSjVqeNda9fNY5UleWGOu1rw7c9JHU3fL7-2BSE9-2FxRMOhnpVfAno1LsUPQrIs3Ezam8H2RSvuLNCoVejTx9CWvihNRB3TX0PF-2FsW1fK4cSVsD8rLCZUjwBW1-2Bqi-2BRBmzcH7jx21ytwnMEr-2Bblc1NmjV9oPhQ-3DLKUt_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja9HrdCh1SKA3mZ74M4x0-2F8iJm6YgG6jWPIpavKfgCFuDBVwi97W64-2FBHinZoMn3UfR9Y31CjQMPnRZY78C-2FmMnnpI766pbLgVW1Wyk-2FdvQUr9c0QDOczHNqeTCMacMEi6Ir5cpzHHn0bNxMeiuqylo8-3D" rel="noopener noreferrer" target="_blank">baseada na soberba</a>, na negação do passado e no vazio de propostas reais.</p><p>Frente à derrota e ao reconhecimento do resultado por parte das instituições da República e da comunidade internacional, <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpd9swAOVlqG4V-2BXdboitq2-2B7hdq5AcpGIKPmuC3wS27jf-2FfrmQ75JtB2Oy4C-2FcRg0Wy2za0WAQUH91lZO3OXzZqOBbM1-2FGDDi1bm1KhpzUF8ImxTUvGb-2FSOUTL3HyPdl3cR2LwVp-2FY-2BzD87NRfdeGo4me5uVp0tw6x8LLU4JKx46qE5nWfoMypxQglAX-2FhMdBTdcRweH2f4iimlbQlJpromeybmn-2BOku4PU-2FYuhy7JDUZUwgabLgM9lCk5Rvm6ikvnshkXVr118MHVezrifj8ck-2B0ANo4OocCvQbrpt-2BIuCsC-2F-2Fj9Vifxeg3IXFQaoMzFw-3D-3DzFv7_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja2OehUqXGcL82JuVewXjRJ-2BZypJACtsB0D1uvarfIkw10lDtbS-2FTsSYJswK0-2FcgmyEKqhETnN0jeqlzvw1MoDRbheEOVRraUb4jjNyLPLF2PMyS69vOB7a1-2BnSbM6vXk7NN4sIhZGdgcAC7gnAuiJGo-3D" rel="noopener noreferrer" target="_blank">inclusive do próprio PL e aliados</a>, Flávio optou pelo golpismo, num <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpYrT9uDmyX4mphqRrIjRh4z7i-2F7jTYGNCTvIhTKbj95O-2B8J50zArhyd1E40kl-2FNSMaeT9LdWywsIS5DnTBvEKbp86WJwFwhKUn5rpLinNdpjWd5U2TMJUZW37nFanGTg91cZFnEM8Kjc-2B-2F970Iper4owPCF-2FMDd8j-2FUWZzTv0bBUTR-2B613pOyBc6T6Ew3SDk0i6YUaLZ0RaXkkpqXcITsou3hjntz5LXP5iz7756HpA1xLkyhWomlbfwXXZToOoPo5pMJInF-2FGLvpKB-2FAEk6rWo-3DiUhf_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja5rsYPSd8nmrA7wZRur9Kn7WBrPMPwDMqsgNaQDXKob7S6T6YoNre7uJwqIacp4brENt2we0WzNEOjcI9hPem4LtbLvuga0ffWfUX0vNs9hF8Y3Ol4zX8XVcnkIXC8weVq4u54xcdUrilpyGEKfT0mQ-3D" rel="noopener noreferrer" target="_blank">gesto desesperado para manter vivo seu chiqueirinho</a>. Rogério Marinho ficou ao lado do pupilo até o final, talvez tentando convencê-lo a não navegar no oceano incerto da contestação das urnas. Mas o rapaz preferiu <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpSa1zp0fFm99TTLXPlmk9M9IDvh07qvdDoYI3zuwnWMQ5TuNhoEbNBRfFPxzPWp0ry-2BMG7qBByGStWfyrvY2uvRniNjcLr94CxvVVMZFJNsjDN2VyPy6QGa4Lf0pUGZqmcJF92tRKtXjCLOy9vHDVmg7qT4eXWzUH2UARzd8GcFlbXdgEjaEjDKp4H6IUmbdKxIH2l4FaWhbctpON8c-2BqEamKnCm-2BMww-2BOqVUfKockpjtN-2BXzAnGorqgI0Uiq7EQPNIo6nrrmTi9WJCnKh3Dq9Q-3D6lFF_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja8QyztERewXusRbg8ARgpolU6qt2BkmMFQYnHyfI-2BLMEfQlBMT-2FXQbxPHHx41XYzoF1RmwlXreo3t0NcvrFs8P3SbAtdBl2J7YjyGI5Nt1RNeFjTvNU1ttO7mwTwVsLKiCkd5q72LjlimBZdlTdjrck-3D" rel="noopener noreferrer" target="_blank">a fuga e o vitimismo, mantendo o padrão recorrente entre os seguidores do ex-capitão</a>.</p><p>Agora, ao abandonar eleitores e aliados à própria sorte e afirmar ser um exilado político que lidera a oposição desde o exterior, Flávio se tornou uma caricatura, um náufrago que perdeu a razão e conversa com uma bola de vôlei numa ilha distante. <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpWT0rcJvvuHzCyfUpTXi4rPjqSVFgYb5mWpzkCa3znI-2FSxi4sSxyyL0stmg-2BKYClCBMQqsRCs9TIs-2FuYf-2BWKi9Xtd-2BVsUnB8Dp9LPG99I5IQ9GgnUXvJVDkZRR7TXwzbT3RRUEVrgs6cTNYxFnXl4xh8oA1hAm4rj1ttgUu-2Buutp-2Bj5u7Q4ud4Akfb2X-2Bt5cnSIHMlN40HGgRVULiFPYQe5xso1sN3V4vghTx-2BCZGnHl5FU8ZMCoZ7bDah0YK5yeMsP6iXC0uRkBtATmv4m6c-2FcJKa-2FqmGXcCqv4GwdWIWJthQrKqNgfcEIlKvnryceEgg-3D-3D5-XF_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKjaxKUASzbEqhlcj04lj9FbI7qKP0Qfm-2B48KYumMUzF9SN5vxhEPrX85jkqIK0SMyz5Obm8wK6XaqPyztUpFzT2-2Fmn3aOba2VCPZMEjB01qPFCjLT6KZpzIYSgtBa-2Fpe9VEh21bP7-2B8dX9LfacMwe5hio-3D" rel="noopener noreferrer" target="_blank">Nem mesmo Donald Trump endossou tamanha irracionalidade</a>. Seu destino deve ser o mesmo de Eduardo Bolsonaro: um pária internacional condenado pela Justiça brasileira e refém dos interesses norte-americanos, enquanto for útil.</p><p><strong>.O novo que ainda não nasceu. </strong>Depois das eleições de 2026, nada será como antes. A começar pelo futuro do lulismo e da esquerda. Lula é o principal personagem dessa história desde 1989. Participou de sete disputas presidenciais, venceu quatro delas e fará seu último mandato. Neste período, a esquerda se tornou mais plural, com partidos antigos e novos, do centro à extrema esquerda, como PDT, PSB, Rede, PSol, UP, dentre outros. Mas o PT continua sendo o principal partido desse campo, o que é reforçado pela <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpRZQGkReQWqL-2BbFsv4diog1rJFGLmzcCFlePNbF3tczNSoKazm-2BbRtvw4YuSmVhao0SxfW7f-2FMUuC2dGdNEFQiv-2FFPP2XKyOv6F4dZyvNceHdtl6rI-2BgqLYPl297zkd-2BHzIjPSF3OCvT9ZNmKqJpenufn-2B-2FvyHxdFTGBEsfScBO10NguKrF45EjoEjKr2psp6dl-2FnQR2PMlHvZL-2FTZBuFJavGRs2uH7VVd6E8Lz5Gbjfh1-2BVlmTyDs3IHt0FgWIEZA-3D-3D-EVP_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja1utbQf-2BqdgLlp7mPSNlvPcjNybtIKfbsPi9-2FoGPdn-2Fsr1cq4vzezfrMtcBqHNCGmqvwvgi2dLiYiC7DJsQKehem-2Be4UG1BD6yyq8qzbDTvzgrPKONMkjr6B8v81JykljS6OyBIKKeFqKTNwbK8vob0-3D" rel="noopener noreferrer" target="_blank">cláusula de barreira que penaliza as pequenas agremiações</a>.</p><p>Houve também <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpQzrWTAuY4PEKWhBw6eycsPRyy6CM78vU4B-2FZYJJeAGufTVYO3R3eBd-2FV2ZjhwiXYuuBobxperKP4HSvNKosrrdj1xQC7GPagVAULtfrQOULOI2mmOIZtmgfck7HUE3KZ2-2F2O9njIP5B95ZmQbodmsWvuUZecNVO3CXsxf-2F-2Fi7hgn-2FY3F5dDKg0M2W-2BXOA7ZiQ-3D-3DIUit_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja7by4yMm0D202YmWUwE93NzEj5fng6AhvoLWz4pF-2F5Ol1leUS9unxZPh9bQhKCAZHZDKC7Gld5OtXXDeaoUbW-2FOPFOgUSSlFJ5fh-2FT8haDv9AVX8z-2FqX47GrIPLPLyj8Y8u0wU749hnEqLlQmnM-2FGhc-3D" rel="noopener noreferrer" target="_blank">renovação de quadros</a>, com jovens deputados eleitos e com futuro promissor. Mas ainda não há uma liderança com a envergadura sequer próxima à de Lula e, para piorar, aquele cotado inicialmente como seu sucessor, Fernando Haddad, não só perdeu a eleição para o governo de São Paulo como foi queimado na ingrata tarefa de ministro da Fazenda. Agora, a esquerda tem apenas quatro anos para resolver esse imbróglio ou contentar-se com um picolé de chuchu.</p><p>Do outro lado, o bolsonarismo vive seu próprio dilema. <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpW3Ksna-2FMVcczEz-2F0sH1Cs8Gdog-2ByKTJ69zb6-2FRDJA1y5ugHJl-2BLG0DGk8YFT2KPm28fplcSwf-2FE1JwFEemDIS3y39p76e63fTmTQVf-2BxzgiTEUw8m6VlN-2FBEHJVBKLVcTQW-2BLp4uNbxgx84DaIaPSgGS8je0oNodOaG26kczM4NqVLbdYz-2F-2B5GBFfViIYKyjlrU9Pzxgs0KyLumGYd9tAM-3DuxML_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja6i3AS8HYGOxCMjrL4rZZ70WUHvkIdyxmEwhT7KfHHuW-2FUNUM0Ix1N55TNH-2BSl-2BVedsdMBIAAgWiSix15o0EQ9WUYZVyOyzNBsPQfz0giZDaF71V-2BS5-2BPvh20ocenPxfahFqFh63yHo2pb9OU5PlbgI-3D" rel="noopener noreferrer" target="_blank">Talvez seja cedo para decretar seu fim, como querem alguns</a>, mas certamente está em curso um desfecho ambíguo e frágil. Apesar do sucesso eleitoral do PL e dos <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpbGDUf3rPalmCCaj6vpf2xf51Hpl59whKTcG7Q2TX5Vn4VeCOUnnWGnVLf5u7FuUxMDr2bSKJYFM-2F9IT33oyrBY9wVMl-2FtkDUZ-2BIjymAkBg5XH91O84QZVABcw8YMDM98aFVMPxKRvcxuphOtsfuQvCHTAeLfiXVF8hppKOn18lxN0QxE1FLSRMEzvDcIV97ohymUGSsagZoSJMM5QAohEzHeAzE9f5k2qKQK044ZIqhydGw_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja-2BqNi8rLVBgLquXoSHV2ba7LXM-2FoMt-2FAWxqGWg06o-2FX1-2FieC5eVzhdChbuGIhC37XqNGoMFpt8bmXU4EUlrmNePfmVSNMdvzJdw5k14q00xiVJ5ewCj-2FzEl1p1naoHlUU3T7n9IguNvsoR9Px-2FoFdJ8-3D" rel="noopener noreferrer" target="_blank">cinco membros da família Bolsonaro que se elegeram no Congresso</a>, o agrupamento segue sem liderança depois que Flávio cometeu suicídio político e enquanto Jair estiver preso. Afinal, todo mundo sabe que Carlos Bolsonaro e Jair Renan são incapazes de liderar coisa alguma, e <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpfHPwbAbtK3DGkcigOnmXlhJhTOjgD7EnAdUsrUrFoA-2Bycjqf7fYQq0l8JzJEzxfrcMkmsmJZcQLyes5lleZ4rQdws4bqG-2FG49fRFWuPF0bF3PHUHwycz68rmc6oHA95JrNXR49Lk-2BKDjlCdp5x7CR9NNO7SH3IS5ldJsngzss1Azvd8Pawt4BYApynQeYcZjA-3D-3DvyKG_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKjayvUL74EOtdp1MwhYs7PQYLSyyWWuaMu4d0u894lVZ4dWubZp3N6R6XyZh3HavKgBBthmRlmrf6mkfXzKrgK6R6w1qcZkZ0u-2F-2F1vggpOJfVMySi6N-2BrkNS84u7xobKYXYoDk-2F2wPQvqYlQNBTjOZYgU-3D" rel="noopener noreferrer" target="_blank">é provável que Michelle tente carreira solo</a>. Daí a <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpQjYanEOmrfCKOMEZVzkj37571A8R8cMwMiRZU0gQZngFtleS9bqrjNJsshsVXpMWF1J4KRSwpO9VcUTPvLrnA8xmm-2Bzkv-2Fd2doLRgalGX2tvhFcvrJ-2FggXgoL3b9fdK-2BV9cnuQojc-2FzSN7PPeT7YfWK5-2Fis1s0-2BUZl0pp-2Bc8e-2FKrTgIJOapxd-2BfSMUbt0u2zQ-3D-3Du9Xi_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja0o543i40nlRM3la7Wp-2B89vFPh-2FmjW90yM6NeIoG-2Fh9-2BNG7nRHh5jrAYk8P-2FBc2u-2BFlWIWvpmwEzVzlRGw3plLbA-2BetiN9y4GAGy8-2FddCKJZR-2FPdVYJAqnL3KfmFoWvOjAQjxE5KTHi2TCXDdwoYfzY-3D" rel="noopener noreferrer" target="_blank">insistência do PL na anistia ou no indulto ao ex-presidente</a>. Outro cotado para a liderança do bloco, <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpd9swAOVlqG4V-2BXdboitq2-2B7hdq5AcpGIKPmuC3wS27j5-2BzOpth5Dl-2BPUMQmo-2BdTQ-2FuGfqoM7-2F6cfgVoxAGXbhZFVyPf99w2lwL-2B2GskzUjj7mJ9wWewKcJKGN8QYajn8s3uk-2BJPn5iFQDEXoYuEbZVm8-2BUTe3yQZ1gf4cKVmDx0U-2F10Kf-2BEZ7m9cQ0j0BaFZvyZHKsZaowSTqjZ6UtXmyLp3o7gfx81psC2mN8PMXtxh2QAfKpD0h4rN9rTl-2FC79-2F3VQm8xT-2FDC9kX0gb9TEtvyND6IsDZWkGRN87SHiBL3Zmb__iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja1CbbQQ9phE6aEZc-2BJWscoFG2lLGKLWySzO-2Fzk8wYbkN64OTh-2BtRlS3mBSxFbh2uprO9UEcbzFrLZkHMlBYi58gBpdxAxoVSR2Yvd3Uv-2FuIhmp3hKzruw0gPVl2PM-2BYG8MxELqob5uH0evbFZpQrFxo-3D" rel="noopener noreferrer" target="_blank">Tarcísio de Freitas, continua demonstrando pouca pressa e muito receio</a> de indispor-se com os Bolsonaros.</p><p>Além disso, a extrema direita se renovou ainda mais do que a esquerda, e uma parte desse campo, como o MBL, mesmo compartilhando o viés fascistizante do bolsonarismo, não pretende ficar à sua sombra. Alguns analistas mais otimistas ainda apostam que, com o ocaso do bolsonarismo, <a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpfx0tZMPqD1pr1mBR0v-2BTWFx-2Bnp0jgDB5m46vVLX1-2BZhKnY7nhgw8ehlRe2BkQC-2BodTC21PYc1T2fzRipkx7vD3-2FbVKQTmJxhmNLl-2FBwZ8ZlIPq2jgZ6AI-2BQYKmpOk-2Bm3-2BycsSp0I4RMJDxntR8CBHdNd5WRpElkm8eqTr-2Bnc5sy8wAn_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja2beyJg1TsJBr-2BOr-2BYELtqtue5WQv1S-2BqryE6dVbPGm2XqM2RkO7DnBMj5yt3O2B5HTpQMRdx43UluLh-2BjWkEtnvf6lmgCI3RIr7-2BAMHDjA7lInH0mHf-2BMlayneQCZ99COc9BiJq73RcLZA1aSBBDBA-3D" rel="noopener noreferrer" target="_blank">haveria espaço para a reconstrução de uma direita democrática</a>, o que parece improvável tendo em vista o cenário latino-americano e mundial. Mas isso só o tempo dirá.</p><p><strong>.Ponto Final: nossas recomendações.</strong></p><p>.<a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpYrT9uDmyX4mphqRrIjRh4z7i-2F7jTYGNCTvIhTKbj95ORTKyweP5KcBR-2BqwigSAM4-2FssBwK7dtQa6VLeSw8VThOEp4ahADejI19yjcCnUPsOKAXhHp2-2Bj6aX-2B7XFrd6sDOei4ApAlSotPENPl-2B8seHzRqWqGLC4aE-2FvZgXfTTvjRLCmJ1Ak60DF2ljyvc5Jz1Xc-2BApZwAtrlJpApq-2Fuf9gl2PZc3amkSdEB-2FakxpdKGoS1OwAnwGc2peWCke3J-2F5yLGwUU2-2Fl-2ByshPLEtqqBhKA-3Dg8_I_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja-2BnP5aG2FETeqyu5cUFWesAxPLq1dX6-2FpRifsbGuGoWMQYYca9u4WwL3g9Yfwlytj-2FMnP9ydtTfdKmXnXvats6midA4i7FilgX9B3ottUmTGJyeCmbuYz3udgLv4x3E9EB-2BPEFUYg1e7S8n70JY-2FmZw-3D" rel="noopener noreferrer" target="_blank">Mapeamento expõe rede de interesses estrangeiros que atua em favor de Flávio Bolsonaro</a>. Pesquisa mostra a rede de relações internacionais montada para interferir nas eleições brasileiras. No Brasil de Fato.</p><p>.<a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpUZnGou-2FFgz9VNcTtQ7qfHCv9-2BUzaFJ1yTPnNJaJlO6Vjyjvgc-2FD9P1ABLejvvl-2BdqsrXPT9nWav-2FyRl8Ta3djmcui5-2F05af4kIo67VdIecNj4SrUhwA-2FR39Lu0sv0VWcKqATFND9E9Yn87ZkXslafIKBMpI2fkWBl-2B8eDMuYDsx0jpxr6XZ-2FG6tGnq3uYtksGiKovk59-2BwwUYUpju9cB4qkbAD-2FwTvrtADfSsqaX09cMgECCZbiImLjq5dvF6QkDMByHj3m2DSK0-2FSBnr8dznY-3DslYt_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja1jUFVTETIuHsVzieGkw2cIcAKu024pPsTaRAK5-2BaMf3l-2BtopKmat2ZhK1Fh6SoDeYFR1vXfVbAmj-2FqWDFEOB-2Ba9NiFZ-2FuXhIOGENNuDIoZzQMKoRXdi7erNjlpg3QWDhLPR-2B8gcEYS-2FIffnNnsaJjc-3D" rel="noopener noreferrer" target="_blank">As abelhas na cidade: a organização dos entregadores da China em Ganzhou</a>. Como os entregadores estão organizados na China. Na Revista Opera.</p><p>.<a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpfHPwbAbtK3DGkcigOnmXli3f-2B2icE8HdosFLbNQ6hQGD3SbTuz78pH3y6MVHskNBIDkmWCbSyzvWaheVrxBbNIXiOIHUo5CVBBe8w5b18VTes-2Fq8A7oS8ID4Z8iit-2Fg7ipYpr0Y0bGwfJXFqQDg5l0Hli7kP6NqkdKB30mz2Vq1UMUDEkEFgmDY2b4wAvYDzFXcTc42SiP7gmDkr4dR3MT53okDYTPtwvLRtLifS030L3EA_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja-2FuINyeW0KJuW8iqX2yMSp1tqKZ6dOZA3pMzjTFv1CaCsTj3-2Fpeq5brgJBjbfPMfSA1xg80w7niooxru89uqNraCUOEYQKBitCngvCJGv5pq8Tw24CobQpnFd9MlR6Bl46MhGs-2FE2KiGmE9AaeqlyYw-3D" rel="noopener noreferrer" target="_blank">Pessoal, urgente: dá para replicar o Exército do Lula em outros países?</a>? No Diplô Brasil, Gabi Juns analisa o sucesso do Janonismo cultural.</p><p>.<a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpcYKK3qzWMuS-2F-2FHDQar7X6q16L0EJaipkQy4Q4DdH4-2FTwwlGJb-2BWDPHHaOahE4AFpTt59klaG-2FHdD-2FyPJHZEWFX2fo0bh-2B-2FefrzGBng3zn1GawHC2ARKgKsBXE8k0p9lGtwm9SjyBYpWKDFLHMk9xf9ZbotgJRj77u-2Ft0rWXn3I5P-2B6UcwkPlv2CXBalJcqqYte5cmx1FRI2nVkuKsBxFn0-3Df7e8_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja4MgqU1Mf0YdpLjTtB5WqCtcWs5u0gVSFVYOQM-2FNy7V-2B1FWXbKL4dfkxXyXgpcdUq4R-2BulBkaz-2BoqXJ9vFb-2BfhQZTnq-2Fz9BpTHWCYBK5-2FnifgGbkq9GFtAPRLl1Pg7CF1u4lPVelY20EXVfAVy6K5nA-3D" rel="noopener noreferrer" target="_blank">Prisão ou porta – o Bolsa Família nos dados</a>. Pedro Paulo Zahluth Bastos detalha o impacto do Bolsa Família para o país. Em A terra é Redonda.</p><p>.<a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpYyZcuojk-2Bjufi1xq71mKyvKq0pmIYCCDcUocYz95kzEbxtFuf9d0B0eedoE4nt-2FHS5XrWHbyebw36eBVMuxo30w9diK9V6lwN-2Brw1C9L7l9y6cTWxkiMaelGqt6WvQljrDSSlQY9Waqg4Sxhbb97xQ7G-2FFyMe048LZd6RRZFwOIXvm5jA-2B6-2BTosKYfOKPNyV9gQLvrYc0hYSA-2BDGuRSXaQ-3DpV40_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja550nLdq8TB8TbUM5vPBcfXqYIxOnnPbW6ES1FKZ-2FQFQ4HsCJX1AlCAPpa3ee7kJ-2Bsu4-2BmGoiJvbxy1Z7x3cnlLO64qunR5WfoVc-2FNXFQPCfFGBye1PEB45UV1No3aei5-2F2szcbX-2FEvk3mmk3w7X-2F8g-3D" rel="noopener noreferrer" target="_blank">Como a imaginação radical pode nos salvar</a>. Na Jacobin, Livia Almendary fala sobre a força da arte e da literatura na batalha contra o fascismo.</p><p>.<a href="http://clickemailmkt.brasildefato.com.br/ls/click?upn=u001.0uejxWgW25TyMl07kP0cpYrT9uDmyX4mphqRrIjRh4zVX5UaxRoHlg9D5bWr9eZp4gWhEfQRebpJSGs2CDvHOmRrFje3brdJiBtNbQG43EV9bvOEBK-2BV4aZcxRmmHJLJniJLNEIYXzCfk83dIQYCb4J6s4uvnVXcZuDQsX-2BLfY9ITbWf20LEV9MHrem50EBeDxsLrdKAJ8rdufLtzN4ByCA2A8wo2deJ8KvFwqmV8Y6Zl2piqGvOrN-2BpppchT5F5NiuPEV6okw1aqgPMPb9Hlj6PV0WUfu7f1J84k53lPYXAINMwbnK7XZQ5tcXiHoFx7XLjGaZoFa0qbPc60LbCN5pbUdIh-2BEGA3nW7wKEBYQU-3D7NDU_iSZ1Jn5JGsaxxT3JMmrh3b2p1FfKpUQD2i6LbIRbTLOpR5BxFcU0Gx4xO1-2FsbdnYTp401E1I8czFgD1XJuiHaah0gEmYR5Piyg6by-2Fhb502AMz06z-2BScxOVaUqMA-2FTSXN0Cp3ywcZkkph7pVRBPC1TKRb5gS04DaI4BdzP29eajPLHwTXdhe5UqH6KF-2FUnWMMe4HLCtQcVPQdewwi1Os8CI9r7JUPVgHWlfpnkGGmuqjQCZYBQ2Ihbihwb3GgIIPgJ3d-2F95A6D8jcoDtFUNFXPxf4rxDyQ-2F3kfa-2Boha8yIuA9NIgDnB8HCG3VSUo8LuLSPe6sQUI4TNmBqXwyelR3JcIAOHWpX5JMAVbXqp-2FTAdr50Rldj0EOBTVawkf8RTtY-2FKj3jSGBcBp1ed-2Fpu8C2chGc0HX1b2CWPsByXtzWGP-2B1VJUWDVgvEsq1O4JqfZ8ueB4Q051Gfd3NS-2FeDOmyep4y1s60dqMUsitlDvvB0Oukdt-2FCD8IvjbUdhmorxnt2C00qLvdH0J9jIWfIrHKja56LPkvhAv1SAjGqAVKr5X1yKaRvKjhzsTFaJFtC-2FmARouoVIXHZTCyYHM9GD6Ip-2BN5U6iEaI9Im60oyzed9knxek9pv01hBWaig-2FkiIcOYDffYIH2Kl3-2FcJ-2Be1NTvDWfpY46zL5o58mmlZW0hx8v2E-3D" rel="noopener noreferrer" target="_blank">Overman: com Caco Ciocler, filme inspirado em quadrinho da Laerte derrota vilão ‘Capitalista Imundo’</a>. No Conversa Bem Viver, Caco Ciocler fala sobre seu novo filme.</p><p><strong>Ponto </strong>é escrito por Lauro Allan Almeida Duvoisin e Miguel Enrique Stédile.</p><p><em>**Este é um artigo de opinião e não necessariamente representa a linha editorial do <strong>Brasil de Fato</strong>.</em></p><p></p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.brasildefato.com.br/colunista/boletim-ponto/2026/10/30/nada-sera-como-antes/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

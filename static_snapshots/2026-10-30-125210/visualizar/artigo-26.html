@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A epopeia lulista - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A epopeia lulista</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Fundação Perseu Abramo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://fpabramo.org.br/a-epopeia-lulista/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://fpabramo.org.br/wp-content/uploads/2026/10/mg_9729-5-1024x661.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A epopeia lulista
+                            </p>
+                            
+<p><strong>1.</strong></p>
+<p>A vitória espetacular de Luiz Inácio Lula da Silva, tetracampeão na Presidência da República, se inscreve nas mobilizações políticas que nos hemisférios Norte e Sul arrebatam multidões. O sentido era igual na França, Espanha, Colômbia ou no Obelisco argentino para comemorar o metalúrgico reeleito. A esperança achou o espírito do tempo, ao dialogar com as mentes e corações.</p>
+<p>Depois de penar a supremacia neoliberal, grupos sociais em diferentes geografias exprimem, de forma sincrônica, o descontentamento em áreas vitais ao exercício da cidadania. Áreas que foram condensadas na denúncia crua sobre o “custo de vida” com educação, saúde, moradia, trabalho, salário e mobilidade urbana. Sim, paciência tem limite. “Do rio que tudo arrasta se diz violento. Mas ninguém diz violentas as margens que o oprimem”, lembra Bertolt Brecht.</p>
+<p>No século 19 (anos 1830, 1848 e 1871), assim como no século 20 (em 1917 e nas décadas 1920-30 e 1960), o mundo viveu uma explosão de movimentos com viés transformador e mesmo revolucionário. Agora, outra vez irradia o tremendo <em>frisson</em> de lutas pelo direito a ter direitos nas ruas e nas praças.</p>
+<p>Apesar de anúncios fúnebres por parte dos autores, ditos pós-modernos, sobre o fim das ideologias (esquerda e direita) e das classes sociais (substituídas pelas tribos ou bolhas de pensamento), o fato é: o pleito recém fechado trouxe de volta a luta de classes para a esfera pública, as redes sociais e a institucionalidade. Sabia-se sobre a tendência preferencial dos candidatos.</p>
+<p>A história é o palco da luta de classes que os discursos formulados, em especial desde a queda do muro de Berlim, em 1989, não conseguiram desmontar para retirar de cena. O conflito entre os “grandes” (que querem oprimir o povo) e os “pequenos” (que não querem ser oprimidos) acompanha a humanidade através das épocas; para usar as categorias de Nicolau Maquiavel em <em>Il Principe</em>, escrito em 1513 e publicado postumamente em 1532. Não desejar sofrer uma opressão confere universalidade à causa dos humilhados e ofendidos.</p>
+<p>Essa teoria da história constitui, em simultâneo, a teoria da sociedade presente. Serve de lente para um entendimento da virada sensacional e inédita, em que o candidato que perde por dois milhões de votos no primeiro turno acresce à soma dez milhões de votos, no segundo. Não, os eleitores não mudaram de ideia. Ocorre que, quem se absteve antes, resolveu votar. Já outros que haviam votado branco ou nulo validaram a escolha de um ícone da esquerda mundial, quando o adversário dava a pugna por vencida e antevia a posse.</p>
+<p>Analistas afirmam que a eleição girou sobre o medo. Pura tautologia. Uma disputa sempre carrega o temor das implicações individuais e coletivas, na visão da glória ou do fracasso. Novas propostas para alçar a felicidade e a prosperidade apontam caminhos díspares para a resolução dos problemas particulares e gerais. Não à toa, suscitam desafios e galvanizam a subjetividade de atores históricos, que não são meros atores “de classe”. Paixões são sanguíneas.</p>
+São Paulo (SP), 19/10/2026 – Organizações da sociedade civil e movimentos sociais realizam protesto em frente à sede da Meta , na avenida Faria Lima,3732, para denunciar o que consideram interferência sistemática da big tech na eleição brasileira. Foto: Paulo Pinto/Agencia Brasil
+<p><strong>2.</strong></p>
+<p>A conjuntura global atravessa um “momento populista”. O termo populismo surge no decênio de 1890, nos Estados Unidos, inspirado na organização dos agricultores e trabalhadores em oposição às elites financeiras e industriais, pelo <em>People’s Party</em>. A etimologia deriva do latim, <em>populus</em>. Em uma acepção preconceituosa, refere-se a militantes políticos defensores de interesses do povo (<em>populist</em> + sufixo <em>ism</em> que indica doutrina e prática). Na imprensa, é mau agouro.</p>
+<p>O populismo pode ser de direita ao assumir “procedimentos autoritários” em um Estado de exceção pela supressão das instituições vigentes; ou de esquerda por respeitar as “regras do jogo” no Estado de direito. No caso, então, o postulado se baseia em <em>dêmos</em> (povo) e <em>krátos</em> (governo, poder) cuja síntese no embate findo é encarnada por Lula-lá. A democracia com inclusão social, distribuição de renda e participação cidadã alavanca o programa do futuro.</p>
+<p>Para a cientista política Chantal Mouffe, em <em>Por um populismo de esquerda</em>, mais do que uma ideologia, o populismo é “uma estratégia discursiva de construção de uma fronteira política, dividindo a sociedade em dois campos e apelando para a mobilização dos ‘excluídos’ contra ‘aqueles no poder’ (leia-se o sistema, LM)”. A <em>gauche</em> dá voz ao silêncio e protege da demagogia de cada dia. É a alternativa real ao neoliberalismo e à crise do capitalismo, conquanto os afetos das massas sejam mobilizados politicamente. Desesperar, jamais.</p>
+<p>O realismo da extrema direita e da mídia corporativa supõe a aceitação da ordem do egoísmo, sob as garras afiadas do capital. O campo progressista questiona a normalização sistêmica da plutocracia sobre os rumos da nação: o entreguismo dos bens naturais a interesses estrangeiros, a privatização de empresas estatais estratégicas e a propalada austeridade fiscal que disfarça na linguagem moral as perversões da classe dominante. Critica o <em>status quo</em>.</p>
+<p>Lula da Silva ao longo da campanha desfralda a bandeira contra a exploração com a revogação da despótica escala 6 por 1. Na sequência, atende as reivindicações de Microempreendedores Individuais (MEIs), amplia o limite anual de faturamento do setor, perdoa dívidas impagáveis à União e aventa renegociar o devido por 90 ou 95% com os bancos. Afora suspender as <em>Bets</em> que drenam os recursos das famílias e do comércio pelo estímulo ao vício nas apostas.</p>
+<p>Como não só de pão vivem as pessoas, mas de entretenimento, lazer, recreações familiares e confraternizações sociais, o governo garante a gratuidade de ônibus nos fins de semana em todo o território, com 25% das emendas parlamentares impositivas. Um arremate de probidade à indecente verba que, ademais, mina o presidencialismo ao cercear as iniciativas programáticas.</p>
+<p>Contra a alienação na política, o Presidente combate um absenteísmo que atinge em média 20% dos cidadãos aptos a ir às urnas. O incentivo ao civismo patriótico democratiza a democracia. Contra a alienação na assistência social, corrige as cifras desatualizadas do Bolsa Família e leva o programa Pé-de-Meia ao conjunto dos estudantes no Ensino Médio, incluindo universitários, para conter o êxodo escolar dos jovens. Medidas virtuosas, acatadas à contrapelo pela direita em função de um empoderamento dos laboriosos dadas as eleições.</p>
+<p><strong>3.</strong></p>
+<p>Ao se preparar para vestir a faixa presidencial pela quarta vez, Lula ajuda o país a conhecer a si mesmo e a aprofundar uma política democrática de raiz. É possível na próxima gestão desenvolver um “reformismo forte” que propicie um padrão de governabilidade e sociabilidade, para muito além da necropolítica e do sujeito-mercadoria constrangido pelos dogmas da Faria Lima.</p>
+<p>A horizontabilidade das manifestações gerou brechas para encaminhamento de demandas que superam o gerencialismo, ao aflorar modalidades participativas. Com o que a política se desinstitucionaliza e pluraliza, mantendo a centralidade do antagonismo. Nessa moldura ético-política se produzem as ações discursivas para hegemonizar a sociedade civil, que responde na marcha de corpos untados em ideais civilizacionais. Não arvoram a perfeição, senão o “transitório-porque-aberto” para a campanha de performance autônoma.</p>
+<p>A política permeou o processo conscientizador do país-continente. Politizou a política com a “questão nacional” e a “questão democrática”. Acordou o povo do sono dogmático, do Oiapoque ao Chuí, para fazer de uma vibrante eleição a mais politizada e ideologizada desde o início da redemocratização. O exército digital do general Janones e os atos presenciais da vanguarda social inserem o Brasil no mapa dos levantes que estouram alhures. Ira globalizada.</p>
+<p>Temas universais da modernidade serviram de eixo mobilizador: a soberania, a justiça social, a defesa do meio ambiente, a luta contra as desigualdades e contra o leque de violências sobretudo nas cidades de maior porte. O fascismo filtrou o mal-estar com a temática da segurança pública, o punitivismo e o apelo para a diminuição da idade penal (16 anos). Estendeu o medo à existência social, sem reconhecer a resiliência da nação. A imagem da arte reduzida à música sertaneja, ao final do teatro, afronta o orgulho brasileiro da diversidade.</p>
+<p>Aqui, vale enfatizar a articulação política do <em>“esprit du temps</em>” com a hegemonia da esperança por sobre as ruínas legadas pela destruição do modelo de Estado, fundado na guerra de todos contra todos. A correta compreensão da totalidade extrapola as cores ostentadas pelo vestuário; pressupõe a abertura étnica, de raça e gênero, condição sexual e social, pluralidade etária e ocupacional. Enquanto os bolsonaristas passam indiferentes pelo homem branco com o negro sob grilhões. O racismo e a aporofobia revelam a alma do antipetismo.</p>
+<p>Para a dupla de teóricos Ernesto Laclau e Chantal Mouffe, no ensaio <em>Hegemonia e estratégia socialista: </em><em>p</em><em>or uma política democrática radical</em>, o discurso cobre a aridez. “É neste ponto que se torna da maior importância a concepção do social como espaço <em>discursivo –</em> ou seja, que possibilita as relações de representação estritamente inconcebíveis no interior de um paradigma fisicista ou naturalista”. Em resumo, a atividade desde os gregos exercida com a palavra <em>–</em> a política <em>–</em> é o instrumento essencial da epopeia lulista. A lição para o mundo.</p>
+<p>A utopia da “<em>communauté introuvable”</em> (comunidade inacessível) constrói-se a partir da satisfação de necessidades básicas, até o sonho se transformar em uma dialética que descontextualiza e recontextualiza a vontade desperta de liberdade e igualdade. Os guardiões da Bastilha moderna são as finanças e as<em> big techs</em>, tecidas pelo monetarismo e os monopólios tecnológicos. Sua tristeza deve-se à nossa consciência <em>–</em> vertida numa práxis política dos comuns.</p>
+<p><em><strong>Luiz Marques</strong> é docente de Ciência Política na UFRGS; ex-Secretário de Estado da Cultura (RS).</em></p>
+<p><em>Este é um artigo autoral. A opinião contida no texto é de seu autor e não representa necessariamente o posicionamento da Fundação Perseu Abramo.</em><br/><br/><br/></p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://fpabramo.org.br/a-epopeia-lulista/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The case for a little election optimism - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The case for a little election optimism</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/today-explained-newsletter/508155/2026-midterm-guide-election-integrity" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/10/gettyimages-2301804400.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: How much can Trump mess with the 2026 midterms?
+                            </p>
+                            <p><em>This story appeared in Today, Explained, a daily newsletter that helps you understand the most compelling news and stories of the day. <a href="https://www.vox.com/today-explained-newsletter" rel="noopener noreferrer" target="_blank">Subscribe here</a></em>.</p><p>No sooner had early voting started this year than analysts noticed a curious trend: Democratic voters were choosing to vote a lot like…Republicans.</p><p>Since the Covid-19 pandemic, Democrats who cast their ballots early have most commonly done so by mail. But this year, <a href="https://www.yahoo.com/news/politics/articles/voting-habits-emerge-democrats-surge-120017478.html" rel="noopener noreferrer" target="_blank">they’re voting in person</a>, and in huge numbers — even narrowing Republicans’ traditional early voting lead in states like Florida and Texas.</p><p>The abrupt shift may have <a href="https://x.com/ZacharyDonnini/status/2112163102808809897" rel="noopener noreferrer" target="_blank">something to do</a> with President Donald Trump’s <a href="https://www.vox.com/policy/501758/trump-mail-voting-supreme-court-whistleblower" rel="noopener noreferrer" target="_blank">attempts to undermine the mail voting process</a>, and it almost <em>definitely</em> reflects the anxiety and vigilance that many Americans feel about the midterms this year. In less than a week, they’ll decide which party controls Congress, along with a slew of state and local offices.</p><p>The stakes are arguably unusually high: Voters will choose whether to check the power of a president who has bulldozed over historical norms and limits. So as we count down to that momentous and potentially messy day, I’ve been partnering with my colleague <a href="https://www.vox.com/sign-up-for-the-midterms-actually-newsletter" rel="noopener noreferrer" target="_blank">Astead Herndon and Vox’s The Midterms, Actually team</a> for a series of weekly editions on the biggest issues shaping the midterms.</p><p>Previously, we dug into <a href="https://link.vox.com/view/6941d515837d7038a00287bbsfj6t.286e/c80faecf" rel="noopener noreferrer" target="_blank">the ways both parties are changing</a>, <a href="https://link.vox.com/view/6941d515837d7038a00287bbshpi1.3iy8/6812e3d8" rel="noopener noreferrer" target="_blank">the bipartisan backlash to AI and data centers</a>, <a href="https://link.vox.com/view/6941d515837d7038a00287bbsjw7d.2wfa/56a489a4" rel="noopener noreferrer" target="_blank">the politics of high costs,</a> and <a href="https://link.vox.com/view/6941d515837d7038a00287bbsm5jz.3o08/18fb42ad" rel="noopener noreferrer" target="_blank">the changing mood toward Israel</a>. This week, for our final installment, we’re tackling something a little more fundamental: the integrity and security of the voting process itself. It’s a worrying subject, but by no means a hopeless one. Let’s get into it.</p><p>Let me begin with a metaphor that may or may not reassure you: Imagine there’s a serial killer outside your house, and they’re trying to get in and kill you.</p><p>That’s pretty terrifying, under any circumstance. But also: Your house is an absolute <em>vault</em>. You have reinforced steel doors. You have good locks on all the windows. And the police are actually on its way now.</p><p>“I don’t want to understate the threat” of election interference, Benjy Sarlin, Vox’s editorial director of politics said when he relayed this metaphor <a href="https://www.youtube.com/watch?v=FZ34RCZTmS4" rel="noopener noreferrer" target="_blank">on the <em>America, Actually</em> podcast</a> last month. But if Trump is the serial killer trying America’s doors and windows…then understand this house is pretty well-defended.</p><p>Take mail voting, the issue that has so (literally) moved Democrats this year. You’ll recall that Trump <a href="https://www.vox.com/politics/502839/supreme-court-trump-mail-ballots-usps-california" rel="noopener noreferrer" target="_blank">tried to sabotage the practice</a> by implementing new, last-minute rules that would have effectively canceled mail-in voting in some places.</p><p>But the Constitution clearly assigns the power to regulate and administer elections to the states and Congress, and courts blocked the administration’s rules. In mid-September, the Supreme Court <a href="https://link.vox.com/view/6941d515837d7038a00287bbsa8cm.3j80/82862ef2" rel="noopener noreferrer" target="_blank">declined to let them take effect</a> for this election. So there’s one lock made good.</p><p>The Trump administration has also demanded unprecedented access to states’ voter rolls, suing 30 states and Washington, DC, to obtain them. Of those cases, courts have dismissed 27 of them (though many dismissals are being appealed).</p><p>Earlier this month, the DOJ went further and demanded that California officials <a href="https://calmatters.org/politics/2026/10/trump-voting-claims-counties/" rel="noopener noreferrer" target="_blank">set aside the ballots</a> of some 20,000 registered voters that it alleged were likely noncitizens. In the predictable legal battle that followed, courts sided with the state. A federal judge excoriated the administration in <a href="https://www.nytimes.com/2026/10/28/us/politics/california-noncitizen-voters-trump.html" rel="noopener noreferrer" target="_blank">an opinion on Wednesday</a>, ruling that the ballot segregation order “would wreak havoc and disrupt the election.” The Trump administration has <a href="https://apnews.com/article/california-noncitizen-voting-trump-midterm-lawsuit-20714065e59fe13db0e53c711a3ca390" rel="noopener noreferrer" target="_blank">already appealed</a> the ruling.</p><p>Other forms of meddling are possible. Asked in August about declaring a national emergency to impose new voting requirements, <a href="https://thehill.com/homenews/administration/6023743-trump-national-emergency-midterms/" rel="noopener noreferrer" target="_blank">Trump replied</a> — unnervingly — that “stranger things have happened.” And the president and his allies have floated drastic measures like deploying federal agents to polling sites or seizing “suspect” ballots, a threat tangible enough that <a href="https://www.ms.now/news/white-house-actions-spur-worry-among-fbi-agents-about-being-called-to-polling-places-sources-say" rel="noopener noreferrer" target="_blank">it’s reportedly unsettled</a> a number of FBI agents.</p><p>Just last week, the Trump administration <a href="https://www.vox.com/politics/507591/trump-mary-peltola-dans-sullivan-lawsuit" rel="noopener noreferrer" target="_blank">attempted to preemptively contest the results</a> in Alaska’s Senate race, claiming that the presence of two Dan Sullivans on the ballot — the incumbent Republican and an independent newcomer — risked confusing voters. The New York Times has since reported that <a href="https://www.nytimes.com/2026/10/28/us/politics/alaska-dan-sullivan-conspiracy-peltola.html" rel="noopener noreferrer" target="_blank">Democrats enticed Dan Sullivan 2.0</a> to run for exactly that reason. In some corners, the ensuing scandal has raised concerns that Republicans could refuse to seat Democrat Mary Peltola if she wins.</p><p>But even <a href="https://www.nytimes.com/2026/10/20/us/politics/democrats-republicans-congress-midterm-elections.html" rel="noopener noreferrer" target="_blank">that possibility is fairly remote</a>. While there are mechanisms for both state officials and US lawmakers to challenge election results, those procedures are pretty regimented. And any attempts to disrupt voting, vote-counting, or the certification of results would likely face both a flood of lawsuits (which voting groups <a href="https://www.ft.com/content/9cabd687-ea06-41f4-93ac-f5e16a54ccb6?syn-25a6b1a6=1" rel="noopener noreferrer" target="_blank">have already prepped</a>) and a public outcry that could ultimately and lastingly hurt Republicans.</p><p>Trump might not care overmuch about democratic norms or the rule of law, but he does likely care about the risks of a longer-term political backlash. To this day, Benjy said, a lot of Republicans <a href="https://www.gpb.org/news/2021/01/29/hostage-situation-every-day-strategists-blame-trump-for-georgia-senate-losses" rel="noopener noreferrer" target="_blank">still blame Trump</a> for losing them Georgia’s Senate seats: His election denialism after 2020 helped drive huge numbers of Black Georgians to the polls, where they voted in two Democrats.</p><p>The number of Democrats voting early and in-person suggests the possibility that a similar dynamic is at play now. In other words, there <em>is</em> real risk — but lots of people are fighting to keep the proverbial bad guys out.</p><ul><li>Alaska Senate race, where Trump is <a href="https://www.vox.com/politics/507591/trump-mary-peltola-dans-sullivan-lawsuit" rel="noopener noreferrer" target="_blank">ready to contest a Democratic win</a>;</li><li>Wisconsin governor’s race, where <a href="https://www.vox.com/politics/498994/election-deniers-2026-governor-tom-tiffany" rel="noopener noreferrer" target="_blank">Republican Tom Tiffany has promoted Trump’s lies</a> about the 2020 election; </li><li>Nevada’s secretary of state race, which could similarly put <a href="https://thenevadaindependent.com/article/unproven-claims-of-widespread-voter-fraud-return-in-nevada-secretary-of-states-race" rel="noopener noreferrer" target="_blank">an outspoken election denier</a> in charge of the state’s voting system.</li></ul><p><strong>➨ Turn on the (early morning) lights. </strong>It’s getting darker earlier and earlier these days, and it’s often pitch black when my alarm goes off. That means it’s time for an annual tradition: digging out my bulky, 10,000-lux light box. <a href="https://www.vox.com/even-better/24022918/morning-light-happiness-seasonal-depression-sad" rel="noopener noreferrer" target="_blank">Bright morning light, from a box or the sun, sets your body’s internal clock and helps regulate your sleep</a>. It can also mitigate seasonal affective disorder, which starts plaguing many sufferers around Halloween.</p><ul><li><strong>Did you know…</strong>that there’s <a href="https://www.vox.com/unexplainable/22336644/ball-lightning-scientific-mystery-eyewitness-accounts-illustrations" rel="noopener noreferrer" target="_blank">an extremely rare and spooky form of lightning</a> that can appear indoors? It’s called “ball lightning,” and it’s one of the most mysterious weather phenomena in the world. </li><li><strong>Today’s trivia:</strong> What’s the name of the vast Andean empire that ruled from its capital in Cusco? (You can find this and other brain puzzles <a href="https://link.vox.com/click/6a46cfd46352b082500e86fe/aHR0cHM6Ly93d3cudm94LmNvbS8yMTUyMzIxMi9jcm9zc3dvcmQtcHV6emxlcy1mcmVlLWRhaWx5LXByaW50YWJsZT91ZWlkPWM3Mzg0ZDJhYzRmZDQ0YzcyZDI4OGQ4N2YxZjM5NDlh/664389def568f1a4620aa3aeC7b08b10b" rel="noopener noreferrer" target="_blank">in Vox’s daily crossword</a>. Look for the answer in tomorrow’s edition.)</li><li><strong>Yesterday’s trivia:</strong> Yesterday we asked you where you might find an arroyo. These seasonally dry streambeds cut through deserts, where <a href="https://www.sciencedirect.com/topics/earth-and-planetary-sciences/arroyos" rel="noopener noreferrer" target="_blank">they can serve as a “highway”</a> for wild animals. </li></ul>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/today-explained-newsletter/508155/2026-midterm-guide-election-integrity" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

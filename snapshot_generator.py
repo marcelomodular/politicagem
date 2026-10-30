@@ -5,6 +5,7 @@ Gera HTML estático com as notícias atuais do RSS e páginas de artigos.
 """
 
 import json
+import shutil
 import random
 from datetime import datetime
 from pathlib import Path
@@ -235,6 +236,10 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
         output_dir = Path(output_dir)
     
     output_dir.mkdir(parents=True, exist_ok=True)
+    # Copy static assets
+    static_src = Path(__file__).parent / "static"
+    if static_src.exists():
+        shutil.copytree(static_src, output_dir / "static", dirs_exist_ok=True)
     
     # Buscar notícias
     noticias = get_all_news(limit_per_source=limit_per_source)

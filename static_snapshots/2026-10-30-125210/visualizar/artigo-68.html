@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hora de dar outro rumo ao BNDES - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Hora de dar outro rumo ao BNDES</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/outras-cidades/as-distorcoes-do-bndes-e-futuro-das-cidades/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/Screenshot-2026-10-29-at-17-48-43-railroadtrackswitch.webp-imagem-WEBP-1024-%C3%97-632-pixels-Redimensionada-94_.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Hora de dar outro rumo ao BNDES
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/Screenshot-2026-10-29-at-17-48-43-railroadtrackswitch.webp-imagem-WEBP-1024-%C3%97-632-pixels-Redimensionada-94_.jpg"/>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p><strong>Carlos Vainer</strong> em entrevista a <strong>Carina Serra</strong> e<strong> Rôney Rodrigues</strong></p>
+<p>Um banco criado para ampliar a capacidade de investimento do Estado pode utilizar sua estrutura e seu conhecimento técnico para reduzir a presença do próprio Estado? No BNDES, o Banco Nacional de Desenvolvimento Econômico e Social, essa pergunta não é retórica: ela define o futuro do Brasil.</p>
+<p>Em 2025, o banco tinha R$ 962 bilhões em ativos, aprovou R$ 237,9 bilhões em novos financiamentos e registrou o maior lucro recorrente de sua história: R$ 15,2 bilhões. Mas é um dos principais operadores do tripé chamado “desestatização”: venda de empresas, concessões e Parcerias Público-Privadas (PPPs). Para o economista e sociólogo Carlos Vainer, a palavra correta é outra, “curta e reta”: privatização. “O BNDES está atuando como agente de promoção e financiamento dos processos de privatização das nossas cidades, tanto daqueles que decorrem de grandes projetos quanto da privatização de serviços públicos que, inclusive pela Constituição, são obrigação do Estado”.</p>
+<p>Vainer é professor titular do Instituto de Pesquisa e Planejamento Urbano e Regional da Universidade Federal do Rio de Janeiro (Ippur-UFRJ) e coordenador da Rede de Observatórios de Conflitos Urbanos e do Núcleo Experimental de Planejamento Conflitual. É coautor da obra <em>A Cidade do Pensamento Único</em> (2000), que se tornou um clássico dos estudos urbanos com uma crítica contundente à transformação do planejamento urbano em instrumento de competição entre cidades, subordinado à lógica do mercado e da atração de investimentos. Em seu ensaio, chamado “Pátria, empresa e mercadoria: notas sobre a estratégia discursiva do Planejamento Estratégico Urbano”, diagnostica: se a cidade é apresentada como uma empresa, os conflitos de classe e os interesses contraditórios desaparecem do discurso.</p>
+<p>Mais de duas décadas depois, ele aponta o que faltou ao livro: “Na época, estávamos nos defrontando com o pensamento dominante de que a globalização era inexorável, os Estados nacionais desapareceriam e as cidades seriam as protagonistas do novo mundo. Ainda não tínhamos dimensão do processo de financeirização das cidades, o que ficou evidente com a crise do <em>subprime</em>. Isso é o que precisaria ser atualizado”, avalia o professor da UFRJ. “Mas essa tarefa vocês têm que cumprir. Agora virei prefaciador”.</p>
+<p>Mesmo sem atualizar a obra, Vainer dá pistas. Discutir o papel do BNDES, diz, ajuda a compreender a disputa assimétrica entre um modelo de cidade subordinado à lógica financeira e outro em que o Estado induz transformações sociais e urbanas. “Mas entrou a boiada das concessões e das PPPs que configuram o processo de privatização e corrosão do Estado brasileiro”, sublinha. Para ele, debater os rumos do BNDES é debater a essência do próprio Estado. Um dilema que não se restringe à direita e ao mercado, mas atravessa também setores progressistas convencidos pela narrativa do ajuste fiscal, segundo a qual caberia ao poder público mais estimular, financiar e regular a participação privada na economia do que assumir o protagonismo.</p>
+<p>Para entender o debate, é preciso distinguir dois ciclos de desestatização. No governo Fernando Henrique Cardoso, predominou a venda de estatais a “preço de banana”: as siderúrgicas, a Vale do Rio Doce, o Sistema Telebrás etc. A partir dos governos de coalizão liderados pelo PT, o processo menos escancarado: concessões e PPPs, em escopo ampliado, de portos, ferrovias e rodovias ao setor elétrico e ao saneamento. Nos dois ciclos, a atuação do BNDES foi basilar, mas seu papel mudou: de organizador dos leilões de venda passou a estruturar concessões e PPPs e, muitas vezes, a conduzi-las e financiá-las.</p>
+<p>Mas quando ocorreu esta “virada”?</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/vainer4.jpg"/>Foto: Fernando Alvim/Divulgação CAU/RJ
+<p><strong>BNDES E O CICLO DE PRIVATIZAÇÕES</strong></p>
+<p>Em 2004, no primeiro governo Lula, a Lei das PPPs (Lei 11.079/2004) fixou as normas gerais de licitação e contratação de parcerias público-privadas, e o BNDES tornou-se peça-chave. O banco passou a desenvolver instrumentos próprios para o modelo, apostando nas parcerias com o setor privado como via para a infraestrutura nacional. Um estudo de Weslei Leandro Quaresma Alves e Marilene de Souza Campos, pesquisadores da Universidade Federal de Viçosa (UFV), mostra que este modelo inspirou-se na <em>Private Finance Initiative</em> britânica, criada em 1992, sob o governo de John Major, sucessor de Margaret Thatcher. A lógica: em vez de o Estado construir diretamente um hospital, uma escola, uma prisão ou uma estrada, contratava uma empresa privada para financiar, construir e, muitas vezes, operar a infraestrutura.</p>
+<p>O BNDES, então, passou aos poucos a participar da modelagem das concessões, e não apenas do financiamento. Em 2007, segundo levantamento inédito de Vainer, o governo federal concedeu cerca de 2.600 quilômetros de rodovias, com o banco atuando nas duas pontas. Nesta mesma época, o BNDES, o Banco Interamericano de Desenvolvimento (BID) e a International Finance Corporation (IFC), braço do Banco Mundial para o setor privado, criaram o Brazil Private Sector Participation Development Program (Brazil PSP). O programa financiava estudos técnicos e apoiava a estruturação de projetos de infraestrutura baseados em concessões e PPPs.</p>
+<p>Os megaeventos catapultaram esse novo perfil, destaca Vainer. Foram oito deles, de portes variados: os Jogos Pan e Parapan-Americanos (Rio de Janeiro, 2007); a Rio+20, conferência da ONU (2012); a Copa das Confederações, em seis cidades, e a Jornada Mundial da Juventude (2013); a Copa do Mundo, em 12 cidades (2014); e os Jogos Olímpicos e Paraolímpicos (Rio de Janeiro, 2016). O BNDES destinou mais de R$ 3 bilhões só à construção de estádios, aponta o pesquisador da UFRJ, e, inclusive, emprestou recursos públicos a redes hoteleiras internacionais, como Hyatt e Hilton. Nas cidades-sede da Copa, avançaram a concessão e a expansão dos sistemas de transporte, sobretudo o BRT do Rio. Vainer destaca ainda as obras viárias que viabilizaram a expansão da Barra da Tijuca, no Rio, área marcada, segundo ele, pela concentração fundiária. Seu balanço: “isso tudo gerou enormes impactos sobre as cidades: aprofundou a segregação, as desigualdades, a especulação imobiliária e favoreceu as grandes empreiteiras e os grandes proprietários de terra”.</p>
+<p>O setor elétrico seguiu o mesmo caminho. “Foi praticamente entregue à iniciativa privada, com um desempenho bastante questionável”, diz Vainer. No leilão da Usina Hidrelétrica de Santo Antônio, no rio Madeira, em dezembro de 2007, o investimento estimado era de R$ 9,5 bilhões; o BNDES teve papel central no financiamento e fez outras operações de crédito depois. Em Belo Monte, financiou quase 80% dos R$ 29 bilhões investidos, de acordo com o levantamento de Vainer. Embora a estatal detivesse 49,9% do capital, o controle ficou privado. A promessa era mais competição e preços menores. Porém, as tarifas dispararam.</p>
+<p>Vainer resume a contradição do modelo: “A perspectiva principal era de que o Estado não tinha recursos para assegurar a expansão do setor elétrico brasileiro. E, quando você explicava, até para um chileno, que na época havia supostamente passado por um processo exemplar de privatização e neoliberalismo, que o Estado emprestava dinheiro para uma empresa comprar uma empresa do próprio Estado, ele dizia que era brincadeira”.</p>
+<p>Já no governo Dilma, o BNDES se consolidou na chamada “Estruturação de Projetos”, auxiliando entes públicos a preparar editais de concessão e PPPs em rodovias, aeroportos, ferrovias, saneamento, saúde e educação. As concessões dos aeroportos de Guarulhos (SP), Viracopos (Campinas-SP) e Brasília (DF), em 2012, marcaram a primeira rodada de privatizações de grandes terminais brasileiros. No ano seguinte, vieram as concessões do Galeão (RJ) e de Confins (MG), na segunda rodada.</p>
+<p>Em 2016, veio o golpe, e com ele um novo enquadramento para o banco.</p>
+<p>Com o governo Temer, a atuação do BNDES nas “desestatizações” ganhou outros contornos: o Programa de Parcerias de Investimentos (PPI), criado em 2016, o tornou responsável por executar e acompanhar os processos de concessão, privatização e outras medidas privatistas incluídas no programa. Além de estudos e modelagens, passou a articular governos, agências reguladoras, investidores e órgãos de controle e a participar dos leilões.</p>
+<p>No governo Bolsonaro, a estrutura foi ampliada para essa agenda de privatização de empresas e ativos federais, e o BNDES aprofundou a estruturação de projetos no âmbito do PPI. O caso mais emblemático foi o da Eletrobras: iniciado sob Temer, o processo foi retomado por Bolsonaro, autorizado pela Lei 14.182/2021 e concluído em 2022. Coube ao banco executá-lo e acompanhá-lo, contratar os estudos técnicos e subsidiar as decisões sobre modelagem, preço mínimo e condições da oferta de ações.</p>
+<p><strong>LULA 3 E A RECONSTRUÇÃO INCOMPLETA</strong></p>
+<p>Em janeiro de 2023, o presidente Lula volta ao Planalto, prometendo reconstruir o país após seis anos de terra arrasada. Para o BNDES, indica Aloizio Mercadante, que lança o “Novo BNDES”: uma tentativa de reposicionar o banco como agente estratégico do desenvolvimento em infraestrutura, inovação, transição ecológica e dinamismo industrial, alinhado aos desafios do século XXI — e buscar uma diversificação das fontes de recursos utilizadas pelo banco para financiar suas operações, que hoje vêm principalmente do Fundo de Amparo ao Trabalhador (FAT) e do Tesouro Nacional.</p>
+<p>Assim, o BNDES foi crucial para a Nova Indústria Brasil (NIB) e, sobretudo, o Novo PAC, lançado em agosto de 2023 com foco em infraestruturas urbanas, sociais, de transportes e logística, do qual se tornou o principal motor de investimentos. O banco retomou o financiamento de obras e serviços de engenharia no exterior e passou a operar novos fundos e programas: o Fundo Clima (R$ 10,2 bilhões aprovados em 2024), voltado à transição energética, indústria verde e projetos de sustentabilidade; o Mais Inovação, para inovação e digitalização industrial; o Fundo Nacional de Investimento em Infraestrutura Social (FIIS), criado em 2024 para financiar saúde, educação e segurança pública; e o BNDES Emergencial para o Rio Grande do Sul, que aprovou R$ 22,8 bilhões. Neste ano, a terceira etapa do Plano Brasil Soberano, criado em agosto de 2025 para amparar exportadores atingidos pelo tarifaço de Trump e agora também pelas guerras no Oriente Médio, recebeu R$ 8,2 bilhões em pedidos de crédito nos dois primeiros dias.</p>
+<p>Nos dois primeiros anos do governo, os dados foram notáveis: o banco aprovou R$ 33,1 bilhões em crédito a entes federados (R$ 24,7 bilhões a estados e R$ 8,4 bilhões a municípios), mais de o triplo dos R$ 9,6 bilhões do período equivalente nos governos Temer e Bolsonaro. E, em infraestrutura, a mudança de patamar é nítida: a média anual de aprovações passou de R$ 38,5 bilhões (2015–2022) para R$ 74,8 bilhões (2023–2025), alta de 94%. Porém, algo ainda longe do ciclo 2009–2015: os ativos do banco equivalem a cerca de 7% do PIB, contra 15,5% em 2015, mostra artigo “O novo BNDES”, publicado por Nelson Henrique Barbosa-Filho, Gilberto Borça Jr. e Luiz Daniel Willcox de Souza, dirigentes e técnicos do banco.</p>
+<p>Mas o “novo BNDES” preserva lógicas do velho: atuar como intermediário entre o poder público e o capital privado. As concessões seguiram no setor rodoviário e na mobilidade urbana, com o VLT do Rio de Janeiro e BRTs no Rio e em Curitiba. No saneamento, o governo Lula não freou a “desestatização”, intensificada pelo novo Marco Legal do Saneamento Básico aprovado na gestão Bolsonaro: deu seguimento a concessões já em curso e abriram-se novas frentes em Alagoas, Amapá e Rio de Janeiro, e as PPPs no Ceará, Sergipe, Pará, Espírito Santo e Rio Grande do Sul. Juntas, alcançam 28 milhões de pessoas em 487 municípios, segundo levantamento de Vainer.</p>
+<p>As PPPs chegaram também à saúde, via construção de hospitais e unidades básicas em algumas cidades, e abriram uma frente nova: o sistema prisional. Em 2023, por exemplo, foi leiloada a PPP do complexo prisional de Erechim (RS), concessão administrativa estruturada pelo BNDES com apoio do BID e da Secretaria do Programa de Parcerias de Investimentos (PPI).</p>
+<p>A desestatização com recursos públicos, ao que tudo indica, se naturalizou. “Não se vê nenhum candidato falando em reverter esses processos de privatização, porque são nefastos, antieconômicos, sem falar que são antissociais”, afirma Vainer.</p>
+<p><strong>DE QUAL BNDES O BRASIL PRECISA?</strong></p>
+<p>O Brasil tem outros quatro grandes bancos públicos federais, com funções distintas: o Banco do Brasil, voltado principalmente ao crédito comercial e ao agronegócio; o Banco do Nordeste (BNB) e o Banco da Amazônia (Basa), dedicados ao desenvolvimento de suas regiões; e a Caixa Econômica Federal, forte em habitação, infraestrutura urbana e políticas sociais. Mas, especificamente, que papel caberia a um banco como o BNDES num projeto de reconstrução nacional comprometido com o planejamento democrático, com a redução das desigualdades no território e com cidades de justiça social? Vainer chama a pergunta de armadilha: um convite para que ele se faça de “reformista autêntico”. Diante de provocações parecidas, lembra, sua colega Otília Arantes devolvia: “Quem foi que disse que tenho que propor? Meu papel é criticar.”</p>
+<p>Antes do banco, há problemas estruturais, como a persistência da dependência econômica. Vainer lembra alguns absurdos, como a reunião do ministro da Fazenda Fernando Haddad com as big techs, antes do tarifaço dos EUA, para oferecer o Brasil como plataforma de instalação de data centers: “ou seja, exportar território, água e energia, e assim aprofundar o processo de primarização da economia brasileira”.</p>
+<p>Mas, assumindo por um instante a verve reformista, Vainer dispara: “Não adianta fazer a reforma só no BNDES. Temos que redefinir o papel do Estado na sociedade brasileira, mesmo que capitalista. É preciso defender um Estado republicano e democrático. O lugar e o papel do Estado têm que ser reconfigurados, mas não por meio de uma reforma administrativa ou eleitoral, como muitos sugerem.”</p>
+<p>Para superar a ortodoxia e a reprimarização, diz Vainer, emergem hoje novos paradigmas econômicos, como a Teoria Monetária Moderna (TMM). De inspiração pós-keynesiana, ela sustenta que um Estado pode emitir sua própria moeda, pois, ao contrário de famílias e empresas, não depende só de impostos e endividamento para gastar. É possível, portanto, mobilizar recursos para o pleno emprego, a moradia digna, o transporte de qualidade e a despoluição dos rios urbanos, sem que isso gere necessariamente inflação ou desequilíbrio fiscal. O limite, nessa perspectiva, não é a disponibilidade de dinheiro, mas a de recursos reais na economia.</p>
+<p>Nesse horizonte, o BNDES teria um lugar: “Ser um instrumento dentro de um projeto de resgate da esfera pública, que vai além do Estado. Afinal, ele nasceu para promover a industrialização brasileira no projeto nacional-desenvolvimentista. Esgotada aquela etapa, com o avanço do neoliberalismo, passou a ser um braço do processo neoliberal, de apoio à liberalização e à privatização”. É hora, portanto, de assumir outro papel, diz: “trocar a palavra desprivatização por ‘resgate e reinvenção de uma esfera pública democrática e republicana'”.</p>
+<p>A resposta, portanto, não é um BNDES melhor administrado, mas a serviço de outro Estado: um que deixe de ser o agente da desestatização para ajudar a reconstruir a esfera pública.</p>
+<p>A tarefa é hercúlea. Como fazê-la quando não há uma revolução batendo à porta e a democracia liberal está em crise? Esta é uma questão que Vainer se faz, já com uma resposta na ponta da língua. </p>
+<p>“Na formulação do meu pensamento político, uso uma ideia pouco explorada de Henri Lefebvre: a utopia experimental. É um oxímoro: se é utopia, é algo que não existe; se é experimental, é algo que se experimenta”, brinca. “Quando operários tomam uma fábrica e passam a trabalhar em cooperativas, vivem a utopia do trabalho sem patrão, do trabalho associativo pelo bem comum. Quando milhares de pessoas vão à rua se manifestar em torno de uma ideia, vivem a experiência da solidariedade, da comunhão. As redes de solidariedade que nasceram na pandemia são outro exemplo. Cabe à esquerda trabalhar essas ideias e experiências que são efetivamente contra-hegemônicas — não necessariamente pela consciência, mas pelo agir, por acionar práticas de utopia experimental”.</p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleça o jornalismo crítico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/outras-cidades/as-distorcoes-do-bndes-e-futuro-das-cidades/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

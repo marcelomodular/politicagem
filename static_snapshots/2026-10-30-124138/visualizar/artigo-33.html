@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloco de Netanyahu perde maioria no Parlamento de Israel - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Bloco de Netanyahu perde maioria no Parlamento de Israel</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vermelho</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://vermelho.org.br/2026/10/30/apuracao-termina-e-bloco-de-netanyahu-perde-maioria-no-parlamento-de-israel/?utm_source=rss&utm_medium=rss&utm_campaign=apuracao-termina-e-bloco-de-netanyahu-perde-maioria-no-parlamento-de-israel" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://vermelho.org.br/wp-content/uploads/2026/10/WhatsApp-Image-2026-10-30-at-11.25.37-1.jpeg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Bloco de Netanyahu perde maioria no Parlamento de Israel
+                            </p>
+                            
+
+<img src="https://vermelho.org.br/wp-content/uploads/2026/10/WhatsApp-Image-2026-10-30-at-11.25.37-1.jpeg"/> Benjamin Netanyahu (à esq.) e Gadi Eisenkot lideram os dois principais blocos da disputa: o primeiro terminou a apuração com 53 cadeiras, e o segundo, com 48. Os partidos árabes elegeram 19 deputados. Foto: Reprodução
+
+<p>O bloco do criminoso de guerra e primeiro-ministro Benjamin Netanyahu perdeu a maioria parlamentar nas eleições de Israel. Com a apuração concluída na quinta-feira (29), ficou com 53 das 120 cadeiras do Knesset — oito a menos que os 61 necessários para formar maioria. A oposição liderada por Gadi Eisenkot somou 48 assentos, e os partidos árabes, 19.</p>
+<p>O resultado não define quem governará o Estado colonial. Embora o campo de Netanyahu tenha ficado à frente da oposição, nenhum dos dois alcançou sozinho a maioria. A formação do próximo governo dependerá de negociações que podem se arrastar por meses ou terminar em novas eleições.</p>
+<p>O Likud, partido de Netanyahu, elegeu 27 deputados (em 2022, elegeu 32 deputados) . O bloco governista reúne ainda os partidos Otzma Yehudit e Judaísmo Unido da Torá, com sete cadeiras cada, além de Shas e Sionismo Religioso, com seis cada. A coalizão que deixa o poder tinha 68 assentos; agora, o campo do premiê cai para 53.</p>
+<p>O bloco de Netanyahu reúne partidos ultraortodoxos e forças de extrema direita, entre elas a racista e supremacista Otzma Yehudit, de Itamar Ben-Gvir, e o Sionismo Religioso, de Bezalel Smotrich. </p>
+<p>Já o Shas e Judaísmo Unido da Torá são os partidos ultraortodoxos e conservadores que integram o campo de Netanyahu. O Shas adota posições duras sobre questões territoriais; o Judaísmo Unido da Torá concentra sua atuação em pautas religiosas e comunitárias. </p>
+<p>A oposição é formada pelo Yashar, partido de Eisenkot, com 21 cadeiras; B’Yachad, com 12; Democratas, com oito; e Yisrael Beiteinu, com sete. Já a Lista Conjunta e o Ra’am, as duas listas árabes, elegeram 11 e oito deputados, respectivamente.</p>
+<p><strong>A sigla Yashar é comandada pelo líder do bloco oposicionista e possível futuro premiê Gadi Eisenkot, ex-chefe do Estado-Maior. Ele rejeita a criação de um Estado palestino e defende desmantelar a capacidade militar do Hamas — posições próximas às de Netanyahu nessa área.</strong></p>
+<p><strong>A sigla B’Yachad reúne o ex-premiê de direita Naftali Bennett e Yair Lapid, ligado ao centro sionista. A sigla Yisrael Beiteinu, liderada por Avigdor Lieberman, segue uma linha nacionalista de direita. </strong></p>
+<p><strong>Já a sigla dos Democratas reúne o Partido Trabalhista e o Meretz e é a única do bloco que admite abertamente uma coalizão com partidos árabes. Essa abertura não faz da oposição um campo contrário à ocupação: quase todos os seus partidos mantêm o veto à participação árabe no governo.</strong></p>
+<p>Somadas à oposição, as 19 cadeiras árabes formariam um bloco de 67 parlamentares. A conta, porém, depende de uma aliança que a maior parte dos partidos de Eisenkot rejeita. Com exceção dos Democratas, as legendas do campo oposicionista descartam cooperar com a Lista Conjunta ou o Ra’am.</p>
+<p>A resistência expõe os limites da promessa de mudança da oposição. Eisenkot e outros dirigentes mantêm posições próximas às de Netanyahu sobre os palestinos.</p>
+<p>A recusa em negociar com os partidos árabes exclui da disputa pelo governo os representantes de uma parcela expressiva da população israelense. Os árabes são cerca de 20% da população israelense.</p>
+<p>O presidente da Lista Conjunta, Yousef Jabareen, afirmou que a escolha política é entre “a continuidade do racismo, da exclusão e da supremacia” e uma “verdadeira parceria judaico-árabe”. </p>
+<p>A Lista Conjunta reúne as siglas Hadash, Ta’al e Balad. O Partido Comunista de Israel (PCI) integra a aliança por meio do Hadash, frente judaico-árabe que combate o racismo e a ocupação. O Ra’am, também árabe, concorreu em separado.</p>
+<p>As legendas árabes defendem negociar com a oposição para afastar Netanyahu, mas cobram mudanças políticas, e não apenas a troca do primeiro-ministro.</p>
+<p>Os resultados serão apresentados oficialmente ao presidente Isaac Herzog em 4 de novembro, após a conclusão de eventuais consultas sobre erros ou reclamações. Depois, Herzog ouvirá os partidos e encarregará um parlamentar de tentar formar governo. O indicado terá 28 dias, com possibilidade de prorrogação por mais 14.</p>
+<p>Se a tentativa fracassar, Herzog poderá indicar outro parlamentar. Persistindo o impasse, uma maioria dos deputados poderá propor um último nome para tentar formar o governo. Caso nenhuma negociação avance, Israel poderá realizar novas eleições em até 90 dias. </p>
+<p>O novo Knesset toma posse em 10 de novembro; até que um novo gabinete receba o voto de confiança do Parlamento, Netanyahu permanece no cargo.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://vermelho.org.br/2026/10/30/apuracao-termina-e-bloco-de-netanyahu-perde-maioria-no-parlamento-de-israel/?utm_source=rss&utm_medium=rss&utm_campaign=apuracao-termina-e-bloco-de-netanyahu-perde-maioria-no-parlamento-de-israel" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
