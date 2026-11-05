@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memórias do Jornalismo: Travessias políticas - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Memórias do Jornalismo: Travessias políticas</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-travessias-politicas/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5127477261463391910.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: MemÃ³rias do Jornalismo: Travessias polÃ­ticas
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5127477261463391910.jpg"/>Foto: Acervo/Globo
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>O texto a seguir compÃµe a sÃ©rie <em>Passageiro da HistÃ³ria</em>, memÃ³rias de Carlos Azevedo.<br/>Leia tambÃ©m:<strong><br/><a href="https://outraspalavras.net/historia-e-memoria/carlos-azevedo-passageiro-da-historia/" rel="noopener noreferrer" target="_blank">Carlos Azevedo,<em> Passageiro da HistÃ³ria</em></a><br/><a href="https://outraspalavras.net/historia-e-memoria/o-dia-em-que-janio-quadros-renunciou/" rel="noopener noreferrer" target="_blank">[1] O dia em que JÃ¢nio Quadros renunciou</a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-a-semana-da-legalidade/" rel="noopener noreferrer" target="_blank">[2] MemÃ³rias do Jornalismo: A Semana da Legalidade</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/um-pais-polarizado-e-um-reporter-brincando-com-fogo/" rel="noopener noreferrer" target="_blank">[3] Um paÃ­s polarizado e um repÃ³rter brincando com fogo</a></strong><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-em-1964-vendo-o-golpe-acontecer/" rel="noopener noreferrer" target="_blank"><strong>[4] MemÃ³rias do Jornalismo: Em 1964, vendo o golpe acontecer</strong></a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-revista-ousada-em-tempo-obscuro/" rel="noopener noreferrer" target="_blank"><strong>[5] MemÃ³rias do Jornalismo: Revista ousada em tempo obscuro</strong></a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-a-ditadura-arreganha-os-dentes/" rel="noopener noreferrer" target="_blank"><strong>[6] MemÃ³rias do Jornalismo: A ditadura arreganha os dentes</strong></a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-clandestinidade-e-libertacao/" rel="noopener noreferrer" target="_blank"><strong>[7] MemÃ³rias do Jornalismo: Clandestinidade e âlibertaÃ§Ã£oâ</strong></a><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-em-pauta-a-revolucao-brasileira/" rel="noopener noreferrer" target="_blank">[8] MemÃ³rias do Jornalismo: Em pauta, a revoluÃ§Ã£o brasileira</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-sete-anos-no-esconderijo/" rel="noopener noreferrer" target="_blank">[9] MemÃ³rias do Jornalismo: Sete anos no esconderijo</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memoria-do-jornalismo-quando-partido-nao-basta/" rel="noopener noreferrer" target="_blank">[10] MemÃ³rias do Jornalismo: Quando o partido jÃ¡ nÃ£o basta</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-polemicas-e-afetos-na-luta-contra-a-ditadura/" rel="noopener noreferrer" target="_blank">[11] MemÃ³rias do Jornalismo: PolÃªmicas e afetos na luta contra a ditadura</a></strong></p>
+<p>Depois da nossa saÃ­da de <em>DoÃ§ura, </em>Narciso Kalili foi trabalhar no departamento de jornalismo da TV Globo de SÃ£o Paulo, ao lado dos antigos companheiros de <em>Realidade,</em> Woile GuimarÃ£es, LuÃ­s Fernando Mercadante e Eurico Andrade.</p>
+<p>Troquei meu carro, levei a famÃ­lia de fÃ©rias para PeruÃ­be. Na volta, em janeiro de 1982, estava sem dinheiro. Os amigos na TV Globo se movimentaram. Mas eu era um subversivo âqueimadoâ nÃ£o podia atuar no jornalismo geral. Woile GuimarÃ£es e os outros se juntaram a Humberto Pereira e Gabriel Romeiro, diretores do programa de TV <em>Globo Rural.</em> E acharam a soluÃ§Ã£o: vai pra lavoura!<em> </em> <br/>Ir para esse programa foi uma felicidade. Depois de mais de dez anos vivendo na clandestinidade, recluso em casa, tinha sede de viajar como antes.  As reportagens do Globo Rural eram todas pelo campo e por todo o paÃ­s. Estava de novo na estrada, viajando a maior parte do ano e deixando com Maria Lucia a responsabilidade de cuidar da casa e de dois filhos adolescentes. Eu nÃ£o sabia nada de televisÃ£o. Mas aos 42 anos tinha histÃ³ria. E sede de rodar pelo mundo.</p>
+<p>A ditadura militar chegava ao fim, o movimento popular em ascensÃ£o, a campanha das <em>Diretas JÃ¡</em> tomava conta das ruas. O general ditador JoÃ£o Figueiredo, doente e desanimado, nem queria mais governar. Do lado do povo, sim, havia animaÃ§Ã£o e se renovavam as esperanÃ§as pela democracia e por uma vida melhor.  Quanto Ã  minha militÃ¢ncia no partido comunista, estava esquecida. </p>
+<p>Viajando pelo interior nÃ£o tive qualquer participaÃ§Ã£o nesse movimento das <em>Diretas JÃ¡</em>. Mas no dia 25 de janeiro de 1985 eu e Maria Lucia estÃ¡vamos no grande comÃ­cio da PraÃ§a da SÃ©. Naquela manhÃ£ eu havia embarcado num aviÃ£o da <em>Vasp</em> em Campo Grande, Mato Grosso do sul, para participar do comÃ­cio.</p>
+<p>A equipe do Globo Rural era pequena, mas competente e trabalhava com liberdade porque os assuntos tratados nÃ£o envolviam temas polÃ­ticos, mas abordÃ¡vamos questÃµes polÃªmicas, como o uso de agrotÃ³xicos nas lavouras. Fiz reportagens impactantes como a de denÃºncia de desertificaÃ§Ã£o. Mostrei os Ãºltimos momentos da cachoeira de Sete Quedas que logo depois foi submersa pelo lago de Itaipu.  Mostrei, junto aos camponeses, a tragÃ©dia da seca de 1981 no Nordeste. </p>
+<p>Havia uma imigraÃ§Ã£o maciÃ§a de trabalhadores sem-terra para RondÃ´nia e eu acompanhei uma famÃ­lia que vinha do interior de SÃ£o Paulo. ApÃ³s 3 mil quilÃ´metros dois irmÃ£os ex-motoristas de caminhÃ£o, suas mulheres e filhos, chegaram a uma gleba de 21 hectares que haviam comprado na regiÃ£o de Rolim de Moura, cidade recÃ©m-fundada e que apÃ³s um ano jÃ¡ contava com uma populaÃ§Ã£o de 70 mil pessoas. Acompanhei seu primeiro dia na gleba, cortando Ã¡rvores e armando um barracÃ£o com troncos e um encerado. Tinham uma energia de gigantes, homens e mulheres e atÃ© as crianÃ§as. Diziam que iam plantar cafÃ©. Dez anos depois um repÃ³rter do Globo Rural foi ver o que havia acontecido com ele. Mandaram um recado para mim. Diziam que estavam felizes, haviam enriquecido plantando cafÃ© e cacau. </p>
+<p>Procuramos fazer um bom jornalismo, dando visibilidade e voz aos agricultores e Ã s boas prÃ¡ticas agrÃ­colas como reduzir ou evitar o uso de agrotÃ³xico e fazer manejo orgÃ¢nico de combate de pragas. EntrevistÃ¡vamos agrÃ´nomos que diziam: ânÃ£o Ã© porque aparece uma lagarta na sua lavoura de soja que vocÃª tem que esparramar agrotÃ³xico por toda elaâ. </p>
+<p>Preocupado com a perda da produtividade da terra eu sugeria pautas e fiz matÃ©rias mostrando processos de desertificaÃ§Ã£o e estimulando mÃ©todos de produÃ§Ã£o para evitar erosÃ£o que causava grandes voÃ§orocas. Dei exemplos de cultivos em curva de nÃ­vel, que alÃ©m de evitar a erosÃ£o, conservavam a fertilidade da terra e recuperavam os veios de Ã¡gua. E mostrei projetos bem-sucedidos de plantio direto, que evitava o uso pesado de arados, e de reflorestamento em recuperaÃ§Ã£o de terras empobrecidas.</p>
+<p>Havia uma seÃ§Ã£o popular no programa que era o de resposta a cartas dos agricultores. Perguntavam sobre problemas na sua produÃ§Ã£o, doenÃ§as de animais etc. E entrevistÃ¡vamos agrÃ´nomos e veterinÃ¡rios para responder. Para produzir esse material entravamos em contato com agricultores, muitos do Sul porque ali existe uma cultura camponesa consistente. TambÃ©m entrevistÃ¡vamos camponeses do Nordeste porque ali hÃ¡ uma cultura camponesa tradicional. Ou entÃ£o Ã­amos Ã s faculdades de agronomia e veterinÃ¡ria entrevistar os tÃ©cnicos.</p>
+<h3><strong>A boiada</strong></h3>
+<p>Acabamos por produzir uma reportagem que obteve grande repercussÃ£o e ficou na histÃ³ria do programa. Humberto Pereira, o Editor-Chefe do Globo Rural e eu falÃ¡vamos sobre uma reportagem sobre uma boiada. Ligado Ã s referÃªncias de GuimarÃ£es Rosa sobre o assunto, sugeria que a matÃ©ria fosse produzida em Minas Gerais. Eu argumentei que ali quase nÃ£o havia mais boiada, o gado era transportado em caminhÃ£o. Onde talvez ainda fosse possÃ­vel era no Pantanal do Mato Grosso do Sul. O colega JosÃ© Hamilton Ribeiro opinou que nÃ£o ia dar certo, um bando de bois caminhando dia apÃ³s dia, ia ser tedioso. </p>
+<p>Humberto me mandou investigar. Fui a CorumbÃ¡, fiz amizade com um fazendeiro, tambÃ©m dono de uma pequena empresa de taxi aÃ©reo, chamado JoÃ£o Geraldo. Pessoa de fino trato, simpÃ¡tico e generoso. Foi tÃ£o importante para a realizaÃ§Ã£o da matÃ©ria que, onze anos depois, encontrando-o por acaso em um hotel de Campo Grande, nos abraÃ§amos como velhos amigos. EntÃ£o eu disse a ele: âJoÃ£o, ali foi nosso Deus!â. Ele apenas sorriu, um sorriso de homem bom.</p>
+<p> Em janeiro de 1984, a boiada, com cerca de mil e duzentas cabeÃ§as, saiu da fazenda SÃ£o Vicente, na regiÃ£o de PaiaguÃ¡s, no municÃ­pio de CorumbÃ¡, de propriedade da famÃ­lia de JoÃ£o Geraldo. Iria caminhar por 700 quilÃ´metros em 50 dias, cruzando praticamente quase todo o Mato Grosso do Sul, desde a fronteira com a BolÃ­via indo atÃ© o municÃ­pio de Iguatemi, perto da divisa com SÃ£o Paulo. Era conduzida por um capataz, Celso GuimarÃ£es, mais quatro peÃµes e um cozinheiro, o âBarbaâ. Acompanhando-a produzimos uma sÃ©rie de sete matÃ©rias de 10 a 15 minutos cada. </p>
+<p>Indo ao ar por sete domingos contÃ­nuos, virou quase que uma novela seguida com entusiasmo por um pÃºblico recorde no horÃ¡rio das 9 horas. Um resumo dela foi ao ar no Globo RepÃ³rter em quatro blocos, com duraÃ§Ã£o de 40 minutos. Durante alguns anos quando a Globo fazia pesquisa sobre qual reportagem o pÃºblico queria ver de novo a <em>Boiada</em> era citada em primeiro lugar.  </p>
+<p>Demorei trÃªs meses envolvido nesse trabalho, desde encontrar um fazendeiro que concordasse em deixar filmar a viagem de uma boiada de sua propriedade, atÃ© trabalhar como repÃ³rter e produtor e dirigir uma equipe de trÃªs profissionais â cinegrafista, dois auxiliares, de som e luz â nas condiÃ§Ãµes mais difÃ­ceis pelo Pantanal do Mato Grosso do Sul.</p>
+<p>Era janeiro, o Pantanal comeÃ§ava a encher de Ã¡gua vinda das chuvas nos rios de cabeceira. Calor, muito calor. Como acompanhar a caminhada de cerca de 1.200 bois pelo <em>brejo</em>, como dizem os pantaneiros?</p>
+<p> NÃ£o havia estradas, os bois iam sendo mansamente conduzidos pela vasta campina rica de pastagem natural. A viagem comeÃ§ou por um terreno alagadiÃ§o, frequentemente atravessado por cÃ³rregos (<em>corichos)</em> e lagoas, algumas salgadas, estas eram uma atraÃ§Ã£o para o gado. A marcha dos bois tem a velocidade de trÃªs quilÃ´metros por hora, em mÃ©dia. Os peÃµes carregam junto uma tropa de uns 24 burros que vÃ£o trocando todos os dias para que tenham tempo de se recuperar das duras jornadas. </p>
+<p>E quanto Ã  nossa equipe, como acompanhar a caminhada? O generoso fazendeiro JoÃ£o Geraldo nos emprestou trÃªs cavalos mansos e uma carreta de rodas bem altas com duas juntas de bois para atravessar as aguadas sem molhar a carga que vai na carroceria, que Ã© nossa bagagem, equipamento e comida, e um de nossos auxiliares. </p>
+<p>Eu monto um cavalo, o cinegrafista com sua mÃ¡quina, monta outro, e o auxiliar vai no terceiro cavalo carregando um pesado vÃ­deo-cassete. Detalhe: a cÃ¢mera Ã© de um tubo sÃ³, da primeira geraÃ§Ã£o da filmagem por fita de vÃ­deo. E o vÃ­deo-cassete Ã© um trambolho que funciona ligado Ã  cÃ¢mera por um cabo grosso e curto de menos de dois metros. O cinegrafista vai filmando montado num cavalo. O assistente vem com o vÃ­deo, montado em outro cavalo. Eles nÃ£o tÃªm experiÃªncia em montar, os cavalos nem sempre obedecem. Se se afastarem de repente podem romper o cabo que estÃ¡ ligado Ã  cÃ¢mera. Como fazer? Jorge dos Santos, o cinegrafista, tem uma ideia: amarra os dois cavalos com uma corda, de modo que nÃ£o possam se afastar. </p>
+<p>A boiada anda 3 quilÃ´metros por hora, mas anda. Ã preciso acompanhÃ¡-la. Jorge vai gravando enquanto avanÃ§a entre os bois. Digo que quero filmar a cabeceira da boiada.  NÃ£o foi fÃ¡cil chegar atÃ© ela com esse passo dos cavalos. E ainda tivemos de atravessar <em>corichos </em>com Ã¡gua quase no arreio. Ficamos todos molhados.</p>
+<p>Ao final do segundo dia chegamos a uma fazenda que tinha um campo de pouso. Conforme combinado, um taxi aÃ©reo veio nos buscar pela tarde. A equipe estÃ¡ exausta. Todos querem voltar para SÃ£o Paulo.</p>
+<p>Vamos a SÃ£o Paulo. Levamos as fitas gravadas. Editamos as primeiras matÃ©rias da sÃ©rie.  Estou no maior entusiasmo. JÃ¡ dÃ¡ para sentir que vai ser um sucesso!</p>
+<p>Volto ao Pantanal com nova equipe. De taxi aÃ©reo alcanÃ§amos a boiada em outra fazenda. Agora nÃ£o hÃ¡ mais cavalos. Seguimos na carroceria de um trator. Fazemos amizade com Celso GuimarÃ£es, o encarregado da comitiva, e com os peÃµes que o acompanham. Celso Ã© uma grande figura, competente, responsÃ¡vel, alegre e contador de histÃ³rias. </p>
+<p>A boiada alcanÃ§a a NhecolÃ¢ndia, o trecho mais bonito da viagem, extensas campinas cobertas de grama natural muito verdes, Ã¡rvores frutÃ­feras espalhadas pelo caminho, mangueira, laranjeira, goiabeira, frondosos jacarandÃ¡s e ipÃªs por aqui por ali, grandes lagoas de quando em quando. Eu descrevo essas imagens dizendo que o Pantanal Ã© como um mar e as grandes fazendas seculares sÃ£o como um porto onde os viajantes vÃ£o ancorar.</p>
+<p>Seguimos em frente. Momento de grande suspense foi quando a boiada teve que atravessar nadando o rio Taquari. Os bois, fechados num curral que se abre para o rio, sÃ£o tocados para a Ã¡gua seguindo os bois treinados para isso, os chamados âsinuelosâ que vÃ£o nadando Ã  frente, soberanos. E para que nÃ£o se deixem levar pela correnteza rio abaixo vÃ£o sendo cercados por peÃµes em canoas a remo.</p>
+<p>Chega ao fim o trecho da viagem feita no âmolhadoâ, isto Ã©, os animais andando em terreno com Ã¡gua. Ã preciso mudar a comitiva porque a tropa estÃ¡ com os cascos amolecidos. E a partir de agora a viagem vai se dar no âsecoâ, isto Ã©, pela dura estrada boiadeira, chÃ£o duro, cheio de cascalho. Nos despedimos emocionados de Celso e seus companheiros dos quais havÃ­amos nos tornado amigos. (25 anos depois eu e Maria Lucia fomos convidados a uma festa rural em Aquidauana e ali me encontrei com Celso, que estava acompanhado de uma filha adolescente que, ele me disse, era uma exÃ­mia peoa).</p>
+<p>Os bois, coitados, tambÃ©m estÃ£o com os cascos amolecidos, mas vÃ£o continuar, mesmo se machucando.  TambÃ©m nÃ£o terÃ£o acesso Ã  comida farta que tiveram atÃ© entÃ£o. Junto com os bois enfrentamos calor e chuva. Assamos carne na brasa, dormimos em redes ao relento. Numa noite chuvosa abrimos as redes em um barraco. Pela madrugada um bando de porcos veio tambÃ©m se acomodar esbarrando nas redes e roncando. Nesse trecho atÃ© Aquidauana o cinegrafista Ã© Ivo Coelho e nossa equipe viaja numa kombi. </p>
+<p>A partir daqui os animais vÃ£o sofrer fome e sede, emagrecer, passando por Aquidauana e Dourados atÃ© chegar ao destino, uma fazenda em Iguatemi, perto da divisa com o estado de SÃ£o Paulo.</p>
+<p>Na fase final o cinegrafista que me acompanha Ã© AdÃ£o Macieira, com experiÃªncia de filmar longa metragens para cinema, faz belas imagens. Acostumados com a nossa presenÃ§a os bois viajam ao nosso lado, alguns chegam atÃ© a vir pastar bem prÃ³ximos quando nos sentamos ao pÃ© de uma Ã¡rvore para descansar.</p>
+<p>Ao chegarmos ao destinto os bois estÃ£o emagrecidos, famintos, avermelhados pela nuvem de poeira que levantam na estrada Ã  sua passagem. Estou montado num burro e acompanho admirado como os bois que chegaram antes, agora gordos e limpos, brancos âaneloradosâ, vÃªm correndo atÃ© junto Ã  cerca. </p>
+<p>O escritor GuimarÃ£es Rosa, que no seu livro <em>Sagarana </em>âtraduzâ conversas de bois, talvez dissesse: âquem sabe estarÃ£o procurando algum parente que estÃ¡ a chegar?â </p>
+<p>A epopeia de 700 quilÃ´metros termina num curral onde sÃ£o contados e conferidos (faltam alguns que, feridos, e pelo menos um, que morreu, ficaram pelo caminho). A porteira se abre e a boiada se dispersa, cada animal recuperando sua individualidade, comendo avidamente numa pastagem nova de capim <em>BraquiÃ¡ria.</em> Aqui vÃ£o engordar e no ano seguinte seguir para o frigorÃ­fico. Triste destino.</p>
+<p>Eu e a equipe nos despedimos dos boiadeiros que logo embarcam com sua tropa de burros num caminhÃ£o e partem acenando. VÃ£o buscar outra boiada que jÃ¡ vem vindo pelo Pantanal.</p>
+<p>Descrevo essa reportagem no livro <em>Cicatriz de Reportagem.</em> Se alguÃ©m quiser ver as imagens basta acessar o site do <em>Globo Rural </em>e discar <em>Viagem de uma boiada pelo pantanal 1984.</em></p>
+<p>A campanha das <em>Diretas JÃ¡,</em> que havia sido sustentada por grande animaÃ§Ã£o popular, motivando comÃ­cios sem precedentes pelo paÃ­s, foi derrotada no Congresso por poucos votos. Provocou grande decepÃ§Ã£o no movimento popular e na populaÃ§Ã£o em geral. </p>
+<p>Tancredo Neves, que sabia que pelo voto direto nÃ£o teria chance de se candidatar Ã  presidÃªncia porque o escolhido seria Ulysses GuimarÃ£es, boicotou o movimento aliando-se Ã  direita. A eleiÃ§Ã£o indireta o levou Ã  presidÃªncia da RepÃºblica, mas a vida frustrou sua ambiÃ§Ã£o. Em seu lugar assumiu JosÃ© Sarney, seu vice, que vinha da ARENA, o partido de apoio Ã  ditadura. </p>
+<p>Parece uma sina do povo brasileiro, mesmo quando consegue uma vitÃ³ria, ela nÃ£o Ã© completa. O processo de democratizaÃ§Ã£o jÃ¡ vinha sendo negociado com o regime militar, com importantes concessÃµes da oposiÃ§Ã£o para que os militares  abandonassem o poder. Por causa da morte de Tancredo ainda tivemos que aceitar um polÃ­tico oriundo da ditadura como presidente.</p>
+<p>Apesar das derrotas o movimento popular continuava em ascensÃ£o. Apoiou Tancredo Neves Ã  presidÃªncia na eleiÃ§Ã£o indireta pelo PMDB em oposiÃ§Ã£o a Paulo Maluf candidato do PDS, partido do sistema. E foi em frente reivindicando melhores salÃ¡rios e a extinÃ§Ã£o das leis da ditadura ainda vigentes, como a Lei de SeguranÃ§a Nacional e a Lei de Imprensa, que chamou de âentulho autoritÃ¡rioâ. Em 1987 foi desaguar em forte pressÃ£o por medidas progressistas na Assembleia Constituinte.</p>
+<p>Deixei o Globo Rural em 1985 por erros que cometi. Envolvido por pessoa intrigante e ambiciosa por poder, me indispus com Humberto Pereira, o Editor-Chefe, que generosamente havia me acolhido quando eu era visto como âqueimadoâ por causa de minha militÃ¢ncia anterior no PCdoB. O nome disso Ã© ingratidÃ£o. Por arrogÃ¢ncia, fui injusto com ele e fiquei sem condiÃ§Ãµes de continuar. Sempre me arrependi desse momento de âembriaguezâ moral.</p>
+<p>No segundo semestre, estava fazendo reportagens para a <em>Abri VÃ­deo, </em>um canal de TV dirigido por Narciso Kalili, transmitido pela TV Gazeta.  Uma conjunÃ§Ã£o de acasos me levou a assumir no meio a campanha de TV de Fernando Henrique Cardoso a prefeito de SÃ£o Paulo. A equipe que estava produzindo para o programa dele de repente foi demitida por nÃ£o haver entregado uma fita a tempo. O programa ficou seus14 minutos fora do ar. </p>
+<p>NÃ£o sei quem me indicou, se foi Narciso Kalili, Eurico Andrade ou Raimundo Pereira, ou se foram os trÃªs, Por que eles nÃ£o assumiram a tarefa? Hoje penso naquela observaÃ§Ã£o do general chinÃªs Sun Tzu (<em>Arte da Guerra)</em> que em geral se manda para a frente de batalha o general mais burro, que por ser burro nÃ£o teme a morte. </p>
+<p>Era eu? Assumi o programa de 14 minutos, no ar duas vezes por dia, praticamente sem material e sem tempo. Improvisamos, eu e a editora de imagem. Com urgÃªncia   baixei um âdecÃ¡logoâ de instruÃ§Ãµes do que filmar, como valorizar os contatos do candidato com o povo, mandei as equipes registrar as condiÃ§Ãµes dos bairros e as reivindicaÃ§Ãµes da populaÃ§Ã£o.  Fazer entrevistas de âPovo Falaâ, com perguntas como: âem quem vai votar? Por quÃª?â</p>
+<p>A TV Globo estava apoiando FHC. Por meio do Raul Bastos, da Globo SP, mandava inÃºmeras falas de artistas manifestando apoio Ã  sua candidatura. Numa postura que hoje avalio como âesquerdista,â achava aquilo despolitizado e resistia a pÃ´r no ar. Recebi vÃ¡rios recados do comando da campanha e uma bronca do Fernando Gasparian. No final, cedi, levei ao ar as âtripasâ de apoio de artistas globais.</p>
+<p>A maior parte do programa era de falas do candidato em estÃºdio, das quais eu nÃ£o participava. Fomos tocando por aÃ­, Fernando Henrique atÃ© melhorou nas pesquisas. Mas acabou derrubado pela candidatura de Suplicy, pois o PT, em seu esforÃ§o de se apresentar para a sociedade, ignorou a frente popular, foi exclusivista dividindo o eleitorado progressista e ajudou a eleiÃ§Ã£o de JÃ¢nio Quadros Ã  Prefeitura.  Dividir a frente popular priorizando sua ascensÃ£o como partido. Essa era a razÃ£o de minha indisposiÃ§Ã£o com o PT.</p>
+<p>Em 1986, durante a euforia inicial do <em>Plano Cruzado, </em>eu estava desempregado e sem dinheiro. O amigo Raul Bastos, que era diretor na TV Globo SÃ£o Paulo me arranjou um lugar como pauteiro do jornalismo. Mas nÃ£o deu certo. EntÃ£o ele falou com seu irmÃ£o Mauro Bastos, este, chefe de reportagem no jornalismo da TV Cultura, que me contratou como chefe de redaÃ§Ã£o. Isso durou pouco porque uma nova chefia assumiu a TV Cultura. Como diretor geral, Jorge da Cunha Lima. E Roberto Oliveira como editor chefe da programaÃ§Ã£o.  </p>
+<p>Alguns acontecimentos acabaram pondo em xeque meu trabalho. </p>
+<p>A RBC, TV do governo federal, produzia matÃ©rias dando cobertura Ã s movimentaÃ§Ãµes do Movimento dos Trabalhadores Sem Terra (MST) e outros movimentos populares e distribuÃ­a pelas emissoras. Eu mandava pÃ´r no ar. Hoje acho que nÃ£o estava agradando a nova chefia. Mas nada me diziam, talvez por temor de ser acusada de censura. E houve uma greve de trabalhadores bÃ³ias-frias no interior do Estado. Um grupo de militantes do PT esteve presente. </p>
+<p>Deu-se um conflito, uma agressÃ£o, jÃ¡ nÃ£o lembro bem, entre a PM e os grevistas. A PolÃ­cia Militar acusou os petistas pela agressÃ£o. Era falso, eles jÃ¡ haviam se retirado quando esse fato se deu. Com base no depoimento de uma testemunha criou-se uma sÃ©ria acusaÃ§Ã£o contra o Partido dos Trabalhadores, abriu-se um processo. </p>
+<p>Trabalhava comigo o repÃ³rter Pio Redondo. Mandei-o investigar.  Em SÃ£o Paulo, os petistas negaram firmemente sua participaÃ§Ã£o no incidente. Ele foi ao local. Conversou longamente com a testemunha, um morador da regiÃ£o, que informalmente lhe confessou que nÃ£o havia visto os petistas no conflito, mas fora induzido ao falso testemunho pelos policiais. Mas se negava a gravar entrevista dizendo isso. Pio insistiu, insistiu, o homem ia se afastando, mas ele o seguia com o cinegrafista com a cÃ¢mera ligada, gravando continuamente.  Acabou confessando que nÃ£o vira o conflito.</p>
+<p>Coloquei no ar no noticiÃ¡rio da noite, o <em>Jornal da Cultura. </em>Grande repercussÃ£o. O SecretÃ¡rio de SeguranÃ§a, que se bem me lembro era irmÃ£o do governador, veio Ã  redaÃ§Ã£o para assistir pessoalmente a fita bruta com a gravaÃ§Ã£o. O balÃ£o da denÃºncia furou. </p>
+<p>SilÃªncio da direÃ§Ã£o. Algumas semanas depois Roberto Oliveira me informou que eu estava sendo transferido para o setor de documentÃ¡rios. NÃ£o perdi tempo. A UniÃ£o Nacional dos Estudantes, UNE, estava fazendo aniversÃ¡rio. Aproveitei a oportunidade para propor e dirigir, junto com uma editora chamada Adelina (competente, mas uma petista radical, chata, que me chamava de âcomunista de pijamaâ), o documentÃ¡rio <em>Quarenta Anos da UNE.</em> </p>
+<p>Fora do expediente<em> </em>voltei a trabalhar com o amigo Raimundo Rodrigues Pereira que entÃ£o dirigia a <em>Editora PolÃ­tica. </em>Sua sede ficava perto da TV Cultura, numa casa modesta, na Lapa de baixo. Ele estava produzindo os fascÃ­culos de grande sucesso, <em>Retrato do Brasil.</em>  </p>
+<p>Mas o assunto era outro. Falou de um grupo de jovens cientistas da Universidade SÃ£o Paulo, a USP, que havia produzido o primeiro computador brasileiro, o <em>Patinho Feio.</em> Fui ver. Era mesmo um monstrengo. Mas funcionava. Raimundo me convidou a formatar um projeto para esse acontecimento. Decidimos produzir um livro que fizemos e veio se chamar <em>Do Tear ao Computador. </em>E um subtÃ­tulo: <em>A</em> <em>histÃ³ria da indÃºstria no Brasil. </em> </p>
+<p>O livro foi escrito por mim e um amigo de Raimundo, Guerino Zago Junior.  Era uma novidade, ninguÃ©m estava falando naquilo. GraÃ§as Ã  extrema capacidade empresarial de Raimundo e Ã  sua extensa rede de conhecimentos no mundo polÃ­tico, o livro teve trÃªs ou quatro ediÃ§Ãµes e foi vendido para inÃºmeras prefeituras e governos estaduais. Foi um sucesso.</p>
+<p> Estava insatisfeito. Pedi demissÃ£o na TV Cultura. AliÃ¡s, esse foi meu Ãºltimo emprego com carteira assinada. A partir daÃ­ passei a ser uma microempresa, Pessoa JurÃ­dica, PJ.</p>
+<p>Fui chamado pela jornalista e amiga Ivone Cirilo, entÃ£o recÃ©m nomeada chefe da assessoria de comunicaÃ§Ã£o da Secretaria de EducaÃ§Ã£o do governo Orestes Quercia, cujo secretÃ¡rio era Chopin Tavares Lima. E a ajudei a montar a equipe de imprensa da secretaria. </p>
+<p>No mais, continuei praticando besteiras pessoais…</p>
+<p></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-travessias-politicas/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

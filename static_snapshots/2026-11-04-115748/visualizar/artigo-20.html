@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Democracy Is Back—Sort Of - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">U.S. Democracy Is Back—Sort Of</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/04/election-trump-democrats-congress-senate-house-vote/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/GettyImages-2301823439.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Trump Suffers Rebuke as Democrats Win Big in Congress
+                            </p>
+                            
+<p>The message of the 2026 midterm elections is decidedly in: U.S. democracy is not dead, not by a long shot.</p>
+<p>There is, at long last, the glimmer of a beginning to the end of President Donald Trump’s decade-long dominance of national politics. Most of all, the 2028 presidential race—which effectively begins today—is now up in the air. So is the ultimate direction of the country’s international role, which will be decided by that election.</p> 
+
+<p>The message of the 2026 midterm elections is decidedly in: U.S. democracy is not dead, not by a long shot.</p>
+<p>There is, at long last, the glimmer of a beginning to the end of President Donald Trump’s decade-long dominance of national politics. Most of all, the 2028 presidential race—which effectively begins today—is now up in the air. So is the ultimate direction of the country’s international role, which will be decided by that election.</p>
+<p>But no one should kid themselves that the next two years are going to be anything other than ugly, chaotic, and brutal. Both Democrats and Republicans will be engaged in vicious infighting over fundamental policy issues, whether the question is the survival of the international order, engagement with allies and adversaries alike, immigration policy, or tariffs and the strength of the economy.</p>
+<p>Above all, it’s important to note that even with the dramatic turnover in Congress—with Democrats taking back both the House and Senate in decisive fashion—the president has shown very little inclination to defer to Congress, or even to the courts, on any issue that involves foreign or domestic policy.</p>
+<p>That Trumpian defiance will continue, whether the question is finding a way to end his prolonged Iran war on palatable terms, force a resolution to Russia’s nearly five-year-long invasion of Ukraine, persist in his crackdown on immigrants, or continue to unilaterally impose tariffs on whomever he pleases. In an Election Day <a href="https://www.cbsnews.com/news/trump-midterm-election-2026-interview/" rel="noopener noreferrer" target="_blank">interview</a> with CBS News, Trump declared that even if the Democrats take control, he is prepared to use “tremendous” executive power to push through his agenda. “I have the ultimate power—it’s called ‘veto,’” he said.</p>
+<p>Trump also has the power of the executive order. In less than two years, he has signed 292<a href="https://ballotpedia.org/Donald_Trump%27s_executive_orders_and_actions,_2025-2026#Executive_orders_issued_by_Trump" rel="noopener noreferrer" target="_blank"> executive orders</a>, 90 memoranda, and 192 proclamations, touching critical policies from voting rights to the reversal of 80 years of trade policy.</p>
+<p>But facts are a stubborn thing. In his second term, the economic news was so grim and Trump’s abuse of power so brazen—he pushed the Justice Department to prosecute his enemies, enriched his family, and launched a costly war with no legal basis—that even many of those voters who supported him two years ago could no longer look away. In the weeks leading up to the vote, Trump’s approval ratings fell to <a href="https://time.com/article/2026/10/29/trump-approval-rating-midterm-elections-republicans/" rel="noopener noreferrer" target="_blank">historic lows</a>. The result was an equally historic rebuke, one so profound that even deeply red states turned against Trump. In Texas, Democrat James Talarico won the Senate race and State Rep. Gina Hinojosa was elected as the first Democratic governor in <a href="https://link.axios.com/click/48251287.159843/aHR0cHM6Ly93d3cuYXhpb3MuY29tL2xvY2FsL3Nhbi1hbnRvbmlvLzIwMjYvMTEvMDQvdGV4YXMtZ292ZXJub3ItcmFjZS1yZXN1bHRzLWhpbm9qb3NhLWFiYm90dD91dG1fc291cmNlPW5ld3NsZXR0ZXImdXRtX21lZGl1bT1lbWFpbCZ1dG1fY2FtcGFpZ249bmV3c2xldHRlcl9heGlvc2FtJnN0cmVhbT10b3A/5c7ea6e83f92a4684484b1daB32b982df" rel="noopener noreferrer" target="_blank">32 years</a>. Adam Hamilton became the <a href="https://link.axios.com/click/48251287.159843/aHR0cHM6Ly9hcG5ld3MuY29tL2FydGljbGUvc2VuYXRlLWthbnNhcy1lbGVjdGlvbi1yb2dlci1tYXJzaGFsbC1hZGFtLWhhbWlsdG9uLTdmMDllNWNjNjllMGFjOGU2MTgzNzZlNjBlZjMxMWQ4P3V0bV9zb3VyY2U9bmV3c2xldHRlciZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9jYW1wYWlnbj1uZXdzbGV0dGVyX2F4aW9zYW0mc3RyZWFtPXRvcA/5c7ea6e83f92a4684484b1daBbbba1bed" rel="noopener noreferrer" target="_blank">first Democrat</a> to win a Senate seat in Kansas in 94 years.</p>
+<p>“The system is working,” said Charles Kupchan of the Council on Foreign Relations, author of the new book, <a href="https://www.cfr.org/books/bringing-order-to-anarchy" rel="noopener noreferrer" target="_blank"><em>Bringing Order to Anarchy: Governing the World to Come</em></a><em>.</em> “Voters have held accountable a president who has been failing to deliver on virtually all fronts.”</p>
+<p>But Kupchan added: “Democratic control of Congress will have virtually no impact on Trump’s foreign policy. He has largely disregarded the preferences of the legislature on matters of statecraft—and will certainly continue to do so with Congress in the hands of Democrats.  On domestic policy, expect confrontation, paralysis, and a swirl of investigations.”</p>
+<p>Still, it’s clear that as a political force, Trump is badly damaged—no doubt permanently as he finishes out his last term at the age of 80. The president brazenly made the midterm election a referendum about himself. “Pretend I’m on the ballot,” he said frequently in the weeks before the election. Following Tuesday’s devastating vote, however, the rebuffed president reversed course. He suggested the problem was not him but the flawed candidates the GOP put forward, including the corruption-plagued Ken Paxton in Texas (whom Trump had endorsed in the primary) and the  fumbling Darline Graham in South Carolina (whom Trump had recommended). Both went down to defeat.</p>
+<p>“I wasn’t on the ballot and, if I was, we would have won IN A LANDSLIDE,” Trump <a href="https://www.facebook.com/DailyCaller/posts/trump-i-wasnt-on-the-ballot-and-if-i-was-we-would-have-won-in-a-landslide-thank/1511777424140161/" rel="noopener noreferrer" target="_blank">posted</a> on Truth Social late Tuesday night as the Republican defeat took shape.</p>
+
+
+
+<h2>Read More</h2>
+<ul>
+<li>
+
+
+<a href="https://foreignpolicy.com/2026/10/26/midterms-1966-vietnam-iran-trump/" rel="noopener noreferrer" target="_blank">
+
+<img alt="A black and white photo of President Johnson looking distressed with his hand on his forehead preparing an address on Vietnamin in the Cabinet Room of the White House, Oct. 11, 1968." src="https://foreignpolicy.com/wp-content/uploads/2026/10/Zelizer-GettyImages-514875244.png?w=150&amp;quality=80"/>
+
+A black and white photo of President Johnson looking distressed with his hand on his forehead preparing an address on Vietnamin in the Cabinet Room of the White House, Oct. 11, 1968.
+</a>
+A black and white photo of President Johnson looking distressed with his hand on his forehead preparing an address on Vietnamin in the Cabinet Room of the White House, Oct. 11, 1968.
+
+
+<a href="https://foreignpolicy.com/2026/10/26/midterms-1966-vietnam-iran-trump/" rel="noopener noreferrer" target="_blank">
+<h3>
+                How the 1966 Midterm Elections Presaged 2026            </h3>
+</a>
+
+<p>
+    	Republicans successfully connected wartime spending to the rising price of pork chops.    	    </p>
+
+
+
+</li>
+<li>
+
+
+<a href="https://foreignpolicy.com/2026/10/26/democrats-midterms-priorities-corruption-iran-ukraine-nato-venezuela-ai/" rel="noopener noreferrer" target="_blank">
+
+<img alt="A black, white, and red graphic collage featuring the dome of the U.S. Capitol at the center, surrounded by smaller images depicting an airplane, law enforcement escorts, political figures, a microchip, and a hand holding a vote card." src="https://foreignpolicy.com/wp-content/uploads/2026/10/0-midterms-trump-democrats-foreign-policy-iran-ukraine.jpg?w=150&amp;quality=80"/>
+
+A black, white, and red graphic collage featuring the dome of the U.S. Capitol at the center, surrounded by smaller images depicting an airplane, law enforcement escorts, political figures, a microchip, and a hand holding a vote card.
+</a>
+A black, white, and red graphic collage featuring the dome of the U.S. Capitol at the center, surrounded by smaller images depicting an airplane, law enforcement escorts, political figures, a microchip, and a hand holding a vote card.
+
+
+</li>
+<li>
+
+
+<a href="https://foreignpolicy.com/2026/11/04/us-midterms-trump-gop-rejection-democrats/" rel="noopener noreferrer" target="_blank">
+
+<img alt="A crowd with raised hands gathers at night to watch a live television news broadcast displayed on a large outdoor screen in front of a modern glass building." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Talarico_GettyImages-2303419851-1.jpg?w=150&amp;quality=80"/>
+
+A crowd with raised hands gathers at night to watch a live television news broadcast displayed on a large outdoor screen in front of a modern glass building.
+</a>
+A crowd with raised hands gathers at night to watch a live television news broadcast displayed on a large outdoor screen in front of a modern glass building.
+
+
+<a href="https://foreignpolicy.com/2026/11/04/us-midterms-trump-gop-rejection-democrats/" rel="noopener noreferrer" target="_blank">
+<h3>
+                America’s Rejection of Trump and the GOP Was Broad and Deep            </h3>
+</a>
+
+<p>
+    	The president’s hold on national politics finally gave way Tuesday.    	    </p>
+
+
+
+</li>
+</ul>
+
+
+
+<p>Trump also backed away from threats of declaring voter fraud the way he did after his 2020 defeat in the presidential election, <a href="https://www.nytimes.com/2026/11/03/us/politics/trump-midterm-election-results.html" rel="noopener noreferrer" target="_blank">telling</a> the <em>New York Times </em>that he is “absolutely willing” to accept the results<em>.</em> Of Democrats, he said, “We’ll, you know, look forward to working with them. We’ll probably work something out.”</p>
+<p>Trump is clearly concerned about his legacy. Now he and his GOP successors will have to address the fracturing of the MAGA coalition that returned Trump to the White House in 2024.</p>
+<p>And following Tuesday’s election, it’s fair to say that that coalition no longer exists.</p>
+<p>In 2024, Trump exploited an inflationary environment under President Joe Biden and the seeming takeover of the Democratic Party by progressive, so-called woke issues—not to mention a degree of misogyny and racism directed at Vice President Kamala Harris, the Democratic candidate—to win over formerly Democratic leaning blue-collar voters, especially Latino and Black men. Together with his neo-isolationist MAGA base, that was enough to put him over the edge against Harris.</p>
+<p>But earlier this year, Trump inflicted a catastrophic double wound on himself by launching an ill-justified war against Iran. In doing so he simultaneously alienated many middle-income voters who have been hammered by rising prices spiked by the war—as well as disenchanted MAGA voters who feel betrayed over his previous promises to avoid foreign wars and restore the economy.</p>
+<p>Many Latino voters who went heavily Democratic in Tuesday’s election also appeared to be alienated by Trump’s broad crackdown on immigrants, especially since the dragnet has pulled in some legal residents.</p>
+<p>Trump was rebuffed across the board by many of these voters. As Politico’s Playbook noted, “The cross-country transformation of the Latino voting electorate will go down as one of the biggest stories of the night. From a full sweep in Texas’ Mexican-American Rio Grande Valley to Pennsylvania’s Puerto Rican-dominated Lehigh Valley to even Dem gains in heavily Puerto Rican, Cuban, Venezuelan and Colombian central and south Florida, all showed the same direction toward Democrats.”</p>
+<p>Looking ahead to 2028, many of those newly alienated former Trump voters will be up for grabs. The question is whether a badly divided Democratic Party will be in a position to draw them in.</p>
+<p>“The biggest challenge for Democrats will be to unite around a platform focused on health insurance, housing, and industrial policies geared to fostering inclusive growth, labor-market transformation for the AI economy, and assistance for those who will bear the costs of the transition,” said Ian Shapiro, a political scientist at Yale University. “They should pass bill after bill on these issues, even if Trump vetoes them all. They will become the basis for their Project 2029, which serious contenders for the Democratic presidential nomination will have to embrace.”</p>
+<p>And yet the Democrats show little sign of doing that. The new slate in the House and Senate consists of a large ideological spread of legislators ranging from moderates to left-wing populists who are aligned with the Democratic Socialists of America. Prominent among them: the senator-elect from Michigan, Abdul El-Sayed, the first Muslim elected to the Senate. And before it settles on a 2028 nominee, the party will be engulfed in big fights over taxes, healthcare, and foreign policy, especially support for Israel.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/04/election-trump-democrats-congress-senate-house-vote/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

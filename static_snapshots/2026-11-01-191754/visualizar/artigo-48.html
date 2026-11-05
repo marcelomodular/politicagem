@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Are you over-optimizing your hobbies? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Are you over-optimizing your hobbies?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/explain-it-to-me/508137/hobbies-free-time-optimization-jenny-odell" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/10/gettyimages-2300859403.jpg?quality=90&strip=all&crop=0%2C10.335943349264%2C100%2C79.328113301472&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: How to know if you’re over-optimizing your hobbies
+                            </p>
+                            <p>We often pick up hobbies to add some fun to our lives. We join a book group, take up knitting, or commit to finally learning how to play pickleball. But before long, what started out as leisure can begin to feel like just another obligation to execute and perfect: We fall behind in the reading, can’t stop dropping stitches, or the tournament schedule gets overwhelming.</p><p>It’s a tale as old as time, or at least as old as the United States. Our obsession with productivity may feel new, especially when it crosses over to our hobbies, but according to Gary Cross, a historian and author of the book <em>Free Time: The History of an Elusive Ideal</em>, Americans have been trying to make the most of our time for a while now. “A lot of it is that old Protestant work ethic that was part of the early migration to the United States,” he told Vox. “They were predominantly Protestant Christians who saw work as a kind of a special calling from God.”</p><p>As Cross explains, this attitude kicked into high gear alongside industrialization. “The capitalists really were all about increasing productivity. Time away from work begins to be seen as in some ways wasted time,” Cross said. And when the labor movement helped win workers some free time for hobbies around the turn of the 20th century, the same mentality made the jump into our leisure time.</p><p>That time is something that writer Jenny Odell has thought a lot about and explored in her books <em>Saving Time: Discovering a Life Beyond the Clock</em> and H<em>ow to Do Nothing: Resisting the Attention Economy</em>. “I think both of my books came out of observing the daily experience that I and the people I knew were having, where our relationship to time felt so painful — this unending intensity that was so exhausting,” she said. “There has to be another way.”</p><p>Odell says that one of the ways to shift our relationship with time is through cultivating hobbies — without falling into the trap of relentless quantification and optimization. So how do we learn to truly enjoy our leisure time, and why should we all consider failing a little more along the way? We learn that and more on the latest episode of <em>Explain It to Me</em>, Vox’s weekly call-in podcast.</p><p>Below is an excerpt of my conversation with Odell, edited for length and clarity. You can listen to the full episode on <a href="https://podcasts.apple.com/us/podcast/explain-it-to-me/id1042433083" rel="noopener noreferrer" target="_blank">Apple Podcasts</a>, <a href="https://open.spotify.com/show/1vSUO6Bg4abtjRF7fnGpT1" rel="noopener noreferrer" target="_blank">Spotify</a>, or wherever you get your podcasts. If you’d like to submit a question, send an email to askvox@vox.com or call 1-800-618-8545.</p><p><strong>How is our pursuit of hobbies connected to how we think about time?</strong></p><p>Hobbies are a place where you can see different ways of thinking about time battling each other. There’s a very fine line between someone who pursues a hobby for the sake of doing it versus someone who feels that they need to optimize it, perhaps even make money off of it. There’s nothing wrong with that, but these are different ways of thinking about the activity that you’re doing.</p><p>People read the title <em>How to Do Nothing</em> and they think that I’m a person who literally doesn’t do anything. I love to do things and I love to learn things. I think a lot of people start hobbies because they want to learn.</p><p>In American culture, a lot of us stop being given opportunities to learn after we’re children or after we’re students. I think it’s really beautiful that adults seek out ways to learn, often leaning into communities where they’re learning with other people. And learning has progress in it. You do get better at things when you learn them.</p><p>My feeling is just that that sense of forward movement and learning gets co-opted by this larger culture that we exist in that is also very American: needing to have something to show for your time. What starts out as wanting to learn something turns into something that you’re giving yourself a score on, without your ever having decided to do that.</p><p><strong>I spoke with a historian who said part of the reason that we relate to our free time in this particular way in America specifically is the history of the Protestant work ethic. It’s just so ingrained in us. How do you help yourself break out of that mentality?</strong></p><p>I have to shout out this book called <em>The Score</em> by <a href="https://www.vox.com/podcasts/479253/games-play-benefits-philosophy-thi-nguyen-score-book" rel="noopener noreferrer" target="_blank">C. Thi Nguyen</a>. He talks about this very question. In that book he talks about games and how when you play a game, you take on a whole new set of values, and you do that for whatever couple of hours and then you put it away. It’s kind of this practice in taking values, putting them on, taking them off, putting them away.</p><p>For me, either literally playing games or trying to have a more playful, experimental mindset about what it is that I’m doing can break that cycle. When you get closer to [a goal], it gets more and more seductive. Like “I want a higher number.” You just need something to break you out of that and be like, “What is this number even measuring?”</p><p>For me, I’m a writer. Words per day are a measure. You think you want more words per day, but all words are not the same. There have been moments where I was trying to optimize words per day. I have to stop myself and think about what other ways I could value the situation. Like, “What were those words? Did I make some sort of breakthrough?”</p><p>There’s all these other different ways that you could think about what it is that you’re doing.</p><p><strong>Something I think a lot about when it comes to hobbies is failure. For instance, I’m getting back into photography. I did film photography in high school and this year I picked it back up with the goal to shoot a roll of film per month. </strong></p><p><strong>The year’s almost over. I’ve done three rolls of film, one of which I must have unloaded incorrectly because it was completely blown out. What role does failure play in our hobbies and how we interact with that?</strong></p><p>I love failure. I think it’s so underrated and games are very useful here. A good sports person is open to failure and knows that that’s fun.</p><p>I think that along with not having opportunities to learn as adults, we also aren’t given opportunities to fail. That’s probably been the case for a long time, but now with social media and things being more visible for a lot of people, we really are not used to failing. We think we don’t want it.</p><p>I feel like I am actively now seeking out things that I’m bad at just so I can have that feeling. I’m a failure addict.</p><p><strong>That is true. Once we leave school, what opportunities do we have to safely learn things and fail and try it again?</strong></p><p>I don’t know how else to describe it: It’s really fun to be bad at something. Once you accept that you are bad at it, your reason for doing it has to be something else.</p><p>I’ve been going to this native plant restoration thing for two and a half years now, so I definitely know my weeds and I am better than the day that I showed up, but I don’t go there to be the best at something.</p><p>I showed up on day one and I wasn’t wearing the right clothes. I didn’t have gardening gloves. I had never gardened in my life. I had no idea what I was doing. It was this fascinating feeling. It’s just so different from being an adult who’s specialized in something.</p><p><strong>What’s a way to help yourself fall back in love with hobbies if it’s been a while or if you’ve optimized so much, you want to find the joy in it again?</strong></p><p>It’s like the equivalent of being right-handed and trying to write with your left hand. Anything you can do to relax the perfectionist grip that you have on this thing.</p><p>That means throwing obstacles in your own way or trying to do things in a way you’ve never done them before. Rediscover the same thing from a new angle or in a different context with new people.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/explain-it-to-me/508137/hobbies-free-time-optimization-jenny-odell" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

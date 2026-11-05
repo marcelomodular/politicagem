@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12% dos jovens admitem ter criado deepfake sexual, diz SaferNet - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">12% dos jovens admitem ter criado deepfake sexual, diz SaferNet</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Nucleo Jornalismo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://nucleo.jor.br/reportagem/2026/10/30/12-dos-jovens-admitem-ter-criado-deepfake-sexual-diz-safernet/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://nucleo.jor.br/content/images/size/w1200/2026/10/deepfakes_jovens.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: 12,4% dos jovens admitem que já criaram uma deepfake sexual, diz SaferNet
+                            </p>
+                            
+<p>12,4% dos rapazes entre 16 e 21 anos admitiram que já criaram uma deepfake sexual, ou seja, manipularam fotografias com uso de inteligência artificial para forjar cenas de sexo ou nudificar o corpo de uma pessoa. </p><p>O dado faz parte da pesquisa "Rostos fabricados, danos reais", que ainda será lançada pela SaferNet e foi apresentado durante o 11º Simpósio Crianças e Adolescentes na Internet, nesta sexta-feira (30.out.2026).</p><p>A ONG ouviu 679 jovens, entre ago.2025 e fev.2026, sobre como a violência sexual mediada por IA é percebida pelo público. A maioria dos respondentes é do gênero masculino (501). Entre as meninas, nenhuma disse já ter criado uma deepfake sexual.</p><p>"Essa é uma tecnologia que é usada como uma arma para praticar violência contra meninas e mulheres", destaca Juliana Cunha, diretora de projetos da SaferNet.</p><p>O Estatuto da Criança e do Adolescente (ECA) define como crime, em seu artigo 241-C, a simulação de cenas de sexo ou cenas pornográficas com crianças e adolescentes. Contudo, 9,4% dos meninos que responderam a pesquisa acreditam categoricamente que criar deepfake sexual não é uma infração.</p><p>Além disso, os jovens responderam que o Telegram é a principal plataforma (42,6%) onde esses materiais são criados, seguido de buscadores, como Google, (33,9%) e aplicativos de nudificação (27,1%).</p><p>Para Cunha, o desafio é promover conscientização especialmente ao meninos e rapazes e que reduzir a maioridade penal não resolve o problema na raiz. "A abordagem tem que ser no sentido de fortalecer a educação, educação nas escolas, a educação digital e a midiática. Defender que haja também uma educação no sentido de discutir temas como consentimento, relações entre gênero, questões que a gente sabe que estão na base dessas violências", explica.</p><p>Isso não significa que não deva existir responsabilização, ressalta. "No contexto de medidas socioeducativas, a justiça e as instituições podem também repensar suas estratégias de, por exemplo, mediação de conflitos. Você tem hoje metodologias que são aplicadas nas escolas para esses contextos, ou mesmo uma justiça mais restaurativa, no sentido de ressocializar, reeducar. E a gente sabe que, por serem adolescentes, eles ainda estão em desenvolvimento."</p><p>Para ela, a comunidade escolar também tem que estar envolvida, já que, em relação aos casos que ocorrem na escola, apenas um em cada cinco jovens acha que a instituição de ensino está preparada para lidar com o assunto. 40% acreditam que a escola culparia a vítima ou não entenderia a tecnologia.</p><p>A pesquisadora ressalta que as escolas precisam criar protocolos para não causar revitimização. "Apenas transferir o adolescente infrator de escola não é suficiente e só transfere o problema de lugar", aponta.</p><h3>Meninas e mulheres são 100% das vítimas</h3><p>A SaferNet também coletou ocorrências de deepfakes sexuais em escolas que foram noticiadas pela imprensa no mesmo período. Foram 17 episódios, em 11 estados com 222 vítimas. Em 100% dos casos, as vítimas eram do gênero feminino, sendo meninas de 12 a 17 anos e, em alguns casos, professoras.</p><p>O levantamento contabilizou 61 infratores, todos do gênero masculino e com preponderância de adolescentes. É o equivalente a quatro vítimas por agressor. O intuito, em geral, é gerar humilhação e controle dos corpos das meninas e, no caso das professoras, também contestar sua autoridade pedagógica.</p><p>A SaferNet também identificou um ecossistema de comercialização dessas imagens que favorece a exploração sexual infantojuvenil, especialmente por meio de canais privados no Telegram, sites de conteúdo adulto e fóruns e comunidades na darkweb que trocam informações sobre como criar as imagens manipuladas por IA.</p><p>Segundo Juliana Cunha, as ações começam em ambientes virtuais abertos e migram para grupos mais restritos, onde os infratores produzem essas imagens manipuladas para chantagear as vítimas em troca de dinheiro ou de mais imagens da vítima. No caso do Telegram, a falta de moderação colabora a perpetuação dessas práticas. "A gente também precisa olhar para esse ecossistema e entender em que medida eles também favorecem a prática de crimes."</p><p>Caso você ou uma pessoa com menos de 18 anos seja vítima de deepfake sexual, a SaferNet recomenda um acolhimento sem julgamento da vítima, preservação das evidências e busca pelas autoridades competentes. Registro de boletim de ocorrência, acionamento da família, da direção da escola, do Conselho Tutelar e as plataformas digitais.</p><p>A ONG também recebe denúncias e presta atendimento a vítimas pelo link: <a href="http://denuncie.org.br/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">denuncie.org.br</a></p><h6>Reportagem <strong>Jeniffer Mendonça</strong><br/>Arte <strong>Aleksandra Ramos</strong><br/>Edição <strong>Alexandre Orrico</strong></h6>
+
+<p>Apoie o jornalismo independente do Núcleo</p>
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/comunidade-nucleo.png?v=qclCYJkMSegKKOEr"/>
+
+<strong>Comunidade Núcleo</strong>
+<p>Assinatura cheia de coisa legal. Ideal pra quem quer apoiar por um valor camarada e mesmo assim receber vários benefícios.</p>
+
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/apoie-nossa-missao-2.png?v=4SmHzh8eQPpy2d4B"/>
+
+<strong>Apoie nosso futuro</strong>
+<p>Esse plano é pra quem realmente vai além. De quebra, ainda está recheado com benefícios fenomenais.</p>
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://nucleo.jor.br/reportagem/2026/10/30/12-dos-jovens-admitem-ter-criado-deepfake-sexual-diz-safernet/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

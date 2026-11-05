@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El futuro ya no es lo que era antes - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">El futuro ya no es lo que era antes</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">El Pais Mundo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://elpais.com/internacional/2026-11-02/el-futuro-ya-no-es-lo-que-era-antes.html" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://imagenes.elpais.com/resizer/v2/QYF5OKMMEJARZCC6CF5XBZWUC4.jpg?auth=6a54480f0cf06cd2f38425762e5b5c07dedf32eaee04eb18d7bdf9ce4ea3a285&width=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: El futuro ya no es lo que era antes
+                            </p>
+                            <p><i>Este texto es una transcripción de las palabras pronunciadas por Juan Gabriel Vásquez antes de la cena de los intervinientes en el foro World in Progress Barcelona, organizado por el Grupo Prisa, EL PAÍS y la Cadena SER.</i></p><p>En 1947, <a href="https://elpais.com/ciencia/2022-04-24/el-ultimo-testigo-del-proyecto-manhattan-que-creo-las-armas-que-vuelven-a-amenazar-a-la-humanidad.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/ciencia/2022-04-24/el-ultimo-testigo-del-proyecto-manhattan-que-creo-las-armas-que-vuelven-a-amenazar-a-la-humanidad.html">los científicos del Proyecto Manhattan</a> inventaron una manera simbólica de alertar a la humanidad de los riesgos que corre a cada momento: el Reloj del fin del mundo. La medianoche en el reloj es el momento de la catástrofe, el momento en que la humanidad puede desaparecer. Cuando se creó el reloj, sus manecillas marcaban siete minutos para la medianoche; cada año, en enero, los expertos del Boletín de Científicos Atómicos evalúan <a href="https://elpais.com/internacional/2026-11-02/la-receta-europea-frente-a-las-incertidumbres-de-un-mundo-hostil.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2026-11-02/la-receta-europea-frente-a-las-incertidumbres-de-un-mundo-hostil.html">los riesgos que corre la humanidad</a> y mueven las manecillas, alejándolas o acercándolas a la medianoche de la catástrofe. El momento en que más lejos ha estado la humanidad de su extinción fue 1991: <a href="http://elpais.com/noticias/guerra-fria/" rel="noopener noreferrer" target="_blank" title="http://elpais.com/noticias/guerra-fria/">la Guerra Fría</a> había terminado y los científicos hicieron retroceder las manecillas de forma que marcaran 17 minutos para la media noche. Pero en los últimos tiempos el pesimismo ha crecido, y hace casi dos años el expresidente colombiano <a href="https://elpais.com/eps/2026-11-01/juan-manuel-santos-un-hombre-de-paz-en-tiempos-de-guerra.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/eps/2026-11-01/juan-manuel-santos-un-hombre-de-paz-en-tiempos-de-guerra.html">Juan Manuel Santos, como presidente del grupo de los Elder</a>s, tuvo el honor extrañísimo de mover las manecillas para que marcaran 89 segundos. En enero de este año, la apreciación de los científicos volvió a empeorar. Hoy faltan 85 segundos para la medianoche. </p><p>Las causas que se dan en esta última evaluación son cuatro: las guerras, el cambio climático, las tecnologías disruptivas y el auge de las autocracias. </p><p>En realidad, yo creo que el auge de las autocracias cubre todo lo demás. Estas autocracias son culpables de las guerras que hoy incendian el mundo del este de Europa al Medio Oriente; estas autocracias desprecian la ciencia que está detrás del cambio climático y tratan de sabotear los esfuerzos que se hacen –desde el multilateralismo y la diplomacia– para atenuar sus consecuencias; sobre todo, estas autocracias se han convertido en las cómplices o valedoras de la principal amenaza que hoy flota sobre la especie humana. Eso que los expertos del Boletín de Científicos Atómicos llaman “tecnologías disruptivas” comprende las <a href="https://elpais.com/opinion/2020-10-26/una-amenaza-para-la-democracia.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/opinion/2020-10-26/una-amenaza-para-la-democracia.html">redes sociales, que se han convertido desde 2016 en una amenaza flagrante </a>para nuestras democracias, porque su modelo de negocio se basa en la exacerbación de nuestros odios y nuestros miedos, en el envenenamiento de nuestra conversación ciudadana y la destrucción de la noción de realidad compartida; pero sobre todo se refiere a esas otras tecnologías que hoy mismo, mientras nosotros hablamos aquí, pueden estar acercándonos a un desastre planetario irreversible. Desde luego que no me refiero a la tecnología que les permite escribir novelas a quienes no quieren tomarse el tiempo ni asumir el esfuerzo de aprender a hacerlo. Eso, comparativamente, es inofensivo. Yo soy hijo de la Guerra Fría, y hoy, por primera vez desde que los niños de los años 60 creyeron que morirían debajo de una nube en forma de hongo, veo opiniones serias e informadas, basadas en información seria y en previsiones realistas, que dicen que el mundo se va a acabar.</p><p>Fue lo que pasó hace apenas unas semanas. Un hombre llamado Jacob Coxon, investigador de <a href="https://elpais.com/noticias/inteligencia-artificial/" rel="noopener noreferrer" target="_blank" title="https://elpais.com/noticias/inteligencia-artificial/">inteligencia artificial </a>que había trabajado para Open AI y para Anthropic, renunció con un mensaje en la red X que llegó más lejos <a href="https://elpais.com/economia/2026-10-26/anthropic-admite-que-los-sistemas-de-ia-podrian-plantear-riesgos-catastroficos-o-existenciales-para-la-humanidad.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/economia/2026-10-26/anthropic-admite-que-los-sistemas-de-ia-podrian-plantear-riesgos-catastroficos-o-existenciales-para-la-humanidad.html">que otros anuncios de la catástrofe</a>. “Las personas que desarrollan la IA creen firmemente que podría acabar con todos nosotros antes de que termine la década”, escribió Coxon. Ahora bien: cosas parecidas habían dicho otros científicos, a veces tan autorizados o más autorizados que este Coxon. Geoffrey Hinton, científico británico-canadiense, premio Nobel de Física en 2024, conocido como “el padrino de la IA”, dijo en 2023 que esta tecnología podría provocar la extinción de la humanidad en un plazo de tres décadas, y desde ese año ha acortado el plazo. La publicación científica <i>The Lancet</i>, más optimista, previó que el mal uso de la inteligencia artificial (o un conflicto nuclear, que también es posible) podrían causar la extinción humana antes del año 2100. Y todos nos estamos haciendo la misma pregunta: ¿Qué va a pasar? ¿Qué nos espera en el futuro? </p><p>En los años 30, el escritor Paul Valéry dijo: “El futuro carece de imagen. La historia le da los medios para ser pensado”. Quería decir que, cada vez que el ser humano se ve enfrentado a una situación nueva, a la urgencia de actuar sobre algo que nunca ha experimentado, tiene que acudir a lo que Valéry llama<i>recuerdos imaginarios</i>: nuestra experiencia, las imágenes del pasado tal como han quedado contadas en nuestros relatos: la historia, el periodismo, la literatura. En otras palabras: como no vemos cómo es el futuro, como el futuro es desconocido, lo que hacemos es ver el pasado y basarnos en él para saber cómo actuar. Bien, creo que nuestro gran problema hoy es que no tenemos recuerdos imaginarios que nos sirvan para ver este futuro: el futuro dominado por la inteligencia artificial. No podemos ver el futuro correctamente porque nos enfrentamos a algo tan novedoso, tan inédito, que no hay un repositorio de memoria al cual podamos acudir para imaginar lo que puede pasarnos. Y por eso no nos estamos defendiendo como deberíamos. Y por eso podemos decir hoy que el futuro ya no es el que nos imaginábamos hace cinco o diez años. El futuro ya no es lo que era antes. </p><p>Los que han decidido hacer sonar las alarmas están viendo un futuro distinto del que vemos los demás: un futuro que, para nosotros, los profanos y los ignorantes, ha sido invisible. El desarrollo de esta tecnología que, según los mismos que la están produciendo, puede matarnos a todos, ha ocurrido en lugares que no vemos, fuera de la supervisión de nuestros Estados, lejos de la regulación de nuestras democracias. Esto no ha sido accidental, sino un propósito consciente: los líderes de estos progresos tecnológicos no han escondido nunca su profunda desconfianza en las instituciones, los gobiernos e incluso la democracia. En un manifiesto del año 2009, uno de los ideólogos de estos nuevos movimientos, Curtis Yarvin, llamaba a “dar por terminada la fallida experiencia democrática de los dos últimos siglos”; Sam Altman decía que iba a ser necesario “replantearnos el contrato social”; y en otro manifiesto –a esta gente le gustan mucho los manifiestos– Marc Andreessen decía, hace apenas tres años, que era mentira todo lo que decían los pesimistas: “Nos dicen que la tecnología nos roba el trabajo, reduce nuestro salario, arruina el medio ambiente, pone en riesgo nuestro futuro y está siempre a punto de demolerlo todo”. Nada de eso es verdad, dice. “La tecnología es lo que da gloria a la ambición y al éxito humanos, la punta de lanza del progreso y la realización de nuestro potencial”. Y concluye, con la temible voz de los profetas: “Estoy aquí para anunciarles una buena nueva. Es tiempo de volvernos tecno-optimistas”. </p><p>Pero no podemos ser tecno-optimistas cuando un enjambre de agentes de IA gestionados por OpenAI se rebela, rompe las medidas de contención y piratea sitios web durante unas pruebas de seguridad. Lo que pasó a principios de este año les produjo pánico incluso a los más cínicos, como Altman, que empezaron a hablar de ralentizar al desarrollo de la tecnología. Y los hechos preocupantes han seguido ocurriendo. Hace unos meses Anthropic contó cómo delincuentes y científicos sin escrúpulos habían intentado utilizar Claude para fabricar armas biológicas. Y todos están de acuerdo en que la pregunta no es si lo lograrán, sino cuándo, y qué pasará después. </p><p>La pregunta es: ¿Tendremos imaginación suficiente para actuar? ¿Seremos capaces, como sociedades democráticas, de exigirles a nuestros gobiernos una intervención urgente que no desaproveche los inmensos beneficios que estas tecnologías sin duda contienen, pero que nos salve de sus peligros? No lo sé. Hace un cuarto de siglo tuve el placer de traducir, por primera vez en España, uno de los libros favoritos de Gabriel García Márquez: <i>Hiroshima</i>, el reportaje de John Hersey sobre las consecuencias de la bomba atómica. Por esa época me obsesioné con el tema y leí varios miles de páginas sobre esos años, y en estos días he recordado a menudo esos conocimientos que me parecían inútiles: pues lo que veo es que nuestra situación actual se parece enormemente a los años previos a Hiroshima y Nagasaki. Si en ese momento alguien hubiera sugerido detener las investigaciones en energía nuclear, a la gente le habría parecido absurdo: los ciudadanos no hubieran creído en realidad en la posibilidad de una bomba. Para los físicos era obvio, pero trasladar el mensaje a los ciudadanos no hubiera sido posible. Todo era teórico: hasta que cayeron las bombas sobre Hiroshima y Nagasaki. Con la IA, los peligros eran teóricos –para nosotros, los profanos– hasta que ocurrió la rebelión de Open AI. Ahora, el debate sobre si se puede perder el control ya no tiene sentido. Se perdió el control y se puede perder de nuevo. </p><p>Pero hay muchos obstáculos. El más evidente tiene que ver –que no se sorprenda nadie– con el dinero. Ya comienza uno a leer artículos que hablan de que, si fracasa la IA, la debacle en Wall Street puede ser tan grave que lleve el mundo a una nueva recesión. Y no me hago ilusiones: desde el 2008 sabemos que nunca hay que subestimar la codicia humana, la manera como nos enceguece a todos. Ustedes conocen la caricatura de Ann Telnaes que fue censurada por el <i>Washington Post</i>: ahí están Zuckerberg, Sam Altman, el dueño de <i>Los Angeles Times</i>, Patrick Soon-Shiong, y hasta Jeff Bezos: narcisistas patológicos cuyas reservas de empatía y solidaridad marcan números rojos desde su nacimiento y cuya brújula moral necesita que alguien la calibre, todos llevándole ofrendas al narcisista más peligroso de Occidente. Esta caricatura es la metáfora imperfecta del peligro más grande de nuestro momento. Es imperfecta porque en ella no está Elon Musk, el más peligroso de los tecno-oligarcas, el único que ha usado su poder para hacer daño o permitir que otros hagan daño: un verdadero sociópata. ¿Por qué le hacen ofrendas al ídolo Trump? ¿A cambio de qué? La respuesta no es sencilla, pero una parte de la respuesta es: a cambio de desregulación. Las nuevas tecnologías dependen de que ningún Estado, ningún gobierno, intente regularlas. Trump ofrece quitarles regulaciones y presionar a otros gobiernos para que hagan lo mismo; a cambio, ellos le ofrecen la mercancía más preciada para todo autócrata: la manipulación del ciudadano y la destrucción de la realidad común. Es decir, un mundo donde la verdad no existe.</p><p>Hace unos días, Bill Gates le dio a Ezra Klein una entrevista espeluznante: “Esto es lo más peligroso a lo que nos hemos acercado. Un modelo abierto puede producir armas biológicas y desactivar cualquier monitoreo. Fuera de la industria, la conciencia de los peligros de la IA es extremadamente baja. Y eso se puede decir de la academia, de los <i>think tanks</i>, de los políticos. La razón por la que estoy tratando de hablar alto es que no podemos confiar en la industria para que se autorregule. La pregunta es: ¿Esperamos a que un ciberataque cause un daño inmenso, a que un ataque biológico cause un daño inmenso, y entonces ponemos las salvaguardas y el monitoreo necesarios para que eso no vuelva a pasar muchas veces? ¿O la tendremos la sabiduría de implementar estas regulaciones antes de que haya millones de muertes?”</p><p>En 1928, hace casi cien años, un novelista austriaco, Hermann Broch, comenzó a escribir una novela llamada <i>Los sonámbulos</i>. Los sonámbulos del título son los europeos que, entre la década de 1880 y la de 1910, vieron la desaparición de todo un mundo, un sistema de valores, y el nacimiento de otro sistema de valores y de visiones del mundo que los llevaría a la catástrofe de la <a href="https://elpais.com/noticias/primera-guerra-mundial/" rel="noopener noreferrer" target="_blank" title="https://elpais.com/noticias/primera-guerra-mundial/">Primera Guerra Mundial</a>. Cada vez me parece más claro que nosotros, los ciudadanos del año 2026, somos nuevos sonámbulos: vamos caminando hacia nuestra propia destrucción, incapaces de ver el futuro y reconocer la urgencia de que actuemos. Nos hace falta clarividencia. Pero yo creo que la clarividencia es posible. Los movimientos ciudadanos fueron determinantes para conquistar por caminos indirectos el final de la Guerra Fría y llegar al momento de 1991 en que los científicos del Boletín hicieron retroceder las manecillas hasta aquellos 17 minutos, lo más alejados que hemos estado de nuestra destrucción. Yo los invito a que reaccionemos: a que exijamos a quienes tienen el poder para hacerlo que tomen medidas para evitar lo peor. Para que dejemos de caminar hacia al precipicio, como los sonámbulos de Broch, y el futuro vuelva a ser lo que era hace unos años.</p><p></p><p></p><p>World In Progress (WIP) es un foro internacional de reflexión y debate organizado por PRISA, EL PAÍS y, como medio colaborador, la Cadena SER. Tiene el apoyo del Ajuntament de Barcelona, Generalitat de Catalunya, Abertis, Fundación la Caixa, Glovo, Iberdrola, Indra Group, Limak, Mango, Moeve, Sabadell, Santander, Telefónica, Veolia y Vueling. </p><p></p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://elpais.com/internacional/2026-11-02/el-futuro-ya-no-es-lo-que-era-antes.html" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

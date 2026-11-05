@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidades: Após a vitória, hora de entendê-la em dados - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Cidades: Após a vitória, hora de entendê-la em dados</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/outras-cidades/cidades-apos-a-vitoria-hora-de-entende-la-em-dados/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-04-at-18-13-21-_103046214_promo_brasil_elections-nc.png.webp-imagem-WEBP-800-%C3%97-450-pixels.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Cidades: ApÃ³s a vitÃ³ria, hora de entendÃª-la em dados
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-04-at-18-13-21-_103046214_promo_brasil_elections-nc.png.webp-imagem-WEBP-800-%C3%97-450-pixels.png"/>Imagem: BBC/CECILIA TOMBESI
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>A virada de Lula no dia 25 de outubro de 2026 reforÃ§a uma ideia, Ã s vezes esquecida: a polÃ­tica com âPâ maiÃºsculo, ou a grande polÃ­tica, se faz tambÃ©m desafiando probabilidades e tendÃªncias consolidadas, em vez de simplesmente se conformar a elas. Agora, Ã© preciso que essa ideia nÃ£o volte ao esquecimento depois da eleiÃ§Ã£o, mas se torne uma referÃªncia para o governo reeleito. Uma leitura atenta dos registros da virada histÃ³rica no segundo turno pode contribuir para isso.</p>
+<p>HÃ¡ quase quinze anos, o cientista polÃ­tico AndrÃ© Singer identificou como caracterÃ­stica central do lulismo o encontro entre a imagem de um lÃ­der polÃ­tico de origem popular, Lula, e uma fraÃ§Ã£o de classe especÃ­fica, o subproletariado, entendido como um numeroso contingente da populaÃ§Ã£o historicamente submetido Ã  extrema pobreza e precariedade das condiÃ§Ãµes de trabalho e moradia. Esse encontro teria sido impulsionado, sobretudo, pelas polÃ­ticas de combate Ã  misÃ©ria e Ã  fome implementadas apÃ³s a eleiÃ§Ã£o presidencial de 2002, quando a base eleitoral petista ainda apresentava uma composiÃ§Ã£o mais marcadamente de classe mÃ©dia.</p>
+<p>O cruzamento dos resultados das duas Ãºltimas eleiÃ§Ãµes presidenciais com mais de 150 variÃ¡veis e indicadores econÃ´micos, sociais, polÃ­ticos e ambientais produzidos para os 5.570 municÃ­pios brasileiros pelo grupo DependÃªncia, UrbanizaÃ§Ã£o e PolÃ­tica nas Cidades (DePoliCi), do INCT ObservatÃ³rio das MetrÃ³poles, reafirma a atualidade da tese de Singer. A anÃ¡lise, desenvolvida com base no relatÃ³rio de pesquisa âA UrbanizaÃ§Ã£o Dependente nos MunicÃ­pios e RegiÃµesâ, que serÃ¡ lanÃ§ado no dia 12 de novembro no <a href="https://www.observatoriodasmetropoles.net.br/" rel="noopener noreferrer" target="_blank">site do INCT ObservatÃ³rio das MetrÃ³poles</a>, mostra que, em 2022, quanto maior era a proporÃ§Ã£o de trabalhadores de um municÃ­pio com remuneraÃ§Ã£o inferior ao valor da cesta bÃ¡sica calculada pelo Departamento Intersindical de EstatÃ­stica e Estudos SocioeconÃ´micos (DIEESE), maior tendia a ser o percentual de votos vÃ¡lidos obtidos por Lula. TambÃ©m hÃ¡ associaÃ§Ãµes positivas entre o voto lulista e a precarizaÃ§Ã£o do trabalho (medida pela participaÃ§Ã£o de ocupados sem vÃ­nculo formal ou por conta prÃ³pria), bem como a presenÃ§a de pessoas pretas, pardas e indÃ­genas na populaÃ§Ã£o local. Em sentido inverso, o PIB per capita municipal apresentou associaÃ§Ã£o negativa com o desempenho do candidato petista. Um Ã­ndice sintÃ©tico de vulnerabilidade, construÃ­do a partir dessas quatro dimensÃµes da desigualdade, tambÃ©m se associou fortemente Ã  votaÃ§Ã£o em Lula, tanto em 2022 quanto em 2026. Essas relaÃ§Ãµes, porÃ©m, descrevem padrÃµes territoriais e nÃ£o permitem inferir como votou cada indivÃ­duo.</p>
+<p>Tais clivagens tambÃ©m aparecem na divisÃ£o ocupacional. No universo de 14 regiÃµes metropolitanas (BelÃ©m, Fortaleza, Recife, Salvador, Belo Horizonte, VitÃ³ria, Rio de Janeiro, SÃ£o Paulo, Campinas, Baixada Santista, Curitiba, Porto Alegre, GoiÃ¢nia e Distrito Federal), os municÃ­pios com maior participaÃ§Ã£o de ocupaÃ§Ãµes do topo da hierarquia profissional, particularmente dirigentes e gerentes, tenderam a registrar proporÃ§Ãµes maiores de votos nos adversÃ¡rios de Lula. Em contrapartida, os que tÃªm maior presenÃ§a relativa de trabalhadores em ocupaÃ§Ãµes elementares, de serviÃ§os e em parte das atividades manuais tenderam a apresentar melhor desempenho petista. NÃ£o se trata de uma divisÃ£o homogÃªnea, pois diferentes fraÃ§Ãµes ocupacionais e regiÃµes metropolitanas apresentam exceÃ§Ãµes e nuances importantes. Mesmo assim, a tendÃªncia se confirma tambÃ©m em escalas mais locais, como a dos bairros. No Rio de Janeiro, por exemplo, algumas das maiores favelas, como <a href="https://www.nexojornal.com.br/grafico/2026/10/13/voto-por-bairro-1-turno-2026" rel="noopener noreferrer" target="_blank">Rocinha, Vidigal e Complexo do AlemÃ£o, estÃ£o entre os bairros com maior proporÃ§Ã£o de votaÃ§Ã£o petista no segundo turno</a>.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-1.png"/>
+<p><em>Figura 1: ComposiÃ§Ã£o ocupacional e votaÃ§Ã£o presidencial no primeiro turno, em 3.085 Ã¡reas de ponderaÃ§Ã£o de 14 regiÃµes metropolitanas. Os pontos mostram correlaÃ§Ãµes de Spearman entre a presenÃ§a de grandes grupos ocupacionais e a votaÃ§Ã£o em Lula e no candidato bolsonarista (Jair Bolsonaro em 2022, FlÃ¡vio Bolsonaro em 2026). Valores Ã  direita de zero indicam associaÃ§Ã£o positiva, e Ã  esquerda, negativa; cÃ­rculos cheios indicam correlaÃ§Ã£o estatisticamente significativa. Destacam-se as associaÃ§Ãµes negativas do lulismo com dirigentes e gerentes e as positivas com ocupaÃ§Ãµes elementares e serviÃ§os. Fonte: IBGE (Censo 2022), TSE e Base Municipal de UrbanizaÃ§Ã£o Dependente.</em></p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-2.png"/>
+<p><em>Figura 2: ComposiÃ§Ã£o ocupacional e votaÃ§Ã£o em Lula no segundo turno de 2026, em 302 municÃ­pios metropolitanos. As barras mostram a direÃ§Ã£o e a intensidade das associaÃ§Ãµes entre a participaÃ§Ã£o de grupos ocupacionais do Censo 2022 nos territÃ³rios e o percentual de votos obtidos pelo candidato petista. Valores positivos indicam associaÃ§Ã£o direta, e negativos, inversa. As relaÃ§Ãµes observadas nÃ£o identificam, individualmente, o voto de cada trabalhador. Fonte: IBGE (Censo 2022), TSE e Base Municipal de UrbanizaÃ§Ã£o Dependente.</em></p>
+<p>Contudo, a permanÃªncia dessas clivagens convive com transformaÃ§Ãµes decisivas, que ajudam a compreender as flutuaÃ§Ãµes das preferÃªncias eleitorais e as reviravoltas recentes. De um lado, o padrÃ£o geral mostrou expressiva estabilidade nas quatro votaÃ§Ãµes realizadas nos primeiros e segundos turnos de 2022 e 2026, como demonstra a Figura 3. A vulnerabilidade, a precarizaÃ§Ã£o e a presenÃ§a de trabalhadores com remuneraÃ§Ã£o extremamente baixa continuaram positivamente associadas Ã  votaÃ§Ã£o lulista; jÃ¡ a integraÃ§Ã£o dos municÃ­pios aos circuitos mais internacionalizados de acumulaÃ§Ã£o e o PIB per capita mantiveram associaÃ§Ãµes negativas.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-3.png"/>
+<p><em>Figura 3: CorrelaÃ§Ãµes entre a votaÃ§Ã£o em Lula e caracterÃ­sticas dos 5.570 municÃ­pios nos dois turnos de 2022 e de 2026. Os coeficientes de Spearman variam de â1 a +1, com valores positivos indicando associaÃ§Ã£o direta, e negativos associaÃ§Ã£o inversa. E valores mais distantes de zero, relaÃ§Ãµes mais intensas. O coeficiente de vulnerabilidade oscila entre 0,80 e 0,81 nos quatro turnos. O Ã­ndice de integraÃ§Ã£o sintetiza a inserÃ§Ã£o municipal em circuitos de acumulaÃ§Ã£o mais internacionalizados. As correlaÃ§Ãµes descrevem associaÃ§Ãµes territoriais, nÃ£o escolhas individuais. Fonte: TSE, IBGE e Base Municipal de UrbanizaÃ§Ã£o Dependente.</em></p>
+<p>Por outro lado, como explicar uma virada tÃ£o expressiva entre os turnos de 2026, inclusive o fato de 213 municÃ­pios terem passado da lideranÃ§a de FlÃ¡vio Bolsonaro Ã  de Lula como candidato mais votado? A resposta exige olhar para duas mudanÃ§as na dinÃ¢mica da disputa: o grau de participaÃ§Ã£o da populaÃ§Ã£o nas eleiÃ§Ãµes e a ampliaÃ§Ã£o relativa do voto petista em territÃ³rios nos quais ele tradicionalmente encontrava maior resistÃªncia, <a href="https://outraspalavras.net/outras-cidades/cidades-de-onde-pode-vir-a-virada/" rel="noopener noreferrer" target="_blank">conforme jÃ¡ havia sido indicado em outro texto recente</a>.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-4.png"/>
+<p><em>Figura 4: Candidatura mais votada em cada municÃ­pio nos dois turnos de 2026. O mapa mostra onde a virada ocorreu, sem representar o tamanho das diferenÃ§as de votaÃ§Ã£o. Fonte: TSE.</em></p>
+<p>No contexto de permanÃªncia das grandes clivagens de classe, o primeiro fator foi a participaÃ§Ã£o eleitoral. Depois de um primeiro turno relativamente morno em termos de campanha de rua, a reaÃ§Ã£o Ã  possibilidade de vitÃ³ria de FlÃ¡vio Bolsonaro foi acompanhada de intensa mobilizaÃ§Ã£o petista nas ruas e nas redes. Os resultados sÃ£o compatÃ­veis com a hipÃ³tese de que essa movimentaÃ§Ã£o contribuiu para ampliar o comparecimento Ã s urnas, embora os dados territoriais, isoladamente, nÃ£o permitam medir seu efeito causal. O segundo turno de 2026 registrou o menor Ã­ndice de alienaÃ§Ã£o eleitoral (soma das abstenÃ§Ãµes, dos votos brancos e dos votos nulos em relaÃ§Ã£o ao eleitorado apto) de toda a sÃ©rie das eleiÃ§Ãµes presidenciais iniciada em 2002. Depois de atingir 28,83% em 2018, o indicador recuou para 24,23% em 2022 e chegou a 21,84% em 2026, uma reduÃ§Ã£o de quase sete pontos percentuais em oito anos. Em nÃºmeros absolutos, foram aproximadamente 34,7 milhÃµes de eleitores que deixaram de comparecer Ã s urnas ou optaram por votos brancos e nulos, contra 42,5 milhÃµes em 2018. Trata-se de uma reversÃ£o expressiva do crescimento da alienaÃ§Ã£o eleitoral observado em parte importante da sÃ©rie histÃ³rica recente.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-5.png"/>
+<p><em>Figura 5: AlienaÃ§Ã£o eleitoral no segundo turno das eleiÃ§Ãµes presidenciais brasileiras, de 2002 a 2026. O indicador reÃºne abstenÃ§Ãµes, votos brancos e votos nulos como proporÃ§Ã£o do eleitorado apto. Fonte: TSE.</em></p>
+<p>Essa queda, porÃ©m, nÃ£o foi maior onde Lula Ã© mais forte. Entre os dois turnos de 2026, a abstenÃ§Ã£o caiu 2,4 pontos percentuais nos municÃ­pios menos vulnerÃ¡veis e 0,6 nos mais vulnerÃ¡veis, alÃ©m de ter subido na regiÃ£o Norte. O que mudou em relaÃ§Ã£o a 2022 foi o padrÃ£o, jÃ¡ que naquele ano, a abstenÃ§Ã£o aumentou do primeiro para o segundo turno sobretudo nos municÃ­pios mais vulnerÃ¡veis (coeficiente de 0,40 com o Ã­ndice de vulnerabilidade), enquanto que em 2026, essa associaÃ§Ã£o diminuiu (0,26), como mostram as Figuras 6 e 7.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-6.png"/>
+<p><em>Figura 6: CorrelaÃ§Ã£o entre a abstenÃ§Ã£o eleitoral e caracterÃ­sticas sociais e econÃ´micas dos 5.570 municÃ­pios, nos dois turnos de 2022 e 2026 e na mudanÃ§a entre os turnos (Î). Os coeficientes de Spearman indicam a direÃ§Ã£o e a intensidade das associaÃ§Ãµes. Tons roxos representam valores positivos, e verdes, negativos. Fonte: TSE, IBGE e Base Municipal de UrbanizaÃ§Ã£o Dependente.</em></p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-7.png"/>
+<p><em>Figura 7: VariaÃ§Ã£o da taxa de abstenÃ§Ã£o do primeiro para o segundo turno, por municÃ­pio, em 2022 (esquerda) e 2026 (direita), em pontos percentuais. Tons verdes indicam reduÃ§Ã£o da abstenÃ§Ã£o na segunda votaÃ§Ã£o, e roxos, aumento. Em 2026 predominam as quedas no Nordeste, no Sudeste, no Sul e no Centro-Oeste, enquanto o aumento se concentra na regiÃ£o amazÃ´nica. Fonte: TSE.</em></p>
+<p>O segundo fator, nÃ£o menos importante, foi a ampliaÃ§Ã£o relativa do voto petista em territÃ³rios onde ele Ã© historicamente mais fraco, isto Ã©, nos municÃ­pios menos vulnerÃ¡veis e mais populosos, especialmente no Sudeste. Ã significativo que os municÃ­pios mais vulnerÃ¡veis, situados nos quatro decis superiores do Ã­ndice de vulnerabilidade, nÃ£o tenham alcanÃ§ado o mÃ¡ximo de votaÃ§Ã£o lulista no segundo turno de 2026, mas no de 2022. A vitÃ³ria mais recente, portanto, nÃ£o decorreu simplesmente de um aumento uniforme do apoio nas bases populares. Houve tambÃ©m mudanÃ§as nas associaÃ§Ãµes ocupacionais, jÃ¡ que Ã¡reas com maior presenÃ§a de profissionais de nÃ­vel superior, e sobretudo de tÃ©cnicos de nÃ­vel mÃ©dio e trabalhadores administrativos, apresentaram uma inclinaÃ§Ã£o relativamente mais favorÃ¡vel ao PT do que em 2022, ainda que a clivagem geral de classe tenha permanecido.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-8.png"/>
+<p><em>Figura 8: VotaÃ§Ã£o em Lula e em FlÃ¡vio Bolsonaro segundo decis de vulnerabilidade municipal, nos dois turnos de 2022 e 2026 (percentual dos votos vÃ¡lidos agregados em cada decil). Os municÃ­pios foram distribuÃ­dos em dez grupos, do menos vulnerÃ¡vel (decil 1) ao mais vulnerÃ¡vel (decil 10). A votaÃ§Ã£o lulista cresce com a vulnerabilidade, o que mostra a persistÃªncia da clivagem socioeconÃ´mica. No segundo turno de 2026, Lula superou o desempenho de 2022 nos seis decis menos vulnerÃ¡veis e ficou abaixo dele nos quatro mais vulnerÃ¡veis. Fonte: TSE e Base Municipal de UrbanizaÃ§Ã£o Dependente.</em></p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-10.png"/>
+<p><em>Figura 9: VariaÃ§Ã£o territorial do voto em Lula entre o primeiro e o segundo turno de 2026, em pontos percentuais dos votos vÃ¡lidos. Quanto mais escuro o municÃ­pio, maior o avanÃ§o lulista. O ganho aparece em quase todo o paÃ­s e Ã© mais intenso em GoiÃ¡s e em partes de Minas Gerais e de SÃ£o Paulo. Fonte: TSE e IBGE.</em></p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-11.png"/>
+<p><em>Figura 10: VariaÃ§Ã£o da votaÃ§Ã£o em Lula por porte populacional dos municÃ­pios, em pontos percentuais, entre 2022 e 2026, no primeiro turno (esquerda) e no segundo (direita). As barras distinguem a mediana dos municÃ­pios (cinza) e o resultado agregado de seus votos (azul). No segundo turno, Lula perdeu terreno nos municÃ­pios de atÃ© 50 mil habitantes e avanÃ§ou nos de mais de 100 mil, com ganho de 2,9 pontos percentuais no agregado dos 41 municÃ­pios com mais de 500 mil. Fonte: TSE e IBGE.</em></p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-12.png"/>
+<p><em>Figura 11: AssociaÃ§Ã£o entre a presenÃ§a de grandes grupos ocupacionais e a votaÃ§Ã£o em Lula nos segundos turnos de 2022 e de 2026, em 302 municÃ­pios metropolitanos. Os pontos sÃ£o coeficientes de Spearman, com valores positivos indicando maior votaÃ§Ã£o lulista em Ã¡reas com maior participaÃ§Ã£o do grupo, e negativos, o padrÃ£o inverso. Entre 2022 e 2026, a correlaÃ§Ã£o se tornou menos negativa para profissionais superiores e passou a positiva para tÃ©cnicos de nÃ­vel mÃ©dio e administrativos, enquanto ficou mais negativa para agropecuÃ¡ria e operadores de mÃ¡quinas. As mudanÃ§as nÃ£o devem ser lidas como migraÃ§Ã£o individual de eleitores. Fonte: IBGE (Censo 2022), TSE e Base Municipal de UrbanizaÃ§Ã£o Dependente.</em></p>
+<p>HÃ¡, entretanto, movimentos na direÃ§Ã£o contrÃ¡ria que precisam ser considerados. Ãreas com maior participaÃ§Ã£o de trabalhadores da agropecuÃ¡ria e de operadores de mÃ¡quinas passaram a apresentar associaÃ§Ãµes menos favorÃ¡veis ao voto lulista, enquanto os territÃ³rios com maior presenÃ§a de dirigentes e gerentes continuaram fortemente refratÃ¡rios ao PT. AlÃ©m disso, os municÃ­pios em que a agropecuÃ¡ria constitui a atividade econÃ´mica de maior valor adicionado vÃªm registrando retraÃ§Ãµes importantes na proporÃ§Ã£o do voto em Lula. Essas tendÃªncias lembram que a ampliaÃ§Ã£o da coalizÃ£o eleitoral nÃ£o ocorreu de maneira uniforme entre os distintos segmentos da classe trabalhadora e entre as atividades econÃ´micas.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-13.png"/>
+<p><em>Figura 12: VotaÃ§Ã£o em Lula por atividade econÃ´mica de maior valor adicionado bruto de 2021 nos municÃ­pios (grupos com 20 ou mais municÃ­pios), nos dois turnos de 2022 e de 2026. Cada linha liga os quatro pontos de uma atividade. Os valores sÃ£o percentuais dos votos vÃ¡lidos agregados do grupo. No segundo turno de 2026, a votaÃ§Ã£o de Lula ficou abaixo da de 2022 nos municÃ­pios de agricultura, pecuÃ¡ria e produÃ§Ã£o florestal, e acima nos de demais serviÃ§os e indÃºstria de transformaÃ§Ã£o. Fonte: TSE, IBGE (Contas Regionais) e Base Municipal de UrbanizaÃ§Ã£o Dependente.</em></p>
+<p>Assim, foi a combinaÃ§Ã£o entre o aumento do comparecimento, com menos abstenÃ§Ã£o diferencial nos municÃ­pios mais vulnerÃ¡veis do que em 2022, e avanÃ§os substantivos da votaÃ§Ã£o petista em territÃ³rios menos propensos a essa preferÃªncia que ajudou a produzir a virada histÃ³rica. A mobilizaÃ§Ã£o popular nas ruas e nas redes mostrou a possibilidade de contrariar tendÃªncias polÃ­ticas persistentes, inclusive a expansÃ£o da alienaÃ§Ã£o eleitoral, sem que as grandes clivagens sociais do voto tenham desaparecido.</p>
+<p>Como ensinou Antonio Gramsci, construir hegemonia exige conquistar apoio e direÃ§Ã£o polÃ­tica para alÃ©m dos limites imediatos do prÃ³prio grupo social. Resta saber se a conduÃ§Ã£o do novo governo serÃ¡ capaz de transformar a energia eleitoral em uma articulaÃ§Ã£o polÃ­tica mais abrangente, preservando as conquistas voltadas ao subproletariado identificado por Singer, mas dialogando tambÃ©m com outras camadas da classe trabalhadora brasileira, inclusive as vinculadas Ã  agropecuÃ¡ria, onde o apoio petista perdeu intensidade, e Ã  indÃºstria de transformaÃ§Ã£o, onde isso ocorreu no primeiro turno, sem deixar de demarcar as diferenÃ§as de interesse que a separam, ou deveriam separar, das classes dominantes. A eleiÃ§Ã£o mostrou que as estruturas sociais condicionam a polÃ­tica, mas nÃ£o encerram suas possibilidades. O desafio agora Ã© fazer dessa abertura uma orientaÃ§Ã£o duradoura de governo, para alÃ©m do que Singer chamou de pacto conservador e reformismo fraco.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/outras-cidades/cidades-apos-a-vitoria-hora-de-entende-la-em-dados/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

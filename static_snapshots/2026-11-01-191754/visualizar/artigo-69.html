@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The World’s Biggest Crypto Heist - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The World’s Biggest Crypto Heist</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/10/30/binance-cryptocurrency-hack-north-korea/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/10/BinanceHack-GettyImages-2302659527.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Binance Crypto Hack: Alleged North Korean Hackers Steal Over $6 Billion
+                            </p>
+                            
+<p>Welcome back to World Brief, where we’re looking at an alleged <strong>North Korean</strong> cyberattack on <strong>Binance</strong>, <strong>Israel</strong>’s parliamentary election results, and mixed <strong>NATO </strong>messaging on <strong>Russia</strong>’s threat to <strong>Europe</strong>.</p>
+
+<h3><strong>$6.36 Billion in 20 Minutes</strong></h3>
+<p>Hackers <a href="https://x.com/_RichardTeng/status/2116072080525656150?s=20" rel="noopener noreferrer" target="_blank">targeted</a> the world’s largest cryptocurrency exchange late Thursday, stealing more than $6 billion in under 30 minutes. Experts are calling it the biggest crypto heist in history, and initial investigations suggest that North Korea is to blame.</p> 
+
+<p>Welcome back to World Brief, where we’re looking at an alleged <strong>North Korean</strong> cyberattack on <strong>Binance</strong>, <strong>Israel</strong>’s parliamentary election results, and mixed <strong>NATO </strong>messaging on <strong>Russia</strong>’s threat to <strong>Europe</strong>.</p>
+<p>
+</p>
+
+<h3><strong>$6.36 Billion in 20 Minutes</strong></h3>
+<p>Hackers <a href="https://x.com/_RichardTeng/status/2116072080525656150?s=20" rel="noopener noreferrer" target="_blank">targeted</a> the world’s largest cryptocurrency exchange late Thursday, stealing more than $6 billion in under 30 minutes. Experts are calling it the biggest crypto heist in history, and initial investigations suggest that North Korea is to blame.</p>
+<p>According to U.S.-based blockchain research firm TRM Labs, an elite North Korean hacking unit called TraderTraitor targeted $6.36 billion in Binance digital coins spread across 10 blockchains. The hackers were unable to access consumer accounts, instead only affecting Binance corporate holdings. Around $3 billion in assets have already been located or frozen, but TRM Labs <a href="https://www.nytimes.com/2026/10/29/technology/binance-hack-crypto.html?campaign_id=9&amp;emc=edit_nn_20261030&amp;instance_id=184379&amp;nl=the-morning&amp;regi_id=159637444&amp;segment_id=228925&amp;user_id=3a92aa035d8e7d51a6ba63375b87c152" rel="noopener noreferrer" target="_blank">estimates</a> that the hackers had moved roughly $2.4 billion in crypto coins “beyond any issuer’s reach.”</p>
+<p>“Your assets are safe,” Binance co-CEO <a href="https://x.com/_RichardTeng/status/2116176335722913865" rel="noopener noreferrer" target="_blank">Richard Teng</a> said on Friday in a statement intended to ease customers’ concerns. However, analysts argue that the heist—despite its limited impact on consumers—has exposed the risks of trading crypto as well as the growing prowess of North Korean hacking efforts.</p>
+<p>Cryptocurrency is a relatively new phenomenon in the world of economics—and one that is still <a href="https://foreignpolicy.com/2024/02/18/crypto-ftx-bitcoin-bubble-fraud/" rel="noopener noreferrer" target="_blank">largely unregulated</a>. In June 2024, then-presidential candidate Donald Trump <a href="https://apnews.com/article/donald-trump-bitcoin-cryptocurrency-stockpile-6f1314f5e99bbf47cc3ee6fc6178588d" rel="noopener noreferrer" target="_blank">vowed</a> to make the United States the “crypto capital of the planet” if elected for a second term, and since then, he has <a href="https://www.whitehouse.gov/crypto/" rel="noopener noreferrer" target="_blank">focused on</a> reducing aggressive oversight of the lucrative industry. He also launched his own cryptocurrency platform, World Liberty Financial, which is run by his two sons, as well his own meme coin cryptocurrency.</p>
+<p>Some countries, such as Russia, have turned to cryptocurrency to help <a href="https://foreignpolicy.com/2026/03/31/russia-sanctions-evasion-cryptocurrency-a7a5-kyrgyzstan-exports-dual-use-technology/" rel="noopener noreferrer" target="_blank">evade sanctions</a> and procure sensitive dual-use goods. Crypto companies have also faced a <a href="https://www.theguardian.com/business/2026/oct/29/binance-crypto-exchange-hack" rel="noopener noreferrer" target="_blank">slew of cyberattacks</a>. In December 2022, South Korea’s spy agency accused North Korean hackers of stealing roughly $1.1 billion in cryptocurrency and other virtual assets over the course of five years. Such hackers came under scrutiny again in February 2025, when the FBI said that TraderTraitor stole $1.5 billion from Bybit, one of Binance’s top rivals. And last month, attackers took around $350 million from cryptocurrency exchange Bitget.</p>
+<p>A Binance spokesperson told <a href="https://apnews.com/article/binance-cryptocurrency-security-hack-north-korea-550e9b876550f71f07098494fe735beb" rel="noopener noreferrer" target="_blank">The Associated Press</a> on Friday that the company is “working closely with our law enforcement partners to confirm the identity of the criminals and bring them to justice.” However, TRM Labs said that its analysts had “high confidence” in the company’s assessment that the North Korean hacking group is responsible.</p>
+<p>“North Korean hackers are among the world’s most aggressive and highly skilled cyber actors,” former South Korean Vice Defense Minister Shin Beom-chul told the <a href="https://www.ft.com/content/46c03338-63d5-43fc-a946-ebcbe9e1c07a?syn-25a6b1a6=1" rel="noopener noreferrer" target="_blank"><em>Financial Times</em></a> on Friday. Last year alone, Pyongyang’s hackers stole around $2 billion in cryptocurrency, accounting for roughly 60 percent of total crypto heists in the world, according to estimates from blockchain analytics firm <a href="https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/" rel="noopener noreferrer" target="_blank">Chainalysis</a>.</p>
+<p>Bitcoin’s value <a href="https://www.nbcnews.com/business/markets/binance-pledges-cover-billions-stolen-assets-hack-rcna606517" rel="noopener noreferrer" target="_blank">plummeted</a> more than 5 percent overnight Thursday into Friday in response to the Binance heist, and other cryptocurrency exchanges dropped as much as 9 percent.</p>
+
+<h3><strong>Today’s Most Read</strong></h3>
+
+<h3><strong>What We’re Following</strong></h3>
+<p><strong>Israel’s coalition talks. </strong>Israeli Prime Minister Benjamin Netanyahu and his allies have lost their parliamentary majority, final election results <a href="https://apnews.com/article/israel-elections-netanyahu-results-eisenkot-arabs-3a793c0d07fdfe515390524b849d8674?user_email=6b04284e4d00370f16d3dac0a626e01bf24d86e4d6995646867da6aa680488d0&amp;utm_medium=Morning_Wire&amp;utm_source=Sailthru_AP&amp;utm_campaign=Morning%20Wire%20Friday%2C%20Oct%2030%2C%202026&amp;utm_term=Morning%20Wire%20Subscribers" rel="noopener noreferrer" target="_blank">confirmed</a> on Friday. Although Netanyahu’s Likud bloc still has the most seats in the Knesset, a historic showing by unaligned Arab parties means that lawmakers likely have several weeks of intense coalition-building negotiations ahead of them before a new government can be formed. In the interim, Netanyahu <a href="https://foreignpolicy.com/2026/10/27/israel-election-netanyahu-eisenkot-palestinians-gaza/" rel="noopener noreferrer" target="_blank">remains in charge</a>.</p>
+<p>According to the final results, Netanyahu’s Likud-led bloc won 53 seats, main opposition leader Gadi Eisenkot’s Yashar party-led alliance won 48 seats, and Arab-led groups won a record 19 seats. If Eisenkot wants to <a href="https://foreignpolicy.com/2026/10/30/israel-wars-netanyahu-eisenkot-election-gaza-lebanon-iran/?tpcc=recirc_latest062921" rel="noopener noreferrer" target="_blank">dethrone Netanyahu</a>, then he will likely need to ally with the Arab parties to secure a majority. However, Eisenkot may be <a href="https://foreignpolicy.com/2026/10/30/israel-election-netanyahu-majority-coalition-likud-yashar-eisenkot-dahlia-scheindlin/" rel="noopener noreferrer" target="_blank">loath to do so</a>, as one of his key partners, right-wing lawmaker Avigdor Lieberman, has ruled out joining a coalition with the predominately Arab Joint List or Raam parties.</p>
+<p>Netanyahu has capitalized on such hesitance, accusing Qatar of <a href="https://www.washingtonpost.com/world/2026/10/29/netanyahu-alleges-stolen-election-he-seeks-political-survival-amid-uncertainty/" rel="noopener noreferrer" target="_blank">funneling money</a> into Israel to support the Arab vote. Israel’s elections committee said the “allegations of systematic violations of electoral integrity are baseless,” and the Qatari government dismissed Netanyahu’s accusations as “ridiculous and dangerous.” Yet Israeli intelligence agency Shin Bet has promised to investigate the claims.</p>
+<p><strong>Pentagon messaging on Moscow. </strong>The Trump administration has urged several NATO members in recent weeks to water down their rhetoric regarding the threat that Russia poses to Europe, Reuters <a href="https://www.reuters.com/business/finance/pentagon-tells-europeans-cool-their-rhetoric-russia-sources-say-2026-10-30/?utm_source=Sailthru&amp;utm_medium=Newsletter&amp;utm_campaign=Daily-Briefing&amp;utm_term=103026&amp;utm_content=103026&amp;lctg=607f1056abd4f461f466319b&amp;user_email=6b04284e4d00370f16d3dac0a626e01bf24d86e4d6995646867da6aa680488d0" rel="noopener noreferrer" target="_blank">reported</a> on Friday. Sources said that senior U.S. defense officials, including Defense Department policy chief <a href="https://foreignpolicy.com/2026/10/21/nato-us-nuclear-weapons-military-defense-strategy-colby/" rel="noopener noreferrer" target="_blank">Elbridge Colby</a>, have urged Estonia, Latvia, and Lithuania to dial down their warnings, arguing that they are not helpful for ongoing peace talks. Russian <a href="https://foreignpolicy.com/2026/10/09/russia-sabotage-europe-attacks-hybrid-warfare-estonia/" rel="noopener noreferrer" target="_blank">hybrid warfare</a>, including drone incursions, has hit all three NATO members in the past year.</p>
+<p>U.S. negotiators are reportedly considering new incentives to end the Russia-Ukraine war, including possible sanctions relief for and business deals with Moscow. Last week, U.S. special envoy Steve Witkoff held <a href="https://foreignpolicy.com/2026/10/20/zelensky-ukraine-witkoff-kushner-talks-oslo-russia-trump-starlink/" rel="noopener noreferrer" target="_blank">separate talks</a> with Ukrainian President Volodymyr Zelensky and Russian President Vladimir Putin; during talks with Putin, Witkoff called the Russian leader a “<a href="https://foreignpolicy.com/2026/10/21/witkoff-putin-russia-ukraine-peace-talks-zelensky-trump/" rel="noopener noreferrer" target="_blank">humanitarian</a>” and announced that negotiations would soon begin on the technical level.</p>
+<p>The report about the Pentagon’s urgings also came on the same day as a G-20 foreign ministers’ meeting in Atlanta that Russian Foreign Minister Sergey Lavrov attended in person. Deep rifts among the attendees <a href="https://apnews.com/article/g20-rubio-russia-ukraine-iran-war-ed4ab8ad9fedd628c39ac05bc5092cac?taid=6ae4a259f64aaa00017c9a65&amp;utm_campaign=TrueAnthem&amp;utm_medium=AP&amp;utm_source=Twitter" rel="noopener noreferrer" target="_blank">prompted</a> U.S. Secretary of State Marco Rubio to cancel the group’s traditional family photo, as many participants balked at standing beside Lavrov. Several European leaders have accused the Trump administration of being <a href="https://foreignpolicy.com/2026/09/15/us-russia-diplomacy-negotiations/" rel="noopener noreferrer" target="_blank">too soft</a> on Moscow.</p>
+<p><strong>Global port strike. </strong>Dockworkers in 22 countries <a href="https://www.reuters.com/business/world-at-work/dockworkers-more-than-100-ports-strike-against-arms-shipments-friday-2026-10-29/?utm_source=Sailthru&amp;utm_medium=Newsletter&amp;utm_campaign=Daily-Briefing&amp;utm_term=103026&amp;utm_content=103026&amp;lctg=607f1056abd4f461f466319b&amp;user_email=6b04284e4d00370f16d3dac0a626e01bf24d86e4d6995646867da6aa680488d0" rel="noopener noreferrer" target="_blank">went on strike</a> on Friday to protest the use of ports for arms exports and, specifically, for the delivery of weapons to active war zones. More than 25 unions across 113 ports—from Southern Europe to North Africa and India—backed the protests, which are in support of the so-called <a href="https://progressive.international/wire/2026-09-30-istanbul-declaration-dockworkers-will-not-become-a-link-in-the-chain-of-their-wars/en/" rel="noopener noreferrer" target="_blank">Istanbul Declaration</a>, a document signed in May by dockworker unions from more than 35 European ports that demands an end to arms shipments from their sites.</p>
+<p>“From planes to tanks, guns to bullets, explosives to ammunition, uniforms to boots, our ports have become replenishing and forwarding bases for war and ⁠genocide,” ​unions said at a press conference held to announce the strike. The Global Sumud Flotilla, a pro-Palestinian maritime activist group that has <a href="https://foreignpolicy.com/2025/10/03/israel-gaza-humanitarian-aid-global-sumud-flotilla-trump-cease-fire-hamas/" rel="noopener noreferrer" target="_blank">repeatedly tried</a> to break Israel’s blockade of Gaza to deliver <a href="https://foreignpolicy.com/2026/05/21/ben-gvir-video-israel-detained-activists-global-sumud-flotilla/" rel="noopener noreferrer" target="_blank">humanitarian supplies</a>, also <a href="https://x.com/gbsumudflotilla/status/2113685558094713176" rel="noopener noreferrer" target="_blank">vowed to support</a> ​Friday’s movement.</p>
+<p>It is unclear how disruptive the 24-hour demonstration might be. Organizers said that the strike could impact more than 40 percent of Mediterranean cargo and around $2 billion worth of freight. However, shipping experts <a href="https://apnews.com/article/port-strikes-arms-shipments-france-greece-italy-4a8813406fd51b91b3b7d17826c1883d" rel="noopener noreferrer" target="_blank">suspect</a> that global trade will not be significantly hurt. Still, FP energy reporter Keith Johnson told World Brief that the strike “is more sand in the gears of a global economy already strained by U.S. President Donald Trump’s trade wars and real wars, both of which have sent freight rates to nosebleed levels this autumn.”</p>
+
+<h3><strong>What in the World?</strong></h3>
+<p>How did right-wing presidential candidate Flávio Bolsonaro react to incumbent President Luiz Inácio Lula da Silva’s runoff election victory on Sunday?</p>
+<p>A. He graciously conceded defeat.<br/>
+B. He called for his followers to protest his loss in Brasília.<br/>
+C. He fled to Chile.<br/>
+D. He said he would request an annulment of the election.</p>
+
+<h3><strong>Odds and Ends</strong></h3>
+<p>For a small sum of $56 million, you too can be the owner of a famous Impressionist painting. Claude Monet’s <em>Iris</em> became the <a href="https://www.reuters.com/lifestyle/claude-monets-iris-becomes-most-expensive-artwork-sold-auction-france-sothebys-2026-10-23/?utm_source=Sailthru&amp;utm_medium=Newsletter&amp;utm_campaign=Daily-Briefing&amp;utm_term=102626&amp;utm_content=102626&amp;lctg=607f1056abd4f461f466319b&amp;user_email=6b04284e4d00370f16d3dac0a626e01bf24d86e4d6995646867da6aa680488d0" rel="noopener noreferrer" target="_blank">most expensive artwork</a> sold at auction in France last Thursday. The massive canvas, depicting some of Monet’s favorite flowers in his Giverny garden, is part of a 20-piece series produced near the end of the artist’s life. It took the title of most expensive work sold at a French auction from sculptor Amedeo Modigliani’s <em>Head ⁠of ​a Caryatid</em>, which sold for around $48 million in 2010.</p>
+
+<h3><strong>And the Answer Is…</strong></h3>
+<p>D. He said he would request an annulment of the election.</p>
+<p>Lula became the first Brazilian presidential candidate in history to come from behind to win the election’s second round, FP’s Catherine Osborn <a href="https://foreignpolicy.com/2026/10/26/brazil-election-lula-flavio-bolsonaro-far-right-trump/" rel="noopener noreferrer" target="_blank">reports</a>. Bolsonaro, the subject of several criminal probes, subsequently fled to Miami, where he called himself “the leader of Brazil.”</p>
+<p>To take the rest of FP’s weekly international news quiz, <a href="https://foreignpolicy.com/2026/10/30/news-quiz-lula-brazil-election-serbia-vucic-israel-china-fifth-plenum-ccp/" rel="noopener noreferrer" target="_blank">click here</a>, or <a href="https://foreignpolicy.com/alerts/" rel="noopener noreferrer" target="_blank">sign up</a> to be alerted when a new one is published.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/10/30/binance-cryptocurrency-hack-north-korea/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

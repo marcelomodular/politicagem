@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O som das conchas ameaçadas - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O som das conchas ameaçadas</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Agencia Publica</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://apublica.org/2026/11/as-conchas-do-colar-sagrado-indigena-estao-sumindo/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/THUMB_REPORTAGEM-37.jpg?fit=1200%2C630&ssl=1" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: As conchas do colar sagrado indígena estão sumindo
+                            </p>
+                            
+<p>Fui convidada para um casamento no território Rikbaktsa, na região de Brasnorte, Mato Grosso. A noiva não usaria véu, grinalda ou vestido branco, e o noivo não vestiria terno. O enlace, no entanto, seria cercado de ritos, vestes de fibra e comidas tradicionais, como a xixá e o mingau.</p>
+<p>A cerimônia gira em torno de uma peça muito importante: o colar tutãra. A tradição dita que a madrinha use o adorno, guiando os noivos até a casa onde a celebração será realizada. O trajeto é feito à noite ou de madrugada, enquanto o som das conchas anuncia o matrimônio para o restante da aldeia.</p>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/01_O-som-das-conchas-ameacadas.jpg?resize=640%2C427&amp;ssl=1"/>O colar tutãra, sagrado para os indígenas Rikbaktsa, pode ser visto nas costas das mulheres
+<p>Na prática, porém, não cheguei a presenciar a união. Realizar o casamento tradicional tornou-se um desafio para a comunidade, que hoje esbarra na dificuldade de encontrar as conchas que formam a joia. Retirada exclusivamente das águas do rio Arinos, a matéria-prima do tutãra é esculpida no formato do peixe cará, que, segundo o professor Juarez Paimy, é o peixe-mãe na mitologia Rikbaktsa e o grande símbolo da origem do seu povo.</p>
+<p>Conheci os detalhes sobre o casamento pelos relatos das comunicadoras Carol Rikbaktatsa e Lilian Rikbaktatsa, na Aldeia Cajueiro, durante o encerramento da Festa da Chuva. As duas tiveram um papel muito importante, registrando cada momento da festividade, que se estende por seis meses, até a sua finalização. Carol fez o acompanhamento contínuo captando fotos, vídeos e atuando na produção, enquanto Lilian cuidou da mobilização, também registrando o evento em imagens.</p>
+<p>O colar existe graças ao rio Arinos (chamado de tutãra Itsik), único local onde o molusco que produz a concha é encontrado em jornadas de coleta que, segundo Lilian, chegam a exigir mais de dois dias de viagem. A integridade desse ecossistema, contudo, enfrenta a ameaça de grandes projetos de infraestrutura.</p>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/02_O-som-das-conchas-ameacadas.jpg?resize=640%2C480&amp;ssl=1"/>Conchas para montar o colar tutãra vem de um tipo de molusco encontrado no rio Arinos
+<p>Um deles foi a previsão de instalação da Usina Hidrelétrica Castanheira no rio Arinos e na bacia do rio Juruena — o Juruena corre para o norte após receber o Arinos, se juntando ao Teles Pires para formar o Tapajós. A gravidade das ameaças do projeto foi detalhada no estudo “Saber, Fazer, Existir: O Povo Rikbaktsa, o Tutãra e o Rio Tutãra Itsik”, elaborado pela antropóloga Adriana Athila para a Operação Amazônia Nativa (OPAN). A pesquisa foi encomendada em meio às discussões sobre os impactos da Hidrelétrica. Conforme aponta boletim da OPAN, o empreendimento em questão, agora arquivado, figurava entre 185 projetos com potencial de instalação na bacia do rio Juruena.</p>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/03_O-som-das-conchas-ameacadas.jpg?resize=640%2C427&amp;ssl=1"/>Estudo apontou 185 projetos que poderiam ser instalados no rio Juruena, onde vivem os Rikbaktsa
+<p>A antropóloga alerta que o Estudo e Relatório de Impacto Ambiental (EIA/RIMA) apresenta lacunas graves, omitindo avaliações sobre a dinâmica dos peixes, da água e do meio biótico. Esse descaso ameaça diretamente a reprodução do molusco Paxyodon syrmatophorus, que produz das conchas usadas no colar tutãra, prevendo-se o seu desaparecimento definitivo na área de coleta imemorial Rikbaktsa.</p>
+<p>O estudo de Adriana Athila demonstra que o tutãra, uma das obras de arte plumária e eclética mais elaboradas das Américas, depende de uma complexa interconexão estruturada de comunidades e povos tradicionais. Diante disso, a antropóloga afirma que “nada disso é passível nem de restituição, nem de mitigação”, pois os recursos destruídos pela UHE Castanheira seriam consumidos de forma irreversível.</p>
+
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/04_O-som-das-conchas-ameacadas.jpg?resize=640%2C427&amp;ssl=1"/>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/05_O-som-das-conchas-ameacadas.jpg?resize=640%2C427&amp;ssl=1"/>
+São as mulheres que portam o colar sagrado, além de serem quem puxa as danças, cantos e lideram os trabalhos
+<h2><strong>Um colar que simboliza a força das mulheres e da história indígena</strong></h2>
+<p>A última grande festa havia sido realizada há seis anos, na aldeia Laranjal, no território Erikpatsa, embora tenha ocorrido uma outra celebração mais recente, em 2024, na aldeia Pé de Mutum, na Terra Indígena Japuíra. O grande diferencial de agora é a memória: não se tem registro visual dessas edições passadas, mas a deste ano estará documentada graças ao trabalho das comunicadoras em cada etapa do evento.</p>
+<p>Esse esforço de registrar cada momento ganha ainda mais sentido diante da importância da festa para o povo. Sobre a importância de vivenciar e documentar essa extensa celebração, Carol destaca:</p>
+<blockquote>
+<p>“A festa cultural é importante para nós porque valoriza a nossa cultura, mantém vivo o que a gente já vinha fazendo ao longo do tempo e fortalece a nossa comunidade aqui dentro. É um momento onde todos nós nos reunimos para celebrar a fartura do que o pessoal planta nas roças, onde os clãs se juntam para preparar a própria alimentação para os dias de festa. É um encontro que acontece todo fim de semana durante seis meses, até a finalização. Para nós, enquanto juventude, é ali dentro que a gente conhece um pouco mais das nossas histórias, que os anciões compartilham com a gente, mostram como as coisas eram feitas antigamente e nos ensinam sobre as nossas crenças e espíritos”</p>
+</blockquote>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/06_O-som-das-conchas-ameacadas.jpg?resize=640%2C427&amp;ssl=1"/>Festas mantém tradições vivas e fortalecem identidade do povo indígena
+<p>Acompanhei os três últimos dias dessa cerimônia que, como ressaltou Carol, dura meses e segue um ritmo rigoroso. O primeiro dia dessa etapa de encerramento é dedicado ao preparo das flautas e às rodas de cantoria; no segundo, preparam-se as comidas rituais, como o mingau de macaco, beju e xixá de banana; no terceiro, ocorre a distribuição do mingau.</p>
+<p>E foi justamente nessa reta final, após dois dias de espera e certa apreensão, que o tutãra apareceu: duas mulheres surgiram vestindo o adorno, e a cascata de conchas que descia rumo ao chão era muito maior do que eu imaginava.</p>
+<p>Vivenciando de perto essa cena, pude entender a verdadeira extensão do colar. A peça ultrapassa a união de casais e enfeita o corpo das mulheres também nas festas da chuva e da seca. Mais do que isso, o momento evidenciou a força daquelas mulheres, que não apenas portavam o colar sagrado, mas também puxavam as danças, os cantos e lideravam os trabalhos.</p>
+<p>Viver tudo aquilo, no entanto, exigiu de mim presença e muito respeito. A sociedade Rikbaktsa divide-se em dois grandes clãs: Makwarak (arara-amarela) e Rarubitsi (arara-cabeçuda). Logo na chegada, Lurdes Wahomy Rikbaktatsa, liderança da comunidade, me acolheu e usou o jenipapo para me inserir na comunidade. Ela testou em minha pele a pintura dos dois grupos, explicando que a que ficasse melhor definiria o clã no qual eu ficaria. A escolhida acabou sendo a da arara-cabeçuda, colocando-me, assim, no mesmo grupo de Lurdes.</p>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/10/07_O-som-das-conchas-ameacadas.jpg?resize=640%2C427&amp;ssl=1"/>A sociedade Rikbaktsa divide-se em dois grandes clãs: Makwarak (arara-amarela) e Rarubitsi (arara-cabeçuda)
+<p>Seguindo o fluxo dessa convivência, sentei na roda com as mulheres do meu novo clã. Juntas, descascamos e ralamos castanhas por um bom tempo para o preparo do mingau de macaco. Depois de algumas horas nessa atividade, uma das mulheres me liberou: “Vai, agora tire as suas fotos”. O consentimento veio como a confirmação de um laço de confiança construído na partilha da tarefa.</p>
+<p>“O tutãra é sagrado pra nós. Mais que um colar de casamento, a peça é a representação da cultura, história e conexão do povo Rikbaktsa com o meio ambiente”, me explicou Lucinete Mukda Rikbaktsa, presidente da Associação Indígena de Mulheres Rikbaktsa (Aimurik).</p>
+<p>Diferente de outros adornos plumários da comunidade, o tutãra tem a particularidade de ser feito e usado exclusivamente pelas mulheres. Sua estrutura combina discos de coco-de-tucum com pingentes do molusco bivalve Paxyodon syrmatophorus. As conchas são fervidas com cinzas para limpeza, esculpidas no formato do peixe cará e finalizadas com um “cobre-costas” adornado com pelos de caititu e penas de arara e mutum.</p>
+<p>
+
+</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://apublica.org/2026/11/as-conchas-do-colar-sagrado-indigena-estao-sumindo/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

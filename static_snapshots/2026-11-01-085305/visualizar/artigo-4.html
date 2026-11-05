@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUS avança na medicina de precisão com 100 mil genomas sequenciados no Brasil - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">SUS avança na medicina de precisão com 100 mil genomas sequenciados no Brasil</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Brasil 247</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.brasil247.com/saude/sus-avanca-na-medicina-de-precisao-com-100-mil-genomas-sequenciados-no-brasil/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.brasil247.com/wp-content/uploads/2026/08/sistema.jpg?w=1200&quality=88&strip=all" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: SUS avança na medicina de precisão com 100 mil genomas sequenciados no Brasil
+                            </p>
+                            
+<p></p>
+<p><strong>247 – </strong>O Brasil alcançou a marca de 100 mil genomas individuais sequenciados, resultado de um investimento público de R$ 1,37 bilhão desde 2020 em iniciativas de pesquisa genética vinculadas ao Ministério da Saúde. O avanço representa um passo importante para incorporar a medicina de precisão ao Sistema Único de Saúde (SUS), com potencial para melhorar diagnósticos, orientar tratamentos e ampliar o acesso da população a tecnologias já utilizadas na rede privada.</p>
+<p>Os números foram destacados pelo jornalista Marcelo Leite, em artigo publicado na <em><a href="https://www1.folha.uol.com.br/colunas/marceloleite/2026/11/sonho-da-medicina-de-precisao-alcanca-sus.shtml" rel="noopener noreferrer" target="_blank">Folha de S.Paulo</a></em> neste domingo (1º), após sua participação no 3º Simpósio Genomas SUS, realizado em Belém, no Pará, e encerrado no sábado (31). Segundo o colunista, somente em 2025 foram destinados R$ 330 milhões às iniciativas de genômica, que procuram transformar o conhecimento sobre o DNA humano em benefícios concretos para pacientes atendidos pela rede pública.</p>
+<p>O projeto Genomas SUS integra o programa Genomas Brasil e busca desenvolver uma infraestrutura nacional de sequenciamento genético, com capacidade para identificar características hereditárias associadas a doenças e respostas a medicamentos. A iniciativa também pretende corrigir uma deficiência histórica da pesquisa internacional: a baixa representatividade genética de populações latino-americanas, africanas e asiáticas nos bancos de dados científicos.</p>
+<h3>Tecnologia pode transformar diagnósticos e tratamentos</h3>
+<p>Entre as aplicações mais promissoras da medicina de precisão está a farmacogenômica, área que investiga como as diferenças genéticas individuais influenciam a resposta do organismo aos medicamentos. A análise dessas características pode ajudar profissionais de saúde a ajustar dosagens ou escolher tratamentos mais adequados, em situações nas quais já existem evidências científicas suficientes para orientar essas decisões.</p>
+<p>Outra possibilidade é aprimorar a identificação de doenças raras, muitas delas associadas a alterações genéticas específicas. O sequenciamento pode confirmar diagnósticos que, pelos métodos tradicionais, exigiriam uma longa sequência de consultas, exames e avaliações especializadas.</p>
+<p>A tecnologia também pode contribuir para compreender a evolução de determinadas enfermidades, incluindo o diabetes tipo 2. Nesse caso, informações genéticas podem complementar outros dados clínicos na avaliação de riscos e prognósticos, embora não substituam os exames convencionais nem a análise médica individualizada.</p>
+<p>Marcelo Leite ressalta que a evolução científica modificou o cenário observado no início dos anos 2000, quando o sequenciamento do genoma humano era frequentemente apresentado como uma promessa de soluções revolucionárias para doenças complexas, incluindo o câncer.</p>
+<p>Desde então, os custos da tecnologia diminuíram e as pesquisas avançaram, permitindo aplicações clínicas mais específicas. Isso não significa, porém, que a medicina de precisão tenha realizado todas as expectativas criadas nas últimas décadas.</p>
+<h3>SUS pode democratizar acesso à medicina genética</h3>
+<p>A incorporação dessas ferramentas ao sistema público também envolve uma discussão sobre prioridades orçamentárias. O SUS enfrenta dificuldades estruturais, como a demora para realização de exames, consultas com especialistas e procedimentos cirúrgicos, enquanto tecnologias genômicas exigem investimentos elevados em equipamentos, profissionais especializados e infraestrutura de análise.</p>
+<p>Apesar dessas limitações, o argumento apresentado pelo colunista é que os pacientes de menor renda não devem permanecer excluídos de recursos diagnósticos disponíveis na assistência privada.</p>
+<p>A estratégia do Genomas SUS procura associar o sequenciamento genético às necessidades efetivas dos pacientes atendidos pelo sistema público. Em vez de realizar exames indiscriminadamente, a proposta é priorizar situações nas quais os resultados possam produzir benefícios clínicos ou contribuir para pesquisas relevantes à saúde coletiva.</p>
+<p>Uma das vantagens dessa abordagem é a possibilidade de relacionar informações genéticas aos registros de saúde dos pacientes. Dados sobre doenças, manifestações clínicas e evolução dos quadros podem ajudar pesquisadores a identificar associações entre determinadas variantes do DNA e diferentes condições médicas.</p>
+<p>Essas informações, quando utilizadas com os cuidados necessários de proteção de dados e ética em pesquisa, podem contribuir para desenvolver métodos diagnósticos mais adequados à população brasileira.</p>
+<h3>Diversidade genética brasileira é prioridade científica</h3>
+<p>Um dos principais desafios enfrentados pela medicina genômica é a concentração histórica de pesquisas em populações de ascendência europeia. Essa predominância limita a aplicação de determinados resultados científicos a países com maior diversidade genética.</p>
+<p>No Brasil, a composição populacional reúne contribuições ancestrais indígenas, africanas e europeias, entre outras. Essa diversidade torna especialmente importante a construção de bancos de dados capazes de representar as características genéticas dos diferentes grupos populacionais.</p>
+<p>Quando uma população está pouco representada nas pesquisas, a interpretação de variantes genéticas pode se tornar mais difícil. Alterações relativamente comuns em determinados grupos podem ser classificadas de maneira inadequada, enquanto associações relevantes para o diagnóstico de doenças podem permanecer desconhecidas.</p>
+<p>Para enfrentar essa lacuna, o Genomas SUS está estruturando oito centros distribuídos pelas regiões brasileiras, com equipamentos e procedimentos padronizados de sequenciamento e análise.</p>
+<p>A organização dessa rede pretende ampliar a capacidade nacional de produzir informações genômicas e permitir que os resultados sejam comparáveis entre diferentes instituições e regiões.</p>
+<p>Além de fortalecer a pesquisa científica, a iniciativa pode contribuir para reduzir desigualdades no acesso à tecnologia e melhorar o conhecimento sobre condições de saúde que afetam a população brasileira.</p>
+<h3>Resultados clínicos ainda exigem tempo e avaliação</h3>
+<p>Embora o sequenciamento de 100 mil genomas represente um marco para a pesquisa nacional, a incorporação da medicina de precisão à rotina do SUS ainda depende de avanços adicionais.</p>
+<p>A identificação de variantes genéticas não significa, automaticamente, a existência de tratamentos específicos. Para que os resultados sejam úteis na assistência, é necessário demonstrar sua relevância clínica, estabelecer protocolos de utilização e assegurar que os profissionais tenham condições de interpretar corretamente as informações.</p>
+<p>Também será necessário avaliar os benefícios concretos para os pacientes e a relação entre os custos dos exames e os resultados obtidos, especialmente em um sistema público que atende milhões de brasileiros.</p>
+<p>O próprio Marcelo Leite reconhece que, aproximadamente 25 anos depois das primeiras grandes expectativas associadas ao sequenciamento do genoma humano, a medicina de precisão ainda não produziu transformações proporcionais às promessas iniciais em todas as áreas da assistência médica.</p>
+<p>A diferença é que o desenvolvimento tecnológico já permite aplicações práticas que justificam sua investigação e implementação gradual.</p>
+<p>Ao reunir investimentos públicos, infraestrutura científica e informações de pacientes atendidos pelo SUS, o Genomas Brasil procura criar condições para que esses avanços deixem de beneficiar predominantemente grupos com maior acesso à assistência especializada.</p>
+<p>O desafio agora será transformar a capacidade de sequenciamento construída no país em diagnósticos mais rápidos, tratamentos mais adequados e benefícios mensuráveis para a população. </p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.brasil247.com/saude/sus-avanca-na-medicina-de-precisao-com-100-mil-genomas-sequenciados-no-brasil/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

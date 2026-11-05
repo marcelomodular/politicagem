@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vance, ‘habibi’, ¿me ves ahora? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Vance, ‘habibi’, ¿me ves ahora?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">El Pais Mundo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://elpais.com/internacional/2026-11-04/vance-habibi-me-ves-ahora.html" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://imagenes.elpais.com/resizer/v2/IA5GZKZNSFHWNO2ZJPCEZWP4WY.jpg?auth=ee2dccd6b315eb55bb2f3849a4555504910e9e8e7bc0efaf7158cbae870ec298&width=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Vance, ‘habibi’, ¿me ves ahora?
+                            </p>
+                            <p>“JD, <i>habibi </i>[querido, en árabe]”, le dijo Abdul El-Sayed al vicepresidente de Estados Unidos, JD Vance, <a href="https://elpais.com/us/2026-11-04/la-victoria-de-el-sayed-en-michigan-permite-al-ala-progresista-de-los-democratas-sonar-con-la-casa-blanca.html" rel="noopener noreferrer" target="_blank">tras ganar su histórico escaño por Míchigan.</a> Lo hacía con una ironía que solo se permite quien vence, interpelando al hombre que <a href="https://elpais.com/us/2026-09-11/nueva-york-de-los-recelos-contra-el-islam-tras-el-11-s-a-elegir-a-su-primer-alcalde-musulman.html" rel="noopener noreferrer" target="_blank">lo había llamado “malvado”</a> en un mitin, para recordarle que tendrá que tomarle juramento en enero. Hay algo extraordinario en esa escena porque nos revela un sentido profundo de la democracia. Vance tendrá que reconocer públicamente la victoria de quien había tratado de deslegitimar como adversario político. Y es que la democracia no exige que los rivales en las urnas se aprecien a nivel personal, pero sí que reconozcan su derecho a existir políticamente. Puede que esa sea la victoria más importante de la noche. </p><p>Con todo, la prudencia obliga a no leer el resultado como un triunfo de la democracia sobre el método Trump, si bien no podemos dejar de ver que casi la mitad de los votantes ha visto en estas elecciones una ocasión para reprenderle. Y ahí está un Estado como Georgia en el que <a href="https://elpais.com/us/2026-11-03/estados-unidos-explora-los-limites-de-su-democracia.html" rel="noopener noreferrer" target="_blank">la salud institucional</a> ha podido figurar entre las primeras preocupaciones. Pero el motivo que atraviesa estos resultados puede ser más prosaico, o no, según se mire: el de un depósito de gasóleo en Kansas, <a href="https://elpais.com/us/2026-11-04/un-siglo-despues-kansas-tiene-un-senador-democrata-el-pastor-adam-hamilton-arrebata-el-escano-al-republicano-marshall.html" rel="noopener noreferrer" target="_blank">el Estado que no enviaba a un demócrata al Senado desde 1932.</a> Ha sido ahí, precisamente, donde el republicano Roger Marshall defendió nada menos que la solidez de una economía ante unos votantes que pagan en cada repostaje la guerra con Irán. Trump ha conseguido durante años imponer su versión de la realidad, pero hay cosas que no pueden maquillarse, cosas que afectan a la materialidad de la vida, como <a href="https://elpais.com/us/economia/2026-10-14/la-inflacion-se-acelera-en-septiembre-y-suma-mas-frustracion-por-el-coste-de-vida-antes-de-las-elecciones-en-ee-uu.html" rel="noopener noreferrer" target="_blank">lo que la gente paga</a> cada vez que llena el depósito. </p><p>¿Quiere decir esto que hay que mirar con desdén a quien vota por lo que paga? ¿Que ese motivo no es tan noble como el de salvar la democracia? En absoluto. Castigar a quien gobierna cuando el bolsillo aprieta es la forma más elemental de pedir cuentas, y precisamente eso, lo que cuesta vivir, se ha convertido en un enfado que este otoño también estamos viendo recorrer las calles de Europa. <a href="https://elpais.com/us/2026-11-04/james-talarico-pone-fin-a-decadas-de-hegemonia-republicana-en-texas-con-su-victoria-en-el-senado.html" rel="noopener noreferrer" target="_blank">Los históricos triunfos en Kansas y Texas</a> quizás se deban a haber escuchado ese enfado. Ahí no han ganado dos demócratas, sino dos políticos que hicieron de los precios el centro de su campaña, que entendieron que <a href="https://elpais.com/us/2026-10-07/el-40-de-los-latinos-de-estados-unidos-reporta-estar-peor-economicamente-que-hace-un-ano.html" rel="noopener noreferrer" target="_blank">el coste de la vida va más allá</a> de lo que pagamos por las cosas; también tiene que ver con lo que dejamos de poder planear o con el miedo a perder lo que tenemos. Mientras el republicano Marshall defendía los aranceles, el demócrata Adam Hamilton demostraba que lo concreto puede unir a los votantes con ideologías diferentes. </p><p>La noche ha dejado, así, una fotografía impensable hace no tanto, con el primer senador musulmán, <a href="https://elpais.com/sociedad/lgtb/2026-11-03/los-votantes-lgtbiq-se-movilizan-en-ee-uu-para-frenar-a-trump-en-las-elecciones-de-medio-mandato.html" rel="noopener noreferrer" target="_blank">el primer hombre abiertamente gay</a> elegido al Senado, <a href="https://elpais.com/us/2026-11-04/los-democratas-arrasan-en-las-midterms-a-lomos-del-voto-de-castigo-a-la-caotica-presidencia-de-trump.html" rel="noopener noreferrer" target="_blank">la primera gobernadora negra y la primera gobernadora nativoamericana</a> del país, y sería fácil leerla solo como un triunfo de la diversidad. Pero lo que acerca a muchos de esos candidatos a un pastor de Kansas que fue republicano no es su biografía, sino haber sabido hablar de lo que les pasa a sus votantes, justo lo que no hizo Marshall al asegurarles que la economía iba bien.</p><p>Y, sin embargo, una noche no borra el diagnóstico. <a href="https://elpais.com/internacional/2026-09-15/trump-lleva-la-democracia-de-estados-unidos-a-su-nivel-mas-bajo-de-la-historia-reciente.html" rel="noopener noreferrer" target="_blank">La democracia estadounidense sigue institucionalmente maltrecha.</a> Así que pensemos de nuevo en enero, cuando Vance tenga que tomar juramento al que llamó malvado. Lo tendrá que hacer porque <a href="https://elpais.com/us/2026-11-03/unas-midterms-tranquilas-pese-a-los-temores-por-el-despliegue-inedito-de-mil-observadores-de-la-administracion-trump.html" rel="noopener noreferrer" target="_blank">las reglas de la democracia mandan</a>… hasta que dejan de hacerlo. Y eso nos recuerda, también a los europeos, que conviene defenderlas antes de que sea demasiado tarde.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://elpais.com/internacional/2026-11-04/vance-habibi-me-ves-ahora.html" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

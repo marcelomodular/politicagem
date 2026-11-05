@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da Redação | Quando o Estado escolhe não ser visto - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Da Redação | Quando o Estado escolhe não ser visto</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Ponte Jornalismo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://ponte.org/cameras-corporais-massacre-alemao-penha-transparencia/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://ponte.org/wp-content/uploads/2025/10/toms9783-1.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O que não foi visto no Massacre do Alemão e da Penha
+                            </p>
+                            
+<h4>Um ano após a operação que deixou 123 mortos, milhares de horas de gravações não mostram nenhuma das mortes; falhas, obstruções e lacunas nas imagens levantam questões sobre transparência, fiscalização e responsabilização policial</h4>
+<img alt="Moradores se reúnem ao redor de corpos cobertos após operação policial nos complexos do Alemão e da Penha, no Rio de Janeiro." src="https://ponte.org/wp-content/uploads/2025/10/toms9783-1-852x500.webp"/>Moradores cercam corpos após a operação policial que deixou 123 mortos nos complexos do Alemão e da Penha, no Rio de Janeiro. | Foto: Tomaz Silva/Agência Brasil
+<p>Um ano depois do <a href="https://ponte.org/massacre-do-alemao-e-da-penha-tem-mais-dezenas-de-mortos-encontrados-e-supera-carandiru/" rel="noopener noreferrer" target="_blank">Massacre do Alemão e da Penha</a>, talvez um dos dados mais escandalosos sobre aquela operação seja justamente aquilo que não podemos ver. Nenhuma das 123 mortes aparece nas <a href="https://ponte.org/massacre-alemao-cameras-policiais-mortes/" rel="noopener noreferrer" target="_blank">4.400 horas de gravações de câmeras corporais</a> analisadas pela <a href="https://www.hrw.org/pt/americas/brazil" rel="noopener noreferrer" target="_blank">Human Rights Watch (HRW)</a>, em um relatório sobre o qual publicamos reportagem nesta semana. Repito: Nenhuma.</p><p></p>
+<p></p>
+<p>E a ausência desses registros não se explica pela falta de câmeras em todas as tropas. Para realizar o estudo, a HRW teve acesso às imagens das <a href="https://ponte.org/?s=C%C3%A2meras+Operacionais+Port%C3%A1teis+%28COPs%29" rel="noopener noreferrer" target="_blank">Câmeras Operacionais Portáteis (COPs)</a> de 527 policiais militares. Pelo menos 305 agentes que estavam na linha de frente da operação usavam os equipamentos.</p>
+<p><strong>Leia também:</strong> <a href="https://ponte.org/massacre-alemao-cameras-policiais-mortes/" rel="noopener noreferrer" target="_blank"><strong>Massacre do Alemão e da Penha: câmeras policiais não registraram nenhuma das 123 mortes</strong></a></p>
+<p>Mas, como num passe de mágica, justamente quando a operação entrou em seu período mais letal, as imagens começaram a desaparecer. Por volta do meio-dia, 55% das gravações dos policiais da linha de frente terminam ou apresentam lacunas significativas. Coincidência? Na mata da Vacaria, onde se concentrou grande parte das mortes, todas as filmagens utilizáveis dos agentes do <a href="https://sepm.rj.gov.br/2015/10/bope-batalhao-de-operacoes-especiais/" rel="noopener noreferrer" target="_blank">Batalhão de Operações Policiais Especiais (BOPE)</a> terminam às 12h11. Falha técnica?</p>
+<p>Não ter imagem também é uma informação. Não significa que possamos afirmar o que aconteceu em todos os minutos que deixaram de ser registrados. Mas significa que precisamos perguntar por que justamente uma ferramenta criada para produzir transparência, provas e segurança jurídica deixou de cumprir sua função no momento em que mais precisávamos dela.</p>
+<p>Como se não bastasse, o relatório ainda identificou 278 episódios de obstrução de câmeras entre 132 policiais. Em 146 deles, há suspeita de manipulação intencional. Um sargento do Bope manteve a lente coberta por quase quatro horas enquanto o áudio registrava mais de 60 disparos. Em outro caso, um policial cobriu a câmera por nove minutos enquanto mais de 40 tiros eram ouvidos.</p>
+<p>Que saibamos, a câmera não decidiu fazer isso sozinha. Uma COP não cobre a própria lente com a mão, não se retira do uniforme, não fica esquecida dentro de uma viatura nem escolhe parar de registrar antes de uma incursão. Entre colocar uma câmera no peito de um policial e transformar aquela imagem em transparência pública existem — ou deveriam existir — protocolos, decisões humanas, comandos e mecanismos de fiscalização. É por isso que a discussão não pode ser reduzida a dizer se câmeras corporais “funcionam” ou não. Elas funcionam quando são usadas para aquilo que deveriam servir.</p>
+<p><strong>Leia também:</strong> <a href="https://ponte.org/massacre-do-alemao-e-da-penha-tem-mais-dezenas-de-mortos-encontrados-e-supera-carandiru/" rel="noopener noreferrer" target="_blank"><strong>Massacre do Alemão e da Penha tem mais dezenas de mortos encontrados e supera Carandiru</strong></a><strong> </strong></p>
+<p>Em uma das gravações analisadas pela HRW, um policial chega ao cúmulo de afirmar que suspeitos “se salvaram porque a câmera está gravando”. A frase, por mais brutal que seja, demonstra exatamente o potencial da ferramenta. Quando o agente sabe que sua atuação será registrada, aquela câmera pode proteger a pessoa abordada. Também pode proteger o próprio policial que agiu corretamente e precisa demonstrar que o uso da força foi legítimo.</p>
+<p>Se uma corporação sustenta que seus agentes atuaram dentro da lei, deveria ser a maior interessada na existência de provas independentes disso. Impedir o funcionamento das câmeras não protege a polícia. Protege a dúvida.</p>
+<p>A <a href="https://ponte.org/camera-corporal-sem-controle-e-transparencia-e-so-verniz-contra-abuso-da-pm-dizem-especialistas/" rel="noopener noreferrer" target="_blank"><strong>Ponte</strong> já havia alertado</a>, antes mesmo do massacre, que colocar uma câmera no uniforme sem controle, protocolos, acesso às imagens e mecanismos de responsabilização poderia transformar uma política importante em mero verniz. Foi o que vimos no Alemão e na Penha.</p>
+<h4><strong>Sem imagem, sem resposta</strong></h4>
+<p>Entre os cerca de 2.500 agentes mobilizados para a operação, somente 23% estavam equipados com câmeras. A <a href="https://www.rj.gov.br/servico/pedir-acesso-as-informacoes-da-policia-civil-do-estado-do-rio-de-janeiro-pcerj189" rel="noopener noreferrer" target="_blank">Polícia Civil</a>, que também participou da ação, não disponibilizou à HRW as imagens de seus policiais. E, um ano depois, apesar de 19 agentes terem sido denunciados por crimes como invasão de domicílio, furto e manipulação das câmeras, nenhum havia sido denunciado por uso ilegal da força diretamente relacionado às mortes.</p>
+<p>A falta de responsabilização também chega ao topo. Segundo a HRW, os comandantes que tomaram as decisões sobre a operação e os responsáveis pelas unidades envolvidas não foram responsabilizados pelas mortes.</p>
+<p>Politicamente, entretanto, o resultado foi bastante diferente. Nas eleições deste ano, pelo menos <a href="https://ponte.org/quem-sao-os-secretarios-de-claudio-castro-a-frente-do-massacre-do-alemao-e-da-penha/" rel="noopener noreferrer" target="_blank">três nomes envolvidos na operação</a> saíram das urnas com mandato: o ex-secretário de Polícia Civil Felipe Curi foi eleito deputado federal; o ex-secretário da Polícia Militar, coronel Marcelo Menezes, e o delegado Bernardo Leal foram eleitos deputados estaduais.</p>
+<p>Uma ação que terminou com 123 mortos não produziu, até agora, responsabilização pelas mortes. Mas produziu capital político. E isso diz muito sobre o que estamos escolhendo premiar quando falamos em segurança pública.</p>
+<p><h4><strong>Um Estado que tudo vê</strong></h4></p>
+<p>Há ainda outra contradição difícil de ignorar. Enquanto enfrentamos tanta resistência para garantir que câmeras acompanhem adequadamente a atuação de agentes armados pelo Estado, governos investem cada vez mais em tecnologias capazes de vigiar a população.</p>
+<p>Em São Paulo, o <a href="https://smartsampa.prefeitura.sp.gov.br/" rel="noopener noreferrer" target="_blank">Smart Sampa</a> integra dezenas de milhares de câmeras espalhadas pelas ruas e utiliza reconhecimento facial para identificar pessoas. Neste mês, uma <a href="https://noticias.uol.com.br/colunas/artur-rodrigues/2026/10/20/falha-de-seguranca-permite-acesso-indevido-a-58-mil-cameras-do-smart-sampa.htm" rel="noopener noreferrer" target="_blank">investigação do UOL</a> revelou que credenciais expostas permitiram acesso indevido às imagens de mais de 58 mil câmeras ligadas ao sistema durante cerca de 11 meses — inclusive equipamentos instalados em escolas, creches e unidades de saúde. A Prefeitura afirma que houve vazamento ilegal de dados por um servidor, que foi afastado, e nega que exista fragilidade nos mecanismos de segurança da plataforma.</p>
+<p><strong>Leia também:</strong> <a href="https://ponte.org/massacre-alemao-penha-ato-coalizao-negra-uneafro/" rel="noopener noreferrer" target="_blank"><strong>‘Tão matando gente preta todo dia’: ato de movimentos negros denuncia Massacre do Alemão e da Penha</strong></a> </p>
+<p>A tecnologia utilizada para vigiar cidadãos cresce numa velocidade muito diferente daquela destinada a permitir que a população  fiscalize o Estado. Queremos saber quem circula pelas ruas, reconhecer rostos, consultar placas, localizar pessoas e acompanhar deslocamentos. Mas, quando 123 pessoas morrem em uma operação policial, faltam justamente as imagens que poderiam ajudar a estabelecer como elas morreram e se a força utilizada pelos agentes foi legal.</p>
+<p>Temos construído um Estado cada vez mais capaz de enxergar o cidadão e ainda muito pouco disposto a permitir que o cidadão enxergue o Estado. É por isso que o relatório da Human Rights Watch não pode terminar como mais uma pilha de documentos sobre uma chacina brasileira.</p>
+<p>O <a href="https://www.mprj.mp.br/" rel="noopener noreferrer" target="_blank">Ministério Público do Rio de Janeiro</a> tem diante de si a oportunidade — e a obrigação — de investigar não apenas o que aparece nas imagens, mas também aquilo que desapareceu delas. Por que tantas gravações foram interrompidas? Quem descumpriu os protocolos? Houve tolerância dos comandos? Como essas lacunas afetaram a investigação das mortes? Por que equipamentos destinados justamente à fiscalização deixaram de funcionar nos momentos em que a força policial mais precisava prestar contas? Essas perguntas não pressupõem respostas. Mas um Estado democrático tem a obrigação de procurá-las.</p>
+<p><a href="https://ponte.org/carreguei-mais-de-80-corpos-relatos-do-terror-nos-complexos-da-penha-e-do-alemao/" rel="noopener noreferrer" target="_blank">As câmeras não ressuscitam as 123 pessoas mortas naquele 28 de outubro</a>. Não substituem perícia, testemunhas, investigação ou responsabilização. Mas deveriam ajudar a responder quem morreu, em quais circunstâncias, pela arma de quem e se o uso da força respeitou a lei.</p>
+<p>Quando uma operação deixa 123 mortos e nenhum deles aparece nas milhares de horas de gravação produzidas pelos equipamentos criados justamente para registrar a atuação policial, seria tolice pensar que estamos diante de um problema tecnológico. Estamos diante de um problema de transparência, de responsabilização e, portanto, de democracia. Um Estado que tudo quer ver não pode escolher quando será visto.</p>
+<p><strong><em>Este texto chegou primeiro para quem assina a “Sete Dias”, a newsletter da Ponte. Todo sábado, enviamos reflexões sobre segurança pública e uma curadoria de reportagens relevantes, produzidas pela própria Ponte ou por outros veículos. Você pode se inscrever clicando</em></strong> <a href="https://relacionamento.ponte.org/news-da-ponte" rel="noopener noreferrer" target="_blank"><strong><em>aqui</em></strong></a><strong><em>.</em></strong></p>
+<p><strong><em>Assine também a nossa newsletter de cultura, a “Rolê da Ponte”. Ela é enviada às quartas-feiras, com pelo menos três dicas que podem incluir livros, filmes, exposições e outros programas culturais. Para receber, clique</em></strong> <a href="https://relacionamento.ponte.org/role-da-ponte" rel="noopener noreferrer" target="_blank"><strong><em>aqui</em></strong></a><strong><em>.</em></strong></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://ponte.org/cameras-corporais-massacre-alemao-penha-transparencia/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

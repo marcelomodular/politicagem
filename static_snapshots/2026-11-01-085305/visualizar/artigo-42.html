@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A vitória que dela transborda - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A vitória que dela transborda</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/10/a-vitoria-que-dela-transborda/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/10/lula-jovens-1024x683-1.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A vitória que dela transborda
+                            </p>
+                            
+<p>No domingo do primeiro turno das eleições gerais do Brasil, fui votar com Júlia, minha filha. Ela anda militando com o pessoal da Unidade Popular (UP) e esteve no comando das greves estaduais de São Paulo. Recordo-me com orgulho da sua alegria política no dia que a reitoria cedeu às exigências do movimento e eles saíram vitoriosos. Poucos meses atrás, havia tido um despertar para a potência da comunhão. Mas ela, essa jovem politizada, estava sem nenhuma conexão com a campanha presidencial. </p>
+<p>Considerava inclusive fazer um voto ideológico, porque não imaginava que Flávio Bolsonaro pudesse vencer. Eu ponderei que o momento era de união total em torno de Lula, contra o neoliberalismo e o fascismo. Ela concordou, mas pude sentir que achou seu pai exagerado. Quando o resultado das urnas colocou Flávio à frente, ela se desesperou. Afinal, como havíamos chegado até ali? </p>
+<p></p>
+<h2>A cena reúne duas coisas que precisamos pensar juntas</h2>
+<p>A primeira: já havia uma juventude fazendo política, organizando lutas e conquistando vitórias, enquanto a campanha parecia incapaz de se conectar com essa energia. A distância entre o projeto lulista do terceiro mandato e a sociedade se revelava ali, dentro da minha casa. Uma distância que vi com meus próprios quando morei em Brasília entre os anos de 2024 e 2025 e para a qual procurei alertar as companheiras e companheiros que estavam no governo. Na segunda-feira, recomposta, energizada, como milhões de outros jovens, Júlia despertou para a urgência da disputa e começou a agir. O risco de retorno do bolsonarismo produziu uma convocação que as estruturas políticas não tinham conseguido fazer. Nos dias seguintes, essa juventude tomou as redes e as ruas. E foi acompanhada por pessoas de todas as idades, num levante cívico intergeracional sem precedentes.  </p>
+<p>A segunda: não foi a primeira vez — nem será a última — que a internet teve papel preponderante numa campanha eleitoral da esquerda brasileira. Temos uma história de mobilização digital, experimentação cultural e organização em rede que antecede as plataformas atuais. A particularidade desta vez estava no ambiente em que precisávamos agir: um sistema de mediação profundamente viciado, no qual as grandes empresas de tecnologia concentram o poder de organizar a visibilidade, modular os afetos e estabelecer as condições do debate público. Esse perigo havia sido apontado por muita gente. Fui um dos que fez esse alerta. No aniversário de dois anos da tentativa de golpe de 8 de Janeiro, escrevi na Mídia Ninja um artigo convocando o presidente Lula a chamar seus hackers e se antecipar ao que estava em curso. Faltou ação de quem tinha a responsabilidade e os instrumentos para agir.</p>
+<img alt="(Mariana Greif / Reuters)" src="https://jacobin.com.br/wp-content/uploads/2026/10/apoiadoras-de-lula-comemoram-vitoria-na-avenida-paulista-apos-resultado-do-segundo-turno-1667176963753_v2_1920x1221-1024x651.jpg"/>(Mariana Greif / Reuters)
+<p>As plataformas das big techs, com seus algoritmos e modelos de negócio, se tornaram <em>armas de destruição democrática</em>. A concentração desse poder nas mãos de empresas privadas, capazes de interferir nas condições da disputa enquanto lucram com sua deterioração, deveria ter sido enfrentada como um problema político central. Foi dentro desse ambiente que André Janones conseguiu, com maestria, organizar um movimento de <em>pedagogia algorítmica.</em> Ensinou pessoas a agir sobre os mecanismos de circulação das mensagens, coordenar iniciativas e disputar atenção. Uma pulsão cívica aderiu a esse aprendizado, impulsionada pelo desespero diante da catástrofe.</p>
+<p>Há uma contradição aí que merece permanecer aberta. Durante muito tempo, recusamos certas práticas dessa disputa, em parte com razão. A modulação algorítmica corrói valores caros à esquerda: a exposição ao contraditório, o diálogo, o debate, a recusa à falsificação. Premia a reação imediata, a simplificação e o conflito permanente. Seu funcionamento favorece o irracionalismo e concentra poder de maneira antidemocrática. Aprender a operar nesse ambiente foi decisivo. Mas a eficácia eleitoral dessa aprendizagem mantém diante de nós o problema de transformar as condições em que a comunicação acontece.<em> </em>A esquerda precisa disputar o presente e construir infraestruturas nas quais outras relações sejam possíveis. <em>Caso contrário, cada eleição nos encontrará mais dependentes de um terreno controlado por forças que combatemos.</em></p>
+<p>Janones teve um papel fundamental. Com orgulho, me filiei às hostes de seu exército. Está recebendo todos os louros que merece. A dimensão do que aconteceu, porém, aparece quando olhamos também para as ruas, para a juventude e para o ecossistema artístico e cultural que se colocou em movimento. No primeiro sábado depois do resultado do primeiro turno, a rua, convocada por jovens como a minha filha, explodiu. Escrevi um relato sobre isso <a href="https://www.pagina12.com.ar/2026/10/12/este-pueblo-merece-vencer/" rel="noopener noreferrer" target="_blank">no Página 12</a>, da Argentina. Havia ali corpos dissidentes, periféricos, insurgentes, uma potência que reconheço também em Junho e que os anos de conciliação não souberam acolher. Uma força que, como bem formulou Pablo Capilé, parecia ter sido enfiada num submarino e que eclodiu como um cometa. E a gente, muita gente, mais gente do que eu jamais tinha visto em toda a minha história de 46 anos de militância, pulou no rabo dele.</p>
+<p></p>
+<h2>Os jovens foram convocados e vieram</h2>
+<p>A convocação da juventude rompeu o fechamento de uma política conduzida de cima, excessivamente segura de seus próprios cálculos e cada vez menos capaz de ouvir. A centralização simbólica, a personalização das relações com a cultura e a dificuldade de reconhecer a autonomia de quem cria, organiza e mobiliza foi varrida. A energia que apareceu nas ruas exigia espaço para participar da condução da luta. Também tivemos um ecossistema artístico e cultural capaz de convergir em ações gigantescas. Artistas, comunicadores, coletivos e perfis no Instagram ajudaram a produzir uma atmosfera de participação como nunca antes em nossa história. Gente que não esperou uma orientação para inventar modos de atuar. A campanha ganhou formas, linguagens e desejos que nenhuma coordenação conseguiria planejar integralmente. Um dos auges foi o ato em frente à sede da Meta, com o sugestivo título de “Meta não se meta na nossa eleição”. Poesia pura. </p>
+<p>Mas por que apenas no segundo turno? Por que não antes? O que efetivamente disparou esse procedimento coletivo de intervenção no real? Um texto de <a href="https://revistaserrote.com.br/2020/04/esperanca-em-meio-ao-desastre-por-rebecca-solnit/" rel="noopener noreferrer" target="_blank">Rebecca Solnit, Esperança em meio ao desastre</a>, ajuda a pensar essa experiência. Diante da ameaça, descobrimos capacidades de cooperação que a vida cotidiana frequentemente encobre. A percepção do perigo pode nos paralisar, mas também pode nos lançar uns na direção dos outros. Nesse encontro, a esperança passa a existir como experiência prática: fazemos alguma coisa juntos e percebemos que nossa ação altera o campo do possível. Foi isso que a aliança entre redes e ruas produziu. Um ambiente de revolução democrática, cuja energia encontrou ressonância para além do Brasil. Uns com os outros, sentimos que dava para ganhar do Trump, do Elon Musk, do Milei, do Zuckerberg, do Bolsonaro, da porra toda.</p>
+<p>Fizemos um grande carnaval democrático: rebelde, bem-humorado, divertido, tesudo, diverso, plural. A alegria tinha força política. O desejo de estar junto ampliava a disposição de lutar. A invenção de uma linguagem comum permitia que pessoas muito diferentes se reconhecessem numa mesma ação. Se, em 2022, Lula, em sua redenção, depois da prisão e da catástrofe do governo Jair Bolsonaro, articulou em torno de si uma frente ampla e venceu por nós, desta vez nós vencemos por ele. </p>
+<img alt="" src="https://jacobin.com.br/wp-content/uploads/2026/10/Captura-de-Tela-2026-10-31-as-15.30.02-1024x681.png"/>
+<p>Esse “nós” que escrevo tem um duplo sentido. Fala das pessoas que se mobilizaram e dos pontos de conexão que tornaram a mobilização possível. Esse trocadilho já estava no livro chamado <em>O Comum entre Nós,</em> que escrevi alguns anos atrás. Volto a usar a expressão porque ajuda a nomear uma vitória produzida por relações: vínculos de confiança, iniciativas compartilhadas, cooperação, encontros e decisões que ninguém controlava por inteiro, algo que pode ser reunido como a potência do comum.  </p>
+<p>A centralidade de Lula conviveu com uma capacidade coletiva que excedeu sua liderança. Houve um jorro que não cabe integralmente no lulismo, muito menos no petismo. O L feito com as mãos: de Lula passou a ser também de Luta. O reconhecimento dessa força é uma condição para compreender o resultado e, sobretudo, para decidir o que fazer com ele. Minha hipótese é que a eleição deixou um recado duro para a aposta na conciliação como horizonte permanente. A disposição de enfrentar, assumir posições e convocar a sociedade encontrou uma energia que o movimento contínuo rumo ao centro vinha desperdiçando. Essa leitura precisa ser aprofundada, inclusive no exame das votações e da composição do Congresso. Mas há um acontecimento político que merece atenção: muita gente entrou na disputa quando sentiu que havia uma luta a travar e que sua participação poderia fazer diferença.</p>
+<p>Algo novo começou. Sua continuidade dependerá das condições que formos capazes de construir. As pessoas que produziram essa vitória voltarão à condição de plateia? A juventude será ouvida apenas na próxima emergência eleitoral? A cultura seguirá tratada como instrumento de legitimação ou participará da elaboração dos rumos do país? A inteligência mobilizada para disputar algoritmos encontrará apoio para construir alternativas às plataformas? Essas perguntas dizem respeito ao destino da força que apareceu. </p>
+<p>Precisamos de espaços de encontro, organização e decisão nos quais ela possa ganhar duração. De infraestruturas de comunicação que ampliem nossa autonomia. De formas de participação capazes de acolher o conflito, a diversidade e a invenção que fizeram a campanha transbordar. A vitória abriu uma possibilidade. Cabe a nós sustentar os vínculos que a produziram e disputar o que virá depois. Quem (re)descobriu, nas redes e nas ruas, a potência de agir com os outros tem razões para querer continuar participando da história.</p>
+<p></p><p></p><p><h5>Rodrigo Savazoni</h5></p><p>é jornalista, escritor, pesquisador e ativista da cultura digital, doutor em Ciências Humanas e Sociais pela Universidade Federal do ABC (UFABC). É autor de inúmeros livros sobre cultura e tecnopolítica, entre eles<i>O Comum entre Nós: da cultura digital à democracia do Século XXI (Editora do SESC)</i>. </p><p> </p><p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/10/a-vitoria-que-dela-transborda/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

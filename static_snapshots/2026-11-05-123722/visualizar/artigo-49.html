@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An unexpected winner of the midterm election: Animals - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">An unexpected winner of the midterm election: Animals</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/future-perfect/509104/animals-midterm-election-2026" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/image.jpeg?quality=90&strip=all&crop=0%2C10.745251402131%2C100%2C78.509497195739&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Ducks, pigs, and wildlife: Where animals won in 2026 midterm elections
+                            </p>
+                            <p>In this week’s <a href="https://www.vox.com/midterm-elections-2026" rel="noopener noreferrer" target="_blank">midterm elections</a>, many Democrats won n a landslide. Also on the winning side of many ballot decisions: animals.</p><p>First, voters in Washington, DC, and Denver, Colorado, decisively supported a ban on the sale of <a href="https://www.vox.com/future-perfect/505974/foie-gras-ban-dc-denver-election" rel="noopener noreferrer" target="_blank">foie gras</a> — duck liver made by force-feeding the animals. In Colorado, voters opposed a constitutional amendment that would enshrine the right to hunt and fish, including with “traditional methods,” which could have allowed especially cruel (and currently illegal) practices, like poisoning and leg-hold traps.</p><p>And then there were the candidates. Two members of Congress who’ve led the charge on legislation to <a href="https://www.vox.com/future-perfect/353393/farm-bill-republicans-prop-12-gestation-crates-pork" rel="noopener noreferrer" target="_blank">overturn farm animal welfare laws</a> — Sen. Roger Marshall (R-KS) and Rep. Ashley Hinson (R-IA) — each lost their races. In Colorado, Manny Rutinel — a state lawmaker who’s championed animal welfare issues — defeated incumbent Republican Rep. Gabe Evans in the state’s Eighth Congressional District. One progressive candidate for agriculture secretary in Iowa, Chris Jones — who ran on promises to <a href="https://www.politico.com/news/magazine/2026/07/19/iowa-water-democrats-agriculture-00992753" rel="noopener noreferrer" target="_blank">clean up livestock and farming pollution</a> — did lose, although narrowly.</p><p>While neither political party has taken on animal welfare as a key issue on the stump or in their policy agendas, Democrats — though with some <a href="https://www.vox.com/future-perfect/412854/trump-animal-welfare-research-nih-fda-epa" rel="noopener noreferrer" target="_blank">notable</a> <a href="https://www.vox.com/future-perfect/493710/gestation-crates-farm-bill-save-our-bacon-republicans" rel="noopener noreferrer" target="_blank">exceptions</a> — <em>are</em> more likely to lead on animal welfare legislation and vote in favor of it. That means the blue tsunami that struck the US on Tuesday should ripple out to help advance animal welfare over the next two years.</p><p><h2><strong>The fight over foie gras is settled — for now</strong></h2></p><p>The campaign to ban foie gras won by huge margins, with support from 73 percent of <a href="https://ballotpedia.org/Washington,_D.C.,_Initiative_86,_Prohibit_Force-Feeding_Birds_and_Sale_of_Foie_Gras_and_Other_Fattened_Bird_Liver_Products_Initiative_(November_2026)" rel="noopener noreferrer" target="_blank">DC voters</a> and 66 percent of <a href="https://ballotpedia.org/Denver,_Colorado,_Prohibit_Force-Feeding_Birds_and_Sale_of_Foie_Gras_and_Other_Fattened_Bird_Liver_Products_Initiative_(November_2026)" rel="noopener noreferrer" target="_blank">Denver voters</a>.</p><p>Foie gras is made by force-feeding ducks via a metal pipe about 60 times in the final weeks before they’re killed. The practice causes their livers to swell to about six to 10 times their natural size, which is then turned into a thick spread that’s primarily consumed at high-end restaurants.</p><p>Foie gras farms and fine dining chefs contend that the practice is harmless, or at least not any worse than other factory farming practices. But <a href="https://www.mdpi.com/2076-2615/16/18/2838" rel="noopener noreferrer" target="_blank">veterinary</a> <a href="https://www.cambridge.org/core/journals/animal-welfare/article/abs/welfare-of-ducks-during-foie-gras-production/084F38628B497EAFD274B611BD1237D3" rel="noopener noreferrer" target="_blank">research</a> has concluded that it can in fact be quite painful for the birds.</p><p>A worker inserting a feeding tube into a duck’s throat at Hudson Valley Farms in upstate New York. Kena Betancur/AFP via Getty Images</p><p>Ducks huddling in the corner of a small pen at Hudson Valley Farms in upstate New York. Pro-Animal Future</p><p>“Tonight DC decided that force-feeding a bird has no place here,” Cady Witt of Pro-Animal DC — which put the measure on the ballot — said in a press release. “Thank you to everyone who signed the petition and voted to make DC a kinder place for animals.”</p><p>The DC and Denver votes follow foie gras sales bans in California, Pittsburgh, New York City, and Portland, Oregon. Over 20 European countries have banned the production of foie gras, and earlier this year, Brazil banned its sale and production. India banned the import of the product back in 2014.</p><p>But the foie gras fight in DC and Denver may just be getting started. A representative from Hudson Valley Farms, the largest US foie gras producer, <a href="https://www.axios.com/local/washington-dc/2026/10/29/dc-foie-gras-ban-legal-challenge-hudson-valley" rel="noopener noreferrer" target="_blank">told</a> Axios last week that it’s considering legal challenges. Over the last week, Bart Hutchins — the head chef at Butterworth’s, a restaurant in Washington, DC — has held four-course foie gras tasting menu meals with proceeds going toward a <a href="https://www.wusa9.com/article/news/politics/elections/dc-ballot-question-initiative-86-explained-foie-gras/65-1beec927-6424-4eeb-bc37-f341e9c50af9" rel="noopener noreferrer" target="_blank">potential legal challenge</a>.</p><p><h2><strong>Coloradans rejected a “right to hunt and fish” constitutional amendment</strong></h2></p><p><a href="https://www.vox.com/climate/507355/midterms-2026-wildlife-ballot-measure" rel="noopener noreferrer" target="_blank">Amendment 83 asked Colorado voters</a> to enshrine “the right to hunt, fish, and harvest fish and wildlife by traditional methods” in the state’s constitution. Hunting and fishing are already protected by statute, and so “traditional method” is the key phrasing here.</p><p>“Read plainly, traditional methods could be interpreted to include practices like poisoning, leg hold traps, gill nets, or baiting and hounding,” Rebeecca Niemiec, <a href="https://sites.warnercnr.colostate.edu/animalhumanpolicy/home/people/" rel="noopener noreferrer" target="_blank">co-director</a> of Colorado State University’s Animal-Human Policy Center and a <a href="https://warnercnr.source.colostate.edu/rebecca-niemiec-appointed-to-colorado-parks-and-wildlife-commission/" rel="noopener noreferrer" target="_blank">Colorado Parks and Wildlife commissioner</a>, <a href="https://www.vox.com/climate/507355/midterms-2026-wildlife-ballot-measure" rel="noopener noreferrer" target="_blank">told Vox</a> in October. These practices have been banned in Colorado, and Amendment 83 could’ve been a backdoor way to reverse those bans.</p><p>“Many of these practices injure or maim animals, including ones that aren’t targeted: Steel-jawed traps and poisons don’t discriminate between, say, a deer, a wolf, and a lynx,” my colleague Neel Dhanesha <a href="https://www.vox.com/climate/507355/midterms-2026-wildlife-ballot-measure" rel="noopener noreferrer" target="_blank">wrote</a> in a story about wildlife issues on the ballot this election. The amendment would’ve also established hunting and fishing as the preferred means to manage fish and wildlife, over alternative — and more humane — methods, like birth control or animal relocation.</p><p>In other wildlife news, Massachusetts voters supported a ballot measure to <a href="https://www.wbur.org/news/2026/11/04/massachusetts-question-6-results" rel="noopener noreferrer" target="_blank">fund nature conservation</a>, while voters in Brevard County, Florida, supported the renewal of a tax that funds <a href="https://www.floridatoday.com/story/news/local/environment/2026/11/03/2026-election-results-for-lagoon-sales-tax-renewal/92475672007/" rel="noopener noreferrer" target="_blank">critical manatee and dolphin habitat restoration</a>. Conservation measures in <a href="https://ballotpedia.org/Arkansas_Issue_4,_Natural_Resources_Commission_Bond_Measure_(2026)" rel="noopener noreferrer" target="_blank">Arkansas</a> and <a href="https://ballotpedia.org/Rhode_Island_Question_5,_Environment_and_Watershed_Protection_and_Development_Bond_Measure_(2026)" rel="noopener noreferrer" target="_blank">Rhode Island</a> passed, too.</p><p><h2><strong>Two pro-factory farm politicians lost and a pro-animal welfare candidate won</strong></h2></p><p>In 2016, Massachusetts voters supported a ban on keeping egg-laying hens and pregnant pigs in small cages. Two years later, California voters supported a nearly identical law.</p><p>The laws don’t just ban confining these farmed animals in cages; they also prohibit restaurants and grocery stores from selling eggs and pork from animals kept in these cages no matter what state they were raised in. (Disclosure: I worked on the Massachusetts ballot measure.)</p><p>Pregnant pigs in gestation crates at a Virginia farm connected to Smithfield Foods. Two states have banned the sale of pork from pigs confined in such cages, and Rep. Hinson and Sen. Marshall advocated for legislation to overturn the laws. Humane World for Animals</p><p>Egg-laying hens confined in cages. Several states have banned the sale of eggs from caged hens, and Rep. Hinson and Sen. Marshall advocated for legislation to overturn the laws. Edwin Remsburg/VW Pics via Getty Images</p><p>The pork industry has fought hard to overturn these laws, and two of its strongest congressional champions lost their races: Rep. Ashley Hinson (R-IA) and Sen. Roger Marshall (R-KS). Both have introduced several bills — most recently, the <a href="https://www.vox.com/future-perfect/493710/gestation-crates-farm-bill-save-our-bacon-republicans" rel="noopener noreferrer" target="_blank">Save Our Bacon Act</a> — that would overturn the state-level animal welfare laws. Pork producers and their Republican allies in Congress have worked to insert the legislation into <a href="https://www.vox.com/future-perfect/493710/gestation-crates-farm-bill-save-our-bacon-republicans" rel="noopener noreferrer" target="_blank">the Farm Bill</a>, but with Democrats soon to be in control of the House and Senate, their leverage has shrunk considerably.</p><p>Meanwhile, <a href="https://leg.colorado.gov/bills/sb25-085" rel="noopener noreferrer" target="_blank">pro</a>-<a href="https://leg.colorado.gov/bills/sb25-085" rel="noopener noreferrer" target="_blank">animal welfare</a> Colorado state lawmaker Manny Rutinel, a Democrat, defeated Republican incumbent Rep. Gabe Evans in a competitive race for the state’s Eighth District. Prior to running for office, Rutinel was an attorney at the nonprofit Earthjustice, where he sued meat companies for pollution. The state’s Eighth District also happens to be home to massive industrial agricultural operations, including one of the largest meat packing plants in the country.</p><p>But one agriculture reformer did lose a race. Chris Jones, a former <a href="https://www.vox.com/future-perfect/398336/how-big-meat-silences-its-critics" rel="noopener noreferrer" target="_blank">Big Ag insider turned vocal critic</a>, lost his race to become Iowa’s next agriculture secretary. Jones, a water quality expert, centered his campaign on the poor state of Iowa’s waterways, which have been heavily polluted by the <a href="https://www.vox.com/future-perfect/395967/iowa-factory-farm-pollution-sacrifice-state" rel="noopener noreferrer" target="_blank">state’s massive hog, egg, and ethanol</a> industries, and could be linked to <a href="https://www.investigatemidwest.org/cancer-in-iowa-what-role-does-agriculture-play-in-iowas-high-cancer-rates/" rel="noopener noreferrer" target="_blank">rising cancer rates in Iowa</a>.</p><p>Animals get little direct attention in politics, but each election has massive consequences for them, including the billions of animals confined in factory farms across the US and countless wildlife caught in rivers and hunted for sport. This election was evidence that, when given the opportunity, voters want to help animals. And with a Democratic majority headed to Congress, there may be even more opportunities to advance animal welfare in 2027.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/future-perfect/509104/animals-midterm-election-2026" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

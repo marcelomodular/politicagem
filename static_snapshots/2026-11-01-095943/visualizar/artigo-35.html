@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Náutico vence Avaí e sai do Z4 na Série B - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Náutico vence Avaí e sai do Z4 na Série B</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/futebol/nautico-vence-avai-e-sai-do-z4-na-serie-b/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.facebook.com/tr?id=1504736000726032&ev=PageView&noscript=1" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Náutico vence Avaí e sai do Z4 na Série B
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+<img alt="Náutico 1 x 0 Avaí" src="https://app.fut.news/api/v1/portal/revistaforum/match-article/1143/capa.svg" title="Náutico vence Avaí e sai do Z4 na Série B 1"/>
+<p><strong>Gol de Borasi no primeiro tempo garante três pontos ao Timbu e tira o time da zona de rebaixamento</strong></p><p>
+</p>
+<p>Náutico <strong>1 x 0</strong> Avaí · Brasileirão Série B 2026 · 36ª rodada · Aflitos</p><p>
+</p>
+<h2>Náutico bate Avaí nos Aflitos</h2>
+<p>O Náutico derrotou o Avaí por 1 a 0 na noite desta sexta-feira, nos Aflitos, em partida válida pela 36ª rodada da Série B. O único gol da partida saiu ainda no primeiro tempo, marcado por Borasi, e foi suficiente para o time pernambucano confirmar o resultado até o apito final.</p><p>
+</p>
+<p>O triunfo teve peso especial na tabela. O Náutico vinha de um jejum de quatro rodadas sem marcar gols e, com a vitória, deixou a zona de rebaixamento, subindo uma posição na classificação. Já o Avaí, mesmo pressionando bastante no segundo tempo, não conseguiu evitar a derrota e permanece em situação delicada na parte de baixo da tabela.</p>
+<p></p>
+<p>A partida teve volume maior de cartões amarelos do que de chances claras, mas o lance que decidiu o jogo chamou atenção pela qualidade individual de Borasi, que resolveu sozinho a melhor oportunidade da primeira etapa.</p>
+<h2>Como fica</h2>
+<p>Com a vitória, o Náutico deixou a zona de rebaixamento da Série B. O time pernambucano subiu uma posição na tabela, passando do 15º para o 14º lugar, agora com 46 pontos em 36 jogos disputados.</p>
+<p>Já o Avaí não conseguiu sair da situação delicada e permanece na 17ª colocação, com 37 pontos no mesmo número de jogos. O saldo de gols negativo de 13 do time catarinense reforça a dificuldade na briga para escapar do rebaixamento nas rodadas finais da competição.</p>
+<ul>
+<li>Náutico: 15º -&gt; 14º, 46 pontos</li>
+<li>Avaí: 17º -&gt; 17º, 37 pontos</li>
+</ul>
+<h2>Borasi abre o placar com bomba na área</h2>
+<p>Aos 22 minutos do primeiro tempo, o Náutico chegou ao gol que definiria o resultado da partida. Após boa jogada pela direita, Borasi escapou da marcação, dominou a bola dentro da área e soltou um chute forte, que ainda bateu no travessão antes de morrer no fundo da rede.</p>
+<p>O gol encerrou um jejum de quatro rodadas sem que o Náutico balançasse as redes e colocou o time em vantagem que seria mantida até o fim da partida. Foi uma das poucas finalizações de perigo do time pernambucano na etapa inicial, mas bastou para garantir os três pontos.</p>
+<h2>Primeiro tempo</h2>
+<p>O primeiro tempo teve domínio do Náutico, que manteve a posse de bola no meio-campo e criou as principais chances da etapa. Logo no início, o goleiro Betão precisou deixar o gramado de maca, sendo substituído por Léo Índio aos 6 minutos.</p>
+<p>O jogo teve sequência de cartões amarelos, com Paulo Sérgio, Borasi e Samuel advertidos pelo lado do Náutico, enquanto Jefferson e João Vitor receberam cartão pelo Avaí. Aos 22 minutos, Borasi abriu o placar com um chute forte dentro da área, que ainda desviou no travessão antes de entrar.</p>
+<p>O Avaí teve pouca criação ofensiva na etapa inicial. A principal chance do time catarinense veio aos 36 minutos, quando Zé Ricardo recebeu cartão amarelo após cometer falta que impediu um contra-ataque do Náutico. O time visitante encerrou o primeiro tempo sem finalizações de perigo relevantes, atrás no placar por 1 a 0.</p>
+<h2>Segundo tempo</h2>
+<p>O Avaí voltou do intervalo com três substituições, promovendo as entradas de Wallison, Gaspar e Léo Gamalho nos lugares de Caio Suassuna, Daniel Penha e João Vitor, em busca de reação no placar. O time catarinense passou a pressionar mais e criou chances claras, mas esbarrou em boas defesas do goleiro Muriel.</p>
+<p>O Náutico também promoveu mudanças, com as entradas de Wanderson, Luiz Cláudio e Reginaldo aos 12 minutos, e de Júnior Todinho aos 32. Mesmo com o Avaí mais ofensivo na reta final, o time pernambucano conseguiu segurar o resultado.</p>
+<p>Muriel foi decisivo na etapa final, aparecendo em pelo menos três defesas importantes diante de Wallison e Hyan. Wenderson, do Náutico, precisou deixar o campo de maca aos 17 minutos. O jogo ainda teve cartão amarelo para DG, do Avaí, aos 42 minutos, mas o placar de 1 a 0 para o Náutico não foi mais alterado até o apito final.</p>
+<h2>Agenda do Náutico</h2>
+<p>O Náutico volta a campo no dia 7 de novembro, às 21h30, novamente nos Aflitos, para enfrentar o CRB pela Série B. O time pernambucano chega embalado pela vitória sobre o Avaí e pela saída da zona de rebaixamento, buscando manter a sequência positiva diante da torcida.</p>
+<h2>Agenda do Avaí</h2>
+<p>O Avaí tem compromisso marcado para o dia 7 de novembro, às 16h, na Ressacada, diante do São Bernardo, também pela Série B. Jogando em casa, o time catarinense precisará reagir rapidamente para se afastar da zona de rebaixamento.</p>
+<p><a href="https://fut.news" rel="noopener noreferrer" target="_blank">Conteúdo: FutNews</a></p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/futebol/nautico-vence-avai-e-sai-do-z4-na-serie-b/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fame, Fortune, and Murder in 1960s France - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Fame, Fortune, and Murder in 1960s France</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/10/30/french-history-edward-chisholm-murder-paris-68-alain-delon-scandal/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/10/1-markovic-delon-Muder-in-paris-68-edward-chisolm-GettyImages-2222436950.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Edward Chisholm's 'Murder in Paris '68' Revisits a Famous Scandal to Explain France
+                            </p>
+                            
+
+<p>It helps if you think of the so-called Markovic affair as an accordion. At the beginning, the story is at its thinnest—small and compact. The year is 1968, and a dead body is found, by accident, in a ditch. The corpse is assumed to be that of a vagabond. He receives a half-hearted autopsy—his skull was smashed in, an obvious cause of death—and gets put in the ground.</p>
+
+<p>Still, the judge investigating the case studies the autopsy report and wonders if there is more to it than meets the eye. Would a random, lowly criminal really have perfectly manicured fingernails? A fingerprint match confirms his hunch: The body belonged to Stevan Markovic, an associate of Alain Delon. That’s where <a href="https://link.amazon/B0bm0DzMZ" rel="noopener noreferrer" target="_blank"><em>Murder in Paris ’68</em></a> really picks up.</p>
+<p>“Associate” is a loose term, but, as author Edward Chisholm explains over the course of roughly 400 pages, it’s better to be vague than incorrect. It’s tough to describe what the two men meant to each other. Markovic was a young man from Yugoslavia who had come to France illegally in hope of a better life. Delon was a movie star, and one of the most beautiful men in the world. They liked and loathed each other, acting as close friends and betraying one another remorselessly. Before his death, Markovic wrote to his brother saying that, if anything were to happen to him, Delon would be “10,000% responsible.”</p>
+<p>The scandal following both Markovic’s death centered on this murky and complex relationship. But, according to Chisholm, it had to do with much more than that. The affair was about the nature of fame and fortune in the 1960s, the influence World War II still had on French politics, and a country desperately trying to move toward the future yet weighed down by its heavy past. There was one man at the center of it, sure, but in Chisholm’s telling, you can easily grab the accordion and open it wide, showcasing its countless folds.</p>
+<p></p>
+
+ 
+<img alt="A black-and-white, candid outdoor photograph of a man with short hair holding a baby, while a woman with blonde hair and sunglasses on her head stands beside him. The baby is holding a small round snack, and both adults are looking down toward the child with gentle expressions." src="https://foreignpolicy.com/wp-content/uploads/2026/10/2-markovic-delon-Muder-in-paris-68-edward-chisolm-GettyImages-102677055.jpg"/>
+
+A black-and-white, candid outdoor photograph of a man with short hair holding a baby, while a woman with blonde hair and sunglasses on her head stands beside him. The baby is holding a small round snack, and both adults are looking down toward the child with gentle expressions.
+<p>Delon with his wife, Nathalie, and their son in Monte Carlo in 1965.Archive Photos via Getty Images </p>
+
+<p>Really, the story begins a decade earlier. In 1955, a 19-year-old Delon left the army after three years. His military record was far from spotless. He spent nearly a third of his time there in prison—for “[o]perating a vehicle without authorization and without a valid licence, resulting in a serious accident,” “[p]ossession of a prohibited weapon,” and “[c]ausing public scandal while ashore,” among other offences. His file concluded that he was “[a] bad element in every respect.”</p>
+<p>Now a civilian again, his first port of call was Toulon, in the south of France. He was there to see an old acquaintance, François Marcantoni, a Corsican gangster and former French Resistance fighter who, like many others at the time, moved relentlessly between worlds.</p>
+
+<p>France in the 1950s and 1960s was still fundamentally shaped by the war—by the Nazi occupation and its collaborators in the Vichy government, and by those who fought back. Marcantoni was “arrested in ’44 in a stolen car, running an op for the Resistance. The Gestapo had tortured him,” Chisholm writes. For someone like him, “the post-war years offered two paths: the police, or Pigalle [a neighborhood in Paris]. For François, the choice was obvious. The cops had collaborated, they were the enemy then—and they still were.”</p>
+<p>Pigalle was where not-so-reformed Corsican gangsters set up their dodgy bars in the years following the liberation, and where Delon wound up in the late 1950s, when he landed his breakout role in <em>Purple Noon</em>, an adaptation of Patricia Highsmith’s <em>The Talented Mr. Ripley</em>.</p>
+<p>A 21-year-old Markovic, meanwhile, made his escape from Josip Broz Tito’s Belgrade to Western Europe in 1958, the same year that Charles de Gaulle, once venerated then cast into the political wilderness, returned to the French presidency.</p>
+<p>After a short prison stint in 1965, Markovic, who sustained himself through odd jobs and low-level crime, was in need of a place to stay. His best friend, Milos Milosevic, had managed to befriend Delon a few years earlier while the actor was filming in Belgrade. (Milosevic had staged a fake mugging, before “stepping in” to rescue Delon, and eventually became part of Delon’s entourage.) Milosevic soon convinced Delon to host his friend.</p>
+<p>What happened afterward is complicated. Milosevic died in Hollywood in 1966, in what looked like a murky murder-suicide involving the estranged wife of actor Mickey Rooney. After that, Markovic became an integral part of Delon’s life. As Chisholm explains, Markovic was “[n]ot quite a secretary, not a bodyguard, not an employee. Delon doesn’t pay him—unless you count the occasional envelope. His job is more…ambient.”</p>
+<p>“He’s become the man in the background. Pushing the pram through Parc Monceau, driving [Delon’s wife] Nathalie’s Alfa, standing behind the couple at film galas, cocktail in hand,” Chisholm adds. “He’s always there.”</p>
+<p>The situation may seem idyllic from the outside; it wasn’t. The nature of the trio’s dynamic was not entirely clear, but the Delons’ marriage was unstable and violent. Sometimes, Markovic felt like he was part of the family; often, the couple put him firmly back in his place. The letters he sent to friends in those years indicate that he was frustrated by this state of affairs, and by Delon’s frequent refusal to sign his residency papers, keeping his legal status irregular.</p>
+<p>In 1967, the couple separated. Nathalie moved out, Markovic followed her, and the pair watched as Delon unilaterally announced the divorce on television. What followed was a short-lived affair between the two, which may have sealed his fate.</p>
+<p>Markovic’s body was found just over a year later. While much remains unknown, Chisholm makes it clear that the events surrounding the murder cannot be explained without one man: Marcantoni. He was a friend of Delon’s, still, and knew Markovic. He spent the 1960s arguing that he was no longer a gangster—retired long ago—and merely a “victim of [his] reputation,” which few people bought even then. He’s mentioned by name in the infamous letter Markovic sent to his brother. Was he a murderer?</p>
+
+
+
+
+<img alt="A black-and-white photograph of a crowd of people, with a man wearing a dark fedora and patterned coat in the foreground, looking directly at the camera with a slight expression. He is surrounded by other men, several of whom are wearing hats, and media equipment like microphones and headsets are visible in the background." src="https://foreignpolicy.com/wp-content/uploads/2026/10/3a-markovic-delon-Muder-in-paris-68-edward-chisolm-GettyImages-1264068097.jpg"/>
+
+A black-and-white photograph of a crowd of people, with a man wearing a dark fedora and patterned coat in the foreground, looking directly at the camera with a slight expression. He is surrounded by other men, several of whom are wearing hats, and media equipment like microphones and headsets are visible in the background.
+
+
+				François Marcantoni is released from prison in Versailles on Dec. 4, 1969. Gamma-Rapho via Getty Images
+
+
+
+<img alt="A black-and-white photograph of a man in a suit and tie walking through a crowded outdoor space, gesturing with one hand as he looks slightly to his right. He is surrounded by other men, including a police officer in uniform to his left, with media microphones visible overhead and a building in the background." src="https://foreignpolicy.com/wp-content/uploads/2026/10/3b-markovic-delon-Muder-in-paris-68-edward-chisolm-GettyImages-1192795976.jpg"/>
+
+A black-and-white photograph of a man in a suit and tie walking through a crowded outdoor space, gesturing with one hand as he looks slightly to his right. He is surrounded by other men, including a police officer in uniform to his left, with media microphones visible overhead and a building in the background.
+
+
+				Alexandre Markovic (center), brother of Stevan Markovic, arrives at court in Versailles in 1973. AFP via Getty Images
+
+
+
+<p>The book alleges that he is (it can afford to—Marcantoni died in 2010), but the murder was never solved. There are, Chisholm explains, four prevailing theories. The first is that Delon had Markovic killed for sleeping with his wife, probably enlisting Marcantoni’s help. The second is that Markovic planned to sell stories and pictures of the Delons, but they found out and had him killed, likely with Marcantoni. The third is that Markovic’s personal dealings with the underworld got him killed, possibly by Marcantoni, possibly by someone else.</p>
+<p>The fourth—watch as the accordion expands—is that, through his association with the Delons, Markovic had made his way into the upper echelons of French society, where politicians, singers, actors, and high-end criminals partied and slept together in secret. Could the young Yugoslav have gone to those events, taking covert pictures of the Parisian elite in compromising positions? We know now that no evidence exists (or remains) of this, but the theory tantalized France for months after his death.</p>
+<p>Most shocking of all were snaps that emerged of a woman engaged in a tryst with another woman, which made their way to the Parisian police. The woman was believed to be Claude, the wife of Prime Minister Georges Pompidou. These were so obviously doctored that they did not even become a part of the police investigation, but the story was too salacious to die quietly. De Gaulle, aging, tired, did little to protect the man who had been faithfully at his side since his return to the Élysée Palace a decade earlier. Meanwhile, political opponents, hungry journalists, and at least one Czech spy conspired to ensure that the Pompidou name would keep being embroiled in the Markovic affair.</p>
+<p>It helped Marcantoni, as the main suspect, that this merry band of interested parties was invested in turning the story into a political scandal. In 1969, he was arrested and held in custody after investigators had traced the plastic in which the body had been wrapped to packaging used by a mattress brand that Marcantoni had in his house. He spent just under a year behind bars, then left a free man. With no one talking, there just wasn’t enough there for a conviction.</p>
+<p>Though the case rumbled on after that, the Markovic affair was essentially over. France had turned a new leaf too. The riots of May ’68, which had united students, workers, and millions of others in protesting for a brighter future, had initially failed to remove de Gaulle from his post. But a year later, despite the success of his party and the support of figures including Delon, de Gaulle resigned. Pompidou, a man who did not fight during the war and whose love of contemporary art and friendships in the entertainment world shocked his predecessors, took his place. Finally, the future of France was taking form. Everyone was moving on.</p>
+<p>Marcantoni, now free for good, published multiple books concerning the affair, including the provocatively titled <em>But Who Killed Markovic?</em>. He became famous for claiming that “only three people know the truth. Delon, me and God. And God never snitches.” Delon died two years ago, and though his career continued for decades after the murder, it largely peaked in the 1960s. Maybe there was a reason he supported de Gaulle and not the idealist youths in 1968. On some level, he knew that, despite being in his early 30s, he could only ever be part of the old guard.</p>
+
+ 
+<img alt="A candid, close-up black-and-white photograph of a man in a dark suit and a woman with blonde hair being escorted through a crowded indoor space by several uniformed police officers wearing kepi hats. The man has his arm linked with the woman&amp;apos;s, and they appear to be moving through a dense pack of people, including officers on all sides." src="https://foreignpolicy.com/wp-content/uploads/2026/10/4-markovic-delon-Muder-in-paris-68-edward-chisolm-GettyImages-1236886945.jpg"/>
+
+A candid, close-up black-and-white photograph of a man in a dark suit and a woman with blonde hair being escorted through a crowded indoor space by several uniformed police officers wearing kepi hats. The man has his arm linked with the woman&amp;apos;s, and they appear to be moving through a dense pack of people, including officers on all sides.
+<p>Delon (center) leaves court in Versailles in 1973.AFP via Getty Images </p>
+
+<p>That is the book’s thesis anyway. Much of <em>Murder in Paris ’68</em> tries to convince us that the affair was, in some way, about all of human life. “At first, I thought this was a story about a murder,” Chisholm writes. “Then it became a story about cinema. Then politics, espionage, a cover-up. But somewhere along the way, it became something else. A story about power. About what happens when someone tries to become more than they are allowed to be.”</p>
+
+<p>This is one way to interpret it, but it is equally easy to read Chisholm’s yarn and come to another conclusion altogether. Delon was a cold, unpleasant man with a large ego who relished the company of outlaws. His wife was young, unreliable, and prone to follow her husband’s lead in toying with those she deemed beneath her. Many of the people they socialized with were either low-level swindlers or hardened criminals, always looking to make a quick buck.</p>
+<p>Markovic was a man who got lucky and unlucky; who cheated and stole his way through life, then, for a short while, found himself attached to a man who happened to be a god. Always, he returned to what he knew: petty, lazy crime. It’s possible to squint and follow Chisholm in comparing him to Brutus or Iago—Shakespeare’s second men<strong>—</strong>but, really, he may have just been a minor crook who died in the way minor crooks sometimes did in those days.</p>
+<p>By dragging Markovic’s lifeless body back in the spotlight today, Chisholm has merely become the latest in a long line of people, from Pompidou’s detractors to Marcantoni’s publishers, willing to use him for their own ends. It makes for a compelling read, though you should remember that, even as an accordion is at its widest, it’s only ever full of air.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/10/30/french-history-edward-chisholm-murder-paris-68-alain-delon-scandal/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

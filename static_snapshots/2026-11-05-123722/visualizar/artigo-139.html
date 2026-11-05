@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votar não deveria exigir heroísmo - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Votar não deveria exigir heroísmo</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Observatorio da Imprensa</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.observatoriodaimprensa.com.br/eleicoes/votar-nao-deveria-exigir-heroismo/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/d6a9867_2.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Votar não deveria exigir heroísmo
+                            </p>
+                            
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/10/d6a9867_2.webp"/><p>(Foto: Fernando Frazão/Agência Brasil)</p>
+<p>Comoveram as redes as <a href="https://www.instagram.com/p/De7050An_4O/" rel="noopener noreferrer" target="_blank">imagens publicadas por Márcio Allemand</a>, em que seu pai, coronel reformado da Polícia Militar, de 83 anos, é carregado em sua cadeira de rodas por dois netos e um amigo deles. O grupo vence as escadas íngremes e estreitas de um prédio de aparência precária, seu local de votação no segundo turno, em 25 de outubro. Ao fim do carrossel, o idoso exibe o comprovante de votação junto ao título de eleitor, como prêmio à sua determinação e à solidariedade de familiares e amigos. A cena traz uma pergunta incômoda, ausente da celebração: por que foi necessário tanto esforço para exercer um direito elementar cuja garantia é a principal razão de existir da Justiça Eleitoral?</p>
+<p>Quando histórias assim chegam à imprensa sobretudo como exemplos de civismo, o obstáculo ao voto passa a medir a virtude de quem conseguiu vencê-lo. A determinação do eleitor ocupa o centro da notícia, enquanto as decisões sobre as condições de acesso à seção permanecem opacas. O comprovante oferece um desfecho feliz, mas também pode encerrar a narrativa antes que ela alcance quem não dispunha de ajuda familiar, resistência física ou dinheiro para um deslocamento imprevisto. A solidariedade compensa a deficiência da organização eleitoral; sua celebração, quando dispensa o exame dessa deficiência, acaba por compensá-la também no debate público.</p>
+<p>Em julho, <a href="https://www.observatoriodaimprensa.com.br/politica/nao-vota-porque-nao-quer/" rel="noopener noreferrer" target="_blank">questionei neste Observatório</a> o enquadramento moralizante da abstenção. Diante de tantos eleitores ausentes, multiplicavam-se propostas de punição mais severa ou de campanhas de conscientização, como se o problema estivesse principalmente na disposição dos cidadãos para cumprir seu dever. Propunha questionar a atuação dos partidos, dos sindicatos e da própria imprensa diante dos obstáculos à participação, com especial atenção à responsabilidade da Justiça Eleitoral por organizar e viabilizar o comparecimento. Naquele momento, a obrigação formal de votar parecia autorizar a presunção de que todos dispunham de condições para fazê-lo. Agora, a figura do eleitor apático cede lugar à do eleitor heroico. O julgamento moral se inverte, mas conserva o mesmo centro: a vontade individual. Antes censurada, agora exaltada, ela continua deixando em segundo plano as condições institucionais de participação.</p>
+<p>Os <a href="https://apublica.org/2026/10/onibus-sequestrados-depoimentos-em-salvador-indicam-caos/" rel="noopener noreferrer" target="_blank">relatos reunidos pela Agência Pública em Salvador</a> permitem deslocar esse olhar. Tássia Novaes contou ter levado cerca de dez pessoas aos locais de votação; Maíra Rocha, outras seis. A reportagem registrou também o caso de uma atendente que só sairia do trabalho às 16h15 e precisaria de pelo menos uma hora de ônibus para chegar à sua seção, caso encontrasse transporte. Ela aceitou a oferta de pagamento de uma corrida por aplicativo. A jornada de trabalho e a falta de ônibus se combinaram para colocar o exercício do voto na dependência de socorro particular. A carona aparece, assim, como resposta solidária a um problema cuja dimensão ultrapassa a emergência daquele domingo.</p>
+<p>Há uma pauta sobre a própria regulação eleitoral nesse encontro entre trabalho e transporte. A permissão de funcionamento dos estabelecimentos no dia da eleição convive com a ausência de um mínimo geral de horas livres para votar, permanecendo a proteção na fórmula aberta do <a href="https://www.tse.jus.br/legislacao/compilada/res/2026/resolucao-no-23-759-de-26-de-fevereiro-de-2026" rel="noopener noreferrer" target="_blank">“tempo necessário”</a>. O transporte, por sua vez, exige examinar como a Justiça Eleitoral assegura e fiscaliza as condições de deslocamento dos eleitores. Na <a href="https://portal.stf.jus.br/constituicao-supremo/artigo.asp?abrirArtigo=14&amp;abrirBase=CF" rel="noopener noreferrer" target="_blank">ADPF 1013</a>, o STF advertiu que a ausência de transporte gratuito pode criar um “novo tipo de voto censitário”, excluindo os mais pobres da participação. A cobertura que registra o auxílio prestado aos eleitores dispõe, portanto, de elementos para investigar por que a garantia de um direito ficou dependente de recursos privados e de ajuda eventual.</p>
+<p>A proteção do tempo de votação já recebeu respostas mais objetivas em outros países. No <a href="https://laws-lois.justice.gc.ca/eng/acts/e-2.01/page-11.html" rel="noopener noreferrer" target="_blank">Canadá</a>, a lei assegura, em regra, três horas consecutivas livres durante a votação, cabendo ao empregador conceder, sem desconto salarial, a dispensa necessária para completar esse período. No <a href="https://www.dt.gob.cl/legislacion/1624/w3-article-126820.html" rel="noopener noreferrer" target="_blank">Chile</a>, uma alteração legislativa de 2024 ampliou para pelo menos três horas o afastamento remunerado de quem precisa trabalhar no dia da eleição. Na <a href="https://www.employment.govt.nz/leave-and-holidays/other-types-of-leave/time-off-to-vote" rel="noopener noreferrer" target="_blank">Nova Zelândia</a>, quem não teve oportunidade razoável de votar antecipadamente ou antes do expediente pode deixar o trabalho até as 15h pelo restante do dia, sem desconto salarial, ressalvado o regime específico dos serviços essenciais. Essas experiências reconhecem uma condição elementar do sufrágio: o trabalhador precisa dispor de tempo sobre o qual possa decidir. A duração da dispensa, a preservação da remuneração e os limites impostos às jornadas são escolhas públicas que distribuem possibilidades de participação. Sua comparação oferece à imprensa brasileira uma pauta sobre as garantias disponíveis ao eleitor. A ausência de um parâmetro temporal objetivo também merece ter sua justificativa e seus efeitos examinados.</p>
+<p>Nem toda disposição para enfrentar obstáculos termina com um comprovante de votação. Erenilza Carvalho Pires, vendedora autônoma de 52 anos, tentou e não conseguiu. Segundo <a href="https://www1.folha.uol.com.br/poder/2026/10/decisao-de-zanin-gerou-incerteza-brasil-afora-e-muito-eleitores-nao-puderam-votar-apos-as-17h.shtml" rel="noopener noreferrer" target="_blank">reportagem da Folha</a>, ela saiu de Itaquera às 13h30, relatou ter esperado mais de três horas por transporte e chegou ao local de votação depois das 18h. Encontrou a seção encerrada. A narrativa da superação seleciona quem alcançou o desfecho feliz; a tentativa frustrada exige outro enquadramento. Também houve empenho, deslocamento e espera, mas nenhum voto ao final. Um balanço jornalístico da eleição precisa dar à experiência de Erenilza o mesmo peso que atribui ao êxito dos que chegaram à urna.</p>
+<p>A prorrogação da votação até as 19h, determinada pelo STF, acrescentou incerteza a esses percursos. A <a href="https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/prorrogacao-da-votacao-teve-baixa-procura-e-frustracao-de-eleitores" rel="noopener noreferrer" target="_blank">Agência Brasil documentou</a> eleitores que encontraram portões fechados e mesários que só souberam da medida depois de encerrar as seções. A execução atabalhoada expôs a distância entre a decisão anunciada e a possibilidade de cumpri-la. Esses relatos ofereciam à imprensa razões para exigir do TSE explicações sobre os protocolos de contingência, as providências tomadas desde os primeiros alertas e os canais de comunicação com os responsáveis pela votação. A excepcionalidade da prorrogação não deveria encerrar o exame da preparação: as dificuldades de transporte e de acesso às seções pertencem à organização ordinária das eleições, mesmo quando suas consequências se tornam mais visíveis em uma emergência.</p>
+<p>Parte da cobertura permaneceu, contudo, na transmissão das orientações oficiais. A <a href="https://www.vozdebrasilia.com.br/noticia/eleicoes-25-outubro-tse-esclarecimento-prorrogacao" rel="noopener noreferrer" target="_blank">TV Voz de Brasília</a> anunciou a nota do TSE e encaminhou o leitor ao comunicado, sem acrescentar outras fontes ou reconstruir a sequência dos acontecimentos. O <a href="https://noticias.r7.com/eleicoes/2026/zanin-e-tse-limitam-prorrogacao-da-votacao-as-secoes-que-nao-foram-fechadas-25102026/" rel="noopener noreferrer" target="_blank">R7</a> informou que o ofício aos tribunais regionais havia sido enviado às 17h49 e explicou que a extensão alcançaria apenas as seções ainda abertas. Nessas publicações, o leitor encontrava o conteúdo da orientação, mas não a apuração de como ela chegaria aos destinatários, quais providências a antecederam ou como seu recebimento seria verificado. Informar a decisão era necessário; investigar sua execução continuava sendo uma tarefa em aberto. A declaração da instituição cuja atuação está em exame deveria fornecer novos pontos de partida para esse trabalho, em vez de encerrar o escrutínio.</p>
+<p>Em alguma medida, esse estreitamento do debate parece refletir a maneira pela qual a imprensa lidou com as sucessivas campanhas de desinformação da extrema direita brasileira, destinadas a desacreditar o resultado eleitoral. Em resposta, a defesa da segurança das urnas e da precisão da apuração passou a se confundir com a defesa da própria organização das eleições. Entre a denúncia de uma fraude imaginária e a afirmação da integridade do procedimento, perdeu espaço uma questão elementar: todos tiveram condições de chegar à urna? A segurança do voto depositado não demonstra que o acesso ao voto tenha sido universal e igualitário. É perfeitamente possível contar corretamente todos os votos recebidos em uma eleição que tenha imposto obstáculos desiguais a quem pretendia votar. A competência técnica do TSE em uma dimensão de sua atuação não responde às perguntas sobre outra.</p>
+<p>Esse impasse também aparece na resposta de parte dos setores progressistas aos ataques da extrema direita. A defesa da institucionalidade passou a abranger a conservação das instituições tal como estão organizadas, deixando em segundo plano a exigência de transformá-las para ampliar a participação. A reação assume um conteúdo conservador justamente onde deveria haver uma agenda de democratização. Ao concentrar energias na contestação das acusações de fraude, esses setores acabam aceitando os termos da controvérsia impostos por seus adversários. A crítica democrática à organização eleitoral perde espaço, como se questionar suas insuficiências significasse aderir à tentativa de desacreditá-la. Quando a imprensa reproduz esse impasse, o debate fica limitado à alternativa entre atacar e defender as instituições, enquanto a possibilidade de exigir que cumpram melhor sua finalidade permanece à margem.</p>
+<p>Os episódios relatados dão concretude ao descompasso entre a organização das eleições e a sociedade cuja participação ela deveria viabilizar. A população brasileira <a href="https://agenciagov.ebc.com.br/noticias/202310/censo-2022-numero-de-idosos-na-populacao-do-pais-cresceu-57-4-em-12-anos" rel="noopener noreferrer" target="_blank">envelheceu</a>, a economia se complexificou, o domingo integra a rotina de trabalho de diversas categorias profissionais e os <a href="https://www.nexojornal.com.br/grafico/tempo-deslocamento-ate-trabalho-transporte-publico-media-trabalhador-brasileiro" rel="noopener noreferrer" target="_blank">longos deslocamentos entre moradia e emprego</a> disputam o tempo disponível para chegar ao local de votação. Essas transformações exigem que o planejamento considere diferentes condições de mobilidade, jornada e acesso ao transporte. Tratá-las como circunstâncias particulares que cada cidadão deve administrar preserva rotinas e transfere aos indivíduos o custo de sua inadequação. Para a imprensa, investigar esse descompasso significa acompanhar como a Justiça Eleitoral revê suas escolhas diante das mudanças da vida cotidiana. A permanência de uma rotina institucional não demonstra sua adequação à sociedade que mudou.</p>
+<p>Também a incorporação da <a href="https://www.justicaeleitoral.jus.br/biometria/" rel="noopener noreferrer" target="_blank">biometria à identificação do eleitor</a> deveria abrir espaço para examinar a organização territorial da votação. A novidade tecnológica costuma ser apresentada por sua contribuição à segurança, mas sua relação com as possibilidades de participação merece igual atenção. Quais razões ainda tornam indispensável a vinculação a uma zona e seção específicas, quais limitações poderiam ser superadas e quanto dessa organização apenas reproduz escolhas herdadas? Não cabe à imprensa presumir que toda restrição perdeu sua justificativa, mas tampouco aceitar sua permanência como prova de necessidade. O exame alcança a distribuição territorial de competências e a centralidade da figura do juiz eleitoral: é preciso investigar se esse arranjo está organizado em função das necessidades de participação ou se são os eleitores que precisam acomodar suas vidas a ele. A referência principal do planejamento deveria ser o cidadão que pretende exercer seu direito.</p>
+<p>A percepção de maior engajamento eleitoral contrasta com a redução apenas discreta da abstenção. Considerando exclusivamente o eleitorado no Brasil, com exclusão do exterior, a taxa foi de 18,99%, ante <a href="https://dadosabertos.tse.jus.br/dataset/resultados-2022/resource/0e59001a-3c9f-4a0d-a8db-7befdba22330" rel="noopener noreferrer" target="_blank">20,43% no segundo turno de 2022</a>, <a href="https://dadosabertos.tse.jus.br/dataset/resultados-2018/resource/a96bfc8e-1e57-4eec-afcd-f98525d5cf51" rel="noopener noreferrer" target="_blank">21,17% em 2018</a> e <a href="https://dadosabertos.tse.jus.br/dataset/resultados-2014/resource/661addf3-fd0c-4c3b-9c32-fbb680dda9e3" rel="noopener noreferrer" target="_blank">21,01% em 2014</a>. Persiste, portanto, a ausência de quase um quinto dos cidadãos aptos a votar. Esse contraste suscita a hipótese de que limites materiais à participação, insuficientemente considerados pela organização eleitoral, estejam restringindo a conversão da mobilização política em comparecimento efetivo. A imprensa que celebra o empenho dos eleitores neste segundo turno deveria levar essa hipótese ao centro do debate: quanto da abstenção decorre da falta de interesse em participar e quanto persiste apesar desse interesse, porque a disposição para votar encontra obstáculos que nem mesmo um esforço extraordinário consegue superar?</p>
+<p>A vigilância da imprensa sobre as instituições de poder inclui o TSE e os demais órgãos da Justiça Eleitoral. A confiança em sua atuação precisa conviver com o ceticismo que leva a examinar decisões, cobrar justificativas e tornar visíveis os efeitos de suas escolhas sobre a vida dos cidadãos. Os relatos de superação oferecem um ponto de partida para esse trabalho, desde que a emoção não encerre a investigação. O pai de Márcio Allemand conseguiu chegar à urna; outros ficaram pelo caminho. Reconhecer sua determinação exige também perguntar por que ela precisou ser tão extraordinária. Quando o jornalismo celebra o heroísmo sem interrogar as condições que o tornaram necessário, ajuda a naturalizar os obstáculos que deveria expor. Exercer um direito elementar não deveria ser uma prova de resistência, e o papel da imprensa é questionar quem organiza essa prova.</p>
+<p><strong>***</strong></p>
+<p><strong>Joabe Souza</strong> é advogado público, graduado em Direito pela Universidade de São Paulo. Desenvolve estudos sobre as relações entre trabalho, cidadania e condições materiais de exercício do direito ao voto.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.observatoriodaimprensa.com.br/eleicoes/votar-nao-deveria-exigir-heroismo/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

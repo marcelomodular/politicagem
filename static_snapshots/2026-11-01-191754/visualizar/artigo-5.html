@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incêndio de grandes proporções destrói dezenas de hectares e novos focos preocupam - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Incêndio de grandes proporções destrói dezenas de hectares e novos focos preocupam</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Brasil 247</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.brasil247.com/meio-ambiente/incendio-de-grandes-proporcoes-destroi-dezenas-de-hectares-e-novos-focos-preocupam/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.brasil247.com/wp-content/uploads/2026/11/Brigadistas-Avancam-na-Floresta-Fumegante.jpg?w=1200&quality=88&strip=all" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Incêndio de grandes proporções destrói dezenas de hectares e novos focos preocupam
+                            </p>
+                            
+<p><strong>247 </strong>– Equipes de combate a incêndios continuam mobilizadas neste domingo (1º) na Área de Proteção Ambiental (APA) Alter do Chão, em Santarém, no oeste paraense, após controlarem as chamas que consumiram aproximadamente 58 hectares de vegetação nativa. Bombeiros militares, brigadistas voluntários e indígenas da etnia borari atuam para extinguir novos focos e impedir que o fogo volte a se espalhar pela região. Segundo reportagem da <em><a href="https://www1.folha.uol.com.br/ambiente/2026/11/incendio-de-grandes-proporcoes-em-alter-do-chao-pa-e-controlado-bombeiros-e-brigadistas-combatem-novos-focos.shtml" rel="noopener noreferrer" target="_blank">Folha de S.Paulo</a></em>, a operação conta com apoio de aeronaves do governo federal e reúne esforços de órgãos públicos, organizações comunitárias e moradores. O estado tem a sua pior temporada de queimadas da história recente. O Pará encerrou o mês de outubro com mais de 12 mil focos de incêndio, o maior número para o período em 29 anos, de acordo com o Instituto Nacional de Pesquisas Espaciais (Inpe). </p>
+<p>O incêndio de maiores proporções foi controlado no sábado (31), após a mobilização das equipes terrestres e o lançamento de água por aeronaves. O trabalho impediu que as frentes de fogo avançassem sobre áreas de floresta e savana. A situação permanece sob monitoramento, principalmente nas proximidades do lago Verde e de outros pontos da unidade de conservação, onde brigadistas identificaram novas ocorrências.</p>
+<p>O fundador da Brigada de Incêndio Florestal de Alter do Chão, João Romano, atribuiu o controle das chamas à mobilização conjunta dos diferentes grupos envolvidos na operação. Segundo ele, a atuação permitiu interromper o avanço do incêndio e concentrar os esforços na eliminação dos focos restantes. “Ali, agora, os esforços são de extinção mesmo. Não tem nenhuma frente avançando. As aeronaves, o esforço do governo federal, governo estadual, sociedade civil e brigadas deu certo”, afirmou.</p>
+<p>A resposta também contou com integrantes dos Guardiões do Território Borari, grupo indígena que desenvolve atividades de proteção e vigilância territorial em Alter do Chão. A participação das comunidades locais integra os trabalhos de combate e acompanhamento dos incêndios na região.</p>
+<h3>Novos focos ameaçam áreas de vegetação</h3>
+<p>O brigadista Elder Stéfanno informou, por meio das redes sociais, que as equipes conseguiram extinguir uma frente de incêndio que avançava em direção a uma formação de savana. Outro foco, que colocava em risco uma área de floresta, também teve seu avanço interrompido. A mobilização continuou após os brigadistas identificarem pontos de fogo nas proximidades do lago Verde, uma das atrações turísticas de Alter do Chão e parte da paisagem que caracteriza o distrito. </p>
+<p>“Existem alguns focos na margem do lago Verde, mas a equipe da Rede de Brigadas do Baixo Tapajós já está atuando lá”, declarou Stéfanno. Outra ocorrência surgiu na noite de sábado, às margens da rodovia PA-457, perto de uma escola localizada dentro dos limites da Área de Proteção Ambiental de Alter do Chão.</p>
+<p>As equipes do Corpo de Bombeiros do Pará atuaram nesse ponto durante o domingo e conseguiram extinguir o incêndio à tarde. A ocorrência reforçou a necessidade de manter agentes mobilizados mesmo após o controle das frentes de maiores proporções.</p>
+<p>O sargento do Corpo de Bombeiros do Pará Julio César Galúcio apontou atividades humanas entre os fatores associados à ocorrência de queimadas na região. “A maioria das causas são atividades agropecuárias. Limpeza de terrenos, queima de lixo, abertura de áreas”, afirmou.</p>
+<h3>Governo federal mobiliza aeronaves e brigadistas</h3>
+<p>O combate às chamas contou com o apoio de recursos aéreos e equipes especializadas. Segundo o prefeito de Santarém, Zé Maria Tapajós (MDB), o Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis (Ibama) disponibilizou seis aeronaves, dois helicópteros e 70 brigadistas para as operações. O trabalho envolve bombeiros militares, integrantes de brigadas comunitárias, agentes federais e indígenas que conhecem as características ambientais e territoriais da região.</p>
+<p>O Instituto Chico Mendes de Conservação da Biodiversidade (ICMBio) confirmou que as equipes conseguiram controlar a situação em Alter do Chão. Mesmo assim, agentes continuaram utilizando aeronaves no domingo para lançar água sobre áreas que ainda apresentavam fumaça.</p>
+<p>A permanência de fumaça não significa necessariamente que as chamas continuam avançando. Troncos, raízes e outros materiais vegetais podem manter a combustão por períodos prolongados, inclusive abaixo da superfície do solo. Essas condições exigem o acompanhamento das áreas atingidas e a realização de operações de rescaldo para reduzir o risco de novos incêndios.</p>
+<p>As equipes também fazem varreduras para localizar pontos de calor e apagar materiais que ainda apresentam combustão. O vento e as temperaturas elevadas podem favorecer a retomada das chamas em locais que já passaram pelo primeiro combate.</p>
+<h3>Prefeitura decreta emergência e pede investigação</h3>
+<p>O prefeito de Santarém, Zé Maria Tapajós, acionou as polícias Civil e Militar para investigar as queimadas na região. A medida busca esclarecer as circunstâncias dos incêndios e identificar eventuais responsáveis. A administração municipal também decretou situação de emergência diante dos impactos da fumaça na qualidade do ar e das condições ambientais que favorecem a propagação das chamas.</p>
+<p>A Prefeitura de Santarém mantém fiscais ambientais na região por meio da Secretaria Municipal de Meio Ambiente (Semma). Os servidores trabalham em sistema de revezamento e acompanham a situação das áreas atingidas. As atividades incluem o levantamento dos danos à vegetação, a identificação dos trechos afetados e a coleta de informações que possam contribuir para as investigações.</p>
+<p>A secretária municipal de Meio Ambiente, Vânia Portela, esteve na região da Capadócia, em Alter do Chão, no sábado, para acompanhar o trabalho das equipes e conversar com representantes da Brigada de Alter do Chão e do Prevfogo, programa do Ibama.</p>
+<p>Os agentes municipais também acompanham locais que apresentam focos subterrâneos, situação em que o material vegetal continua queimando abaixo da superfície e pode exigir novas intervenções. O município informou que mantém contato com as instituições responsáveis pelo combate direto às chamas e com os órgãos de segurança pública que participam da apuração das ocorrências.</p>
+<h3>Seca e El Niño ampliam riscos de queimadas</h3>
+<p>Os incêndios ocorrem em um período de estiagem na Amazônia, quando a redução das chuvas e a perda de umidade da vegetação criam condições para a propagação do fogo. O fenômeno El Niño, associado ao aquecimento das águas do Oceano Pacífico equatorial, pode modificar os padrões de precipitação e intensificar períodos de seca em determinadas regiões do Brasil.</p>
+<p>As mudanças climáticas também influenciam as condições de temperatura e disponibilidade de umidade, fatores que interferem no comportamento dos incêndios florestais. Na região de Alter do Chão, a combinação entre vegetação ressecada, condições meteorológicas e atividades humanas aumenta os riscos de propagação das chamas.</p>
+<p>O município já havia adotado medidas de emergência relacionadas à estiagem e ao aumento das queimadas. A administração também estabeleceu restrições ao uso do fogo, incluindo uma proibição pelo período de 180 dias. As autoridades ainda não determinaram a origem do incêndio que atingiu os 58 hectares de vegetação nativa. A investigação deverá avaliar as circunstâncias dos focos e a possibilidade de ação humana.</p>
+<h3>Alter do Chão enfrentou incêndio de 1,6 mil hectares em 2019</h3>
+<p>A região já registrou episódios de destruição ambiental provocados pelo fogo. Em 2019, um incêndio atingiu aproximadamente 1,6 mil hectares em Alter do Chão, extensão superior à estimativa atual. Na ocasião, as chamas avançaram sobre áreas de vegetação e mobilizaram equipes de combate, órgãos ambientais e moradores. O episódio ampliou a atenção sobre a vulnerabilidade da região às queimadas.</p>
+<p>Alter do Chão fica a cerca de 36 quilômetros do centro de Santarém e possui aproximadamente 5 mil habitantes. A vila está localizada às margens do rio Tapajós e recebe visitantes atraídos pelas praias de água doce e pela paisagem amazônica.</p>
+<p>O distrito é conhecido como Caribe da Amazônia e integra uma das regiões turísticas do Pará. A proximidade entre áreas de vegetação, comunidades e espaços de visitação amplia os efeitos dos incêndios sobre o cotidiano dos moradores.</p>
+<p>A Área de Proteção Ambiental de Alter do Chão possui aproximadamente 16 mil hectares e reúne diferentes formações vegetais. A unidade foi criada pelo município para promover a conservação ambiental e ordenar atividades em seu território. O incêndio de 2026 atingiu uma parcela dessa área, mas o levantamento dos danos ainda depende das avaliações técnicas conduzidas pelos órgãos ambientais.</p>
+<p>Mesmo após o controle das frentes de fogo, bombeiros, brigadistas e indígenas borari permanecem na região para combater focos residuais e acompanhar as condições da vegetação. A prefeitura também continua o monitoramento ambiental, enquanto as autoridades investigam as causas das queimadas e os impactos sobre a unidade de conservação.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.brasil247.com/meio-ambiente/incendio-de-grandes-proporcoes-destroi-dezenas-de-hectares-e-novos-focos-preocupam/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

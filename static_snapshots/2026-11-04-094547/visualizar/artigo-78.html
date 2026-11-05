@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabalho: Os desafios para organizar a 5×2 - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Trabalho: Os desafios para organizar a 5×2</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/trabalhoeprecariado/trabalho-os-desafios-para-organizar-a-5x2/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5139046872566664907_y.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Trabalho: Os desafios para organizar a 5x2
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5139046872566664907_y.jpg"/>Foto: Germano Luders/Exame
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>O Brasil viveu dia 14 de outubro um momento histÃ³rico para o mundo do trabalho. O Senado Federal aprovou, em dois turnos, a Proposta de Emenda Ã  ConstituiÃ§Ã£o nÂº 221/2019, que reduz a jornada mÃ¡xima de trabalho de 44 para 40 horas semanais, sem reduÃ§Ã£o salarial, e assegura dois dias de repouso semanal remunerado, superando a escala 6×1 e estabelecendo como nova referÃªncia a organizaÃ§Ã£o do trabalho em cinco dias por dois de descanso.</p>
+<p>Foram 75 votos favorÃ¡veis e apenas um contrÃ¡rio, tanto no primeiro quanto no segundo turno. Uma votaÃ§Ã£o extraordinariamente expressiva, que se soma Ã  maioria alcanÃ§ada na CÃ¢mara dos Deputados no primeiro semestre: 472 votos favorÃ¡veis no primeiro turno e 461 no segundo.</p>
+<p>Quando uma mudanÃ§a dessa magnitude reÃºne maiorias tÃ£o amplas nas duas Casas do Congresso Nacional, atravessando partidos, regiÃµes e posiÃ§Ãµes polÃ­ticas distintas, hÃ¡ a mensagem inequÃ­voca de que a sociedade brasileira colocou a reduÃ§Ã£o da jornada e o fim da escala 6×1 entre as grandes questÃµes sociais do nosso tempo.</p>
+<p>Essa vitÃ³ria Ã© resultado de dÃ©cadas de luta do movimento sindical pela reduÃ§Ã£o da jornada, renovada nos Ãºltimos anos pela mobilizaÃ§Ã£o social, especialmente dos jovens, pelo movimento Vida AlÃ©m do Trabalho, pela atuaÃ§Ã£o das centrais sindicais e dos sindicatos e pela crescente percepÃ§Ã£o de milhÃµes de brasileiros de que Ã© preciso reorganizar a relaÃ§Ã£o entre trabalho e vida. A isso se somaram as iniciativas de parlamentares e do governo com proposiÃ§Ãµes legislativas. As ruas entraram no Congresso, a sociedade pressionou a polÃ­tica, que respondeu afirmativamente em sintonia com o clamor da classe trabalhadora.</p>
+<p>Ã uma conquista que recupera e atualiza uma trajetÃ³ria histÃ³rica. Na Constituinte de 1988, o movimento sindical lutou pela reduÃ§Ã£o da jornada de 48 para 40 horas semanais. Conquistamos naquele momento as 44 horas. Passaram-se quase quatro dÃ©cadas. Nesse perÃ­odo ocorreram extraordinÃ¡rias transformaÃ§Ãµes tecnolÃ³gicas e organizacionais, aumentou a produtividade e foram profundamente modificadas as formas de produzir, administrar e organizar empresas e serviÃ§os. Chegou o momento de transformar parte desses ganhos em qualidade de vida.</p>
+<h3><strong>Uma mudanÃ§a estrutural</strong></h3>
+<p>A PEC aprovada estabelece um novo patamar constitucional a jornada normal de atÃ© oito horas diÃ¡rias e de atÃ© 40 horas semanais, preservada a possibilidade de compensaÃ§Ã£o de horÃ¡rios e de reduÃ§Ã£o da jornada por acordo ou convenÃ§Ã£o coletiva.</p>
+<p>A mudanÃ§a serÃ¡ feita em duas etapas. Em 16 de dezembro, sessenta dias depois da promulgaÃ§Ã£o da Emenda Constitucional (16/10) a jornada mÃ¡xima cairÃ¡ das atuais 44 para 42 horas semanais e serÃ£o assegurados dois dias de repouso semanal, um deles preferencialmente aos domingos. Doze meses depois dessa primeira reduÃ§Ã£o (16/12/27), o limite cairÃ¡ para 40 horas semanais. HÃ¡ um princÃ­pio fundamental: nÃ£o haverÃ¡ reduÃ§Ã£o salarial. Reduz-se o tempo de trabalho, nÃ£o o salÃ¡rio.</p>
+<p>NÃ£o se trata apenas de diminuir algumas horas na semana. Trata-se de distribuir de outra maneira um dos bens mais preciosos da sociedade contemporÃ¢nea que Ã© o tempo. Tempo para descansar, cuidar dos filhos e dos idosos, estudar e se qualificar, participar da vida familiar e comunitÃ¡ria, praticar esporte, ter acesso Ã  cultura e ao lazer. Tempo para viver.</p>
+<p>A reduÃ§Ã£o da jornada deve ser compreendida tambÃ©m como parte de uma estratÃ©gia de desenvolvimento. Empresas serÃ£o estimuladas a reorganizar processos, rever escalas, investir em tecnologia, formaÃ§Ã£o, gestÃ£o e inovaÃ§Ã£o. O desafio serÃ¡ elevar a produtividade e transformar parte desses ganhos em melhores condiÃ§Ãµes de trabalho e de vida.</p>
+<h3><strong>A vitÃ³ria abre uma nova etapa</strong></h3>
+<p>A aprovaÃ§Ã£o da PEC encerra uma grande batalha legislativa, mas nÃ£o encerra a mobilizaÃ§Ã£o. Ao contrÃ¡rio, comeÃ§a agora uma etapa talvez menos visÃ­vel, porÃ©m decisiva, a de transformar a conquista constitucional em realidade em milhÃµes de locais de trabalho.</p>
+<p>Com a promulgaÃ§Ã£o da Emenda Constitucional pelo Congresso Nacional no dia 16 de outubro comeÃ§a a contagem dos prazos e abre-se uma agenda sindical de enorme dimensÃ£o.</p>
+<p>O movimento sindical precisa se organizar para responder aos desafios de escala, Ã¢mbito, complexidade e simultaneidade dessa importante mudanÃ§a. Isso exige a compreensÃ£o de que essa tarefa terÃ¡ melhor resposta sindical se nÃ£o for realizada pelo sindicato isoladamente. A dimensÃ£o da mudanÃ§a exige cooperaÃ§Ã£o, coordenaÃ§Ã£o e divisÃ£o de responsabilidades entre sindicatos, federaÃ§Ãµes, confederaÃ§Ãµes e centrais sindicais. SerÃ¡ necessÃ¡rio desenvolver uma verdadeira estratÃ©gia nacional de implementaÃ§Ã£o das 40 horas e dos dois dias de descanso.</p>
+<h3><strong>Sessenta dias para organizar a mudanÃ§a</strong></h3>
+<p>Os prÃ³ximos 60 dias serÃ£o especialmente importantes. Milhares de acordos e convenÃ§Ãµes coletivas precisarÃ£o ser examinados. SerÃ¡ necessÃ¡rio identificar clÃ¡usulas referentes a jornada, escalas, compensaÃ§Ãµes, bancos de horas, trabalho aos domingos, turnos, horas extras, intervalos e diferentes formas de distribuiÃ§Ã£o do tempo de trabalho. Os sindicatos deverÃ£o verificar concretamente o que muda em cada categoria e nas empresas.</p>
+<p>Os sindicatos jÃ¡ possuem grande expertise na conduÃ§Ã£o de negociaÃ§Ãµes sobre os diferentes aspectos relacionados Ã  jornada e escala de trabalho, o que permite atuar de maneira qualificada nessa nova empreitada. Mas o grande desafio Ã© a amplitude e simultaneidade da demanda de representaÃ§Ã£o, mobilizaÃ§Ã£o e negociaÃ§Ã£o. Esse novo contexto situacional coloca desafios que abrem a oportunidade para um novo patamar organizativo do trabalho sindical.</p>
+<p>As federaÃ§Ãµes poderÃ£o ter papel importante na articulaÃ§Ã£o setorial, identificando problemas comuns Ã s categorias e produzindo referÃªncias para as negociaÃ§Ãµes. As confederaÃ§Ãµes poderÃ£o sistematizar questÃµes nacionais dos grandes setores econÃ´micos, especialmente aqueles com organizaÃ§Ã£o complexa do tempo de trabalho. As centrais sindicais poderÃ£o promover a articulaÃ§Ã£o polÃ­tica nacional, acompanhar a regulamentaÃ§Ã£o, dialogar com governo e Congresso, organizar a comunicaÃ§Ã£o com a sociedade e produzir orientaÃ§Ãµes comuns para o movimento sindical.</p>
+<p>NÃ£o se trata de estabelecer uma estrutura burocrÃ¡tica ou vertical. Trata-se de construir uma aÃ§Ã£o cooperada em vÃ¡rias frentes simultaneamente. O conhecimento produzido numa negociaÃ§Ã£o precisa circular. Uma soluÃ§Ã£o encontrada numa categoria pode ajudar outra. Problemas identificados em determinada empresa podem revelar estratÃ©gias patronais que estejam sendo reproduzidas nacionalmente. A inteligÃªncia sindical precisa funcionar em rede para negociar a nova organizaÃ§Ã£o do tempo de trabalho</p>
+<p>Durante a primeira etapa da transiÃ§Ã£o, a jornada mÃ¡xima serÃ¡ de 42 horas semanais, distribuÃ­das em cinco dias de trabalho com dois dias de descanso. Essa transiÃ§Ã£o exigirÃ¡ milhares de negociaÃ§Ãµes. A questÃ£o nÃ£o serÃ¡ apenas quantas horas trabalhar, mas como organizar o tempo de trabalho. HorÃ¡rios de entrada e saÃ­da, intervalos, turnos, finais de semana, trabalho noturno, horas extras, bancos de horas, compensaÃ§Ãµes e direito Ã  desconexÃ£o estarÃ£o no centro das negociaÃ§Ãµes.</p>
+<p>Cada setor possui caracterÃ­sticas especÃ­ficas. IndÃºstria, comÃ©rcio, saÃºde, transportes, seguranÃ§a, hotelaria, alimentaÃ§Ã£o, serviÃ§os, agricultura e atividades de funcionamento contÃ­nuo, entre tantos outros setores e atividades, nÃ£o organizam suas jornadas da mesma maneira.</p>
+<p>Ã justamente por isso que a negociaÃ§Ã£o coletiva serÃ¡ fundamental. A ConstituiÃ§Ã£o estabelece o direito geral e a negociaÃ§Ã£o coletiva deve construir a melhor forma de implementÃ¡-lo diante das caracterÃ­sticas concretas de cada setor e local de trabalho, sem reduzir ou descaracterizar o direito conquistado. Isso significa tambÃ©m recolocar uma dimensÃ£o essencial da aÃ§Ã£o sindical que Ã© a de participar da organizaÃ§Ã£o do trabalho.</p>
+<h3><strong>Enfrentar o terrorismo econÃ´mico</strong></h3>
+<p>Outro desafio imediato serÃ¡ neutralizar o previsÃ­vel terrorismo empresarial. Certamente ouviremos previsÃµes de desemprego, fechamento de empresas, aumento de custo, inflaÃ§Ã£o, perda de competitividade e inviabilidade de setores inteiros. Conhecemos esse discurso.</p>
+<p>Argumentos semelhantes acompanharam praticamente todos os grandes avanÃ§os histÃ³ricos dos direitos trabalhistas e que tambÃ©m foram utilizados quando a ConstituiÃ§Ã£o de 1988 reduziu a jornada de 48 para 44 horas semanais.</p>
+<p>Problemas concretos existirÃ£o e precisam ser enfrentados concretamente. Micro e pequenas empresas possuem condiÃ§Ãµes diferentes das grandes corporaÃ§Ãµes. HÃ¡ setores intensivos em mÃ£o de obra, atividades contÃ­nuas e serviÃ§os essenciais que exigirÃ£o soluÃ§Ãµes especÃ­ficas. Mas reconhecer diferenÃ§as nÃ£o significa transformar especificidades em argumento contra um direito geral.</p>
+<p>A prÃ³pria transiÃ§Ã£o aprovada oferece tempo para adaptaÃ§Ã£o e o instrumento, a negociaÃ§Ã£o coletiva, para tratar dos problemas e desafios. Portanto, a tarefa Ã© a de organizar essa transiÃ§Ã£o e adaptaÃ§Ã£o com negociaÃ§Ã£o, inovaÃ§Ã£o, reorganizaÃ§Ã£o produtiva, qualificaÃ§Ã£o profissional e aumento da produtividade.</p>
+<h3><strong>Negociar, acompanhar e fiscalizar</strong></h3>
+<p>A mudanÃ§a constitucional prevÃª regulamentaÃ§Ã£o que poderÃ¡ ser feita por lei complementar (Poder Legislativa) e/ou Decreto-Lei (Pode Executivo) de aspectos da transiÃ§Ã£o, inclusive medidas relacionadas aos microempreendedores individuais, microempresas e empresas de pequeno porte, alÃ©m da compatibilizaÃ§Ã£o das inÃºmeras normas legais que tratam de jornadas e regimes especÃ­ficos. O movimento sindical terÃ¡ de acompanhar esse processo desde agora.</p>
+<p>Regulamentar deve significar dar efetividade ao direito, e nÃ£o criar mecanismos para esvaziÃ¡-lo. SerÃ¡ preciso impedir que exceÃ§Ãµes sucessivas acabem reconstruindo, por outros caminhos, aquilo que a ConstituiÃ§Ã£o acabou de superar. Por isso, sindicatos, federaÃ§Ãµes, confederaÃ§Ãµes e centrais sindicais precisarÃ£o combinar a aÃ§Ã£o local com a atuaÃ§Ã£o institucional no Executivo, no Congresso e nos espaÃ§os de diÃ¡logo social.</p>
+<p>A implementaÃ§Ã£o exigirÃ¡ tambÃ©m uma grande operaÃ§Ã£o de acompanhamento e fiscalizaÃ§Ã£o. A reduÃ§Ã£o formal da jornada nÃ£o pode resultar em aumento clandestino das horas extras. Os dois dias de descanso nÃ£o podem existir apenas no papel. Bancos de horas nÃ£o podem ser utilizados para reconstruir jornadas incompatÃ­veis com a nova regra.</p>
+<p>HÃ¡ ainda um risco que merece atenÃ§Ã£o especial: a tentativa de compensar a reduÃ§Ã£o da jornada simplesmente pela intensificaÃ§Ã£o do trabalho. Fazer em 40 horas aquilo que anteriormente era realizado em 44, apenas aumentando metas, ritmo e pressÃ£o sobre os trabalhadores, nÃ£o pode ser a resposta empresarial Ã  nova legislaÃ§Ã£o.</p>
+<p>Da mesma forma, serÃ¡ preciso impedir que a reduÃ§Ã£o da jornada incentive formas fraudulentas de terceirizaÃ§Ã£o, pejotizaÃ§Ã£o ou contrataÃ§Ã£o, como o MEI, para escapar da proteÃ§Ã£o trabalhista. Portanto, fiscalizar deverÃ¡ ser uma tarefa articulada entre sindicatos, sistema confederativo, centrais sindicais e o poder pÃºblico responsÃ¡veis pela garantia dos direitos.</p>
+<h3><strong>FormaÃ§Ã£o sindical para uma nova realidade</strong></h3>
+<p>Outra tarefa estratÃ©gica Ã© a de investir fortemente em formaÃ§Ã£o sindical. Milhares de dirigentes, assessores e representantes nos locais de trabalho precisarÃ£o dominar as novas regras e desenvolver capacidade para negociar os diferentes aspectos relacionados Ã s escalas e jornadas de trabalho.</p>
+<p>Mas a formaÃ§Ã£o necessÃ¡ria vai alÃ©m da legislaÃ§Ã£o. A reduÃ§Ã£o da jornada ocorre justamente quando inteligÃªncia artificial, robotizaÃ§Ã£o, digitalizaÃ§Ã£o, automaÃ§Ã£o e novas formas de gestÃ£o estÃ£o transformando rapidamente empresas, ocupaÃ§Ãµes e processos produtivos.</p>
+<p>Por isso, negociar jornada daqui para frente serÃ¡ cada vez mais negociar tambÃ©m tecnologia, produtividade, emprego e condiÃ§Ãµes de trabalho. Os sindicatos precisarÃ£o compreender como determinada tecnologia altera processos, quantos postos de trabalho serÃ£o modificados, quais qualificaÃ§Ãµes serÃ£o exigidas, quanto aumenta a produtividade e como esses ganhos serÃ£o distribuÃ­dos.</p>
+<p>Essa Ã© uma questÃ£o central para o futuro do trabalho. Se todo ganho de produtividade produzido pela inteligÃªncia artificial e pelas novas tecnologias for apropriado exclusivamente na forma de lucro ou reduÃ§Ã£o do emprego, teremos uma transiÃ§Ã£o que aprofundarÃ¡ desigualdades.</p>
+<p>Se esses ganhos forem compartilhados na forma de melhores salÃ¡rios, reduÃ§Ã£o da jornada, formaÃ§Ã£o profissional permanente, criaÃ§Ã£o de bons empregos e melhores condiÃ§Ãµes de trabalho, a transformaÃ§Ã£o tecnolÃ³gica poderÃ¡ elevar o padrÃ£o de vida da sociedade. A conquista das 40 horas deve ser vista tambÃ©m nessa perspectiva. A formaÃ§Ã£o sindical deve ampliar nossa capacidade de materializar esses objetivos.</p>
+<h3><strong>Uma agenda sindical nacional e articulada</strong></h3>
+<p>Temos, portanto, uma agenda extraordinÃ¡ria diante de nÃ³s. Nos prÃ³ximos meses e anos, o movimento sindical precisarÃ¡ atuar simultaneamente nos locais de trabalho, nas negociaÃ§Ãµes coletivas, nos setores econÃ´micos, no Congresso Nacional, junto ao governo e perante a sociedade.</p>
+<p>PrecisarÃ¡ produzir conhecimento, formar dirigentes, orientar trabalhadores, acompanhar negociaÃ§Ãµes, fiscalizar empresas, participar da regulamentaÃ§Ã£o e disputar a narrativa pÃºblica sobre os efeitos da reduÃ§Ã£o da jornada, aÃ§Ãµes jÃ¡ realizadas, mas que precisarÃ£o ser operadas em nova escala e simultaneidade.</p>
+<p>Isso exige coordenaÃ§Ã£o nacional e setorial e aÃ§Ã£o descentralizada. As centrais sindicais podem construir diretrizes comuns e estratÃ©gias nacionais. ConfederaÃ§Ãµes e federaÃ§Ãµes podem traduzi-las para os setores, regiÃµes e categorias. Sindicatos podem transformÃ¡-las em negociaÃ§Ã£o concreta nas empresas e locais de trabalho.</p>
+<p>E o caminho inverso precisa funcionar com a mesma intensidade. Problemas, experiÃªncias, soluÃ§Ãµes e inovaÃ§Ãµes surgidos pela aÃ§Ã£o dos sindicatos devem alimentar rapidamente a atuaÃ§Ã£o das federaÃ§Ãµes, confederaÃ§Ãµes e centrais.</p>
+<p>Por isso, seria oportuno constituir, desde jÃ¡, um processo de trabalho sindical articulado e coordenado para a implementaÃ§Ã£o das 40 horas e dos dois dias de descanso, envolvendo sindicatos, federaÃ§Ãµes, confederaÃ§Ãµes e centrais sindicais.</p>
+<p>NÃ£o se trata de criar mais uma estrutura burocrÃ¡tica, mas um espaÃ§o Ã¡gil de cooperaÃ§Ã£o capaz de articular as diversas frentes de aÃ§Ã£o. Uma de suas primeiras iniciativas poderia ser estruturar uma base nacional compartilhada de dados, conhecimento e experiÃªncias sobre jornada e escalas de trabalho.</p>
+<p>Essa base poderia reunir acordos e convenÃ§Ãµes coletivas, novas clÃ¡usulas negociadas, modelos de escalas, soluÃ§Ãµes construÃ­das em diferentes setores, decisÃµes administrativas e judiciais, legislaÃ§Ã£o, estudos tÃ©cnicos e acadÃªmicos, dados sobre produtividade, emprego, saÃºde e seguranÃ§a, experiÃªncias internacionais e materiais de formaÃ§Ã£o sindical. Mais do que um repositÃ³rio de documentos, deveria funcionar como uma verdadeira plataforma de inteligÃªncia sindical sobre o tempo de trabalho.</p>
+<p>Um sindicato que iniciasse uma negociaÃ§Ã£o poderia conhecer imediatamente experiÃªncias realizadas em outras empresas e categorias. FederaÃ§Ãµes e confederaÃ§Ãµes poderiam identificar tendÃªncias setoriais. As centrais poderiam acompanhar nacionalmente os problemas encontrados na implementaÃ§Ã£o e as estratÃ©gias empresariais adotadas. Boas prÃ¡ticas poderiam ser identificadas, avaliadas e rapidamente compartilhadas.</p>
+<p>A base tambÃ©m permitiria construir indicadores para acompanhar a implementaÃ§Ã£o: quantas categorias adaptaram seus instrumentos coletivos; quais escalas estÃ£o sendo negociadas; onde surgiram conflitos; quais setores enfrentaram maiores dificuldades; quais soluÃ§Ãµes preservaram melhor os dois dias de descanso; e como evoluÃ­ram horas extras, emprego, produtividade, afastamentos e condiÃ§Ãµes de trabalho.</p>
+<p>O conhecimento precisa circular nos dois sentidos. O que acontece numa empresa ou categoria deve alimentar a inteligÃªncia nacional; e o conhecimento nacional e internacional deve chegar rapidamente aos dirigente que negociam localmente.</p>
+<p>As novas tecnologias, inclusive a inteligÃªncia artificial, podem contribuir para essa tarefa, organizando grandes volumes de informaÃ§Ãµes, comparando clÃ¡usulas coletivas, identificando padrÃµes e boas prÃ¡ticas e facilitando o acesso ao conhecimento. Tecnologia colocada a serviÃ§o da aÃ§Ã£o coletiva e da democratizaÃ§Ã£o do conhecimento.</p>
+<p>Assim, cada negociaÃ§Ã£o deixa de ser uma experiÃªncia isolada. Uma conquista em determinado local de trabalho fortalece negociaÃ§Ãµes em todo o paÃ­s. Um problema identificado por um sindicato pode prevenir dificuldades em centenas de outros. Uma boa clÃ¡usula coletiva pode rapidamente tornar-se referÃªncia nacional. Transformar cada negociaÃ§Ã£o em conhecimento coletivo e cada conquista local em capacidade nacional de aÃ§Ã£o sindical.</p>
+<h3><strong>Transformar a vitÃ³ria em vida melhor</strong></h3>
+<p>O Brasil realizou uma mudanÃ§a histÃ³rica. Depois de quase quatro dÃ©cadas, reduzimos novamente a jornada constitucional de trabalho com dois dias de descanso semanal como a referÃªncia para a organizaÃ§Ã£o da vida de milhÃµes de brasileiros.</p>
+<p>A votaÃ§Ã£o esmagadora na CÃ¢mara e no Senado mostrou a forÃ§a dessa demanda social. Agora comeÃ§a uma segunda luta, a de fazer a conquista chegar a cada trabalhador, reconhecendo que a conquista Ã© coletiva e fruto da luta.</p>
+<p>Em sÃ­ntese: Promulgar. Regulamentar. Negociar. Rever acordos e convenÃ§Ãµes. Construir novas escalas. Fiscalizar. Formar dirigentes. Organizar os locais de trabalho. Compartilhar conhecimento. Impedir fraudes e retrocessos. Negociar os ganhos de produtividade. Relacionar jornada, tecnologia, emprego e qualidade de vida.</p>
+<p>A mobilizaÃ§Ã£o social e sindical foi decisiva para conquistar a mudanÃ§a constitucional. A aÃ§Ã£o sindical organizada serÃ¡ igualmente decisiva para implementÃ¡-la.</p>
+<p>A reduÃ§Ã£o da jornada para 40 horas e a garantia de dois dias de descanso representam uma vitÃ³ria histÃ³rica. Mas representam tambÃ©m algo maior ao recolocar no centro do debate sobre o futuro do trabalho uma pergunta essencial: para que devem servir os extraordinÃ¡rios ganhos de produtividade proporcionados pelo desenvolvimento econÃ´mico e tecnolÃ³gico?</p>
+<p>Nossa resposta deve ser clara. Devem servir para produzir riqueza, inovaÃ§Ã£o e desenvolvimento, mas tambÃ©m para produzir bem-estar, bons empregos, melhores salÃ¡rios, menos desigualdade e mais tempo para viver.</p>
+<p>Essa Ã© a dimensÃ£o histÃ³rica da conquista. Agora comeÃ§a a tarefa de transformar cada negociaÃ§Ã£o em conhecimento coletivo, cada conquista local em capacidade nacional de aÃ§Ã£o sindical e a reduÃ§Ã£o da jornada em vida melhor para milhÃµes de brasileiros.</p>
+<p></p>
+<p><em>Sem publicidade ou patrocÃ­nio, dependemos de vocÃª. FaÃ§a parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/trabalhoeprecariado/trabalho-os-desafios-para-organizar-a-5x2/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

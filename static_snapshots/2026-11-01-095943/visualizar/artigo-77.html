@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russia the Disruptor - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Russia the Disruptor</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/10/30/russia-war-ukraine-books-us-history-kinzer-haslam-notte/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/10/1-Vladimir-Putin-Russia-President-Flag-GettyImages-1252005705.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Stephen Kinzer's 'Boiling Point'; Jonathan Haslam's 'Hubris'; Hanna Notte's 'We Shall Outlast Them'
+                            </p>
+                            
+
+<p>In a famous scene from <em>Band of Brothers</em>, the HBO epic about a U.S. paratrooper regiment in World War II, a Nazi general surrenders to U.S. forces. The Americans, rather than humiliating him, allow him to deliver a stirring address to his troops after they lay down their arms; the soldiers from both camps are visibly moved.</p>
+
+<p>That incident may be exaggerated or apocryphal, but it echoed a widely held sentiment among the Allies in 1945: “In victory, magnanimity,” as Winston Churchill once summarized. But over four decades later, as the Berlin Wall fell and the Soviet Union collapsed, magnanimity was harder to come by: How much, if anything, was the United States willing to offer Russia in the wake of the Cold War?</p>
+<p>That question is at the heart of two books, <a href="https://amzn.to/3TUDBJE" rel="noopener noreferrer" target="_blank"><em>Hubris: The American Origins of Russia’s War Against Ukraine</em></a> by British historian Jonathan Haslam and <a href="https://amzn.to/4si4EuR" rel="noopener noreferrer" target="_blank"><em>Boiling Point: How America Brought War to Ukraine</em></a> by journalist Stephen Kinzer. Both authors question to what extent Russia’s war in Ukraine is a reaction to decades of arrogance by the United States, full of swagger as the last superpower standing amid the ashes of the Cold War.</p>
+<p>Both accounts, though overeager to blame Washington for Moscow’s belligerent turn, serve as a helpful reminder of the paths not taken in the 1990s and early 2000s, when, rather than bringing Russia into the liberal world order as a true partner, the United States encouraged rapid NATO expansion and democratization in Eastern and Central Europe, antagonizing the country.</p>
+<p>If those decisions partly drove Moscow to move toward a break with the West, a third book, <a href="https://amzn.to/4Bls1YL" rel="noopener noreferrer" target="_blank"><em>We Shall Outlast Them: Putin’s Global Campaign to Defeat the West</em></a> by international relations scholar Hanna Notte, documents the culmination of Russia’s effort, showing how, since its full-scale invasion of Ukraine in 2022, the country has leveraged ties with allies around the globe to evade sanctions and political pressure. Alienated from the West, Russia has turned to the rest of the world. The question now is whether the West, thrown into even greater chaos by U.S. President Donald Trump’s fractious impulses, will be able to adapt.</p>
+<p></p>
+
+
+<p>In February 1990, soon after the fall of the Berlin Wall, Soviet leader Mikhail Gorbachev met with Western diplomats over the question of German reunification. In a phrase that has come to haunt much of post-Soviet history, U.S. Secretary of State James Baker told Gorbachev that NATO would move “not one inch” eastward if the Soviet Union withdrew from East Germany.</p>
+
+ 
+<img alt="A black-and-white outdoor scene showing a row of 12 international flags on high flagpoles flying above a small artillery gun on dirt ground. Uniformed personnel stand nearby, with a crowd and buildings visible in the background." src="https://foreignpolicy.com/wp-content/uploads/2026/10/2-NATO-Headquarters-France-countries-flags-GettyImages-1134815273.jpg?w=800"/>
+
+A black-and-white outdoor scene showing a row of 12 international flags on high flagpoles flying above a small artillery gun on dirt ground. Uniformed personnel stand nearby, with a crowd and buildings visible in the background.
+<p>The flags of NATO nations are pictured during the inauguration ceremony of NATO’s Supreme Headquarters Allied Powers Europe near Paris on July 23, 1951. AFP via Getty Images </p>
+<p>While much ink has been spilled about the meaning of that phrase—and Baker’s authorization to issue such assurances in the first place—this anticipated a pattern that would plague the U.S.-Russia relationship for 30 years. At each stage, the <a href="https://foreignpolicy.com/2023/09/11/nato-alliance-us-europe-russia-geopolitics-china-military-deterrence/" rel="noopener noreferrer" target="_blank">expansion</a> of NATO’s membership and mission, partly at the behest of Central and Eastern European nations understandably nervous about a resurgent Russia, undermined Moscow’s perception of its own security. Ukraine would become the ultimate battleground between the forces of democratization and NATO enlargement on the one hand, and the security interests of an increasingly autocratic Russia on the other.</p>
+<p>In the early 1990s, NATO was at a crossroads. Its <em>raison d’être</em> had dissolved along with the Soviet-dominated Warsaw Pact, created as a counterweight to the alliance. Haslam convincingly argues that where Western Europeans would have accepted the emergence of a post-Cold War security alliance accommodating Moscow, Washington doubled down on the status quo, which—to <a href="https://nsarchive.gwu.edu/briefing-book/nuclear-vault/2018-12-11/natos-original-purpose-double-containment-soviet-union-resurgent-germany" rel="noopener noreferrer" target="_blank">paraphrase</a> NATO’s first secretary-general—meant keeping the Russians out, the Americans in, and the Germans down.</p>
+<p><b> <p></p>
+</b></p>
+<p>How would NATO adapt to this unipolar moment? The answer came when the Czech Republic, Poland, and Hungary were welcomed into the club in 1999, not without significant Russian complaints. The United States ignored these grumblings, pushing for the swift admission of seven more countries in a “big bang” of expansion in 2004. NATO had just 12 members at its founding in 1949; it now has 32.</p>
+<p>Membership was not the only thing NATO was set on expanding: It also sought a new animating impulse. Although NATO was originally framed as a defensive pact, the wars in Yugoslavia in the 1990s allowed more hawkish elements of the alliance to push for its use as an offensive force. Russia, seeing phantoms of its former self in the disintegrating Yugoslav state, vocally opposed NATO’s involvement in the Balkans, culminating in a complete break with the alliance over its <a href="https://foreignpolicy.com/2022/03/03/putin-ukraine-russia-nato-kosovo/" rel="noopener noreferrer" target="_blank">unilateral bombing of Serbia</a> in 1999.</p>
+<p>Moscow’s inability to dissuade NATO put the Yeltsin administration in the crosshairs of nationalists on the rise at home just as the Russian economy began its free fall after the 1998 stock market crash. Both Haslam and Kinzer point to many missed opportunities in which Western powers could have bolstered Russia’s economy in its darkest hour. Instead of something akin to the Marshall Plan for Europe after World War II, Russia had to take on massive International Monetary Fund loans in exchange for painful, deeply unpopular economic reforms.</p>
+ 
+<img alt="A close-up view of two individuals in dark coats holding dark red Russian passports in their hands." src="https://foreignpolicy.com/wp-content/uploads/2026/10/3-Russia-passports-Navy-sailors-GettyImages-78206827.jpg?w=800"/>
+
+A close-up view of two individuals in dark coats holding dark red Russian passports in their hands.
+<p>Russian navy sailors hold their passports as they line up to vote at a polling station in the Ukrainian city of Sevastopol, where the main base of Russia’s Black Sea Fleet is located, on Dec. 2, 2007. Sergei Supinsky/AFP via Getty Images </p>
+<p>Reconciliation was still feasible in the early 2000s, when Vladimir Putin became Russia’s president. In his early years in office, Putin voiced some openness to the West. Haslam details how Putin overrode members of his security apparatus to offer significant intelligence assistance to the United States after 9/11 and even approved the opening of NATO bases in Central Asia, considered Russia’s backyard, to facilitate the U.S. war in Afghanistan. Haslam argues that Washington snubbed Putin’s generosity: “Putin’s grand gesture … was effectively wasted,” he writes. The White House read it as “a desperate bid for a powerful ally against a common foe — rather than a welcome concession from a former adversary and a potential partner.”</p>
+<p>The U.S. push for regime change in Iraq, a longtime ally of Russia—and its subsequent support for revolutions in Georgia in 2003 and Ukraine in 2004—further alienated Putin. While his country could not rival the United States economically, he had other ways to put Russia back on the map. “[D]eclining powers can be at least as disruptive as rising powers,” Haslam writes, quoting William Burns, the former U.S. ambassador to Russia. “If [Putin] can’t easily build Russia up, he can take the United States down a few pegs.” Numerous foreign theaters, from Syria to Ukraine, would give him ample opportunity to try.</p>
+<p>Both Haslam and Kinzer reach similar conclusions: that the arrogance of several U.S. presidencies, puffed up with victory in the wake of the Cold War, left them heedless to Russia’s security concerns in Eastern Europe. Neither reckons fully with Ukrainian agency, particularly with the fact that since independence in 1991, leaders of Ukraine have, of their own accord, pushed back against Russian attempts to control the country. Nor do they discuss at any length Moscow’s proactive role in fomenting trouble in its near abroad, whether through the distribution of Russian passports in breakaway parts of Georgia or by choking off energy supplies to Ukraine.</p>
+<p>While Haslam’s approach is meticulous and relatively balanced, Kinzer, whose books have often been critical of interventionist U.S. foreign policy, clearly has an axe to grind when it comes to Ukraine. Kinzer commits to <a href="https://foreignpolicy.com/2026/07/08/propaganda-sustains-russians-fighting-in-ukraine/" rel="noopener noreferrer" target="_blank">pro-Kremlin narratives</a> and conveniently sidesteps facts that contradict them. He sees neo-Nazis everywhere in Ukraine, takes claims about the threat to Russian language there at face value, and treats the separatists in eastern Ukraine who began fighting the central government in 2014 as an autonomous force, rather than entities that were fully funded, armed, and backed by Russia from early on.</p>
+<p>Yet both authors, in their rush to assign blame, fail to grapple with the reality that the Soviet collapse created a security vacuum in Europe. It is to some extent inevitable that Russia would feel unease at the loss of its republics, and that any moves by former allies to bolster their own security would provoke anxiety in Moscow. It is to some extent inevitable, too, that as Russia became increasingly autocratic, it would perceive any democratization nearby, including in Ukraine, as not just a domestic affair, but one with existential stakes for the Kremlin.</p>
+<p>Of course, the war in Ukraine was not inevitable. Putin’s growing isolation, paranoia, and authoritarianism undoubtedly made a military ending to the Russia-Ukraine divorce more likely. And the hubris of the U.S. elite in the wake of the Cold War—and the whiplash created by U.S. electoral politics—meant that warning signs blinking red in the 1990s and early 2000s went unheeded, paving the way for policy that antagonized Moscow further. Many decisions could have been made differently, but even with the best of intentions, it would have been hard to resolve the fissures that culminated in the alienation of Russia from the West.</p>
+ 
+<img alt="A long conference table inside a grand room with tall marble columns and chandeliers. Russian President Vladimir Putin sits in the foreground on the right side of the desk while several people sit far down at the opposite end." src="https://foreignpolicy.com/wp-content/uploads/2026/10/4-Russian-President-Putin-meeting-war-GettyImages-1238829553.jpg?w=800"/>
+
+A long conference table inside a grand room with tall marble columns and chandeliers. Russian President Vladimir Putin sits in the foreground on the right side of the desk while several people sit far down at the opposite end.
+<p>Putin addresses Western sanctions during a meeting on economic issues at the Kremlin in Moscow on Feb. 28, 2022, following Russia’s full-scale invasion of Ukraine. Alexey Nikolsky/Sputnik/AFP via Getty Images </p>
+
+
+<p>In the nearly five years since Russia’s full-scale invasion of Ukraine, Moscow has been able to pivot economically and militarily away from the West, as Notte shows in <em>We Shall Outlast Them</em>. With lucid and zippy writing, Notte takes us from the ports of India to the deserts of the Sahel, revealing how Russia has survived in the face of coordinated and extensive sanctions by Europe and the United States.</p>
+
+<p>Russia was still highly dependent on the Western economy as of 2022. The EU bought 50 percent of Russian oil exports and over 60 percent of its gas exports, and Western companies provided the vast majority of financing and insurance for energy shipping markets. Russia also imported one-third of its goods from the EU. Unlike the slow and uncoordinated response to the annexation of Crimea in 2014, the West moved swiftly and cohesively after the 2022 invasion, imposing price caps on Russian oil insured or shipped by Western providers and banning exports of electronics, luxury items, and dual-use goods in an effort to choke supplies.</p>
+<p>Russia has artfully evaded these measures. In oil and gas, Russia built up a “<a href="https://foreignpolicy.com/2026/07/08/russia-shadow-fleet-reflagging-smuggling-maritime-baltics/" rel="noopener noreferrer" target="_blank">shadow fleet</a>” of off-the-book tankards to transport oil and evade the price cap, backed by insurers or financiers in Dubai and beyond. Russian oil exports to China and Turkey have risen, and in India alone, Russia’s share of the country’s oil imports increased from just 3 percent in 2021 to 38 percent in 2023.</p>
+<p>
+</p>
+<p>For imported goods, Putin essentially established duty-free trade from third countries, allowing many European and U.S. products to enter via countries such as Turkey and Kazakhstan. Russia has <a href="https://foreignpolicy.com/2026/10/08/russia-china-alliance-united-states-xi-putin/" rel="noopener noreferrer" target="_blank">pivoted</a> towards Chinese exports and financing, decoupling its economy from the U.S. dollar (while making it significantly more dependent on the yuan). The Russian economy has certainly <a href="https://foreignpolicy.com/2026/07/27/russia-ukraine-war-money-spending-defense-budget-taxes-asset-confiscation-sanctions-finance/" rel="noopener noreferrer" target="_blank">felt the war’s impact</a>, with its GDP taking an initial hit before stabilizing somewhat in the years since. But it has <a href="https://foreignpolicy.com/2026/05/21/russia-ukraine-war-economy-putin-tooze/" rel="noopener noreferrer" target="_blank">not collapsed</a>.</p>
+<p>Notte also shows how Russia has navigated international diplomacy, tapping into anti-imperialist sentiment in much of the global south to position itself as the plucky outsider standing up to a hegemonic West, despite its own history of colonialism. This has paid dividends at the United Nations and beyond, where many Asian and African countries have stood with Russia in defiance of U.S. and European pressure. Where the West has sought to cut off military supplies, Russia has bolstered its alliances with <a href="https://foreignpolicy.com/2026/08/28/north-korea-russia-united-states-south-korea-ukraine-national-defense-alliance-strategy/" rel="noopener noreferrer" target="_blank">North Korea</a> and <a href="https://foreignpolicy.com/2023/01/05/iran-russia-drones-ukraine-war-military-cooperation/" rel="noopener noreferrer" target="_blank">Iran</a>, which have become major providers of munitions and drone technology. It has expanded its military footprint abroad including in the Sahel, leveraging its extensive network of mercenary groups.</p>
+ 
+<img alt="A line of large fuel tanker trucks parked on a wet, dirt lot under, with their colorful cabs and tanks reflecting in a large puddle in the foreground." src="https://foreignpolicy.com/wp-content/uploads/2026/10/6-India-oil-crude-Russia-Ukraine-war-sanctions-GettyImages-2233856307.jpg?w=800"/>
+
+A line of large fuel tanker trucks parked on a wet, dirt lot under, with their colorful cabs and tanks reflecting in a large puddle in the foreground.
+<p>A truck driver and parked trucks are reflected in a puddle outside the Mangalore Refinery and Petrochemicals Ltd. parking terminal in Mangaluru, India, on Sept. 5, 2025. Abhishek Chinnappa/Getty Images </p>
+<p>Of course, there are limits to Russia’s influence abroad when it is so consumed by the war in Ukraine. In Syria, Russia could do little but watch as longtime ally President Bashar al-Assad was forced from power in 2024. Closer to home, in Armenia and Kazakhstan, Russia’s distraction militarily and economically forced these former satellites to hedge their bets and turn to partners elsewhere. Meanwhile, Moscow shored up its commitment to BRICS as an alternative to Western-dominated institutions such as the G7, but as Notte shows, the bloc’s diverse stakeholders have <a href="https://foreignpolicy.com/2026/03/16/iran-war-trump-brics-china-russia-india-gulf/" rel="noopener noreferrer" target="_blank">struggled</a> to unite on global issues.</p>
+<p>While Russia has avoided total breakdown, the <a href="https://foreignpolicy.com/2025/04/09/russia-soldiers-ukraine-war-crimes-meatgrinder-human-waves-brutal-violence-protest/" rel="noopener noreferrer" target="_blank">devastation</a> of the war cannot be understated: Aside from the economic impact, roughly 1 million soldiers are estimated to have been injured or killed, and hundreds of thousands have left the country. Russia’s autocracy has <a href="https://foreignpolicy.com/2026/09/16/russia-state-duma-elections-anti-war-candidate-purge/" rel="noopener noreferrer" target="_blank">kicked into full gear</a>, with even those voicing the mildest opposition to the war facing consequences.</p>
+<p>In many ways, Russia’s willingness to disrupt has taken a toll not just on its own people but on the rest of the world. While many may welcome a system in which the West is no longer able to bend the globe to its will, the end of a unipolar world has so far heralded the rise of a new order that appears more fragmented, unstable, and violent. Putin has had plenty of help in this regard: Trump has done his fair share to undermine the previous status quo with his reckless gamble in Iran, his assaults on traditional allies in Europe, and his stunning betrayal of Ukraine amid the so-called <a href="https://foreignpolicy.com/2026/10/14/trump-diesel-deal-russia-ukraine-putin/" rel="noopener noreferrer" target="_blank">diesel deal</a> with Moscow.</p>
+ 
+<img alt="A man with prosthetic legs walking with crutches in front of a military monument surrounded by flower arrangements and red flags. Another individual in a military uniform walking on crutches is partially visible on the left." src="https://foreignpolicy.com/wp-content/uploads/2026/10/7-Russian-war-veterans-injured-Ukraine-GettyImages-2242643526.jpg?w=800"/>
+
+A man with prosthetic legs walking with crutches in front of a military monument surrounded by flower arrangements and red flags. Another individual in a military uniform walking on crutches is partially visible on the left.
+<p>Veterans of the Russian special forces lay flowers at a monument to Russian service members as they mark their professional day in St. Petersburg, Russia, on Oct. 24, 2025. Olga Maltseva/AFP via Getty Images </p>
+<p>Soviet leader Nikita Khruschev once famously quipped about capitalist states, “It doesn’t depend on you whether or not we exist. … History is on our side. We will bury you!” Putin has not buried the West, but he has shown how far he will go to undermine it. Putin’s regime, and Putin himself, may or may not outlive the war; as Haslam poignantly notes in closing his book, “[W]e will all sooner or later have to come to terms with a new [Russian] regime, democracy or dictatorship.” What remains to be seen is whether the collective West, whoever that may encompass by then, will have learned anything from recent history.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/10/30/russia-war-ukraine-books-us-history-kinzer-haslam-notte/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

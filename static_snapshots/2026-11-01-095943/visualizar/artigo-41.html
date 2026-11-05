@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hebei: uma viagem entre dados, memória e inovação - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Hebei: uma viagem entre dados, memória e inovação</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Opera Mundi</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://operamundi.uol.com.br/opiniao/hebei-uma-viagem-entre-dados-memoria-e-inovacao/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://operamundi.uol.com.br/wp-content/uploads/2026/10/hebei-1.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Hebei: uma viagem entre dados, memória e inovação
+                            </p>
+                            
+<p>Eu saí de Beijing para Hebei sem saber exatamente o que esperava encontrar. Para quem vive na capital chinesa, a província que a cerca muitas vezes aparece apenas como uma paisagem de passagem. Mas bastaram alguns dias para perceber que Hebei guarda uma história muito mais complexa.</p>
+<p>Antes da viagem, pesquisei sobre a região. Descobri que essas terras são historicamente conhecidas como Yanzhao, referência aos antigos reinos de Yan e Zhao, que existiram ali há mais de dois mil anos. O nome carrega uma tradição associada à coragem e à resistência, presente em histórias que atravessaram gerações.</p>
+<p>Entre elas está Hua Mulan, a lendária guerreira chinesa que ganhou fama mundial e chegou ao cinema pelas mãos da Disney. Talvez por isso a frase atribuída a Mao Zedong – “as mulheres sustentam metade do céu” a – encontre uma ressonância especial nessa terra marcada por tantas histórias de determinação.</p>
+<p>Foi com essa mistura de memória e transformação que cheguei a Hebei. A convite do Gabinete de Informação do Conselho de Estado da China, participei da iniciativa “Conheça a China Feliz – Hebei”, que reuniu jornalistas e influenciadores digitais de diferentes países para conhecer experiências de desenvolvimento econômico, social, cultural e ambiental da província.</p>
+<p>Em poucos dias, passei por um centro de dados, uma vinícola, uma estação de esqui, espaços de memória revolucionária, uma cidade histórica, um templo antigo, oficinas de preservação de técnicas artísticas tradicionais, um laboratório farmacêutico e uma cidade que ainda está sendo construída.</p>
+<p>Encontrei uma Hebei onde servidores convivem com antigas tradições culturais, novas indústrias surgem ao lado de patrimônios históricos e diferentes momentos da história chinesa compartilham o mesmo espaço.</p>
+<h3>Huailai: onde vivem os dados</h3>
+<p>Minha primeira surpresa em Hebei veio de um lugar quase invisível na paisagem: um data center.</p>
+<p>Aqueles prédios representam uma nova geração de infraestrutura, essencial para uma economia baseada em dados, inteligência artificial e serviços digitais.</p>
+<p>Diante daquela escala, comecei a pensar em como a própria ideia de desenvolvimento está mudando. Durante muito tempo, infraestrutura significava estradas, ferrovias e portos. Agora existe também uma infraestrutura invisível, que sustenta tecnologias cada vez mais presentes na vida cotidiana.</p>
+<p>Em Huailai, essa equação passa pela combinação entre tecnologia e território. A região de Zhangjiakou tem grande potencial para energia eólica e solar, mas enfrenta uma limitação importante: a disponibilidade de água.</p>
+<p>É nesse contexto que a tecnologia de resfriamento sem água da Chindata chama atenção, ao substituir métodos tradicionais por controle inteligente de temperatura e circulação de ar.</p>
+<p>Ali comecei a enxergar um novo desafio da economia digital: unir energia renovável e capacidade computacional em uma infraestrutura capaz de sustentar a inteligência artificial consumindo menos recursos naturais.</p>
+<p>Foi uma maneira curiosa de começar a viagem: olhando para uma infraestrutura que quase ninguém vê, mas que ajuda a explicar a China que está sendo construída agora.</p>
+<img alt="" src="https://operamundi.uol.com.br/wp-content/uploads/2026/10/hebei-2.jpg"/>Em Hebei, o futuro não aparece como ruptura com o passado | Iara Vidal
+<h3>Quando a agricultura vira cultura e indústria</h3>
+<p>Depois dos servidores, encontrei as vinhas.</p>
+<p>A <em>China Huailai – Janela Mundial</em> do Vinho mostra como a produção local pode conectar agricultura, turismo, cultura e tecnologia.</p>
+<p>Foi outro exemplo de uma ideia que atravessaria toda a viagem: transformar características locais em novas oportunidades de desenvolvimento.</p>
+<p>Chongli: o que acontece depois da Olimpíada?</p>
+<p>Depois dos vinhos, a paisagem mudou completamente.</p>
+<p>Cheguei a Chongli, região montanhosa que ganhou projeção mundial ao receber provas dos Jogos Olímpicos e Paralímpicos de Inverno de Beijing 2022.</p>
+<p>Mas a pergunta que me acompanhou não era sobre a Olimpíada, e sim sobre o que vem depois dela.</p>
+<p>O desafio de grandes eventos é transformar uma infraestrutura construída para um momento específico em algo permanente. Em Chongli, essa resposta passa pelo turismo e pelos esportes de inverno: as instalações continuam em uso e a região busca transformar a neve em uma atividade econômica contínua.</p>
+<p>Ali percebi uma ideia que acompanharia toda a viagem: desenvolvimento não é apenas construir, mas encontrar formas de manter vivo aquilo que foi construído.</p>
+<h3>Xibaipo: quando a memória continua viva</h3>
+<p>Depois da tecnologia e das montanhas, cheguei a Xibaipo. A mudança não era apenas geográfica, mas também temporal.</p>
+<p>O local foi sede do Comitê Central do Partido Comunista da China e do comando do Exército Popular de Libertação durante a fase final da Guerra de Libertação. Hoje, o Memorial de Xibaipo preserva essa memória por meio de antigos locais de trabalho e exposições.</p>
+<p>O que mais me chamou atenção foi perceber que essa memória não existe apenas para olhar para o passado. Ela também participa do presente, associada ao turismo, à educação e à revitalização rural.</p>
+<h3>Zhengding e Shijiazhuang: tradição que continua viva</h3>
+<p>Em Zhengding, encontrei outra relação entre passado e presente. A cidade preserva patrimônios culturais como o Templo Dàfó, revelando diferentes camadas da história chinesa.</p>
+<p>Mas preservar cultura não significa apenas conservar construções antigas. Significa também manter conhecimentos e pessoas.</p>
+<p>Foi em Shijiazhuang, na Rua de Pedestres Wanlimiao, que encontrei essa dimensão mais viva do patrimônio cultural.</p>
+<p>No mesmo espaço convivem comércio, música, gastronomia, tecnologia e oficinas dedicadas a técnicas tradicionais como o relevo em chapa de ferro, a pintura em madeira e o recorte de papel de Yuxian.</p>
+<p>Ali, mestres mantêm conhecimentos transmitidos por gerações, enquanto a rua também abriga novas formas de consumo e experiências digitais.</p>
+<p>A tradição não aparece como algo parado no tempo, mas como parte de uma cidade que continua mudando.</p>
+<img alt="" src="https://operamundi.uol.com.br/wp-content/uploads/2026/10/hebei-3.jpg"/>Delegação de jornalistas e influenciadores que realizaram visita a Hebei | Iara Vidal
+<h3>Xiong’an: uma cidade que ainda está nascendo</h3>
+<p>O último capítulo da viagem foi talvez o mais simbólico: Xiong’an, uma cidade que ainda está sendo construída e que eu já havia visitado alguns meses antes.</p>
+<p>Na primeira visita, tentei entender seu lugar na trajetória do desenvolvimento chinês. Se Shenzhen simbolizou a era da Reforma e Abertura, como porta de entrada da industrialização e da integração global, e Pudong, em Shanghai, marcou uma nova etapa de modernização, Xiong’an representa outro momento: uma cidade planejada desde a origem para os desafios do século 21.</p>
+<p>Encontrei uma paisagem em formação: grandes avenidas, áreas de construção, uma estação de trem que parece antecipar uma cidade por vir e o lago Baiyangdian, onde natureza e memória histórica convivem há séculos.</p>
+<p>Voltar a Xiong’an reforçou uma percepção que atravessou toda a viagem: em Hebei, o futuro não aparece como ruptura com o passado, mas como uma construção feita a partir dele.</p>
+<p>Conheci espaços como a Biblioteca de Xiong’an, áreas de planejamento urbano e projetos de recuperação ecológica. É quase como observar uma cidade ainda no rascunho.</p>
+<p>Talvez por isso Xiong’an seja a melhor forma de encerrar uma viagem por Hebei. Antes de chegar à província, eu havia pesquisado sobre Yanzhao e encontrado histórias como a de Hua Mulan, a guerreira chinesa que atravessou gerações e ganhou fama mundial.</p>
+<p>Ao longo da viagem, percebi que Hebei continua criando suas próprias histórias de transformação – não apenas nas pessoas, mas também nos territórios que estão sendo reinventados.</p>
+<p>Passei por lugares que representam diferentes dimensões da China contemporânea: memória revolucionária, indústria, inteligência artificial, legado olímpico e planejamento urbano.</p>
+<p>No início, tudo parecia desconectado. No final, percebi que havia uma mesma pergunta atravessando todos esses lugares: como transformar recursos – sejam eles dados, memória, patrimônio, paisagem ou conhecimento – em novas possibilidades para o futuro?</p>
+<p>Talvez essa seja a história de Hebei: uma província onde diferentes tempos convivem.</p>
+<p>Onde o passado não desaparece para dar lugar ao futuro.</p>
+<p>Ele se torna parte da construção dele.</p>
+<p><em>* Iara Vidal é pesquisadora independente dedicada ao estudo das interseções entre moda, política e cultura. Jornalista brasileira radicada em Beijing, trabalha como editora na CGTN em Português, emissora do Grupo de Mídia da China (CMG, na sigla em inglês).</em></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://operamundi.uol.com.br/opiniao/hebei-uma-viagem-entre-dados-memoria-e-inovacao/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

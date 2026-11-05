@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Don’t Read Too Much Into These Midterms - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Don’t Read Too Much Into These Midterms</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/02/midterms-foreign-policy-results/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/us-midterms-GettyImages-2301268276.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Don’t Read Too Much About Foreign Policy Into The Midterm Results
+                            </p>
+                            
+<p>If there’s one truism in U.S. politics, it’s that voters don’t vote on foreign policy. Eggheads like me in Washington might go back and forth on what we believe the American people want from foreign policy, complete with polls that reflect our own opinions. But it is rarely, if ever, the case that foreign policy is a salient enough issue to drive voting behavior.</p>
+<p>With his Iran war, however, President Donald Trump has made a foreign-policy choice so destructive and toxic that it has raised the ire of voters—and likely cratered his party’s chances heading into the midterm elections on Tuesday.</p> 
+
+<p>If there’s one truism in U.S. politics, it’s that voters don’t vote on foreign policy. Eggheads like me in Washington might go back and forth on what we believe the American people want from foreign policy, complete with polls that reflect our own opinions. But it is rarely, if ever, the case that foreign policy is a salient enough issue to drive voting behavior.</p>
+<p>With his Iran war, however, President Donald Trump has made a foreign-policy choice so destructive and toxic that it has raised the ire of voters—and likely cratered his party’s chances heading into the midterm elections on Tuesday.</p>
+<p>Despite this, we should be cautious about overinterpreting these results. As the horse race for the 2028 presidential election kicks off in the coming weeks, you’ll hear about the ways in which the election is a wholesale rejection of the Trump administration’s foreign-policy choices. This would be an oversimplification. What voters are incensed about is the war with Iran, not necessarily Trump’s broader rejection of the old bipartisan foreign-policy consensus.</p>
+<p>Honestly, it’s not clear from polling or focus groups what it is that American voters want from foreign policy, other than perhaps less of it: a reduced role in the world and a policy that focuses on the needs of Americans. For Democrats in particular, then, overreading these midterms as a wholesale rejection of change in foreign policy is a mistake; just because voters have rejected one disastrous foreign-policy choice does not mean that they’re ready to return to the pre-Trump status quo.</p>
+
+<p>There are, in fact, several truisms about U.S. politics that one could apply to this midterm. Parties rarely do well in midterms when they hold the White House, for example; governing is harder than campaigning. Or take lame-duck presidents. Even though they are not on the ballot—and never will be again—midterm results are usually more indicative of voter discontent with the incumbent than how they feel about actual candidates.</p>
+<p>And then there’s the truism that voters don’t vote on foreign policy. Certainly, there are marginal cases where foreign-policy opinion can swing votes: Florida’s Cuban exile community, for example, or the marginal impact of Arab American abstentions on Kamala Harris’s electoral chances in Michigan in 2024.</p>
+<p>But, in general, though voters will happily express their views on foreign policy when polled, experts say they <a href="https://instituteforglobalaffairs.org/2026/10/foreign-policy-on-the-ballot/" rel="noopener noreferrer" target="_blank">don’t prioritize it</a>. In 2020, for example, <a href="https://www.pewresearch.org/politics/2020/08/13/important-issues-in-the-2020-election/" rel="noopener noreferrer" target="_blank">no single foreign-policy issue</a> cracked the top 10 concerns in one Pew Research Center poll; foreign policy overall ranked below the economy, healthcare, Supreme Court appointments, and violent crime as top issues for voters. Perhaps the only time in recent memory where foreign policy took center stage in a midterm election was in 2002, when the “rally around the flag” effect of 9/11 allowed President George W. Bush’s Republican Party to retake control of the Senate.</p>
+<p>Yet despite this apparent rule, <a href="https://news.gallup.com/poll/716333/issues-voters-say-matter-midterm.aspx" rel="noopener noreferrer" target="_blank">polling</a> shows that the war with Iran is a top three issue for voters in this election, with 77 percent of respondents in one Gallup poll saying that it’s an extremely or very important issue for them. Gas prices—the most obvious knock-on effect of the conflict for the economy—also rank highly, with 72 percent of voters saying it’s important. (A related foreign-policy issue also cracks the top 10: the Israeli-Palestinian conflict.)</p>
+<p>Two reasons for this break from routine explain why the Iran war has resonated so strongly with voters. The first is that the war is not a purely foreign-policy issue. It has made life less affordable for many Americans in concrete and visible ways. Indeed, though some other Trump policies, such as tariffs, have contributed to the higher cost of living faced by Americans today, much of the pain from inflation has been driven by higher energy costs, which jumped only after the start of the war.</p>
+<p>Secondly, the Iran war has been a hot-button topic for voters because Trump himself made it one. One of his primary campaign pledges to voters in 2024 was that there would be “no new wars.” He also committed to improving the cost of living; the latter was a priority for many voters following several years of COVID-induced high inflation. The war with Iran is an open and clear betrayal of these promises.</p>
+<p>Foreign policy is not the only factor in this election. Trump voters have soured on his tariffs, on the excessively violent immigration crackdowns, and against the blatant corruption of some parts of his administration. Republicans would likely have lost ground in Congress regardless of the war with Iran. But it’s increasingly looking as if they may lose bigger as a result of it.</p>
+<p>Despite this, it’s not clear how much we can really learn from these election results. When the polls close on Tuesday night, media attention will quickly turn to the presidential primaries, which are likely to be highly competitive on the Democratic side and at least somewhat competitive among Republicans.</p>
+<p>We can expect that foreign policy—given its high salience in the midterms and the likelihood that the war with Iran will continue for some time yet—will remain a key topic of discussion. If Democrats take the Senate, they may well initiate impeachment hearings against Defense Secretary Pete Hegseth. Those hearings will examine not only the Iran war but also U.S. military actions in the Caribbean. Some congressional Democrats are also pushing for a confrontation with Trump over arms for Ukraine.</p>
+<p>There will be a tendency, particularly among congressional Democrats, to see these midterm results as voters rejecting Trump’s foreign-policy promises writ large or—more worryingly—as a vote by the public for a return to the pre-Trump foreign-policy status quo. But they would instead be wise to see this more as a single-issue vote: a rejection of the Iran war and of a president who promised one thing and did another.</p>
+<p>Americans remain deeply divided about what they want from their foreign policy. Many voters are unhappy with the Trump administration on tariffs, on Iran, on Venezuela, on Trump’s apparent rejection of long-standing U.S. alliances.</p>
+<p>At the same time, many of Trump’s discrete policies are not unpopular. Americans generally express support for alliances such as NATO, but a sizable proportion <a href="https://www.npr.org/2026/01/20/nx-s1-5668310/americans-views-of-the-u-s-alliance-with-europe" rel="noopener noreferrer" target="_blank">do want Europeans to contribute more to defense</a>; 49 percent of Americans <a href="https://globalaffairs.org/sites/default/files/2026-09/2026%20CCS%20Report%20Topline.pdf" rel="noopener noreferrer" target="_blank">want to cut military aid</a> to other nations. Voters tell pollsters that they disapprove of the shuttering of the U.S. Agency for International Development, but only 17 percent of Americans <a href="https://globalaffairs.org/sites/default/files/2026-09/2026%20CCS%20Report%20Topline.pdf" rel="noopener noreferrer" target="_blank">want to expand humanitarian aid</a>. And in direct contrast to the more hawkish views prevalent in Washington, Trump’s détente with China is popular. Only 40 percent of those polled believe that the United States should <a href="https://globalaffairs.org/research/public-opinion-survey/fears-china-wane-americans-favor-greater-engagement-beijing" rel="noopener noreferrer" target="_blank">actively work to limit the growth</a> of Chinese power.</p>
+<p>In short—as the racers climb onto the starting blocks for the 2028 presidential primaries—they would be well advised not to overread the lessons of the midterm elections on foreign policy. Democrats in particular would be wise not to spend the next few years picking fights on issues such as arms to Ukraine, which is <a href="https://yougov.com/en-us/articles/55803-support-for-sending-military-aid-to-ukraine-has-fallen" rel="noopener noreferrer" target="_blank">only popular with a minority of voters</a>—and only important to a superminority. Instead, candidates and Congress alike would be wise to hold Trump’s feet to the fire on issues that are broadly unpopular with the electorate, such as the Iran war, and even perhaps to co-opt the “America First” language popularized by Trump in his first term.</p>
+<p>After all, if there is one lesson we can take from these midterms, it is that voters do not believe that the war with Iran puts Americans first. They want a foreign policy that does.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/02/midterms-foreign-policy-results/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

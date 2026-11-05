@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dobramos as big techs, e agora? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Dobramos as big techs, e agora?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/tecnologiaemdisputa/dobramos-as-big-techs-e-agora/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5127477261463391911.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Dobramos as big techs, e agora?
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5127477261463391911.jpg"/>Imagem: Reprodução/The Wall Street Journal
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Nesse mês de novembro, publicaremos pela Fundação Friedrich Ebert Brasil (FES) e pelo Instituto Vladimir Herzog o relatório “Impactos estruturais dos algoritmos e da inteligência artificial na democracia e nos direitos humanos”. As análises que apresentei ali indicavam uma tendência: uma derrota acachapante do campo progressista na disputa pelas redes e pelo uso dos algoritmos e das IAs. O relatório foi finalizado no início do primeiro semestre e – ainda bem! – a tendência não se confirmou. Contra todos os prognósticos operamos um milagre: dobramos o algoritmo e vencemos. Isto é, a mobilização política e social foi capaz de disputar e direcionar o que as plataformas e redes sociais faziam circular.</p>
+<p>Não pretendo analisar aqui as razões e as ações que levaram a essa vitória. Precisaremos de muito tempo para sistematizar os dados, avaliar as ações e compreender de fato o que aconteceu. Tenho, porém, uma hipótese: fomos capazes de modular  – isto é, influenciar e redirecionar – a ação dos algoritmos das redes sociais por meio da força informacional que veio da diversidade e pluralidade da mobilização social e política que ocorreu. <em>Modulamos a instância tecnopolítica que, em nossa era digital, modula comportamentos, sentimentos, pensamentos e ações.</em></p>
+<p><a href="https://lavits.org/pesquisa/a-traquitana-popular-contra-o-tecnoautoritarismo-das-big-techs-a-inventividade-tecnopolitica-nas-eleicoes-de-2026/" rel="noopener noreferrer" target="_blank">Fernanda Bruno</a> descreveu este processo como uma “traquitana” popular e tecnógica. Segundo ela, “aprendemos a habitar uma nova zona política, ora espontânea, ora coordenada, ora criativa, ora robótica, ora militante, ora soldado, ora jornalista, ora influencer, ora intelectual, ora analista político, ora professor, ora estudante, ora devoto de todos os santos sobretudo Nossa Senhora, ora direita e esquerda, ora vice-versa. A nossa traquitana jamais obedeceu ao princípio de não contradição. Acreditou tão intensamente na paixão quanto na matemática janoniana, sem crer demasiado em nenhuma delas e, sobretudo, sem fugir do combate.” </p>
+<p>Das diversas ações militantes ao jornalismo investigativo revigorado, o que vimos foi a disciplina pulverizada e organizada de muita gente que confluiu mais do que influenciou. Contra a lógica neoliberal, individualista e meritocrática das redes sociais, nenhum de nós foi um influenciador, mas surgiram muitos <em>confluenciadores</em>: pessoas imbricadas e distribuídas, que somaram suas ações em vez de disputar atenção individual.</p>
+<p>Mas é preciso cuidado. Como afirmou Bruno Torturra no episódio<a href="https://open.spotify.com/episode/7g8cMdyHWsFosj1VGZk7Q7" rel="noopener noreferrer" target="_blank"> “Dito isto… ufa” do Calma Urgente</a>, não devemos nos inebriar com nossa conquista nem supor que ela poderá ser replicada daqui a quatro anos, ou mesmo dois.<a href="https://outraspalavras.net/crise-brasileira/exercito-de-lula-para-nao-repetir-o-erro-de-2014/" rel="noopener noreferrer" target="_blank"> Em outros momentos de nossa história</a>, em escala bem menor, também conseguimos disputar e modular minimamente os algoritmos das <em>Big Techs</em>. Mas, sem transparência e, principalmente, sem  poder de definir o código, as interfaces e as configurações, seguiremos tentando fazer milagres no campo do adversário. Seguiremos sendo programados e não programadores. </p>
+<p>Minha tese, portanto, é que a estratégia de manter a disputa pela modulação dos algoritmos não é sustentável. Tanto pelo custo humano (virarmos todos o “tio do Zap” ou adoecidos que passam a maior parte do dia sugados por telas) quanto, e principalmente, pelo custo político: se não transformarmos a energia e o capital político que emergiram nessas eleições em formas de organização e em infraestrutura e políticas públicas, outros o farão (como já vimos ocorrer com as manifestações de junho de 2013) — e terão as big techs para ajudá-los.</p>
+<p>Dito isto, à luz do que ocorreu nos últimos dias, retomo aqui alguns dos problemas apresentados no relatório para propor quatro caminhos de como seguir confluindo com essa movimentação histórica:</p>
+<ol>
+<li><strong>Regulação, sim, mas como cavalo de Troia</strong>: tratá-la como meio, não como fim.</li>
+<li><strong>Sair da modulação:</strong> construir canais próprios, fora das redes privadas.</li>
+<li><strong>Reconstituir a esfera pública com tecnologias públicas e voltadas às necessidades dos trabalhadores</strong></li>
+<li><strong>Usar a IA de modo crítico e lúdico, estrategicamente direcionando-nos à soberania tecnológica.</strong></li>
+</ol>
+<h3><strong>Regulação, sim, mas como cavalo de Troia</strong></h3>
+<p>Não devemos concentrar todos os nossos esforços na regulação. Ela é necessária, mas apenas para trazer, minimamente, as big techs para o jogo democrático.</p>
+<p>Como mostramos no relatório, as plataformas já são instituições. E, como qualquer instituição, não podem apenas determinar as regras do jogo: precisam também ser determinadas pelas regras que regem a vida pública. Sem responsabilidade, transparência, governança democrática e outros pilares, elas seguirão seguirão privatizando o espaço público digital e agindo como <em>um poder moderador privado </em>(<em>e mesmo usurpador) </em>na esfera pública e nos processos democráticos. Já temos amplos dados sobre isso no escopo desta eleição, por exemplo, nas pesquisas do <a href="https://www.brasil247.com/brasil/entidades-brasileiras-acionam-congresso-dos-eua-por-suspeitas-de-favorecimento-da-meta-a-flavio-bolsonaro/#google_vignette" rel="noopener noreferrer" target="_blank">CTRL+Z</a> e no dossiê da <a href="https://sleepinggiantsbrasil.com/wp-content/uploads/2026/10/Dossie_Meta_nao_se_meta_eleicoes_2026_diagramado.pptx.pdf" rel="noopener noreferrer" target="_blank">Sleeping Giants Brasil!</a>. </p>
+<p>Regulação, porém, significa apenas trazer as <em>Big Techs</em> pro jogo democrático, não vencê-las em nosso campo. Por isso, proponho uma <em>estratégia de cavalo de Tróia</em>: a regulação deve ser a roupagem visível da nossa luta, mas não nossa ação principal. Ela é somente um meio para transpor as muralhas dos feudos digitais e fazer em campo a disputa por uma internet e por tecnologias livres, populares e soberanas. A disputa digital deve ser, primeiramente, política e, complementarmente, institucional. No relatório, apresentamos algumas linhas de recomendações em cada capítulo como pontapé inicial para novas discussões e ações coletivas. </p>
+<h3><strong>Sair da modulação, construindo canais próprios</strong></h3>
+<p>Não acredito que a tática de modular os algoritmos continuará funcionando. Talvez valha a pena tentá-la em outros países, de acordo com o contexto local, mas, no Brasil, precisamos avançar na pauta da soberania digital e na criação de canais próprios de comunicação e ação.</p>
+<p>Em linhas gerais, André Janones e outros influenciadores de esquerda mapearam os algoritmos de <a href="https://desinformante.com.br/plataformas-cibernetica-democracia/" rel="noopener noreferrer" target="_blank">modo cibernético</a>, isto é, observando seus <em>outputs </em>(o que eles entregavam em resposta a cada ação) e os <em>hackearam </em>a nosso favor. Não tenho nenhuma crítica à tática adotada:<a href="https://www.cartacapital.com.br/carta-capital/virada-tecnopolitica/" rel="noopener noreferrer" target="_blank"> ela foi emergencial e funcionou brilhantemente</a>. Suspeito, porém, que funcionou mais pela força política e social que suscitou do que por sua efetividade do ponto de vista tecnológico. Em outras palavras, foi o apelo da luta contra o fascismo bolsonarista que fez a tática funcionar e não a tática por si só. </p>
+<p>Como analisei no relatório, os algoritmos não são alheios nem opacos à vida social: são relações sociais capturadas e traduzidas em uma linguagem que os sistemas computacionais podem processar. Cabe a nós inventar meios de processar esses sistemas de modo humano e social. O <a href="https://outraspalavras.net/tecnologiaemdisputa/a-proeza-de-janones-e-o-caminho-para-a-soberania-digital/" rel="noopener noreferrer" target="_blank">Exército Democrático do Lula</a>, a rede de apoiadores que se organizou nas redes em torno da campanha, fez exatamente isso: tratou os sistemas computacionais como relações sociais em disputa.</p>
+<p>Entretanto, para que o algoritmo funcione como uma relação social, é preciso produzir <em>tração</em> nas conectividades, isto é, a capacidade de um símbolo mobilizar as pessoas para além das telas. A genial ideia da camiseta verde e amarela com as pessoas fazendo o “L” é um exemplo. O próprio Lula, símbolo maior de que o pobre e o trabalhador podem governar este país, precisa seguir tendo essa tração. Mas, não é o engajamento que produz tração; como vimos, é a tração que produz o engajamento. Pense nos milhares de comentários, curtidas, repostagens e ações digitais que não eram feitos por sujeitos “engajados”, mas por um modo de funcionamento que permitia que a máquina continuasse rodando. Eu mesmo deixei a TV ligada, gastando energia, durante as 24 horas da live da virada do Janones, pós último debate presidencial, para “manter-me” no engajamento. </p>
+<p>Como já afirmei, manter essa dinâmica, no entanto, não é sustentável, por dois custos implicados. O primeiro é humano: a energia necessária para manter a máquina funcionando, e para que nós mesmos funcionemos como máquinas nos parâmetros impostos pelas big techs, recrudesce o adoecimento psíquico que já padecemos com nossa vida presa às telas e à conectividade ininterrupta.  O segundo, mais grave, é político: sem organização, a energia que acumulamos será capturada por outros – e a extrema direita é especialista nisto. </p>
+<p>O mesmo vale para o modelo de apostar no engajamento nas redes para eleger parlamentares, que permitiu votações expressivas de candidatos de esquerda. Ele também não é sustentável a médio prazo e, mesmo em seu auge, tem limites: os candidatos progressistas que mais usaram essas estratégias não foram os mais votados. Nikolas Ferreira e Lucas Pavanato tiveram mais de 3 milhões de votos cada, e Eduarda Campopiano, quase 2 milhões, enquanto Erika Hilton teve apenas 1,5 milhão. Não me parece uma boa estratégia disputar com fascistas nos termos e condições deles.</p>
+<p>Há, porém, uma boa notícia: quando se alcançam quase 11 milhões de seguidores em um canal de WhatsApp, o WhatsApp se torna dispensável. Podemos, então, apostar na criação de canais oficiais em aplicativos e redes alternativas e, principalmente, fora das redes, para engajar, movimentar e fazer avançar as discussões sobre um possível partido digital de esquerda, como <a href="https://www.bbc.com/portuguese/articles/cw99z4pj1mr4o" rel="noopener noreferrer" target="_blank">denominou Marcos Nobre</a>. Isso inclui lives semanais do Lula e mandatos participativos, com deliberação popular, dos deputados e senadores progressistas, que foram tão importantes para a reeleição, entre outras ações organizadas e organizantes. O que conquistamos no WhatsApp e no Instagram precisa ser levado progressivamente para fora desses espaços, pois o que produziu o engajamento veio de fora deles. Só assim o engajamento poderá sair das redes e se tornar mais efetivo.</p>
+<h3><strong>Reconstituir a esfera pública com tecnologias públicas e voltadas às necessidades dos trabalhadores</strong></h3>
+<p>Como analisamos no relatório, vivemos uma automatização da esfera pública, uma crise da integridade informacional e uma privatização das coletividades, o que torna o problema bastante espinhoso. A esfera pública está polarizada, e essas eleições só agravaram “a perda de realidade socialmente partilhada” que estamos vivendo. Não houve debate público em torno de propostas, mas uma luta para convencer as pessoas a rejeitar um fascista miliciano como presidente da República. Não será nas redes que a esfera pública irá se reconstituir.</p>
+<p>A boa notícia é que não precisamos, e nem conseguiremos, resolver esse problema amanhã. Temos quatro anos para fazer a esfera pública se reconstituir nos espaços públicos, nos meios e nas instituições nos quais possamos nos encontrar e dialogar com o diferente. Precisamos aproveitar a janela de oportunidade para mudar os próprios termos e condições do jogo. Para isso, seria muito mais efetivo apostar em dinâmicas de engajamento que confluam progressivamente em pautas que representam a maioria da população, como o fim da escala 6×1.</p>
+<p>Nesse sentido, o governo federal pode propiciar investimento urgente no desenvolvimento de aplicações tecnológicas que, ao mesmo tempo, auxiliem a classe trabalhadora e a ajudem a se organizar. Isso sim é caminhar para dominar a força transindividual que nos fez ganhar essa eleição. Algumas possibilidades:</p>
+<ul>
+<li>um aplicativo público de entregas e transporte para concorrer com Uber e iFood, proposta já aventada por Lula;</li>
+<li>um aplicativo público de organização das ofertas de lazer e cultura, para o trabalhador aproveitar os dias de descanso na escala 5×2;</li>
+<li>investimento em propostas como o Fediverso, em que redes sociais livres cooperam, e não competem, para oferecer alternativas às redes das big techs (imaginem os milhões do Exército do Lula se organizando por lá);</li>
+<li>uma secretaria digital do trabalho que fortaleça ações de soberania digital popular como as do MST e do MTST.</li>
+</ul>
+<p>Há muitas possibilidades tecnológicas, há conhecimento disponível e há tempo para desenvolvê-las, se o governo começar agora.</p>
+<p>A reconstrução da esfera pública pode vir da força do jornalismo independente, como vimos nessas eleições, ou de instituições abertas à participação popular. Mas, em todos os casos, são as tecnologias digitais que funcionam majoritariamente como o espaço e o meio nos quais a esfera pública acontece. Hoje, esse espaço e esse meio são privados; portanto, não temos outra opção senão torná-los públicos. O Pix, por exemplo, revolucionou não apenas a maneira como as operações financeiras ocorrem, mas também a compreensão dos suportes que organizam a circulação do dinheiro e a concessão de crédito. Construir aplicações e ambientes digitais públicos precisa estar na pauta agora, se quisermos colher, daqui a quatro anos, os frutos de ambientes democráticos e participativos.</p>
+<h3><strong>Usar a IA de modo crítico e lúdico, estrategicamente direcionando-nos à soberania tecnológica.</strong></h3>
+<p>O modelo de negócios de empresas como OpenAI, Google e Anthropic está pautado em que deleguemos nossa agência e nossa cognição às suas IAs. Podemos nos aproveitar disso para hackeá-las, usando-as em atividades para as quais não estavam previstas ou autorizadas. Por um lado, os memes gerados com IA insuflaram alegria e vitalidade na campanha e na mobilização. Por outro, a comoção gerada em torno da impossibilidade de criarmos imagens para a <a href="https://iclnoticias.com.br/ia-da-meta-impede-criacao-de-imagens-lula/" rel="noopener noreferrer" target="_blank">campanha de Lula com a IA da Meta</a> foi, no fundo, um uso muito perspicaz da IA: fazer material de campanha a partir do material de campanha que não foi possível produzir. </p>
+<p>Há, obviamente, a questão da<a href="https://outraspalavras.net/tecnologiaemdisputa/para-compreender-a-fundo-a-ia-e-sua-captura/" rel="noopener noreferrer" target="_blank"> insustentabilidade do consumo energético e computacional das IAs</a>. Por isso,  proponho esse uso apenas como ação pontual e estratégica: paradoxalmente, utilizar as IAs para explicitar a atrofia cognitiva e de agência que as IAs estadunidenses estão colocando em nosso horizonte. Usá-las para superá-las.</p>
+<p>Para além disso, como mostramos no relatório, <a href="https://outraspalavras.net/tecnologiaemdisputa/ia-como-a-china-esta-vencendo/" rel="noopener noreferrer" target="_blank">os modelos de pesos abertos chineses</a> (cujos parâmetros são públicos e podem ser adaptados por terceiros) e <a href="https://outraspalavras.net/tecnologiaemdisputa/a-encruzilhada-da-soberania-digital-em-2026/" rel="noopener noreferrer" target="_blank">a inserção alternativa das IAs no setor produtivo e no desenvolvimento econômico e tecnológico</a> da China pode nos ajudar a desenvolver nosso próprio caminho de soberania tecnológica nacional em IA. Quanto mais revelarmos as limitações e vieses das IAs das Big Techs, mais fácil será convencer a população da necessidade de desenvolvermos uma IA que não seja inimiga dos trabalhadores, mas que funcione estritamente na simbiose e integração com a nossa inteligência e nossa força de trabalho. </p>
+<p>Para tanto, precisamos ser muito consequentes e não aceitar nenhuma ação de governo que não convirja em direção à nossa soberania tecnológica. Por exemplo, como muito bem analisou <a href="https://www.ihu.unisinos.br/categorias/671095-redata-moderno-por-fora-ou-novo-enclave-exportador-por-dentro-artigo-de-luis-nassif" rel="noopener noreferrer" target="_blank">Luís Nassif em relação ao Redata</a>: “Sem política industrial, acesso nacional à capacidade computacional e repartição dos custos ambientais e energéticos, o Redata corre o risco de produzir um novo enclave: moderno por fora, colonial em sua lógica econômica”.  </p>
+<h3><strong>Além do milagre</strong></h3>
+<p>Esses são apenas alguns apontamentos iniciais que convergem para a ideia de que precisamos enquanto campo democrático e progressista aproveitar a janela de oportunidade para criar outras formas de engajamento, participação e criação de mídias e tecnologias digitais que sejam também mais sustentáveis – do ponto de vista psíquico, econômico, ambiental e, principalmente, político. </p>
+<p>E se, em relação a esses e a outros caminhos possíveis, não der certo? Lembremos algo que este ano de 2026 nos ensinou: a derrota para o sistema é boa, não precisamos ter medo dela; se bem escolhidas, as derrotas podem ser futuras vitórias. Indicar uma mulher negra para o STF e ver o Senado bloquear a indicação; proibir as Bets; pautar o fim da escala 6 x 1 e agora o passe livre aos finais de semana… Enfim, perder de modo propositivo mostra que o governo tem um lado, e que esse lado não é o dos poderosos – como tantas vezes se acusa o PT -, mas, sim, dos trabalhadores. </p>
+<p>O que não podemos é contar com o milagre. Essa vitória de agora não poderá ser replicada se não criarmos as condições para tanto.</p>
+<p><em>P.S: </em>Aliás, o Brasil possui muitos movimentos e pesquisadores que têm produzido um acúmulo incrível sobre quais são as condições necessárias que menciono acima. O Movimento pelo Software Livre, a Coalização Direitos na Rede, o Movimento pela Soberania Digital, e muitos coletivos e organizações tem produzido documentos norteadores como o <a href="https://soberania.digital/" rel="noopener noreferrer" target="_blank">Decálogo pela Soberania Digital</a>, a Campanha Internet Legal, e mesmo institucionalmente com o Comitê Gestor da Internet, as <a href="https://cgi.br/pagina/diretrizes-plataformas/" rel="noopener noreferrer" target="_blank">Diretrizes para Regulação de Plataformas de Redes Sociais</a>. Cabe ao governo colocar esse acúmulo como prioridade para a luta pela soberania digital; desde já.</p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleça o jornalismo crítico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/tecnologiaemdisputa/dobramos-as-big-techs-e-agora/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

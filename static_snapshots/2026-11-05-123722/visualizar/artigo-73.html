@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidade: O grande laboratório do socialismo - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Cidade: O grande laboratório do socialismo</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/outras-cidades/cidade-o-grande-laboratorio-do-socialismo/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/marcha-das-mulheres-negras-Foto_-Tiago-Zenero_PNUD-Brasil-1.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Cidade: O grande laboratório do socialismo
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/marcha-das-mulheres-negras-Foto_-Tiago-Zenero_PNUD-Brasil.jpg"/>Foto: Tiago Zenero/PNUD Brasil
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p><strong>Shelton Stromquist </strong>em entrevista a <strong>Mariano Schuster</strong>, no <em><a href="https://nuso.org/articulo/ciudades-socialistas-entrevista" rel="noopener noreferrer" target="_blank">Nuso </a></em>| Tradução: <strong>Rôney Rodrigues</strong></p>
+<p>O historiador estadunidense Shelton Stromquist reconstrói uma história do socialismo deslocada de seus cenários mais habituais (os partidos, os parlamentos, os Estados nacionais e as grandes controvérsias doutrinárias) para o terreno concreto da cidade. Em <em>Claiming the City: A Global History of Workers’ Fight for Municipal Socialism</em> [Reivindicar a cidade. Uma história global da luta operária pelo socialismo municipal], o autor acompanha as lutas operárias para democratizar os municípios, conquistar o sufrágio local, municipalizar serviços urbanos e transformar a moradia, o transporte, a água, o gás, a eletricidade, os parques, as bibliotecas e os banheiros públicos em parte de uma esfera pública submetida ao controle democrático. </p>
+<p>Por meio de casos que vão da Comuna de Paris à Viena Vermelha, e de cidades como Bradford, Hamburgo, Malmö, Christchurch, Broken Hill ou Milwaukee, Stromquist mostra que o socialismo municipal não foi uma expressão menor ou secundária da tradição socialista, mas uma de suas formas mais vivas, transnacionais e enraizadas na vida cotidiana das classes trabalhadoras. Sua pesquisa permite recuperar uma história em grande parte esquecida: a de um socialismo que não quis apenas tomar o poder do Estado, mas também disputar quem tinha o direito de governar a cidade, como seus serviços deviam ser organizados e que lugar os trabalhadores e as trabalhadoras podiam ocupar na definição da vida urbana.</p>
+<p><strong>Em </strong><strong><em>Claiming the City: A Global History of Workers’ Fight for Municipal Socialism</em></strong><strong>, o senhor reconstrói uma história socialista que desloca o eixo dos grandes cenários nacionais para os espaços urbanos. O que esse olhar revela sobre a vida cotidiana, os serviços públicos e as formas de autogoverno operário? E por que, entre o final do século XIX e meados da década de 1920, os municípios se tornaram um terreno tão importante para a política socialista?</strong></p>
+<p>Dois fatores incidiram diretamente nas dimensões “locais” da luta pelo socialismo. O primeiro foi o impacto da rápida urbanização e industrialização do final do século XIX, especialmente no Norte global, sobre a vida dos trabalhadores e de suas famílias. As condições da vida cotidiana (o acesso a uma moradia digna e acessível, à água potável e ao esgoto, a presença de poeira e sujeira, o transporte urbano barato e os riscos de doenças epidêmicas) fizeram com que as questões locais e municipais ganhassem grande importância. O controle privado desses serviços abriu caminho para o lucro e produziu prestações completamente inadequadas ou simplesmente inexistentes. Diante dessa situação, as propostas socialistas voltadas a resolver esses problemas e a criar uma esfera pública governada democraticamente obtiveram amplo apoio social. Além disso, contribuíram para construir uma base política sólida para o ativismo socialista, que depois se estendeu aos níveis regional e nacional. Infelizmente, essa dimensão local foi muito negligenciada pelos estudos sobre a política socialista, que em geral se concentraram no cenário nacional e na política parlamentar.</p>
+<p>O segundo fator tem a ver com os processos de formação de classe. As lutas nos locais de trabalho e nos bairros tiveram (e ainda têm) um caráter inevitavelmente local, assim como a ação coletiva. Isso foi particularmente visível em casos como o de Hamburgo, onde, em 1906, quando a câmara municipal dominada pelas elites tentou impor novas restrições ao voto operário nas eleições da cidade, estourou uma manifestação em massa contra esse “roubo do sufrágio”. Foi então que, como relata o historiador Johannes Schult, confluíram diante da Prefeitura diversos “grupos informais de trabalhadores dos distritos periféricos vestidos com sua melhor roupa de domingo”. A greve geral que se seguiu a essa explosão foi impulsionada por participantes mobilizados em seus locais de trabalho e nos bairros de toda a cidade.</p>
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/0c8dcb8e-2ff4-470a-a9d6-3740ec1dde51-1-1500x1200.png"/>
+
+<p>Acho importante assinalar que, em termos culturais, as identidades de classe se formaram e se reforçaram numa esfera pública operária enraizada em expressões locais. Essa esfera pública podia reunir a diversidade étnica e as experiências de gênero nos bairros populares por meio de festivais, do teatro popular e de protestos públicos. Ambos os fatores (a crise das condições da vida cotidiana e a mobilização nos locais de trabalho e nos bairros) se intensificaram transnacionalmente a partir do final da década de 1880 e ao longo da de 1890. Essa intensificação levou os trabalhadores a buscar novas formas de organização política e abriu um espaço para as ideias socialistas.</p>
+<p><strong>Em seu livro, a Comuna de Paris aparece não apenas como um episódio fundacional da história socialista, mas também como uma experiência urbana e municipal cuja memória pesou sobre as gerações posteriores. Que legado a Comuna deixou para o desenvolvimento do municipalismo socialista do final do século XIX e início do XX? Que elementos dessa experiência foram retomados pelos socialistas municipais posteriores, e quais ficaram para trás?</strong></p>
+<p>Abro e fecho o livro com dois momentos inspiradores, ambos brutalmente reprimidos, na história da luta pelo socialismo municipal. O primeiro é, efetivamente, o da Comuna de Paris, que ocorreu em 1871; o segundo é o da Viena Vermelha, a experiência socialista que se desenvolveu na capital austríaca entre 1919 e 1934. A Comuna de Paris tornou-se, sem dúvida alguma, um acontecimento icônico. Sua celebração e sua memória continuaram ressoando durante décadas nos círculos operários de todo o mundo: em reuniões comemorativas de trabalhadores, mas também, como escreveu um historiador, em “associações eleitorais militantes” que mantiveram vivo o ideal radical da “soberania popular direta”.</p>
+<p>Essa ressonância histórica se apoiava, em parte, na lembrança da brutal repressão dos communards e, em alguns casos, de sua deportação para lugares remotos de exílio. No entanto, creio que um aspecto central da memória da Comuna residiu no exemplo político que ofereceu: o de trabalhadores que reivindicavam o direito de governar a si mesmos nas cidades. Em circunstâncias extremamente difíceis, esses trabalhadores deram passos concretos para se libertar das instituições do governo das elites e criar, sob seu próprio controle, instituições alternativas, democráticas e autogeridas.</p>
+<p>Entre essas instituições e iniciativas estavam as oficinas municipais, as cooperativas de produção e de consumo, e a ampliação de serviços públicos como a educação e a distribuição do correio. Durante aqueles meses cruciais, entre março e maio de 1871, a Comuna ofereceu um modelo concreto e politicamente intenso, cuja força continuou ressoando na vida dos trabalhadores muito depois de ter sido esmagada. Os trabalhadores viram no exemplo da Comuna de Paris não uma promessa abstrata, mas uma demonstração real do que podia ser feito na cidade. E celebraram a possibilidade de levá-lo adiante por meios social-democratas. Mas a história também deixava uma advertência. Como mostrou a experiência da Viena Vermelha em 1934, nem mesmo uma estratégia eleitoral social-democrata bem-sucedida garantia uma verdadeira proteção aos trabalhadores diante de uma repressão brutal.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/33386171-c9ae-40de-90dc-deac87080380-1500x1000.png"/>
+<p><strong>O senhor mostra que o socialismo municipal não foi simplesmente a ideologia socialista levada ao terreno urbano, mas um programa muito concreto de transformação da vida cotidiana, que implicava o acesso à moradia pública, ao transporte, à água, ao gás e à eletricidade, mas também o desenvolvimento de banheiros públicos, parques e hospitais. Esse repertório reaparece em cidades muito distintas, de Londres a Hamburgo e Christchurch. Como foi construída essa linguagem comum do municipalismo socialista? E que potência política teve deslocar a atenção do local de trabalho para as condições materiais da vida urbana?</strong></p>
+<p>Na segunda metade do século XIX, os trabalhadores de cidades situadas em contextos nacionais muito distintos enfrentavam condições de vida tão horríveis quanto semelhantes: moradias superlotadas ou insalubres, ruas sujas, serviços deficientes, transporte caro, falta de água segura e ameaças sanitárias permanentes. A isso se somava, é claro, uma história paralela de conflitos muito intensos nos locais de trabalho. A desqualificação, os cortes salariais e a perda de controle sobre processos de trabalho recentemente “racionalizados” deram lugar a greves que, muito frequentemente, terminaram em derrotas, repressão e listas negras contra os ativistas sindicais. Os dados transnacionais sobre as greves daquele período mostram, de fato, uma onda global de protestos muito clara entre meados da década de 1880 e o final da de 1890.</p>
+<p>O mundo do trabalho e a vida comunitária urbana estavam, como é lógico, estreitamente conectados. As lutas nascidas nas fábricas, nas minas ou no mundo ferroviário podiam se traduzir em novas formas de organização política local. Os exemplos dessa alimentação mútua são numerosos. Um deles foi a greve de Manningham Mills, em Bradford, uma cidade têxtil inglesa, e a mobilização política que ali se desenvolveu entre 1891 e 1893. Outro foi a greve dos mineiros de prata de Broken Hill, em Nova Gales do Sul, em 1892, que contribuiu para gerar novas formas de política operária na Austrália. Também posso mencionar as greves dos trabalhadores de bondes em Milwaukee, em 1897, e em Cleveland, em 1899, que impulsionaram novas experiências de reforma urbana nos Estados Unidos. Na Austrália, as greves marítimas e de tosquiadores de ovelhas de 1890 e 1891 funcionaram, por sua vez, como celeiro de um novo Partido Trabalhista nos municípios e no Parlamento estadual.</p>
+<p>No entanto, é importante destacar que um dos vínculos mais importantes entre a política exercida no local de trabalho e a política comunitária apareceu na luta para deslocar o governo das elites e desmontar as restrições ao sufrágio municipal, que impediam avançar em reformas significativas da vida urbana. O controle elitista dos instrumentos locais de repressão (em particular, da polícia) e a persistência da exclusão eleitoral dos trabalhadores deram uma força especial às campanhas que buscavam democratizar o governo local. Não se tratava apenas de ganhar eleições, mas de abrir as instituições municipais àqueles que até então haviam ficado de fora delas. Essas campanhas costumavam construir poder de maneira gradual: primeiro conquistando cadeiras nas câmaras municipais, depois disputando prefeituras e, a partir daí, impulsionando reformas concretas no governo local.</p>
+<p>Os socialistas demonstravam frequentemente sua força mesmo quando só conseguiam uma representação minoritária nas câmaras municipais. De fato, podiam bloquear ou reverter políticas contrárias aos interesses da classe operária. Podiam armar uma coalizão em torno de uma demanda concreta, como a construção de mais moradias acessíveis ou a limitação dos aumentos de aluguéis. Também podiam utilizar com astúcia os procedimentos parlamentares para frear uma iniciativa das elites (como a nomeação de um administrador municipal com um salário muito elevado) e até obrigá-las a aceitar que se destinassem recursos para melhorar o sistema de esgoto da cidade. Ao mesmo tempo, os socialistas exigiam que as reuniões do governo municipal fossem abertas, que se realizassem em horários compatíveis com a presença dos trabalhadores e que os procedimentos fossem transparentes. Nesse sentido, o municipalismo socialista não foi apenas um programa de serviços urbanos: foi também uma disputa sobre quem tinha o direito de decidir sobre a cidade.</p>
+<p><strong>Em seu livro, que se concentra em estudos de caso, fica claro que algumas cidades industriais inglesas como Bradford, Halifax ou Keighley foram laboratórios de uma nova política operária impulsionada por militantes do Partido Trabalhista Independente. Como esse municipalismo socialista britânico se articulou com a posterior consolidação do Partido Trabalhista como força nacional? Tratou-se de uma continuidade, ou de uma passagem em que algo dessa energia local se perdeu ou se transformou? Quais foram as características centrais dessas experiências?</strong></p>
+<p>Os ativistas do socialismo municipal no Partido Trabalhista Independente sempre mantiveram certa desconfiança diante das tendências centralizadoras, que se expressaram primeiro no Comitê de Representação Trabalhista e depois no Partido Trabalhista Parlamentar, cada vez mais ocupado com a representação política no Parlamento nacional. Os defensores locais do socialismo municipal, como Russell Smart, sustentavam em 1908 que o Partido Trabalhista estava se tornando rapidamente “uma simples máquina partidária para ratificar as decisões tomadas por três ou quatro dirigentes poderosos”. Esses dirigentes, dizia Smart, haviam formado um “círculo interno” e tinham “todos os fios nas mãos”: os jornais, a Conferência Anual do partido e o Comitê da Ordem do Dia. A energia e o dinamismo do Partido Trabalhista Independente, em contrapartida, estavam enraizados na política local, e não em seu Comitê Administrativo Nacional.</p>
+<p>Como escreveu o secretário da seção de Jarrow, problemas locais como a “superlotação” ou as “moradias insalubres com aluguéis elevados” não seriam resolvidos até que “os trabalhadores e as trabalhadoras se organizassem” para eleger seus próprios representantes locais. Em 1907, um delegado de Newcastle expressou uma ideia semelhante à de muitos ativistas urbanos que lutavam pela autonomia local. De fato, disse assim: “É justo supor que os habitantes de uma localidade sabem quais medidas servem melhor a seus próprios interesses, sem a interferência de nenhum departamento governamental, nem mesmo do próprio Parlamento”.</p>
+<p>No final da Primeira Guerra Mundial, essas tensões voltaram a aparecer durante os debates sobre a nova constituição do Partido Trabalhista. Dirigentes como Arthur Henderson e Sidney Webb queriam transformar o partido, “rápida e discretamente”, de uma federação de organizações nacionais e locais em uma força política de alcance nacional, com seções em cada distrito eleitoral. Isso implicava redefinir a filiação como uma relação direta entre cada militante e o partido nacional, enfraquecendo o lugar autônomo que haviam tido as seções locais do Partido Trabalhista Independente. No entanto, por sua forte vitalidade territorial, o Partido Trabalhista Independente conseguiu transferir para muitas filiais locais trabalhistas sua ênfase na política municipal. Em algumas áreas, de fato, acabou controlando diretamente as estruturas locais do Partido Trabalhista.</p>
+<p>As tensões entre os ativistas locais e os dirigentes parlamentares nacionais apareceram, na realidade, em todos os países que examinei: Alemanha, Suécia, Áustria, Austrália, Nova Zelândia, Estados Unidos e Reino Unido. Na Alemanha, por exemplo, um delegado local ao congresso de 1904 do Partido Social-Democrata (SPD, na sigla em alemão) defendeu a importância da política municipal e recebeu grandes aplausos dos demais delegados. “É verdade — disse — que as cidades podem contribuir, como espaços coletivos exemplares, para transformar as condições sociais e políticas existentes e para criar um novo sistema político. O autogoverno municipal é um meio para construir uma nova ordem social.”</p>
+<p>Um jornal operário de Melbourne sustentava algo semelhante na Austrália: havia “muitos detalhes” da vida cotidiana que só podiam ser tratados pelos municípios e que ficavam completamente fora do alcance dos parlamentos nacionais. Referia-se a questões como “moradias saudáveis, ruas e parques bem cuidados; controle da luz elétrica, das usinas de gás e dos bondes; bibliotecas, piscinas, ginásios” e outros elementos voltados a melhorar o bem-estar da população.</p>
+<p><strong>Uma das virtudes de </strong><strong><em>Claiming the City</em></strong><strong> é mostrar que o socialismo municipal teve uma dimensão transnacional. De fato, teve presença destacada em cidades tão distintas como Malmö, Hamburgo ou Broken Hill, e também nos intercâmbios de militantes, ideias e repertórios de ação entre lugares muito distantes entre si. O que essas conexões revelam sobre a circulação global do municipalismo socialista? Pode-se dizer que, antes de 1914, já existia uma linguagem comum de política urbana socialista?</strong></p>
+<p>Esta foi, sem dúvida, uma das descobertas mais surpreendentes da pesquisa para o livro. O socialismo municipal não era um fenômeno localista e marginal, isolado das grandes correntes do ativismo e da ideologia socialistas. Mas é verdade que os partidos nacionais costumavam ver essa política socialista urbana como uma distração (e talvez também como uma ameaça) que de algum modo enfraquecia suas aspirações revolucionárias. Em alguns países, entre os quais se destacou sem dúvida a Alemanha, o municipalismo socialista fez parte do debate e da luta interna em torno do “revisionismo”, a corrente associada a Eduard Bernstein, que questionava a ideia de um colapso inevitável do capitalismo e defendia uma via mais gradual, democrática e reformista rumo ao socialismo.</p>
+<p>No entanto, o central é que essas correntes de ativismo socialista urbano não existiam de maneira isolada, mas estavam profundamente interconectadas e eram transnacionais por direito próprio. Gosto de utilizar o termo “translocal” para captar essa ambiguidade. Sem dúvida, seu foco estava no contexto local e em demandas que prometiam melhorias materiais na vida cotidiana dos trabalhadores no presente imediato, e não numa ordem social plenamente revolucionada situada num futuro distante. Ao mesmo tempo, esses militantes entendiam a si mesmos como parte de um movimento transnacional, ligado por programas comuns, redes de comunicação, emissários itinerantes que às vezes organizavam atividades nos territórios de outros, e pela leitura compartilhada dos mesmos folhetos e jornais.</p>
+<p>Nessas publicações encontravam descrições de ruas imundas, águas servidas malcheirosas e sem tratamento, moradias operárias superlotadas e deterioradas, e governos municipais administrados como feudos privados pelas elites proprietárias. Tudo isso lhes devolvia o eco de sua própria experiência. À medida que o mundo se tornava menor, podiam se reconhecer facilmente como companheiros de uma mesma campanha urbana, celebrar as vitórias de outros companheiros e companheiras, e se preparar para enfrentar forças reacionárias comuns.</p>
+<p>Jornais como o <em>Barrier Daily Truth</em>, na isolada cidade mineira de Broken Hill, em Nova Gales do Sul; o <em>Social Democratic Herald</em>, em Milwaukee; ou o <em>Kommunale Praxis</em>, em Berlim, fizeram circular histórias de ativismo municipal por canais telegráficos em todo o mundo. E, ao fazê-lo, alimentaram a imaginação de trabalhadores de outras cidades e os incentivaram a emular essas conquistas.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/e2ae9789-5e7b-4b2c-bd23-06b4165d0845.png"/>
+<p><strong>O senhor mostra que a luta pelo sufrágio municipal abria uma disputa mais ampla sobre a cidadania urbana: quem podia votar, quem podia ser eleito e quem tinha direito de governar a cidade. Essa disputa era atravessada pela propriedade, pela classe e também pelo gênero. Ao mesmo tempo, a escala local foi um terreno decisivo para a politização de muitas mulheres. Como se cruzaram a democratização do governo urbano e a irrupção política das mulheres na história do municipalismo socialista? A cidade ofereceu uma porta de entrada para a política porque ali se jogavam, de maneira imediata, os problemas da vida cotidiana?</strong></p>
+<p>Os trabalhadores e as trabalhadoras que buscavam afirmar seu direito de governar as cidades que habitavam, e de conquistar o poder eleitoral que lhes devia corresponder por seu enorme peso numérico, depararam-se com um obstáculo decisivo: o de um sufrágio municipal muito restrito. Para as mulheres, na maioria dos países, a negação do direito ao voto se estendia a todas as eleições, incluindo as parlamentares, as provinciais, as estaduais e as municipais. Mas era no terreno municipal que os trabalhadores e trabalhadoras enfrentavam barreiras especialmente restritivas.</p>
+<p>As elites governantes estavam muito conscientes de sua própria vulnerabilidade nas cidades caso os trabalhadores pudessem votar livremente, dado que isso lhes daria a possibilidade, entre outras coisas, de tributar as propriedades dos ricos com impostos mais altos para financiar a expansão dos serviços públicos urbanos. Por isso, adotaram diversos mecanismos destinados a impedir o voto operário ou a diluir seu peso eleitoral: requisitos de propriedade, sistemas que concediam mais votos a quem tinha mais propriedades, blocos eleitorais estratificados por classe que deixavam pouquíssimas cadeiras disponíveis para os eleitores da classe trabalhadora, entre muitas outras medidas. O efeito foi uma limitação radical da força eleitoral operária nas cidades.</p>
+<p>Em Malmö, na Suécia, um pequeno grupo de 715 eleitores, a quem um editor social-democrata descreveu como os “cavalheiros de carteira cheia”, emitia 35.552 votos. Em Norrland, as companhias madeireiras, graças ao peso eleitoral associado a suas propriedades, podiam reunir sozinhas até 48.112 votos nas eleições locais. Na Prússia, sob o célebre e restritivo “sistema de três classes”, um punhado de empresários elegia um terço dos vereadores municipais; outros 5% ou 10% da população, composta por grandes proprietários, elegiam outro terço das cadeiras; e os 85% ou 90% restantes, integrados por trabalhadores que possuíam alguma propriedade, elegiam o último terço. A maioria dos trabalhadores não tinha nenhuma propriedade, de modo que seu voto era simplesmente excluído nas eleições municipais.</p>
+<p>Para as mulheres do Norte industrializado e das colônias de povoamento europeu, a exclusão eleitoral era ainda mais completa. Embora tenha havido algumas exceções precoces na Nova Zelândia e em alguns estados do oeste dos Estados Unidos, em geral as mulheres estavam formalmente excluídas da participação eleitoral. No entanto, a demanda feminina por representação apareceu muitas vezes primeiro no âmbito municipal, onde a relação com os problemas urgentes da vida cotidiana e da sobrevivência dava uma força particular a seu ativismo político. Os esforços para melhorar a salubridade urbana, regular as condições da moradia e atender necessidades prementes de saúde pública alimentaram suas reivindicações pelo direito ao voto.</p>
+<p>Embora esse reconhecimento tenha sido muitas vezes limitado e concedido a contragosto, algumas mulheres conseguiram intervir na política municipal. Emmeline Pankhurst, figura central do sufragismo britânico, e suas filhas, também militantes pelos direitos políticos das mulheres, puderam votar e se candidatar a certos cargos locais em Manchester. Em outros contextos, Vida Goldstein e Lilian Locke, ativistas sufragistas e trabalhistas na Austrália, e Stella Henderson, jornalista, reformadora social e defensora dos direitos das mulheres na Nova Zelândia, assinalaram uma contradição evidente: mesmo onde as mulheres haviam conquistado o direito ao voto em eleições parlamentares, podiam continuar excluídas ou limitadas na política municipal.</p>
+<p>Mas as mulheres também enfrentaram uma batalha interna dentro dos próprios partidos operários e socialistas que, ao menos em princípio, apoiavam seu direito ao voto. Ali surgiram debates sobre como deviam se organizar: se separadamente, como mulheres; se integrando-se simplesmente como militantes dos partidos trabalhistas ou socialistas, como ocorreu, por exemplo, na Austrália; se formando comitês femininos dentro dessas organizações; ou se disputando diretamente lugares de representação e liderança nos partidos, tanto em escala local quanto nacional.</p>
+<p>Em certo sentido, isso fazia parte de uma discussão mais ampla: se a libertação das mulheres devia ser entendida como parte da luta geral pela emancipação da classe trabalhadora ou se, como formulou Rose Schneiderman (dirigente sindical, socialista e feminista estadunidense, vinculada à organização das trabalhadoras da indústria têxtil), as mulheres enfrentavam circunstâncias específicas e precisavam do voto “porque precisavam de proteção por meio das leis”. Nesse marco, convém lembrar que uma editora da seção feminina do <em>New York Socialist Call</em> advertia: “libertar-se da escravidão sexual não significa libertar-se da escravidão assalariada”.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/2a8f33d3-c130-470f-923a-2c29390aa661-1500x1001.png"/>
+<p><strong>É evidente que, em sua perspectiva, o municipalismo socialista não se constituiu apenas como uma prática de governo local, mas foi, sobretudo, uma tradição intelectual e política. Quem foram, a seu ver, seus principais teóricos ou promotores, e o que cada um deles contribuiu? Que ideias novas introduziram sobre o papel do município em uma estratégia socialista?</strong></p>
+<p>Aqueles que promoveram o socialismo municipal foram, em muitos sentidos, militantes deliberadamente práticos. Falavam de programas, de estratégias políticas e de reformas possíveis, e ao mesmo tempo analisavam e documentavam as condições da vida cotidiana que reclamavam mudanças urgentes. Não eram antiteóricos: simplesmente situavam sua visão política nos problemas concretos que tinham diante de si. Por isso, quando discutiam com os intelectuais de seus próprios partidos, sua preocupação principal não era formular uma doutrina geral, mas precisar que passos podiam ser dados, na prática, para avançar rumo ao socialismo.</p>
+<p>Não surpreende que esse debate tenha adquirido especial intensidade na Alemanha, onde o “revisionismo” de Eduard Bernstein se converteu no alvo das críticas das principais figuras do SPD. Esses dirigentes denunciavam a posição de Bernstein como uma diluição do programa revolucionário, baseado na ideia de que o capitalismo colapsaria inevitavelmente e seria sucedido pelo triunfo do proletariado. Rosa Luxemburgo, Karl Kautsky e August Bebel encabeçaram o ataque contra Bernstein e seus aliados dentro do partido.</p>
+<p>Embora o próprio Bernstein pensasse sobretudo em termos nacionais, em algumas ocasiões reconheceu a importância central do socialismo municipal. Durante seu exílio na Grã-Bretanha, havia participado do congresso fundacional do Partido Trabalhista Independente, em 1893, e conhecia muito bem as campanhas por cargos municipais que começavam a se desenvolver em diversas cidades britânicas. Depois de regressar do exílio, ele mesmo se candidatou a vereador em um subúrbio de Berlim.</p>
+<p>No entanto, nesses debates sobre o revisionismo, a figura mais importante para o socialismo municipal não foi Bernstein, mas Hugo Lindemann, dirigente social-democrata e defensor de uma estratégia orientada para a conquista do poder local. Nos congressos partidários de 1902 e 1904, Lindemann foi duramente questionado por impulsionar um programa municipal que a direção do partido preferia adiar. Diante dessas resistências, os partidários do socialismo municipal foram deslocando sua atenção das discussões teóricas para uma tarefa mais prática: ganhar cargos locais e demonstrar, a partir dali, o que podia ser feito. O próprio Lindemann esteve muito perto de se tornar prefeito de Stuttgart, apesar dos ataques de camaradas como Rosa Luxemburgo e Karl Kautsky, que temiam que um êxito desse tipo enfraquecesse a disciplina partidária e moderasse a voz opositora do socialismo. Kautsky chegou a chamá-lo, com ironia, de “um companheiro de partido de férias”, em alusão à sua ênfase na gestão municipal.</p>
+<p>Os ecos do debate alemão reapareceram, com variantes, em diversos contextos: entre os socialistas dos Estados Unidos durante o congresso fundacional do Partido Socialista da América; nas disputas entre os chamados Red Feds (os sindicalistas radicais neozelandeses) e os social-democratas durante as primeiras etapas de formação do Partido Trabalhista da Nova Zelândia; entre os socialistas austríacos que discutiam o conceito austromarxista de “revolução lenta” de Otto Bauer; e na defesa que o socialista sueco Axel Danielsson fez de uma democratização radical da política municipal.</p>
+<p>Mas esse debate está longe de pertencer apenas ao passado. Nos últimos anos, voltou a ganhar força uma perspectiva teórica que reivindica o “direito à cidade” dos trabalhadores, a partir das obras de Henri Lefebvre, David Harvey, Manuel Castells e Mike Davis. Ao mesmo tempo, autores como Gianpaolo Baiocchi, Bertie Russell, Daniel Chavez e Benjamin Goldfrank desenvolveram uma reflexão sobre a ampliação da participação popular na vida urbana, apoiando-se em boa medida na teoria política e nas experiências concretas do “orçamento participativo” em cidades latino-americanas.</p>
+<p><strong>Um dos aspectos mais marcantes de seu livro é a demonstração de que os partidos e organizações socialistas eram mais do que forças eleitorais ou máquinas de governo local. De fato, o senhor mostra que também eram atores que ajudavam a organizar uma vida urbana própria, por meio do protesto, da sociabilidade operária, da imprensa, dos clubes, das campanhas de rua e da disputa pelo uso do espaço público. Até que ponto o municipalismo socialista foi também uma forma de construir cidade a partir de baixo, à margem ou para além das instituições do poder estatal central? E que importância teve essa dimensão extraeleitoral para a força que essas experiências chegaram a ter em diferentes contextos?</strong></p>
+<p>A política socialista municipal ganhou impulso na década de 1890 e no início do século XX como parte de um amplo crescimento da autoatividade da classe trabalhadora, que também se manifestou nas lutas econômicas e em novas reivindicações por espaços culturais próprios. Tratava-se, fundamentalmente, da construção de uma esfera pública proletária alternativa. O vínculo mais direto e imediato se deu entre as greves em massa por demandas econômicas e uma nova política urbana que era, ao mesmo tempo, defensiva (porque buscava controlar a repressão policial) e ofensiva (porque impulsionava uma agenda de reformas municipais). Essa onda global de greves teve, como eu lhe dizia anteriormente, alcance mundial.</p>
+<p>Um dos casos mais vívidos da conexão entre os protestos e a política local foi a greve de Manningham Mills, em Bradford, Inglaterra, entre 1890 e 1891. Nesse período, 5.000 trabalhadores qualificados e não qualificados, homens e mulheres, paralisaram a fábrica, mas enfrentaram a repressão policial e militar dirigida pelas autoridades locais, que estavam claramente subordinadas aos proprietários têxteis. O incipiente “partido operário” prometeu então “tirar o chicote das mãos de quem os vinha açoitando” e, em menos de um ano, os candidatos trabalhistas começaram a ganhar eleições locais, bastante antes da formação do Partido Trabalhista Independente em escala nacional, em 1893. Também recuperaram a praça da Prefeitura e as ruas estreitas ao redor (das quais haviam sido expulsos a ponta de baioneta) como espaços de liberdade de expressão e de reunião.</p>
+<p>O lendário dirigente dos trabalhadores portuários Tom Mann instou os ativistas locais a “dedicar-se ao sindicalismo e à ação municipal antes de falar do Parlamento”. Esse entusiasmo se expandiu por outras cidades têxteis de West Yorkshire, como Halifax, Keighley, Huddersfield e York, e também por Manchester. Situações semelhantes se repetiram nas greves de Broken Hill e Sydney, na Austrália; de Chicago, Cleveland e Milwaukee, nos Estados Unidos; e de Wellington e do distrito mineiro de Grey, na Nova Zelândia.</p>
+<p>A luta cultural para enraizar essa nova política em uma esfera pública operária ativa e dinâmica foi um componente essencial dessas transformações. Em Manchester, os trabalhadores lutaram (e em parte conseguiram) para que Boggart Hole Clough, um parque urbano até então controlado pelas elites, fosse aberto à recreação da classe trabalhadora e às reuniões políticas. Em toda West Yorkshire, os militantes trabalhistas locais formaram clubes de ciclismo e coros operários, reuniram-se em “igrejas trabalhistas”, em pubs ou ao redor de mesas de chá, e marcharam de aldeia em aldeia cantando e difundindo o “evangelho trabalhista” por meio de folhetos e jornais. Os próprios trabalhadores descreveram esses anos como “dias felizes e criativos”, como “um trabalho prazeroso” e como “uma cruzada por uma forma mais elevada de vida”.</p>
+<p>A luta pela jornada de oito horas e a repressão da greve geral em Chicago em 1886 alimentaram um movimento global para converter o 1º de maio em um dia operário, e carregaram essa comemoração de novos sentidos culturais e políticos. Para além da política em sentido estrito, o que estava em jogo era a promessa de ampliar o tempo livre, conquistar espaços públicos para a celebração e acessar instituições culturais como bibliotecas, museus e escolas.</p>
+<p>Como parte do tecido de suas próprias comunidades, os trabalhadores construíram instituições alternativas: cooperativas, salas de leitura, banheiros públicos, piscinas e parques acessíveis. Os socialistas de Milwaukee investiram em museus e bibliotecas. E em Broken Hill, Nova Gales do Sul, depois de conquistar o governo local em 1900, o Partido Trabalhista, além de municipalizar serviços essenciais, criou uma biblioteca gratuita, uma grande piscina coberta, melhorou os parques e fundou um Clube Social-Democrata onde os trabalhadores podiam socializar, assistir a conferências e frequentar seu bar, no qual a “propriedade coletiva da cerveja” estava na ordem do dia.</p>
+<p><strong>A famosa tese de Werner Sombart sobre a suposta ausência de socialismo nos Estados Unidos funcionou durante muito tempo como um senso comum historiográfico. Mas em </strong><strong><em>Claiming the City</em></strong><strong> o senhor mostra que, ao mudar a escala de observação, aparecem cidades com administrações socialistas, coalizões operárias e programas de reforma urbana muito sólidos. Até que ponto experiências como as de Milwaukee, Davenport, Schenectady, Cleveland ou Toledo obrigam a revisar a ideia de uma excepcionalidade estadunidense? Que características tiveram esses municipalismos socialistas e em que se pareceram ou se diferenciaram de seus equivalentes europeus?</strong></p>
+<p>Sem dúvida alguma, a ideia do excepcionalismo estadunidense e a afirmação de Sombart sobre a suposta ausência de socialismo nesse país funcionaram como uma barreira historiográfica (mas também política!) para compreender plenamente a trajetória socialista nos Estados Unidos. Espero que, ainda que em pequena medida, meu livro contribua para reconsiderar essa perspectiva sob uma luz diferente.</p>
+<p>Do ponto de vista da política socialista municipal, os Estados Unidos dificilmente podem ser considerados uma exceção. Os socialistas estadunidenses chegaram a controlar centenas de cidades (muito possivelmente mais do que em qualquer outro país antes da Primeira Guerra Mundial) e, assim como seus pares da Alemanha e do Reino Unido, elegeram um número muito considerável de vereadores. Na Suécia, na Áustria, na Nova Zelândia e na Austrália, a política socialista em nível municipal foi, até depois da guerra, mais fraca do que nos Estados Unidos.</p>
+<p>O êxito dos socialistas em Milwaukee no início do século XX (quando conseguiram uma presença municipal muito forte e chegaram a governar a cidade) atraiu a atenção de socialistas de todo o mundo e se converteu em um modelo daquilo que muitos aspiravam a construir em outros lugares. Quando o socialista estadunidense Walter Thomas Mills viajou à Austrália e à Nova Zelândia em 1910, fez isso apresentando-se como “comissário especial de Milwaukee para os países do exterior”, e foi recebido com entusiasmo nesses termos. Durante dois anos atuou como um firme assessor daqueles que, na Nova Zelândia, buscavam forjar um partido trabalhista de corte social-democrata. E quando Victor Berger, o líder socialista de Milwaukee, viajou à Europa em 1910 para participar da conferência da Internacional Socialista, foi tratado como uma celebridade, primeiro em Berlim e Hamburgo, e depois homenageado na própria conferência, que aconteceu em Copenhague.</p>
+<p>Portanto, devo dizer-lhe que a influência dos socialistas dos Estados Unidos teve uma circulação amplíssima em escala global. No entanto, o que também distinguiu o caso estadunidense foi a dificuldade para traduzir o poder local em uma força competitiva em escala nacional. Na ausência de um sistema parlamentar multipartidário, os socialistas dos Estados Unidos tiveram dificuldade para conquistar e sustentar um lugar significativo no Congresso, e muito mais para eleger diretamente um presidente, já que os terceiros partidos enfrentavam enormes obstáculos para disputar o poder.</p>
+<p>A essas dificuldades somavam-se outras barreiras: a exclusão massiva do direito ao voto no Sul e entre trabalhadores imigrantes nas cidades; a regulação eleitoral por parte dos estados; e a imposição, também por parte dos estados, de limites ao autogoverno municipal. A repressão contra o Partido Socialista durante a Primeira Guerra Mundial enfraqueceu ainda mais sua capacidade de se afirmar em escala nacional.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/fc4c8d5d-e94e-415a-a042-82f46c48954a-1-1500x1031.png"/>
+<p><strong>Em </strong><strong><em>Claiming the City</em></strong><strong>, a Primeira Guerra Mundial aparece como um ponto de ruptura, na medida em que evidenciou o colapso do internacionalismo socialista, mas também transformou profundamente a vida urbana. Ao mesmo tempo, o senhor mostra que algumas cidades continuaram sendo focos de resistência local, de protesto diante do aumento do custo de vida e de defesa de formas de autogoverno. Como a guerra mudou o horizonte do municipalismo socialista? Por que a oposição a seus efeitos sociais mais devastadores encontrou com tanta frequência um ponto de apoio na escala urbana?</strong></p>
+<p>As cidades se converteram em focos de oposição à guerra porque ali seus efeitos econômicos foram sentidos de maneira mais imediata e devastadora: a escassez de moradias, o aumento dos preços dos alimentos (ou diretamente sua falta de disponibilidade), a instabilidade do emprego provocada pelas demandas da economia de guerra e a restrição da dissidência. A pressão econômica transformou-se rapidamente em conflito político. E, como o socialismo municipal já havia ganhado força antes da guerra, os ativistas urbanos contavam com redes, experiência e presença local para encabeçar essa oposição. Os exemplos incluem greves e manifestações em massa nos estaleiros do Clydeside, em Glasgow; em Berlim e Leipzig; em Bridgeport e East Pittsburgh; em Broken Hill e Sydney; e entre os trabalhadores portuários e os mineiros do distrito de Grey, na Nova Zelândia.</p>
+<p>Enquanto o internacionalismo socialista desmoronava e muitos partidos adotavam, no início, posições de lealdade a seus respectivos Estados, as divisões internas não demoraram a aparecer. Em quase todos os países, os partidos socialistas e trabalhistas se partiram entre os que apoiavam a guerra e os que se opunham a ela. Na Austrália, essa fratura se expressou na luta contra o recrutamento militar obrigatório. Na Nova Zelândia, no surgimento de trabalhistas abertamente antiguerra. Nos Estados Unidos, no cisma dentro do Partido Socialista a partir de uma declaração contra a guerra. Na Alemanha, a divisão foi especialmente profunda: os setores contrários à guerra romperam com o Partido Social-Democrata da Alemanha e formaram o Partido Social-Democrata Independente. No Reino Unido, a tensão se expressou nas diferenças entre o Partido Trabalhista e o Partido Trabalhista Independente.</p>
+<p>À medida que crescia a oposição à guerra em cada país, os socialistas deram voz política a esse descontentamento. No caso dos socialistas municipais, essa oposição abriu além disso uma oportunidade para fortalecer sua posição de cara ao final do conflito. Junto com as penúrias econômicas provocadas pela guerra, um dos grandes campos de disputa foi a luta renovada para eliminar as restrições ao direito de voto, especialmente nas cidades. De fato, o final da guerra deu novo impulso a socialistas e a outros setores democráticos que buscavam acabar com as restrições ao sufrágio. Esse processo teve efeitos decisivos para as mulheres e para os trabalhadores urbanos. Nos Estados Unidos, expressou-se na aprovação da Décima Nona Emenda, que reconheceu constitucionalmente o direito de voto das mulheres; na Grã-Bretanha, em uma ampliação limitada do sufrágio sob a legislação de 1918; e na Alemanha, na expansão do direito de voto impulsionada pelo governo provisório em 1918 e depois consagrada na Constituição da República de Weimar de 1919.</p>
+<p>A repressão da dissidência durante a guerra produziu resultados muito diferentes segundo o país. Nos Estados Unidos, a supressão de publicações socialistas, o fechamento forçado de sedes do partido, a violência contra os que se opunham à guerra e a perseguição de seus dirigentes deixaram o Partido Socialista, ao final do conflito, enfraquecido e profundamente dividido. Na Alemanha, em contrapartida, os social-democratas, embora continuassem atravessados por divisões internas, beneficiaram-se de uma onda crescente de apoio e ficaram em condições de assumir posições de liderança tanto no governo nacional quanto nos governos locais. Os partidos trabalhistas da Grã-Bretanha, da Austrália e da Nova Zelândia, por sua vez, conseguiram recompor suas fraturas mais profundas e encontraram um novo impulso político.</p>
+<p><strong>Gostaria de lhe perguntar sobre a Viena Vermelha, a experiência de governo socialista que transformou a capital austríaca entre o final da Primeira Guerra Mundial e a ascensão do austrofascismo na década de 1930. Que tipo de experiência política e urbana foi, a seu ver, e o que veio a condensar dentro da história do socialismo municipal? Quais foram suas principais características (em matéria de moradia, serviços públicos, impostos, bem-estar social e democratização da vida urbana) e o que a tornou uma referência tão potente para pensar a cidade como espaço de transformação social?</strong></p>
+<p>Os socialistas conquistaram o governo de Viena pouco depois do final da Primeira Guerra Mundial, em maio de 1919. Essa vitória foi possível em um contexto muito particular: o colapso da autoridade imperial e a ampliação do sufrágio municipal impulsionada pelo governo provisório. Depois, a nova Constituição nacional, aprovada em 1921 após um longo processo de elaboração, converteu Viena em uma província por direito próprio, com capacidade para reformar ou criar impostos. Essa autonomia fiscal foi decisiva para que os socialistas pudessem tentar uma transformação profunda do tecido social da cidade. A isso se somou o fato de que a ampliação do voto deu poder político aos trabalhadores de uma maneira que as reformas constitucionais anteriores à guerra não haviam conseguido.</p>
+<p>Muitos historiadores costumam deixar passar o trabalho prévio que tornou possível o socialismo municipal vienense. A partir da elaboração de um programa municipal em 1896 e da eleição de dois social-democratas para a câmara municipal em 1900, sob um sufrágio ainda muito restrito, o partido foi aumentando gradualmente sua força até obter nove vereadores antes da eclosão da Primeira Guerra Mundial. Mesmo como minoria, esses vereadores conseguiram desafiar com eficácia o Partido Social-Cristão governante, que havia transformado a câmara municipal “em um congresso do Partido Social-Cristão”. Os socialistas apresentaram “demandas viáveis aqui e agora”, entre elas a jornada de oito horas para os trabalhadores municipais, melhores condições de trabalho para os empregados dos bondes, inspeções nas leiterias da cidade, iluminação pública nos bairros operários e jardins de infância para os filhos de trabalhadores. Também protestaram contra um aumento do imposto sobre a cerveja e a aguardente. Embora, por serem minoria, não estivessem em condições de modificar as prioridades orçamentárias, seu “entusiasmo incansável” lhes deu certa vantagem nos debates sobre o orçamento e lançou as bases de seu êxito nos anos do pós-guerra.</p>
+<p>Em maio de 1919, os social-democratas obtiveram 100 das 165 cadeiras da câmara municipal e elegeram como prefeito Jakob Reumann, um torneiro de madeira que havia sido um dos dois primeiros vereadores social-democratas eleitos em 1900. Com as mudanças constitucionais aplicadas em 1921, ficou preparado o terreno para adotar um programa ambicioso de transformação do tecido social e do setor público da cidade. Os socialistas estabeleceram rapidamente impostos redistributivos sobre a propriedade e a renda dos setores ricos. De fato, o chefe de finanças da cidade se converteu no socialista “mais odiado” pelos setores abastados por causa de 18 novos impostos que “afetavam sobretudo quem podia pagar”. Nos anos seguintes, essa base tributária permitiu à cidade construir quase 64.000 novas moradias para trabalhadores, criar uma rede de 35 banheiros públicos em bairros operários, ampliar a assistência social e os subsídios de desemprego e municipalizar todos os serviços essenciais.</p>
+<p>A amplitude das conquistas socialistas, sustentadas por quase 15 anos até serem esmagadas pela ascensão do fascismo, converteu a Viena Vermelha em um farol para os socialistas municipais de todo o mundo. Essas conquistas igualaram ou até superaram o programa fundamental a que aspiravam os socialistas em escala global. O legado duradouro dessas realizações, em especial em matéria de moradia, faz com que Viena conte ainda hoje com uma oferta de moradia pública subsidiada e notavelmente acessível que não tem equivalente em outras grandes metrópoles do mundo.</p>
+<p><strong>Ao longo de </strong><strong><em>Claiming the City</em></strong><strong> aparece uma tensão muito forte entre a vitalidade da política municipal e a crescente nacionalização da política socialista, sobretudo à medida que os partidos ampliaram seu peso e suas ambições em termos parlamentares. Como esse deslocamento incidiu no enfraquecimento relativo do socialismo municipal?</strong></p>
+<p>Às diversas questões que lhe comentei, tanto em termos de política prática quanto da própria teoria, acrescentaria que a “naturalização” do Estado-nação, não apenas entre os partidos burgueses mas também entre os social-democratas, tendeu a colocar a ênfase no trabalho dos parlamentos nacionais.</p>
+<p>A longa luta para conquistar o direito de voto nos municípios pode ter atrasado, em alguns casos, o trabalho socialista nessa escala. No entanto, no longo prazo, as conquistas práticas do socialismo municipal foram duradouras: fortaleceram o setor público local e deram mais poder aos trabalhadores municipais. Isso ocorreu mesmo onde a presença dos partidos social-democratas no plano nacional (na Suécia, na Grã-Bretanha ou na Alemanha, por exemplo) foi mais episódica.</p>
+<p>Nos Estados Unidos, os socialistas nunca conseguiram construir uma presença de governo em escala nacional, exceto na medida em que a “coalizão do New Deal” de Franklin D. Roosevelt teve alguns traços social-democratas. Mas, no plano local, um setor público importante persistiu em muitas cidades, grandes e pequenas, e voltou a se fortalecer mesmo quando os governos nacionais se deslocaram para a direita.</p>
+<p>Estamos vendo novamente algo disso nos Estados Unidos, com a eleição de social-democratas ou de coalizões inclinadas à esquerda em cidades como Nova York, Boston, Chicago, Seattle e Jackson, no Mississippi, além de muitas outras cidades menores. Tudo isso ocorre enquanto o Partido Republicano trumpista e a coalizão MAGA avançam sem contemplações no plano nacional e em muitos estados.</p>
+<p><strong>Ao final de </strong><strong><em>Claiming the City</em></strong><strong>, o senhor mostra que o municipalismo socialista não desapareceu depois do grande ciclo que vai de 1890 a 1925, mas mudou de forma. Parte de seu legado sobreviveu na democratização dos serviços urbanos, em novas redes internacionais de governos locais e em cidades que conservaram uma forte identidade operária ou socialista. O que aconteceu com essa tradição depois do período central do livro? Diluiu-se na administração técnica das cidades, integrou-se aos Estados de bem-estar do século XX ou continuou viva, com outras linguagens, em formas posteriores de governo local progressista?</strong></p>
+<p>O período em que se concentra o livro, compreendido entre 1890 e 1925, assentou as bases de uma nova forma de governo urbano. E o que se conseguiu foi uma mudança decisiva. As cidades se tornaram mais democráticas e, ao mesmo tempo, começaram a construir um setor público robusto, no qual os serviços urbanos essenciais deixaram de ser pensados como bens privados e passaram a ser concebidos cada vez mais como bens públicos. Refiro-me à água e ao esgoto, à coleta de resíduos, à construção e manutenção de ruas, ao transporte urbano, à educação e, em muitos casos, também à eletricidade e ao gás natural. Mas também à moradia pública, aos mercados municipais, às instituições culturais, aos parques, aos espaços de recreação e a toda uma série de serviços e equipamentos urbanos. Antes de 1890, esses serviços costumavam ficar nas mãos de interesses privados. A operação, a construção e a manutenção de boa parte das obras e serviços públicos eram realizadas mediante contratos com empresas privadas. Na maioria das cidades, isso mudou de maneira fundamental.</p>
+<p>Em muitos casos, a gestão urbana se tornou mais profissional e passou a depender em maior medida de especialistas técnicos. Alguns serviços sociais foram padronizados ou assumidos pelos governos provinciais, estaduais ou nacionais. E, sem dúvida, outros atores políticos, como os liberais ou os progressistas, assumiram posições de liderança em muitas cidades. Mas todos eles operam dentro de uma esfera pública que os socialistas contribuíram decisivamente para criar e cuja forma foi definida, em boa medida, pelas plataformas e pelos programas socialistas.</p>
+<p>A ameaça que enfrentam os socialistas e os progressistas que buscam preservar essa esfera pública financiada por impostos continua sendo a mesma: os interesses conservadores que utilizam suas posições de poder nos estados ou no governo nacional para impulsionar a privatização desses serviços e atacar o princípio do autogoverno municipal. Essa continua sendo uma batalha aberta. Hoje pode ser vista, por exemplo, no braço de ferro político entre a administração municipal de Mamdani, à frente da cidade de Nova York, e um governo mais centrista a cargo do estado de Nova York.</p>
+<p><strong>Embora sua obra se concentre principalmente na Europa, nos Estados Unidos e nos domínios britânicos do Pacífico, gostaria de lhe perguntar quais experiências latino-americanas de socialismo municipal ou de política urbana impulsionada por forças socialistas lhe parecem mais importantes. Que traços tiveram esses casos e o que eles contribuem para pensar, em uma chave mais ampla, a história global do municipalismo socialista?</strong></p>
+<p>Depois da depressão dos anos 30, da Segunda Guerra Mundial e dos rearranjos econômicos que se seguiram, a cidade voltou a se converter em um foco de ação política sustentada, sobretudo a partir da década de 1960. A organização de base dos setores populares, a ação direta em favor dos direitos civis e humanos, a emergência de partidos verdes centrados nas questões ambientais e climáticas, a renovação do ativismo sindical de base e uma demanda mais ampla por participação democrática contribuíram para gerar uma nova efervescência política urbana. À medida que a Guerra Fria saía de cena, alguns socialistas democráticos buscaram recuperar a tradição do socialismo municipal e, ao fazê-lo, reafirmaram seu compromisso com a revitalização do setor público.</p>
+<p>Alguns dos experimentos mais interessantes de renovação democrática urbana surgiram na América Latina. Isso é algo que, é claro, não deveria surpreender. Os confrontos diretos com os regimes autoritários e o longo braço do imperialismo estadunidense prepararam os ativistas de esquerda da região para ampliar os limites da democratização e ensaiar formas novas e mais radicais de participação cidadã. Essa experimentação atraiu a atenção, a admiração e a imitação de ativistas políticos do Norte global, especialmente daqueles que veem na cidade um espaço de novas possibilidades políticas. E essa experiência não poderia ser mais relevante para o momento político atual dos Estados Unidos.</p>
+<p>As experiências do que mais tarde seria conhecido como “orçamento participativo” em Porto Alegre, no Brasil, e em outras cidades latino-americanas captaram a atenção de ativistas urbanos do mundo inteiro. A ativação de base e o empoderamento de cidadãos comuns, fora das estruturas formais da democracia representativa local, permitiram formular demandas sobre os recursos municipais para atender àquilo que esses próprios cidadãos definiam como suas necessidades mais urgentes. Ao fazê-lo, criaram um modelo que foi imitado em mais de 1.500 cidades do mundo todo e também em bairros de cidades estadunidenses como o Brooklyn, em Nova York, e Chicago.</p>
+<p>Embora parte da euforia em torno desses experimentos tenha diminuído a partir da década de 1990 (à medida que estruturas mais formais e legislações nacionais institucionalizaram e, em parte, diluíram a democracia direta), praticamente todos os países latino-americanos contam com um número significativo de cidades que têm alguma forma de orçamento participativo. Os casos vão da Argentina, com 61; da Colômbia, com 120; e do Equador, com 221; até países com cifras menores, como o Chile, com 20; o Brasil, com 30; a Costa Rica, com 8; a Guatemala, com 3; e o Paraguai, com 1. Também apareceram novas formas de participação, como as “assembleias cidadãs”, embora geralmente tenham menos poder e muitas vezes dependam de financiamento internacional, como se assinala no artigo de Melisa Ross, Yanina Welp e Benjamin Goldfrank “More or Better Institutionalization? Lessons from Latin American Institutions of Citizen Participation”, publicado em <em>Politics and Governance</em> em 2026.</p>
+<p>No Norte global, e em particular nos Estados Unidos, novos experimentos de governo municipal socialista deram lugar a uma onda de “novo municipalismo” em cidades como Seattle, Richmond, Chicago, Boston, Jackson e, de maneira mais espetacular, com a eleição do socialista democrático Zohran Mamdani na cidade de Nova York. Embora este último esteja no poder há apenas alguns meses, tanto ele quanto seu movimento, os Socialistas Democráticos dos Estados Unidos, parecem manter um compromisso firme com a reconstrução e a ampliação do setor público da cidade, assim como com a criação de impostos redistributivos para financiar essas iniciativas, em uma linha que lembra a Viena Vermelha. Talvez o mais importante seja o compromisso de sua administração com a ampliação da participação cidadã na formulação e na implementação de seu programa.</p>
+<p>Em todos esses sentidos, a tradição do socialismo municipal parece politicamente viva tanto no Sul global quanto no Norte global.</p>
+<p></p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, seja nosso apoiador e fortaleça o jornalismo crítico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/outras-cidades/cidade-o-grande-laboratorio-do-socialismo/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

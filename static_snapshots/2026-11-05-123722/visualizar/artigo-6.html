@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>México reconquista sua voz - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">México reconquista sua voz</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/opiniao/mexico-reconquista-sua-voz/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/11/Mexico-3.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: México reconquista sua voz
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+<p>Em 1848, os <a href="https://revistaforum.com.br/global/trump-derrota-historica-democratas-maioria-camara-senado-eua/" rel="noopener noreferrer" target="_blank"><strong>Estados Unidos</strong> </a>venceram uma guerra e tomaram 55% do <a href="https://revistaforum.com.br/debates/l-atravessou-oceano/" rel="noopener noreferrer" target="_blank"><strong>território mexicano</strong></a>. Nas eleições de 3 de novembro de 2026, milhões de cidadãos americanos de raízes latino-americanas pesaram nas decisões de <a href="https://revistaforum.com.br/debates/washington-acusa-julga-e-executa/" rel="noopener noreferrer" target="_blank"><strong>Washington</strong></a>. Entre esses dois momentos, separados por 178 anos, a história produziu uma ironia que nenhum general poderia prever: o poder das armas não determina para sempre quem terá voz.</p><p>
+</p>
+<p>A guerra terminou em 2 de fevereiro de 1848, com a assinatura do Tratado de Guadalupe Hidalgo. O México cedeu territórios hoje correspondentes à Califórnia, Nevada, Utah e Novo México, além de partes de outros estados. Quanto ao Texas, anexado pelos americanos em 1845, o México renunciou às suas reivindicações. O mapa foi redesenhado depois da derrota militar; os vencedores chamaram aquilo de expansão nacional.</p><p>
+</p>
+<p>O tratado prometia direitos civis e proteção às propriedades dos mexicanos que permaneceram na região. Mas o Senado americano suprimiu o artigo que oferecia garantias específicas às antigas concessões de terras. Seguiram-se décadas de disputas, discriminação e perdas patrimoniais. A violência de uma conquista prolongou-se na vida daqueles que, sem abandonar a própria casa, descobriram que agora viviam sob outra bandeira.</p><p>
+</p>
+<p>Essa história explica uma presença que resistiu à mudança de soberania e cresceu com a imigração posterior. Em 2024, de acordo com o <em>Pew Research Center</em>, aproximadamente 40 milhões de pessoas nos Estados Unidos tinham origem mexicana: 57% de toda a população hispânica. Reduzi-las à figura do estrangeiro recém-chegado é uma falsificação histórica, além de um insulto à realidade do país.</p>
+<p></p>
+<p>Na Califórnia, os hispânicos representavam 40,2% dos habitantes em 2024; no Texas, 39,7%, segundo dados oficiais. Os percentuais incluem diferentes origens latino-americanas, mas indicam a escala de uma contribuição impossível de confinar a bairros ou atividades específicas. É a vida de estados inteiros, com suas universidades, empresas, manifestações culturais, famílias e disputas políticas, que traz essas marcas.</p>
+<p>A transformação também chegou às urnas. O <em>Pew Research Center</em> projetou para 2026 cerca de 39 milhões de hispânicos habilitados a votar, 5,2 milhões a mais que em 2022. São cidadãos americanos, e não estrangeiros escolhendo o destino de outro país. Confundir ascendência familiar com nacionalidade atual serve a uma velha conveniência: tratar como intruso quem exerce direitos assegurados pela Constituição.</p>
+<p>As eleições legislativas deste novembro deram nitidez política a esse movimento. Pesquisa da UnidosUS com mais de três mil eleitores hispânicos apontou 67% de votos nos candidatos democratas à Câmara. Um levantamento independente da <em>Associated Press</em> identificou apoio de aproximadamente 60%. As metodologias diferem, mas ambos registram uma mudança relevante em relação ao avanço republicano entre latinos em 2024.</p>
+<p>O motivo da mudança interessa mais do que qualquer celebração partidária. No estudo da <em>UnidosUS</em>, 58% citaram a inflação e o custo de vida entre suas principais preocupações; 68% se opuseram à destinação de US$ 240 bilhões ao aparato de fiscalização migratória do ICE. São respostas de eleitores que acompanham o preço da comida, a insegurança das famílias e o uso concreto do poder estatal.</p>
+<p>O governo Trump insistiu em transformar a imigração numa vitrine de força. A defesa do controle das fronteiras, atribuição legítima de qualquer Estado, passou a conviver com operações ostensivas e uma linguagem política que frequentemente lança suspeita sobre comunidades inteiras. Quem exige respeito à lei deveria começar por uma distinção elementar: origem mexicana, condição migratória e cidadania americana são realidades diferentes.</p>
+<p>A contradição é brutal. Os Estados Unidos dependem há gerações do trabalho de famílias mexicanas na agricultura, nos serviços, na construção, na pesquisa e no empreendedorismo. Recebem sua contribuição econômica, consomem sua cultura e elegem representantes saídos dessas comunidades. Ao mesmo tempo, parte do debate público insiste em associar sobrenomes e sotaques à ameaça. A prosperidade aceita o esforço; o preconceito recusa o reconhecimento.</p>
+<p>Também convém resistir a uma simplificação: latinos não formam um eleitorado único, e mexicanos americanos tampouco votam todos da mesma maneira. Cubanos, porto-riquenhos, salvadorenhos e outros grupos têm histórias distintas. A pesquisa da <em>UnidosUS</em> mostrou, inclusive, migração de votos entre partidos. Essa liberdade de escolha é precisamente o que torna o resultado importante: nenhuma legenda pode reivindicar a propriedade política de uma comunidade.</p>
+<p>Uma obrigação histórica costuma ser esquecida quando se fala em terras mexicanas. Muito antes da constituição dos dois países, povos indígenas viviam nas regiões disputadas e foram atingidos por sucessivas formas de conquista e expropriação. Reconhecê-los impede que a crítica ao expansionismo americano reproduza o apagamento de quem já estava ali. A justiça histórica perde força quando escolhe seletivamente suas vítimas.</p>
+<p>A reconquista evocada aqui é simbólica. A Califórnia e o Texas continuam sob soberania americana, e os votos de seus cidadãos não pertencem ao governo mexicano. O sentido está na herança cultural que resistiu, alcançou representação e passou a exigir respostas dos governantes. Essa metáfora revela uma luta por reconhecimento, sem inventar revanche territorial.</p>
+<p>Seria igualmente precipitado confundir presença demográfica com igualdade conquistada. Discriminação, precariedade econômica e dificuldades de acesso a direitos persistem. Uma vitória eleitoral tampouco assegura que os representantes cumprirão suas promessas. O teste começa depois da apuração: quando famílias que depositaram esperança nas urnas cobram salários, escolas, proteção legal e dignidade, em vez de discursos preparados para a próxima campanha.</p>
+<p>Vejo nessa longa trajetória uma advertência que deveria ser lida por todos os governantes fascinados pela força. Um Estado pode impor limites territoriais, aprovar leis severas e mobilizar seu aparato de segurança. Mas não adquire, com esses poderes, o direito de reduzir pessoas a caricaturas ou condenar milhões de descendentes à condição permanente de suspeitos. A cidadania existe justamente para impedir essa arbitrariedade.</p>
+<p>Em 1848, Washington tomou terras que pertenciam ao México. Em 2026, cidadãos de raízes mexicanas cobram o preço político de políticas que os atingem. As fronteiras permanecem; a pretensão de silenciá-los encontra resistência. <strong>A vitória militar dos Estados Unidos tem data registrada nos arquivos. A voz de quem se tentou marginalizar continua escrevendo a história — e nenhum muro consegue votar em seu lugar.</strong></p>
+<p><em><strong>*Este artigo não reflete, necessariamente, a opinião da Fórum.</strong></em></p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+ 
+Leia mais textos de Washington Araújo
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/opiniao/mexico-reconquista-sua-voz/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

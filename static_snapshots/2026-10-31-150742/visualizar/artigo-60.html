@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“A IA assusta vocês?” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">“A IA assusta vocês?”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/crise-civilizatoria/a-ia-assusta-voces/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5127477261463391918.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: âA IA assusta vocÃªs?â
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/10/5127477261463391918.jpg"/>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>â<em>Io non ho paura di Berlusconi in sÃ©. Ho </em><br/><em>paura del Berlusconi in me</em>â<br/>Gian Piero Alloisio (artista italiano)</p>
+<p>âA inteligÃªncia artificial assusta vocÃªs?â Ã com esta pergunta, dirigida aos oradores convidados, que a moderadora deu inÃ­cio ao encontro sobre traduÃ§Ã£o e IA, na Escola Superior de EducaÃ§Ã£o do PolitÃ©cnico de Lisboa, no dia 15 de Outubro.</p>
+<p>Trata-se de uma pergunta complexa, Ã  qual nÃ£o Ã© possÃ­vel responder com um simples sim ou nÃ£o. A dificuldade â muito bem argumentada pelos oradores e oradoras â reside no amplo leque de atividades e nuances que as caracterizam, e com as quais todos nÃ³s lidamos, confiando, ou nÃ£o, nos poderosos meios que a IA nos proporciona no dia-a-dia.</p>
+<p>Para alÃ©m de ser complexa, aquela pergunta vai diretamente ao cerne do problema que define a relaÃ§Ã£o entre nÃ³s e a IA.</p>
+<p>O que Ã© que habitualmente nos assusta? Aquilo que conhecemos â embora nÃ£o sempre de uma forma direta â e que, como temos aprendido ao longo dos sÃ©culos, pode prejudicar-nos (as doenÃ§as, a guerra, o fogo, etc.). SÃ£o os elementos que pertencem ao nosso horizonte de referÃªncia; com eles, mantemos uma relaÃ§Ã£o de âfamiliaridadeâ, sendo que cabem nas leituras e escutas quotidianas, atravÃ©s dos inÃºmeros meios de comunicaÃ§Ã£o que nos rodeiam. A guerra assusta vocÃªs? Assusta vocÃªs o desemprego, o despejo de casa? AÃ­ seria mais fÃ¡cil responder sim ou nÃ£o, e argumentar com explicaÃ§Ãµes exaustivas.</p>
+<p>Mas hÃ¡ outros elementos com os quais temos uma relaÃ§Ã£o diferente, menos direta. SÃ£o aqueles que nÃ£o podemos dizer de os conhecer; com estes conseguimos manter apenas uma relaÃ§Ã£o de âexterioridadeâ. Trata-se, neste caso, de coisas que estÃ£o âlÃ¡ foraâ, das quais nÃ£o temos, direta ou indiretamente, nenhuma experiÃªncia. Podem ser elementos de natureza empÃ­rica, mitolÃ³gica, fantasmagÃ³rica, conforme Ã s nossas atitudes, hÃ¡bitos mentais, ao nosso legado histÃ³rico pessoal ou coletivo. A relaÃ§Ã£o com esses elementos Ã© apoiado em algo diferente do medo.</p>
+<p>Como pode assustar, no final das contas, algo que nÃ£o conhecemos, como por exemplo um voo numa espaÃ§onave, encontrar um lobisomem, ou ser um habitante da Terra MÃ©dia sob o domÃ­nio do Sauron?</p>
+<p>Mark Fisher, em <em>O esquisito e o inquietante</em> â o Ãºltimo livro que publicou em vida â oferece-nos uma leitura desta diferenÃ§a entre o familiar e o âinfamiliarâ. Isto pode ajudar-nos a dar uma resposta mais contextualizada Ã  pergunta da moderadora, mas exige, antes de mais, uma reformulaÃ§Ã£o do ponto de partida.</p>
+<p>SÃ£o poucos, fora das comunidades de especialistas, aqueles que sabem exatamente como a IA funciona, para alÃ©m do que todos jÃ¡ conhecemos. A elaboraÃ§Ã£o de bilhÃµes de informaÃ§Ãµes transformadas em tokens, que dialogam com as nossas proposiÃ§Ãµes, por sua vez tambÃ©m âtokenizadasâ, Ã© a Ãºnica parte do processo com que estamos familiarizados. Tudo o resto continua âlÃ¡ foraâ, numa caixa preta que arrecada cÃ³digos, metodologias, fontes, agentes, estudos e simulaÃ§Ãµes que nos poderiam dizer muito sobre a dimensÃ£o e funcionamento do processo.</p>
+<p>Ainda menos, provavelmente, sÃ£o os que procuram saber como aqueles processos estÃ£o alterando os princÃ­pios bÃ¡sicos do nosso ser raciocinante e que influÃªncia poderiam ter na constituiÃ§Ã£o da subjetividade, sobretudo dos mais jovens â os que hoje tÃªm, digamos, de 10 a 15 anos. Estudos recentes relatados no artigo de Melanie Challanger no AEON, <em>Deskilling the body</em>, mostram como o uso maciÃ§o das ferramentas mais comuns da IA afetam seriamente algumas das nossas capacidades. O corpo vai ser afetado por um processo de reduÃ§Ã£o progressiva de habilidades, tanto fÃ­sicas como mentais, que estÃ£o na base da nossa relaÃ§Ã£o com o mundo.</p>
+<p>A nossa ignorÃ¢ncia total sobre aquelas componentes e estas ameaÃ§as pÃµem-nos ao abrigo de sentir ou nÃ£o sentir medo. Quando muito, as colocamos no domÃ­nio do inquietante e do esquisito, nÃ£o naquele das experiÃªncias verdadeiramente medonhas. Os recentes relatos de especialistas sobre o perigo para a humanidade proporcionado pelo desenvolvimento descontrolado da IA nÃ£o produziram nenhuma reaÃ§Ã£o significativa. NinguÃ©m pode saber com certeza as razÃµes daquelas previsÃµes, sÃ³ que os desdobramentos nÃ£o duraram mais de uma semana.</p>
+<p>Temos medo, sim, dos <em>data center</em>, porque apreendemos que chupam a Ã¡gua de que precisamos, comem quantidades incrÃ­veis de energia que poderia faltar para as nossas necessidades. Mas basta que sejam afastados de onde vivemos e tudo vai desaparecer, continuamos com as nossas preguiÃ§osas pesquisas.</p>
+<p>A IA estÃ¡ entrando rapidamente nas nossa vidas, mas por meio de um processo que a distingue daquilo que aconteceu ao longo da histÃ³ria do capitalismo. NÃ£o nos deixa o tempo de investigar o que ela Ã© realmente (um advÃ©rbio complicado, mas, Ã  espera de encontrar um melhor, mantenhamo-lo), porque a sua evoluÃ§Ã£o Ã© tÃ£o rÃ¡pida que nos deixa desorientados. Quem pode dizer, fora dos especialistas, de ter acompanhado cuidadosamente a evoluÃ§Ã£o do <em>machine learning, </em>ao <em>deep learning</em> e agora Ã  IA <em>agÃªntica</em>?</p>
+<p>O que a distingue das outras inovaÃ§Ãµes dos Ãºltimos dois sÃ©culos Ã© mesmo a posiÃ§Ã£o que mantÃ©m em relaÃ§Ã£o ao que somos: uma posiÃ§Ã£o de exterioridade. A partir daquela posiÃ§Ã£o, a IA atua, <em>atua-nos</em>, produzindo em nÃ³s sensaÃ§Ãµes que, com as palavras de Fisher, geram, mais do que medo, algo reconduzÃ­vel ao esquisito e ao inquietante.</p>
+<p>A palavra-chave para compreendermos o sentido e a funÃ§Ã£o desses dois termos Ã©, para jÃ¡, o fora.</p>
+<p>O fora nÃ£o Ã© simplesmente o que estÃ¡ para alÃ©m do nosso alcance, mas antes o fora absoluto, um afastamento que nÃ£o se pode medir em termos espaciais ou temporais, indiferente Ã  nossa vida e Ã  nossa morte. Deleuze, que para Fisher representa uma referÃªncia importante, definiu de forma inequÃ­voca o que Ã© o fora. Ã o reino das forÃ§as, das forÃ§as do fora, que mudam na passagem entre diferentes formaÃ§Ãµes histÃ³ricas. As forÃ§as do homem entram em relaÃ§Ã£o com estas, por meio da prega que as forÃ§as do fora produzem; neste dobramento as forÃ§as do fora vÃ£o constituir a parte mais profunda do nosso interior.</p>
+<p>âNÃ£o existe interior â escreve Fisher â exceto enquanto uma prega do exterior; o espelho racha-se, eu sou um outro e sempre fuiâ. O fora que se torna interior Ã© o processo de subjetivaÃ§Ã£o.</p>
+<p>A IA, para alÃ©m de atuar, nos impacta atravÃ©s de nÃ³s mesmos. Ã assim que se produzem as relaÃ§Ãµes de poder, das quais somos parte, porque, consciente ou inconscientemente, contribuÃ­mos para as formar. Mark Fisher descreve este processo, tomando como referÃªncia o conceito lacaniano de <em>jouissance </em>(gozo), que mantÃ©m juntos prazer e dor. âUm trabalho de <em>jouissance</em> [â¦] nÃ£o âredimeâ a negatividade em nenhuma acepÃ§Ã£o: sublima-a. Ou seja, transforma um objeto comum que causa desagrado numa Coisa que Ã© tÃ£o terrÃ­vel <em>quanto </em>sedutora, que jÃ¡ nÃ£o pode ser classificada como positiva ou negativa. A Coisa assoberba, nÃ£o pode ser contida, mas exerce fascÃ­nioâ.</p>
+<p>As nossas forÃ§as entram em relaÃ§Ã£o com as novas forÃ§as do fora, que encontram hoje a sua mais forte conotaÃ§Ã£o em tudo aquilo que a IA nos apresenta. Compreender quais sÃ£o os elementos que entram em jogo na composiÃ§Ã£o da subjetividade, redefinir os seus confins Ã© a tarefa que a luta operÃ¡ria nos deixou, do qual nÃ£o queremos distanciar-nos. O que estÃ¡ em jogo Ã©, mais uma vez, contrastar com todos os meios a asfixia que oprime as nossas vidas.</p>
+<p>O que consideramos estranho e inquietante, por um lado, e familiar, por outro, Ã© o que permite atualizar a nossa leitura de onde estamos e do que somos, o nosso Ã¢mbito de referÃªncia. Ficar bloqueados em velhos esquemas “cÃ­clicos” afasta-nos da possibilidade de vislumbrar as condiÃ§Ãµes de possibilidade da nossa capacidade de agir.</p>
+<p>Dito de outra forma, essas definiÃ§Ãµes ajudam-nos a repensar-nos no e contra o novo cenÃ¡rio que, de modo cada vez mais dramÃ¡tico, estÃ¡ a redefinir o “diagrama” no qual precisamos de colocar as nossas aÃ§Ãµes.</p>
+<p>HÃ¡ um segundo elemento que nos ajuda a descrever a complexidade da relaÃ§Ã£o entre nÃ³s e a IA. NÃ£o por acaso, Ã© o mesmo que estava no objeto do encontro no PolitÃ©cnico de Lisboa: a traduÃ§Ã£o.</p>
+<p>Podemos afirmar que a traduÃ§Ã£o Ã© a condiÃ§Ã£o ontolÃ³gica de qualquer estado, entidade, lÃ­ngua, cultura. Tudo Ã© sempre e jÃ¡ traduzido de e para algo diferente. Rada IvekoviÄ, num dos seus estudos sobre as polÃ­ticas da traduÃ§Ã£o, <em>On permanent translation (We are being translated)</em>, define-nos a todos como seres constantemente em-traduÃ§Ã£o. Imaginar-nos como sujeitos iniciadores, nÃ£o traduzidos, significa colocar-nos na origem da histÃ³ria, num “estado puro, um corpo sem alma”.</p>
+<p>A IA baseia-se num contÃ­nuo processo de codificaÃ§Ã£o, que remete para o da interpretaÃ§Ã£o e da traduÃ§Ã£o. Interpretar as palavras e as imagens e traduzi-las em tokens conduz Ã  produÃ§Ã£o de cÃ³digos que, por sua vez, sÃ£o reinterpretados e retraduzidos em palavras, por meio de uma recodificaÃ§Ã£o.</p>
+<p>Traduzir e interpretar nÃ£o sÃ£o atos neutros em si: produzem sempre uma tensÃ£o entre quem e o que Ã© traduzido, o ato de traduzir e o resultado. Ã uma parcialidade que se torna ainda mais evidente na produÃ§Ã£o por parte da IA de qualquer informaÃ§Ã£o que nos propÃµe. Coloca-se na fronteira entre dentro e fora, traduz essa fronteira, torna-a mÃ³vel, deslocando-a numa direÃ§Ã£o ou na outra.</p>
+<p>NÃ³s somos, com todos os efeitos, parte desse processo: a traduÃ§Ã£o que a IA opera sobre nÃ³s e atravÃ©s de nÃ³s age em sintonia com o que foi dito acima a respeito dos confins que definem a nossa “familiaridade” com o mundo. Acrescenta, subtrai, altera elementos, modifica a nossa relaÃ§Ã£o com o mundo, com uma velocidade e expansÃ£o impensÃ¡vel atÃ© hÃ¡ uma dÃ©cada.</p>
+<p>Como seres constantemente em traduÃ§Ã£o, Ã© eliminada do processo de subjetivaÃ§Ã£o que nos forma a possibilidade de reivindicar uma condiÃ§Ã£o essencialista. “A corporalidade animada nÃ£o Ã© apenas a condiÃ§Ã£o da traduÃ§Ã£o, mas torna a traduÃ§Ã£o necessÃ¡ria.”</p>
+<p>Esta necessidade da traduÃ§Ã£o nÃ£o pode ser sofrida. Os seus percursos, certamente induzidos pelos constantes e violentos fluxos de informaÃ§Ã£o que nos atravessam, tendem a propor-nos os novos limites daquilo que devemos considerar “familiar”. Aconteceu com a Covid, estÃ¡ a acontecer de modo cada vez mais dramÃ¡tico com a guerra.</p>
+<p>A combinaÃ§Ã£o de familiaridade e traduÃ§Ã£o define o campo no interior do qual os processos de subjetivaÃ§Ã£o podem e devem tornar-se antagonistas â como jÃ¡ estÃ¡ a acontecer no ciclo de lutas que estÃ¡ a atravessar a Europa e o mundo â impondo fraturas e recomposiÃ§Ã£o dos nossos limites, atravÃ©s da imaginaÃ§Ã£o, da sabotagem, da fuga e da deserÃ§Ã£o.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/crise-civilizatoria/a-ia-assusta-voces/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recebimento de vales-alimentação e refeição mudam a partir do dia 7 - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Recebimento de vales-alimentação e refeição mudam a partir do dia 7</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">ICL Noticias</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://iclnoticias.com.br/economia/vales-alimentacao-refeicao-mudam-dia-7/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://iclnoticias.com.br/app/uploads/2026/11/d6a9151.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Recebimento de vales-alimentação e refeição mudam a partir do dia 7
+                            </p>
+                            
+<p><strong>Por Wellton Máximo – Agência Brasil</strong></p>
+<p>Os cartões de vale-refeição (VR) e vale-alimentação (VA) terão mudanças a partir de 7 de novembro. A principal é a aceitação de cartões de diferentes operadoras em qualquer maquininha habilitada para processar esse tipo de pagamento.</p>
+<p>A transição começou em maio e vai até novembro, quando completa um ano da assinatura do decreto que atualizou o <a href="https://www.gov.br/trabalho-e-emprego/pt-br/servicos/empregador/programa-de-alimentacao-do-trabalhador-pat" rel="noopener noreferrer" target="_blank">Programa de Alimentação do Trabalhador (PAT)</a>.</p>
+<p>Na prática, a medida pretende ampliar as opções de uso dos benefícios em restaurantes, supermercados e outros estabelecimentos que trabalham com alimentação. Cartões de empresas como Alelo, Ticket, VR Benefícios, Pluxee, Flash e Swile estão entre os abrangidos pelas mudanças, conforme o enquadramento no PAT.</p>
+<p>As novas regras também estabelecem limites para as taxas cobradas dos estabelecimentos comerciais e reduzem o prazo para o repasse dos valores das vendas. O objetivo do governo é estimular a concorrência no setor e facilitar a aceitação dos benefícios pelo comércio.</p>
+<p>Apesar da previsão de implementação em novembro, a mudança enfrenta desafios operacionais. A Associação Brasileira de Bares e Restaurantes (Abrasel) alega que os sistemas das empresas ainda não estão totalmente integrados e aponta dificuldades para o funcionamento da medida no prazo previsto. Além disso, parte das regras é alvo de questionamentos judiciais por operadoras do setor.</p>
+<h2>O que muda?</h2>
+<p>A partir de 7 de novembro, está prevista a entrada em vigor integral da interoperabilidade entre os cartões de vale-refeição e vale-alimentação.</p>
+<p>Isso significa que cartões de diferentes operadoras deverão funcionar em qualquer maquininha habilitada para receber esse tipo de pagamento, sem depender de contratos ou equipamentos específicos para cada bandeira.</p>
+<p>A mudança não obriga todos os estabelecimentos a aceitar os benefícios. A regra vale para os comércios habilitados a processar essas transações.</p>
+<h2>Onde usar?</h2>
+<p>A proposta é ampliar a rede de aceitação dos cartões. Assim, o trabalhador poderá utilizar o benefício em diferentes estabelecimentos que aceitem a modalidade correspondente, independentemente da operadora responsável pelo cartão.</p>
+<p>A aceitação dependerá da habilitação do estabelecimento e do funcionamento da integração entre os sistemas de pagamento.</p>
+<h2>O valor aumenta?</h2>
+<p>Não. As novas regras não determinam aumento nem redução automática do valor do vale-refeição ou do vale-alimentação pago pelas empresas aos funcionários.</p>
+<p>Os recursos continuam destinados exclusivamente à alimentação. O vale-refeição é utilizado para a compra de refeições prontas, enquanto o vale-alimentação é voltado à aquisição de alimentos.</p>
+<p>A principal mudança para o trabalhador é a ampliação das possibilidades de utilização do benefício.</p>
+<h2>Quais regras já valem?</h2>
+<p>Além da interoperabilidade, a regulamentação do PAT estabeleceu limites para as taxas cobradas dos estabelecimentos e reduziu o prazo de repasse dos valores das vendas.</p>
+<p><strong>As principais medidas</strong></p>
+<p><strong>Taxa máxima de 3,6%</strong>: limite para a taxa de desconto cobrada dos estabelecimentos nas transações com benefícios vinculados ao PAT;</p>
+<p><strong>Tarifa de intercâmbio de até 2%</strong>: teto para a cobrança relacionada às operações entre participantes do sistema;</p>
+<p><strong>Repasse em até 15 dias corridos</strong>: prazo máximo para que os estabelecimentos recebam os valores das vendas. Antes da mudança, comerciantes reclamavam de taxas elevadas e de prazos de recebimento que podiam ultrapassar 30 dias.</p>
+<h2>Todos os benefícios entram?</h2>
+<p>Não necessariamente. As regras descritas se aplicam aos benefícios vinculados ao PAT, criado em 1976.</p>
+<p>Há uma diferença entre os benefícios concedidos no âmbito do PAT e o auxílio-alimentação previsto na legislação trabalhista. Segundo a Abrasel, essa distinção tem provocado dificuldades na identificação das transações e na conciliação financeira dos estabelecimentos.</p>
+<p>A entidade afirma que parte das empresas teria migrado operações para o auxílio-alimentação após a regulamentação, modalidade que não está sujeita aos mesmos limites de taxas e prazos previstos para o PAT.</p>
+<h2>A mudança está garantida?</h2>
+<p>A implementação está prevista para novembro, mas enfrenta obstáculos operacionais. A Abrasel afirma que as empresas responsáveis pelos cartões e as credenciadoras ainda precisam integrar seus sistemas para permitir o funcionamento pleno da interoperabilidade.</p>
+<p>Segundo a associação, um dos problemas envolve o canal específico utilizado para processar transações com vales, que ainda não estaria funcionando plenamente.</p>
+<p>A entidade também afirma que a falta de integração pode dificultar a identificação das modalidades de benefício utilizadas pelos consumidores e o controle financeiro dos estabelecimentos.</p>
+<h2>Quais são as punições?</h2>
+<p>O descumprimento das regras aplicáveis ao PAT pode resultar em sanções administrativas e financeiras.</p>
+<p>Entre as penalidades previstas estão:</p>
+<ul>
+<li>Multas;</li>
+<li>Autuações;</li>
+<li>Descredenciamento do programa;</li>
+<li>Cobrança de benefícios fiscais anteriormente utilizados, quando cabível.</li>
+</ul>
+<p>As consequências dependem da infração identificada e podem atingir operadoras, empresas participantes do programa e estabelecimentos comerciais.</p>
+<h2>O que dizem as operadoras?</h2>
+<p>Empresas do setor questionam na Justiça pontos do decreto que regulamentou as mudanças no PAT. Entre os argumentos apresentados estão a contestação dos limites tarifários e a imposição de alterações estruturais por meio de decreto.</p>
+<p>Algumas operadoras conseguiram decisões provisórias que suspenderam parte das exigências, mas as liminares foram posteriormente derrubadas, conforme as informações reunidas no material de referência.</p>
+<p>A Associação Brasileira das Empresas de Benefícios ao Trabalhador (ABBT) também manifestou preocupação com o modelo de arranjo aberto. A entidade argumenta que a ampliação da aceitação dos cartões pode dificultar o controle e a fiscalização dos estabelecimentos credenciados.</p>
+<h2>O que falta?</h2>
+<p>A implementação da interoperabilidade depende da integração dos sistemas das operadoras de benefícios e das empresas responsáveis pelas maquininhas.</p>
+<p>Embora a regra esteja prevista para entrar em vigor integralmente em novembro, a avaliação da Abrasel é que ainda existem dificuldades técnicas para garantir o funcionamento em toda a rede. Para os trabalhadores, a expectativa é de ampliação das opções de uso dos cartões, mas a efetiva disponibilidade dependerá da conclusão dessa integração.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://iclnoticias.com.br/economia/vales-alimentacao-refeicao-mudam-dia-7/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

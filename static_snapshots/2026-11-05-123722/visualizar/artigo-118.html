@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Os Beatles pertencem à esquerda - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Os Beatles pertencem à esquerda</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/os-beatles-pertencem-a-esquerda/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/183045830868.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Os Beatles pertencem à esquerda
+                            </p>
+                            
+<p>Ao entrarmos no final da década de 2020, o legado dos Beatles — a maior banda da história, sem dúvida — enfrenta um acerto de contas final. Paul McCartney e Ringo Starr, os últimos membros sobreviventes do grupo, têm agora oitenta e quatro e oitenta e seis anos, respectivamente. Isso deve nos lembrar que o que poderia ser chamado de “geração Beatles” está chegando ao fim de seu ciclo de vida, seus ícones deixando os palcos para se tornarem relíquias empoeiradas de arquivo. Tudo, como o saudoso George Harrison certa vez reconheceu, passa.</p>
+<p>Em parte como resultado disso, a segunda metade da década promete ser o auge da fabologia (isto é, da avaliação crítica dos Fab Four). Mas muitas das retrospectivas, de forma irritante, tentarão reivindicar os Beatles para a causa do liberalismo cultural. Os últimos anos testemunharam uma onda de livros escritos por figuras da mídia com perfil de “isentões”, desde <em>John &amp; Paul: Uma história de amor em canções</em>, de Ian Leslie, até <em>With a little help from their friends</em> [Com uma pequena ajuda de seus amigos], de Stuart Maconie (os títulos resumem o viés piegas e mediano desses textos). Ainda mais preocupante, uma cinebiografia dos Beatles, um provável grande sucesso de bilheteria, está em produção. Dirigido por Sam Mendes, cineasta que produz filmes vagamente progressistas e nacionalistas no estilo de <em>1917</em>, <em>Britannia</em> e os filmes de James Bond <em>Operação Skyfall</em> e <em>007 Contra Spectre</em>, The Beatles — A four-film cinematic event [The Beatles – Um evento cinematográfico em quatro filmes] provavelmente desencadeará uma invasão britânica na era do TikTok quando for lançado em abril de 2028.</p>
+<p>A batalha pela alma dos Beatles e seu significado sociopolítico está, portanto, a pleno vapor. Por um lado, há algo compreensível, até mesmo apropriado, nas tentativas de situar a banda no lado mais afável do capitalismo. O primeiro grupo masculino a alcançar o mercado de massa, os Beatles, sem dúvida, começaram como porta-vozes da vertente consumista da social-democracia do pós-guerra. Uma tese mais ousada é a de que eles salvaram o capitalismo estadunidense de si mesmo em um momento crucial em meados da década de 1960, pacificando uma população que havia sido desestabilizada pelo movimento dos direitos civis, pela Guerra do Vietnã e pelo assassinato de John F. Kennedy, e ajudando a reduzir um espírito radical da época a um bacanal hippie inofensivo que, no fim das contas, serviu muito bem ao status quo socioeconômico.</p>
+<p>Essa era, em linhas gerais, a visão do crítico Ian MacDonald, cujo livro de 1994, <em>Revolution in the head: The Beatles’ records and the sixties</em> [Revolução na cabeça: Os os discos dos Beatles e os anos 1960], é frequentemente considerado o estudo definitivo sobre a banda. Segundo MacDonald, a contracultura personificada pelos Beatles “dividiu os EUA internamente com mais violência do que em qualquer outro momento desde a Guerra Civil e quase derrubou o governo francês” — contudo, “suas conquistas reais foram modestas: algumas mudanças curriculares e pequenas adições à legislação sobre direitos civis”. Escrevendo sob as cinzas da era Ronald Reagan e Margaret Thatcher, MacDonald considerou o fenômeno Beatles (se não a própria banda) um ensaio geral para a virada neoliberal. Para ele, a deificação da “autodeterminação individual” na narrativa dos Beatles e no contexto mais amplo da década de 1960 representou uma espécie de momento Mont Pèlerin cultural.</p>
+<p>Uma olhada na discografia da banda oferece bastante respaldo para essa teoria, desde o protomonetarismo de “Taxman”, a queixa conservadora de Harrison em 1966, até as críticas à esquerda em “Revolution”, a visão contrarrevolucionária de John Lennon em 1968, culminando nos deslizes mais recentes dos Beatles mais velhos, como a aceitação do título de cavaleiro por McCartney em 1997 e suas apresentações nos concertos do jubileu da Rainha Elizabeth II em 2002 e 2012. No entanto, a ideia de que os Beatles estavam sob o domínio do establishment capitalista e dos padrinhos do individualismo moderno tem limites reais.</p><a href="https://www.instagram.com/solysombrabar/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2021/09/SyS-Banner-site.gif"/></a>
+<p>Para entender o lado político dos Beatles, precisamos primeiro examinar suas raízes étnicas. Embora a ascendência irlandesa dos membros da banda seja bem conhecida, surpreendentemente pouco se falou sobre o fato de que tanto Lennon quanto McCartney eram descendentes de imigrantes do Ulster, um dos muitos epicentros históricos e violentos do colonialismo britânico. Isso não era irrelevante. Enquanto McCartney respondeu ao massacre do Domingo Sangrento de 1972 em Derry compondo a estridente “Give Ireland Back to the Irish” (Devolvam a Irlanda aos irlandeses), Lennon (que certa vez afirmou que os Beatles eram “todos irlandeses”) ofereceu apoio vigoroso ao Exército Republicano Irlandês Provisório no mesmo período.</p>
+<p>De fato, enquanto as posições políticas de McCartney eram basicamente as de um socialista nato, ainda que não alinhado (apoio aos direitos civis, vegetarianismo, recusa de educação privada para seus filhos), as de Lennon eram frequentemente de um esquerdista militante. Apesar de muitas críticas fáceis ao milionário que sonha com um mundo sem bens materiais em “Imagine”, Lennon era autêntico em seu engajamento com a esquerda radical. Sua trajetória política nesses anos ainda não foi totalmente mapeada, mas o diálogo que manteve com os editores da <em>New Left Review</em>, Tariq Ali e Robin Blackburn, no início dos anos 1970, e os frutos dessa relação — o lema ultra esquerdista “Poder para o Povo” e a participação em uma manifestação pela retirada das tropas da Irlanda em 1972 com uma faixa “Pelo IRA, Contra o Imperialismo Britânico” — são bem documentados.</p>
+<p>Notáveis ​​por si só, esses fragmentos biográficos destacam um aspecto mais essencial da visão de mundo de Lennon e McCartney. Como nativos de Liverpool, com raízes irlandesas — uma cidade do norte da Inglaterra com forte tradição operária, onde “Scouse, não inglês” é um grito de guerra comum —, os Beatles estavam fundamentalmente em desacordo com o núcleo tradicionalista da Inglaterra burguesa. Com um histórico de fome, escravidão e dificuldades industriais em mente, eles se recusavam a ver o capitalismo anglo-saxão como uma entidade estática e essencialmente benigna (como o liberal inglês médio). Através de muitas reviravoltas, essa foi a base da lealdade fundamental da banda a valores iconoclastas e historicamente não ingleses, como o modernismo, o igualitarismo e a rebeldia política.</p>
+<p>Se essa identidade cultural mais profunda é útil como estrutura para compreender as nuances da própria música é uma questão mais abrangente. Embora devamos ter cuidado para não reduzir a estética à pura ideologia (afinal, músicos não são teóricos políticos), certamente há argumentos a favor de que o poder e a ressonância das melhores canções de Lennon e McCartney derivam de seus temas centrais de mutualismo, cooperação, coletivismo e amor — em outras palavras, os pilares do socialismo. Mas esse debate fica para outra discussão. A tarefa mais urgente que enfrentamos é, de alguma forma, resgatar os Beatles dos cínicos e dos isentões antes que Hollywood os destrua para sempre, e recuperar as implicações ocultas de sua arte radical.</p>
+<p></p><p></p><p>é professor de literatura inglesa na Universidade de Newcastle e editor-geral da Repeater Books. Seu primeiro livro, Folk Oposition, foi publicado pela Zero Books em 2011.</p><p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/os-beatles-pertencem-a-esquerda/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

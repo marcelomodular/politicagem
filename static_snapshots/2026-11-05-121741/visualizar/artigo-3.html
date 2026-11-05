@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcabouço fiscal: entenda as regras que limitam o gasto do governo - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Arcabouço fiscal: entenda as regras que limitam o gasto do governo</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/politica/arcabouco-fiscal/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/11/Captura-de-tela-2026-11-05-120525.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Arcabouço fiscal: entenda as regras que limitam o gasto do governo
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+ <p>Criado em 2023 para substituir o teto de gastos instituído durante o governo Temer, o <strong>novo arcabouço fiscal</strong> determina as regras que <strong>limitam os gastos do governo federal</strong> e impõem as<strong> metas de resultado primário</strong> (indicador que mede a diferença entre as receitas e as despesas do poder público, sem considerar os juros da dívida).</p><p>
+</p>
+<p>A política foi a alternativa do governo Lula ao modelo anterior, que restringia o crescimento das despesas à inflação e, ao longo dos anos, acumulou várias exceções e alterações.</p><p>
+</p>
+<p>Ela busca dar estabilidade às contas públicas, mas mantendo os investimentos em políticas sociais. Hoje, mais de três anos após sua aprovação, o arcabouço é questionado pela dificuldade de estabilizar a dívida pública, especialmente diante da taxa de juros brasileira, considerada elevada.</p><p>
+</p>
+<p>Neste dia 4 de novembro, o Comitê de Política Monetária (Copom) <a href="https://revistaforum.com.br/economia/bc-mantem-selic-em-13-alerta/" rel="noopener noreferrer" target="_blank">decidiu manter a taxa básica de juros em 13,75% ao ano</a>.</p>
+<p></p>
+<p>Com a proximidade do início do ano fiscal de 2027, o debate sobre o endividamento público trouxe o arcabouço fiscal novamente ao centro da política econômica, e economistas defendem uma revisão da estrutura de gastos do Brasil.</p>
+<h2><b>O que é o arcabouço fiscal e como funciona?</b></h2>
+<p>O chamado Novo Arcabouço Fiscal, nome pelo qual ficou conhecido o Regime Fiscal Sustentável, foi instituído pela Lei Complementar nº 200, de 30 de agosto de 2023 a partir do Projeto de Lei Complementar (PLP) 93/2023, apresentado pelo Poder Executivo.</p>
+<p>Ele vincula as despesas do governo às variações da receita e ao cumprimento de metas fiscais.</p>
+<p>A regra central determina que <strong>as despesas primárias sujeitas ao regime podem crescer, em termos reais, entre 0,6% e 2,5% ao ano</strong>, conforme a evolução da arrecadação e o cumprimento das metas fiscais.</p>
+<p>O cálculo parte da variação real da receita considerada pela legislação em uma janela de 12 meses. Em condições normais, o limite de crescimento das despesas corresponde a 70% dessa variação. O resultado fica sujeito a um piso de 0,6% e a um teto de 2,5% acima da inflação.</p>
+<p>Se, por outro lado, a receita crescer apenas 0,5% acima da inflação, o cálculo de 70% resultará em 0,35%. Nesse caso, aplica-se o piso de crescimento real de 0,6%, desde que não incida alguma restrição adicional prevista no regime.</p>
+<p>O teto de 2,5% funciona como uma trava para a expansão dos gastos, mesmo em momentos favoráveis. Já o piso de 0,6% permite algum crescimento real das despesas em cenários de arrecadação fraca, desde que as demais regras sejam respeitadas.</p>
+<h2><b>O que são despesas primárias?</b></h2>
+<p>As despesas primárias são os gastos referentes tanto ao funcionamento do Estado quanto aos investimentos em políticas públicas, excluindo os juros pagos pela dívida.</p>
+<p>Entram na conta <strong>os benefícios previdenciários, as políticas de transferência de renda, os salários dos servidores e os investimentos em infraestrutura</strong>.</p>
+<p>Já os juros da dívida, que não entram nesse cálculo, correspondem aos valores pagos pelo governo aos credores, entre eles investidores, bancos, fundos e pessoas físicas, como remuneração pelos títulos públicos emitidos para financiar seus gastos.</p>
+<p>Até agosto de 2026, os juros da dívida pública somavam cerca de R$ 1,2 trilhão no acumulado de 12 meses, com a taxa básica de juros, a Selic, em 14% ao ano.</p>
+<h2><b>O que acontece quando o governo não cumpre as metas?</b></h2>
+<p>Quando o governo não consegue cumprir a meta de resultado primário, o crescimento real das despesas fica sujeito a regras mais restritivas, e a expansão dos gastos cai para 50% da variação real da receita.</p>
+<p>Há também restrições à expansão de determinadas despesas obrigatórias e o contingenciamento de despesas discricionárias, como gastos com a manutenção de contratos e estruturas públicas não protegidas por lei.</p>
+<h2><b>Como o arcabouço fiscal surgiu?</b></h2>
+<p>Em 2016, o governo Temer promulgou a Emenda Constitucional nº 95, que instituiu o Novo Regime Fiscal, ou teto de gastos. A medida foi adotada após o impeachment de Dilma Rousseff para conter os déficits primários do governo.</p>
+<p>Na prática, no entanto, o teto impedia que as despesas crescessem na mesma proporção que a arrecadação, e o modelo não conseguiu resistir às pressões por políticas sociais e aos gastos extraordinários motivados pela pandemia de covid-19. As decisões de flexibilizar o limite também reduziram a eficácia do teto, que passou por várias mudanças.</p>
+<p>Em 2021, novas emendas modificaram o regime de pagamentos e abriram espaço no orçamento. O mesmo ocorreu em 2022 e, já em 2023, uma PEC da Transição autorizou a exclusão de até R$ 145 bilhões do teto de gastos para viabilizar a expansão do Bolsa Família, além de até R$ 23 bilhões para investimentos.</p>
+<p>O Executivo apresentou o PLP 93/2023 em abril daquele ano. A proposta foi discutida e modificada pelo Congresso Nacional, com participação das consultorias técnicas da Câmara e do Senado, e acabou convertida na Lei Complementar nº 200, sancionada em 30 de agosto de 2023.</p>
+<p>O novo regime passou a permitir que as despesas crescessem acima da inflação, desde que fossem respeitados os limites estabelecidos pela regra de receitas, o piso e o teto de crescimento real e os compromissos fiscais anuais.</p>
+<p>No fim de 2024, o Congresso aprovou um pacote de medidas fiscais que incluiu a Emenda Constitucional nº 135/2024, a Lei Complementar nº 211/2024 e a Lei nº 15.077/2024. As medidas limitavam a expansão das despesas e ajustavam regras de benefícios, a fim de reforçar os mecanismos de controle das contas públicas.</p>
+<p>A concepção original do arcabouço procurou se diferenciar do teto de gastos por <strong>permitir o crescimento real das despesas e preservar espaço para políticas públicas</strong>. A equipe econômica do governo argumentava que uma regra fiscal precisa ser compatível com o funcionamento do Estado e com a capacidade de ampliar investimentos e serviços.</p>
+<p>Além disso, o governo central tem registrado resultados primários positivos ao longo da gestão Lula 3. Em setembro de 2026, o superávit primário foi de R$ 4,83 bilhões. No acumulado de janeiro a setembro de 2026, por outro lado, o déficit era de R$ 90,2 bilhões.</p>
+<p>O PIB e a arrecadação fiscal também apresentaram resultados expressivos: a arrecadação atingiu R$ 2,35 trilhões no acumulado entre janeiro e setembro de 2026, uma alta de 7%, com crescimento atribuído à força da atividade econômica e à valorização do petróleo. Já o PIB brasileiro voltou a ocupar a oitava posição entre as maiores economias do mundo, com US$ 2,8 trilhões.</p>
+<p>O avanço do PIB foi acompanhado, além disso, por níveis históricos de ocupação, com a taxa de desocupação recuando para a faixa de 5,3% no trimestre encerrado em agosto de 2026.</p>
+<h2><b>As consequências do endividamento: positivas e negativas</b></h2>
+<p>Em setembro de 2026, a Dívida Bruta do Governo Geral alcançou 82,9% do PIB, cerca de R$ 11,1 trilhões, segundo o Banco Central. No acumulado de 12 meses, os juros nominais da dívida chegaram a R$ 1,205 trilhão, equivalentes a 8,99% do PIB.</p>
+<p>Entre as consequências negativas do elevado endividamento público está o aumento da<strong> percepção de risco fiscal</strong>, que pode fazer com que os investidores exijam remunerações maiores para financiar os gastos do governo, o que eleva os custos de financiamento. Além disso, os títulos públicos passam a competir com outras aplicações financeiras, o que pode tornar os investimentos privados menos atraentes.</p>
+<p>Na prática, os juros elevados também encarecem os financiamentos imobiliários, os empréstimos destinados ao consumo e o crédito para pequenas e médias empresas.</p>
+<p>Por outro lado, <strong>tudo depende da qualidade dos indicadores econômicos</strong>. No caso do terceiro mandato do governo Lula, os resultados foram favoráveis nas áreas mais importantes da economia, especialmente na produção, no mercado de trabalho e na arrecadação, o que contribui para aumentar a renda real das famílias.</p>
+<p>A expansão da economia amplia as bases tributárias e pode ajudar a estabilizar a relação entre dívida e PIB, mesmo diante de um déficit primário.</p>
+<p>O aumento do emprego formal, por exemplo, indicador que bateu recorde em 2025, <strong>amplia a arrecadação das contribuições previdenciárias, sustenta o consumo das famílias e pode reduzir a pressão sobre programas de assistência</strong>.</p>
+<p>A arrecadação também cresce com o aumento da massa salarial, principalmente no setor de serviços. Em 2026, o salário mínimo brasileiro teve crescimento real de 2,5% em relação ao ano anterior, e o rendimento médio mensal de todos os trabalhos teve crescimento real de 5,7%. </p>
+<p>Embora o aumento real do salário mínimo pressione as contas públicas, ele é um dos principais motores do crescimento econômico pelo lado da demanda. O ganho de poder de compra acima da inflação gera um efeito multiplicador na economia, o que impulsiona o consumo das famílias e a arrecadação de tributos, além de reduzir a desigualdade social.</p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/politica/arcabouco-fiscal/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
