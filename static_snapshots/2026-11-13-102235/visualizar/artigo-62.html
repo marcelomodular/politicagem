@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A economia da resposta automatizada - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A economia da resposta automatizada</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Observatorio da Imprensa</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.observatoriodaimprensa.com.br/inteligencia-artificial/a-economia-da-resposta-automatizada/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/11/pexels-mikhail-nilov-6894201.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A economia da resposta automatizada
+                            </p>
+                            
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/11/pexels-mikhail-nilov-6894201.jpg"/><p>(Foto: Mikhail Nilov/Pexels)</p>
+<p>Desde que o desempenho das redações passou a ser medido em visitas aos portais de notícias, o tráfego de buscas na internet é tratado pela imprensa como condição de sobrevivência econômica. Mesmo antes do dilúvio informacional, Bourdieu (1996) já havia analisado como os índices de audiência subordinam a produção jornalística a critérios comerciais, e a transposição dessa lógica para a web converteu o clique em unidade de valor das redações. A relação entre veículos de notícias e plataformas digitais é descrita por Nielsen e Ganter (2022) como assimétrica, já que as plataformas definem as regras de distribuição e os veículos as acatam. A cobertura que a imprensa financeira dedicou aos resultados do Reddit no terceiro trimestre de 2026 ilustra outro aspecto dessa relação, pois as informações a respeito do efeito do Modo IA no tráfego provêm de declarações de executivos a investidores. A imprensa reproduz esses números tal como foram divulgados, e a checagem independente de cada um depende de registros que tão somente as <i>big techs</i> controlam.</p>
+<p>O CEO do Reddit, Steve Huffman, disponibilizou, numa <a href="https://s203.q4cdn.com/380862485/files/doc_financials/2026/q3/v2/Q3-26-Shareholder-Letter.pdf" rel="noopener noreferrer" target="_blank">Carta aos Acionistas</a> publicada em 29 de outubro, os resultados do terceiro trimestre de 2026. De acordo com o executivo, o Modo IA do Google não gera tráfego para a plataforma e, até onde lhe consta, para nenhum outro portal. A empresa perdeu, em outubro, mais de um milhão de visitas semanais vindas de buscadores e seus usuários diários nos Estados Unidos chegaram a 50,7 milhões, 2% abaixo de 2025. A atribuição da queda ao Modo IA é uma interpretação do próprio CEO, haja vista que ele mencionou também o rebaixamento, nos resultados de busca, de conteúdo traduzido por máquina, assim, a participação de cada fator permanece indeterminada nos dados.</p>
+<p>A declaração, dirigida a investidores, foi precificada rapidamente e o mercado reagiu sem esperar qualquer determinação. As ações do Reddit <a href="https://finance.yahoo.com/technology/article/reddit-and-everyone-else-faces-a-bleak-internet-without-google-traffic-100000669.html" rel="noopener noreferrer" target="_blank">caíram cerca de 30%</a> no pregão seguinte ao balanço e acumularam queda de 34% em cinco pregões, embora a receita trimestral tenha chegado a US$ 895 milhões, <a href="https://www.gurufocus.com/news/9160597/reddit-inc-rddt-q3-2026-earnings-call-highlights-revenue-surges-53-as-3-billion-milestone-meets-search-traffic-headwinds" rel="noopener noreferrer" target="_blank">com alta de 53%.</a> Bolaño (2000) compreende o tráfego de usuários enquanto mercadoria que as plataformas digitais produzem e vendem a anunciantes, cujo valor se forma sobre a audiência prevista, isto é, sobre a expectativa de quantas pessoas se voltarão a um meio nos períodos seguintes. O preço de uma empresa de conteúdo é composto, nessa perspectiva, também por uma projeção de público, e a variação dessa projeção altera a avaliação ainda que o faturamento corrente se mantenha. O caso do Reddit ilustra essa dinâmica, uma vez que a desvalorização de uma empresa em crescimento de receita sugere que o mercado avaliou o fluxo futuro de visitantes com mais peso do que o faturamento do trimestre. Esse fluxo é originado em grande parte fora da plataforma, pois depende da posição que o Reddit ocupa nos resultados de um buscador que decide o que exibir e de que maneira. A audiência do Reddit é, de tal modo, uma mercadoria cuja oferta depende de um terceiro, e o Google altera essa oferta quando modifica o formato da busca, sem qualquer participação da empresa. A receita publicitária é afetada por esse movimento, já que depende do número de visitantes que veem os anúncios, e a projeção de queda nesse número repercute sobre ela.</p>
+<p>É preciso notar que a medição de quem origina esse fluxo é assimétrica. Introna e Nissenbaum (2000) argumentam que os buscadores distribuem visibilidade segundo critérios que favorecem certos sites, e que essa distribuição tem consequências políticas e econômicas. Pasquale (2015) tratou da opacidade de sistemas de classificação cujos critérios não são auditáveis por quem é classificado. Dessa forma, quando Huffman afirma que o Modo IA não envia tráfego para o Reddit ele fala a partir de seus próprios registros de acesso, e o Google, que detém os registros das consultas e das respostas geradas, fala a partir de outros. O CEO acrescentou que o Google continua rastreando o Reddit com a intensidade de sempre, de modo que o conteúdo continua sendo coletado e usado para compor respostas enquanto as visitas diminuem. A verificação independente dessa dinâmica depende de dados que somente as duas empresas controlam, porquanto os registros de consulta e de resposta permanecem sob controle do Google.</p>
+<p>O Reddit ocupa uma posição pouco usual nessa disputa: a empresa licencia seu acervo ao Google e à OpenAI, e processa a Anthropic e a Perplexity, além de empresas de raspagem de dados, por coleta sem licença. Os textos licenciados e disputados foram escritos por usuários e organizados por moderadores voluntários, e a empresa os negocia com base nos direitos que seus termos de uso lhe conferem. Hess e Ostrom (2007) trataram o conhecimento como bem comum cuja governança envolve definir quem usa esse conhecimento e quem se beneficia do uso, porém, o caso do Reddit ilustra uma governança exercida por uma empresa com fins lucrativos, cujas decisões de licenciamento afetam diretamente a destinação do que a comunidade produziu.</p>
+<p>A barreira de login que o Reddit testa se articula com esse quadro. Huffman apresentou aos investidores o plano de exigir conta para acessar a maior parte do conteúdo, com testes em mercados fora dos Estados Unidos no quarto trimestre, e confirmou que a medida dificulta a raspagem. Os dados do trimestre indicam que os visitantes sem conta diminuíram 4% em um ano e os usuários com conta aumentaram 1%. Deve-se pontuar que os usuários com conta e os usuários do aplicativo geram mais de <a href="https://www.tikr.com/blog/reddit-sinks-34-in-a-week-on-a-weak-outlook-ai-mode-does-not-drive-traffic" rel="noopener noreferrer" target="_blank">80% da monetização da plataforma</a>. Ou seja, a maior parte da receita já provém de usuários identificados, entretanto, um analista ouvido pela Reuters observou que a exigência de conta cria uma barreira para usuários casuais, <a href="https://www.marketscreener.com/news/reddit-puts-logged-in-experience-first-as-google-ai-hits-traffic-ce785fdade89f621" rel="noopener noreferrer" target="_blank">perfil típico de quem chega por uma busca na internet</a>.</p>
+<p>Zuboff (2019) descreveu a captura de excedente comportamental como base de lucro do capitalismo de vigilância, e a Carta aos Acionistas informa que a exigência de login dará à empresa mais sinais para a segmentação de anúncios e permitirá proteger o acesso ao seu acervo de dados. Os números do trimestre localizam o alcance dessa medida, dado que, nos Estados Unidos, a plataforma registrou 23,4 milhões de usuários diários com conta e 27,3 milhões sem conta, de modo que os usuários sem conta correspondem a cerca de 54% da audiência diária no país. O teste ocorrerá em mercados selecionados fora dos Estados Unidos, região em que os usuários sem conta somam 49,5 milhões, alta de 33% em um ano, o equivalente a cerca de 62% dos 79,6 milhões de usuários diários internacionais. A receita por usuário nessa região é de US$ 2,43 no trimestre, contra US$ 13,82 nos Estados Unidos, o que sugere que a perda de visitantes sem conta nesses mercados tem custo financeiro imediato menor do que teria no mercado estadunidense, onde a receita por usuário é mais de cinco vezes maior.</p>
+<p>Huffman afirmou na teleconferência que a maior parte da raspagem de dados e da apropriação indevida do conteúdo do Reddit ocorre entre usuários sem conta, e a barreira se justifica, por esse critério, na medida em que concentra a proteção do acervo na parcela do público que menos gera receita. A redução do contingente de visitantes novos já está em curso, e a empresa informou queda de mais de um milhão de referências semanais da busca em outubro, com maior impacto sobre o tráfego sem conta e sobre a web, e a exigência de conta incide sobre essa mesma faixa de usuários. Além disso, a definição de usuário diário adotada pela empresa já exige um identificador único, posto que o visitante sem conta também é contado e reconhecido de algum modo, e a conta amplia o conjunto de sinais disponíveis. A empresa pretende converter parte do público de busca da web móvel em usuários do aplicativo e informa que apenas cerca de 13% dos usuários elegíveis veem hoje o convite de instalação, o que deixa espaço para ampliar essa conversão. Os resultados dos testes orientarão a versão final do modelo em que o login é exigido, e o efeito líquido sobre usuários e receita depende desses resultados.</p>
+<p>A plataformização pode ser definida como a penetração das infraestruturas e dos modelos econômicos das plataformas em esferas antes organizadas de outra forma (Poell, Nieborg e van Dijck, 2019). O Modo IA converte a página de resultados em ponto de chegada da consulta, e a barreira de login faz do Reddit um ponto de chegada para quem deseja ler suas conversas. As duas medidas buscam reter o usuário no próprio ambiente. A carta do Reddit reconhece que a busca na web caminha para se tornar, ela mesma, um destino movido por IA, e a receita de busca da Alphabet chegou a cerca de US$ 63,3 bilhões no terceiro trimestre, 12% acima do ano anterior, enquanto o Reddit informou a perda de mais de um milhão de referências semanais vindas da busca em outubro. Esse conjunto de dados sugere que a busca continua a gerar receita para o Google ainda que envie menos visitas a sites de grande audiência. A retenção tem custo mensurável nos números do Reddit, a empresa afirma que compensou parte da queda de alcance com marketing de usuários, e as despesas de vendas e marketing somaram US$ 209,4 milhões no trimestre, 63% acima do mesmo período de 2025. Os 130,3 milhões de usuários diários equivalem a cerca de 25% dos 515,2 milhões de usuários semanais, razão que era de cerca de 26% um ano antes, de modo que, em um dia médio, três quartos dos usuários semanais não visitam a plataforma.</p>
+<p>Srnicek (2017) caracteriza as plataformas como infraestruturas que extraem e controlam dados, e os números do Reddit se ajustam a essa caracterização, já que a empresa acrescentou mais de um bilhão de postagens e comentários ao acervo no trimestre, que ultrapassa 27 bilhões, e treinou uma nova arquitetura de modelo com 20 vezes mais dados do que o Reddit para personalizar o conteúdo. Sob esse ângulo, a retenção sustenta a produção de novo acervo e a oferta de sinais para personalização, uma vez que ambas dependem do retorno recorrente dos usuários.</p>
+<p>A Alphabet, frequentemente apontada como beneficiária desse arranjo, perdeu mais de 11% do valor de suas ações em 29 de outubro, o equivalente a mais de US$ 500 bilhões, depois do balanço do terceiro trimestre. A receita de busca subiu 12%, para cerca de US$ 63,3 bilhões, abaixo do previsto, e o diretor de negócios do Google, Philipp Schindler, atribuiu parte do resultado ao fato de que as consultas no Modo IA rendem menos do que as da busca tradicional. As despesas de capital da empresa mais que dobraram e <a href="https://aiweekly.co/alerts/alphabet-sheds-500b-as-google-admits-ai-mode-earns-less" rel="noopener noreferrer" target="_blank">chegaram a US$ 51,4 bilhões</a>. A perda de visitas dos sites se liga à redução do ganho por consulta do próprio Google, na medida em que, segundo o diretor, o formato de resposta gera menos receita por consulta do que a lista de links. A queda das duas empresas na mesma semana sugere que o mercado revisou ao mesmo tempo suas expectativas para os sites que dependem de busca e para a empresa que opera o buscador, e que ainda busca identificar quem remunera a produção de conteúdo no novo formato.</p>
+<p>O caso interessa particularmente ao jornalismo porque a mesma mudança de formato atinge veículos de notícias, cuja dependência das plataformas é assimétrica. Respostas geradas a partir de reportagens dispensam a visita à fonte, e a receita que financia a apuração acompanha a redução das visitas, visto que parte dela depende da audiência que chega por busca. Os dados do Reddit permitem avaliar a ordem de grandeza desse movimento. Veículos que obtêm a maior parte do público por busca e vivem de publicidade exibida nessas visitas enfrentam exposição semelhante, e quem não dispõe de uma base equivalente de usuários cadastrados sofreria impacto proporcionalmente maior, o que sugere que o formato de resposta, além de dispensar a visita à fonte, deixa menos margem para uma partilha de receita com quem produz o conteúdo.</p>
+<p>Han (2022) descreve a infocracia como regime em que informações e algoritmos orientam processos sociais e políticos. O acervo do Reddit indica a escala dessa composição, pois uma resposta gerada por IA que sintetiza trechos de um acervo enorme condensa vozes de múltiplos autores num enunciado sem assinatura. A verificação desse enunciado passa pela visita às fontes, e a queda de referências sugere que esse caminho é menos percorrido, de modo que a limitação da capacidade do leitor de avaliar o que lê encontra respaldo nos próprios registros de tráfego.</p>
+<p>Referências</p>
+<p>BOLAÑO, C. R. S. Indústria cultural, informação e capitalismo. São Paulo: Hucitec/Polis, 2000.</p>
+<p>BOURDIEU, P. Sur la télévision, suivi de l’emprise du journalisme. Paris, Liber, 1996.</p>
+<p>HAN, B.-C. Infokratie. Berlin: Matthes &amp; Seitz, 2021.</p>
+<p>HESS, C.; OSTROM, E. (org.). Understanding knowledge as a commons. Cambridge: MIT Press, 2007.</p>
+<p>INTRONA, L. D.; NISSENBAUM, H. Shaping the Web. The Information Society, 16(3), p. 169-185, 2000. DOI: <a href="https://doi.org/10.1080/01972240050133634" rel="noopener noreferrer" target="_blank">https://doi.org/10.1080/01972240050133634</a>.</p>
+<p>NIELSEN, R. K.; GANTER, S. A. The power of platforms. Oxford Studies in Digital Politics. New York, 2022. DOI: <a href="https://doi.org/10.1093/oso/9780190908850.001.0001" rel="noopener noreferrer" target="_blank">https://doi.org/10.1093/oso/9780190908850.001.0001</a>.</p>
+<p>PASQUALE, F. The black box society. Cambridge: Harvard University Press, 2015.</p>
+<p>POELL, T.; NIEBORG, D.; VAN DIJCK, J. Platformisation. Internet Policy Review, 8(4), 2019. DOI: <a href="https://doi.org/10.14763/2019.4.1425" rel="noopener noreferrer" target="_blank">https://doi.org/10.14763/2019.4.1425</a>.</p>
+<p>SRNICEK, N. Platform capitalism. Cambridge: Polity Press, 2017.</p>
+<p>ZUBOFF, S. The age of surveillance capitalism. New York: PublicAffairs, 2019.</p>
+<p><strong>***</strong></p>
+<p><strong>Ramsés Albertoni é</strong> professor, Pesquisador de Pós-doutorado em Comunicação (PPGCOM-UFJF), Pós-doutorado em Artes (PPGCA-UFF), Doutor em Artes (PPGACL-UFJF).</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.observatoriodaimprensa.com.br/inteligencia-artificial/a-economia-da-resposta-automatizada/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

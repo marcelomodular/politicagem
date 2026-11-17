@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You’re going to hate shopping in an AI economy - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">You’re going to hate shopping in an AI economy</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/podcasts/508767/ai-agents-rage-economy-meta-muse" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/GettyImages-2261091609.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: You’re going to hate shopping in an economy full of AI agents like Meta’s Muse
+                            </p>
+                            <p>When was the last time you had to call customer support with a problem? Can you remember how it went?</p><p>If you’re like most Americans, the answer is “probably not very well.” And that may be understating it: As of 2025, according to the “<a href="https://customercaremc.com/resources/the-national-customer-rage-survey/" rel="noopener noreferrer" target="_blank">National Customer Rage Survey</a>” — yes, it’s a real thing — <a href="https://customercaremc.com/wp-content/uploads/2025/09/2025NationalCustomerRagePrologue.pdf" rel="noopener noreferrer" target="_blank">nearly 80 percent</a> of Americans ran into a “product or service problem” in the past year, and nearly two-thirds experienced “rage” in attempting to resolve it.</p><p>We have, in short, entered into a rage economy, where high prices and inflation have made everyday products unaffordable at the same time as our experiences buying those products have filled us with fury.</p><p>The landscape isn’t really improving, either: As a consumer, you’re faced with terrible customer service, unhelpful chatbots, and products that are <a href="https://www.grubstreet.com/article/chocolate-hersheys-reeses-conspiracy.html" rel="noopener noreferrer" target="_blank">worse than they used to be</a>.</p><p>If you listen to the big AI companies, however, there’s a light on the horizon: <a href="https://www.vox.com/advice/506547/muse-instinct-chatgpt-dots-ai-personal-agent" rel="noopener noreferrer" target="_blank">AI agents</a>, which can step in and do the things you don’t want to (like waiting on hold or dueling it out with aforementioned unhelpful chatbots). But are AI agents <em>really</em> the key to fixing our rage economy? Or will they just be what brings it deeper into chaos?</p><p><a href="https://www.theatlantic.com/author/charlie-warzel/" rel="noopener noreferrer" target="_blank">Charlie Warzel</a>, a staff writer at The Atlantic, recently went deep on <a href="https://www.theatlantic.com/technology/2026/10/ai-agent-chaos-e-commerce/689010/" rel="noopener noreferrer" target="_blank">what happens</a> when we bring AI agents into our already contentious consumer experience (along with his colleague Matteo Wong).</p><p><em>Today, Explained</em> co-host Sean Rameswaram spoke with Warzel about how AI agents are being used for the grating parts of our lives, what happens when companies use their own AI agents to deal with consumers, and where this all might leave us.</p><p>Below is an excerpt of their conversation, edited for length and clarity. There’s much more in the full podcast, so listen to <em>Today, Explained</em> wherever you get podcasts, including <a href="https://podcasts.apple.com/us/podcast/today-explained/id1346207297" rel="noopener noreferrer" target="_blank">Apple Podcasts</a>, <a href="https://www.pandora.com/podcast/today-explained/PC:140" rel="noopener noreferrer" target="_blank">Pandora</a>, and <a href="https://open.spotify.com/show/3pXx5SXzXwJxnf4A5pWN2A" rel="noopener noreferrer" target="_blank">Spotify</a>.</p><p><strong>Charlie, we spoke about how the economy and how customer service works is making everyone rage out. Are AI agents going to make it better or worse?</strong></p><p>In the early time, it’s probably going to make it a lot worse. What we are essentially seeing right now is that these agents are inundating the internet with persistence.</p><p>These are relentless things that are tasked to do the onerous activities that we don’t want to do. And they’re already flooding call centers. They’re flooding restaurant reservations. They’re flooding plumbers and people who run small businesses with requests and queries. And they’re not people.</p><p>It’s going to make a lot of people feel, honestly, pretty awful. The world has all of a sudden become very inhuman or there are these inhuman burdens being put on the humans who don’t have agents yet to work on their behalf. And that imbalance is going to make a lot of people pretty mad.</p><p><strong>You </strong><a href="https://www.theatlantic.com/technology/2026/10/ai-agent-chaos-e-commerce/689010/" rel="noopener noreferrer" target="_blank"><strong>wrote for The Atlantic</strong></a><strong> that we are not ready for our coming AI agent future. How are we not ready for this? </strong></p><p>If it reaches a critical mass, the argument is that we aren’t ready for it because the economy is built off of, and in a lot of ways thrives off of, inefficiency — off of the fact that people aren’t paying perfect attention to everything.</p><p>People aren’t moving their money from savings account to savings account every day because they’re getting the margins on a slightly better interest rate or something like that. This entire subscription economy is based off of inefficiency. You don’t cancel the thing that you don’t use for a long period of time or it lays dormant for a while.</p><p>But what these AI agents offer in their most idealized fashion is that they pay perfect attention to everything, all the time. They are hypervigilant and able to act on your behalf in inhuman ways. And if a large portion of the population is using these to do their banking, to do their e-commerce, and at the same time you have these large organizations like banks, healthcare companies, platforms like Amazon and Walmart, you’re going to see just incredible amounts of chaos.</p><p>The economy would, in that way, start to behave more like the stock market, where prices fluctuate on the order of milliseconds. And from watching the stock market over decades, I don’t know if we want diapers to behave like securities.</p><p>One of the more speculative but also illustrative ideas here is what people refer to as an agentic bank run. This is the idea that, say, 5 million people are using the same agent to do all of their banking and they all identify at the same time that there is a high-yield savings account that everyone should be in. So they move money en masse: millions of agents pulling money out of one account to the next, and then those banks are struggling because they’ve just lost all of these deposits at once. It’s theoretically possible that something like that could happen all of the time.</p><p><strong>Is this a two-way street? Are the companies also adopting agents into every part of their processes and consumer relations?</strong></p><p>Yes. It’s slower on that end, but I like to think of this as an arms race.</p><p>A lot of retailers, especially Amazon, have blocked a number of these agents from accessing their platform. Because even though Amazon can make good money off of these sales, they don’t yet want these companies to have access to their backend infrastructure.</p><p>There are a lot of corporate secrets like inventory and who’s buying what and who’s selling what. These agents can act as really good intelligence gatherers if they’re granted access to these platforms.</p><p>What you’ll see eventually is that the retailers are going to have demands: “You guys can let the agents on the platform, but you can’t undercut our prices in this way.” It will just be something that you have to trust that your AI agent company is making a deal in your best interest.</p><p>I think that that’s really interesting because you could end up having this future where everything feels really good as a consumer because it’s frictionless: “My agent’s going to do all this stuff for me while I sleep or while I’m hanging out with my family or whatnot.” And in reality, what’s going to happen is you’re just having someone do something for you, but nothing else has really changed. You’re not getting a better deal. It’s not that much more helpful to you because these companies have taken care of themselves first.</p><p><strong>But that is the promise. That is what Sam Altman and Mark Zuckerberg are trying to sell us. </strong></p><p><strong>Do you think it’s a pipe dream or do you think there is some reality, one day, when we as a society will say, “This consumer-facing AI agent world of ours is better than the one we had a hundred years ago”?</strong></p><p>Something that I think is really funny is Meta, with Muse, has really dominated the conversation about these AI assistants. And this is the company that wanted to connect the world, that says that us being together is this universal good, it is strengthening the bonds of humanity.</p><p>This is a tool that is fundamentally antisocial. You don’t have to interact with those people if you don’t want to. I’m not trying to romanticize running really annoying errands when you’re busy and your kids are sick and you’ve got work deadlines and things, but there’s also the experience of interacting with people on a day-to-day basis that is foundational to our humanity and these things basically want to automate that away.</p><p>That’s a real thing that we need to think about and grapple with. And the other part of this is, what are we freeing this time up for?</p><p><strong>I’m always wondering that myself, because that’s what they keep promising. You’re going to have so much time…to do what? To then just spend more time scrolling your platforms?</strong></p><p>To spend more time scrolling your platforms, spend more time working. There is a lack of thought about what a human is for if we fully embrace automation in all these different ways, right? It’s one thing to say, “I wish it was easier to buy paper towels on Amazon.” It’s another to say—</p><p><strong>It’s pretty easy, though.</strong> <strong>I don’t do it that often, but I’m pretty sure it’s really easy.</strong></p><p>It is. I think it’s good to have those interactions and it’s okay to sand down some of them, but this future suggests, what if you never had to do anything you didn’t want to do? And I don’t know if they’ve thought that through.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/podcasts/508767/ai-agents-rage-economy-meta-muse" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A matemática de uma “vitória impossível” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A matemática de uma “vitória impossível”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/estadoemdisputa/a-matematica-de-uma-vitoria-impossivel/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5163527464599358801_x.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A matemÃ¡tica de uma âvitÃ³ria impossÃ­velâ
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5163527464599358801_x.jpg"/>Imagem: Stuart Kinlough/Getty Images
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>âMatematicamente impossÃ­velâ: essa foi uma das assertivas do candidato derrotado na eleiÃ§Ã£o presidencial de 2026 para insinuar que houve fraude no processo de votaÃ§Ã£o, o que explicaria seu fracasso. NÃ£o Ã© difÃ­cil demonstrar que a vitÃ³ria de Lula decorreu do <a href="https://pactopublico.org/noticias/votos-lula-primeiro-para-segundo-turno-2026-estudo" rel="noopener noreferrer" target="_blank">incremento de sua votaÃ§Ã£o em colÃ©gios eleitorais estratÃ©gicos</a>, influenciado por um <a href="https://outraspalavras.net/?p=3207577&amp;utm" rel="noopener noreferrer" target="_blank">movimento de massas consistente e multifacetado</a>, que conferiu capilaridade social aos esforÃ§os de denÃºncia contra o bolsonarismo e contribuiu para reverter as tendÃªncias desenhadas no primeiro turno.</p>
+<p>A vitÃ³ria antibolsonarista era historicamente improvÃ¡vel, Ã  luz dos resultados de todas as eleiÃ§Ãµes presidenciais decididas em segundo turno desde 1989. No entanto, havia um domÃ­nio do saber capaz de sustentar, desde o inÃ­cio, a<em> possibilidade</em> de uma vitÃ³ria construÃ­da sobre mobilizaÃ§Ã£o popular inÃ©dita: a teoria dos conjuntos, um dos fundamentos da matemÃ¡tica contemporÃ¢nea.</p>
+<p>Pode parecer extravagante que um cientista social encontre na matemÃ¡tica e em suas mediaÃ§Ãµes filosÃ³ficas as imagens que orientam seu exercÃ­cio de sondagem do presente imediato. Considero, porÃ©m, esse recurso importante, talvez mesmo essencial, para que o pensamento sobre a vida coletiva nÃ£o se limite a inventariar as segmentaÃ§Ãµes sociais existentes e consiga se abrir Ã  latÃªncia de novos protagonismos polÃ­ticos e Ã  invenÃ§Ã£o de seus contornos efetivos.</p>
+<p>Recupero algumas possibilidades sugestivas da teoria dos conjuntos que ajudam a iluminar a singularidade do que aconteceu depois de 4 de outubro, ao passo que permitem compreender uma faceta pouco explorada do bolsonarismo, seu âcarÃ¡ter obscuroâ. Examino, tambÃ©m, certas tendÃªncias sombrias no prÃ³prio campo progressista, as quais consistem em deduzir o horizonte polÃ­tico apenas dos elementos jÃ¡ rastreados numa situaÃ§Ã£o, sem considerar multiplicidades emergentes, capazes de transformar o rumo dos acontecimentos e a composiÃ§Ã£o do tecido social.</p>
+<h3><strong>O que as contas nÃ£o contam</strong></h3>
+<p>Nosso primeiro contato com a matemÃ¡tica conjuntista costuma ocorrer no Ensino Fundamental, quando as professoras e os professores desenham cÃ­rculos na lousa e inserem nÃºmeros ou letras em seu interior. Aprendemos, assim, a agrupar elementos segundo certos predicados. O conjunto dos nÃºmeros pares, por exemplo, estÃ¡ incluÃ­do no dos naturais, e o conjunto dos mÃºltiplos de 4, no dos pares. JÃ¡ os mÃºltiplos de 3 e os nÃºmeros pares possuem elementos em comum, como 6 e 12, sem que um desses conjuntos esteja inteiramente contido no outro.</p>
+<p>Geralmente, a introduÃ§Ã£o Ã  teoria dos conjuntos privilegia as relaÃ§Ãµes de pertencimento e inclusÃ£o. Importa saber a quais conjuntos um elemento pertence e quais conjuntos estÃ£o incluÃ­dos em outros. Entretanto, sÃ£o menos intuitivas certas consequÃªncias da distinÃ§Ã£o entre essas relaÃ§Ãµes, particularmente a possibilidade de uma multiplicidade pertencer a determinado conjunto sem que os elementos que a compÃµem tambÃ©m pertenÃ§am a ele. Essa propriedade oferece uma imagem sugestiva dos limites das formas estabelecidas de apresentaÃ§Ã£o e representaÃ§Ã£o da realidade.</p>
+<p>Apelo Ã  boa vontade do leitor para percorrer uma pequena incursÃ£o pela linguagem dos conjuntos. Ã queima-roupa, direi que uma multiplicidade pode pertencer a determinado conjunto sem que os elementos que a compÃµem tambÃ©m pertenÃ§am a ele. Consideremos dois conjuntos: x = {1, 2, 3} e y = {4, 5, 6}. Os conjuntos x e y estÃ£o compostos, respectivamente, pelos nÃºmeros grafados entre chaves. Definamos, entÃ£o, um novo conjunto, A = {x, y}, que tambÃ©m podemos escrever assim: A = {{1, 2, 3}, {4, 5, 6}}. Ã agora que a magia acontece. Embora x e y pertenÃ§am a A, nenhum dos nÃºmeros que os compÃµem <em>pertence diretamente </em>a esse conjunto. Ao fim e ao cabo, A possui apenas dois elementos: x e y. O nÃºmero 1 pertence a x, mas nÃ£o pertence a A. Para que isso acontecesse, A teria de ser outra coisa, precisaria ser definido, por exemplo, assim: A = {1, x, y}. Mas esse nÃ£o Ã© o caso.</p>
+<p>Recapitulemos: na primeira definiÃ§Ã£o de A, o conjunto x estÃ¡ apresentado, mas nenhum dos nÃºmeros que o compÃµem estÃ¡ apresentado separadamente nessa situaÃ§Ã£o. Eis uma propriedade elementar e nem sempre intuitiva da teoria dos conjuntos: o pertencimento nÃ£o Ã© transitivo. Com um pouco de liberdade poÃ©tica, diremos que uma situaÃ§Ã£o pode contar determinada multiplicidade sem necessariamente reconhecer, um a um, os elementos que a compÃµem.</p>
+<p>Superada a aridez do esquematismo, podemos adentrar nos desdobramentos reflexivos da demonstraÃ§Ã£o realizada. <a href="https://outraspalavras.net/outrasmidias/badiou-politica-seres-e-magias/" rel="noopener noreferrer" target="_blank">Alain Badiou, cuja filosofia deve tanto Ã  hipÃ³tese comunista como Ã  matemÃ¡tica conjuntista</a>, Alain Badiou, cuja filosofia deve tanto Ã  hipÃ³tese comunista como Ã  matemÃ¡tica conjuntista, denomina âsingularesâ as multiplicidades apresentadas numa situaÃ§Ã£o, mas que nÃ£o estÃ£o nela incluÃ­das como partes. Essa distinÃ§Ã£o permite afirmar que a apresentaÃ§Ã£o dos elementos de uma situaÃ§Ã£o nÃ£o equivale Ã  representaÃ§Ã£o de suas partes. Uma multiplicidade apresentada pode conter elementos que nÃ£o sÃ£o, eles prÃ³prios, apresentados nessa situaÃ§Ã£o.</p>
+<p>Se pensarmos numa situaÃ§Ã£o histÃ³rico-social, nÃ£o seria difÃ­cil visualizar essa possibilidade com a categoria âfamÃ­liaâ, tal como Ã© utilizada naqueles discursos que se propÃµem a defendÃª-la sob variadas justificativas. Tais discursos precisam desconsiderar a singularidade dos elementos da âfamÃ­liaâ e abstraÃ­-los em nome da contagem de uma parte maciÃ§a. Quando a âfamÃ­liaâ se torna unidade de contagem, ela pode ser abordada âno todoâ âapesar de seus elementosâ, e a esse âtodoâ serÃ£o atribuÃ­dos predicados que nÃ£o esgotam a singularidade de seus integrantes.</p>
+<p>Recorrendo a um exemplo atual, nÃ£o Ã© diferente o problema que encontramos quando uma polÃ­tica pÃºblica reconhece âcozinhas solidÃ¡riasâ pelo atributo âoferta de refeiÃ§Ãµesâ, sem que esse reconhecimento deva contemplar, explicitamente, outras qualidades substantivas dos coletivos beneficiados (suas prÃ¡ticas organizativas, concepÃ§Ãµes de cuidado, etc.). O conjunto dos beneficiÃ¡rios Ã© contado segundo determinado atributo âproduzir refeiÃ§Ãµesâ, mas sua composiÃ§Ã£o tem o potencial de exceder aquilo que os critÃ©rios da polÃ­tica permitem discernir.</p>
+<p>A distÃ¢ncia entre o que uma situaÃ§Ã£o autoriza a contar e as outras multiplicidades que nela podem ser descobertas remete Ã  nossa conjuntura polÃ­tica imediata.</p>
+<h3><strong>Uma vitÃ³ria contra as tendÃªncias</strong></h3>
+<p>Emergimos do primeiro turno com as tendÃªncias do eleitorado bem definidas. Os institutos de pesquisa recortavam suas amostras em subconjuntos etÃ¡rios, religiosos, de sexo, de renda, etc. AtribuÃ­a-se a eles comportamentos tendenciais pouco favorÃ¡veis Ã  vitÃ³ria de Lula. Prevalecia a expectativa de confirmaÃ§Ã£o do resultado do primeiro turno, com a seguinte ressalva: nunca a distÃ¢ncia entre os dois primeiros colocados fora tÃ£o estreita, o que abria Ã  esquerda a esperanÃ§a de disputar a eleiÃ§Ã£o palmo a palmo.Mas como cultivar racionalmente essa esperanÃ§a se as partes jÃ¡ estavam contadas e seu comportamento, estipulado? A saÃ­da eficaz, agora sabemos, foi supor âcom frieza matemÃ¡ticaâ que as <em>formas estabelecidas</em> de representaÃ§Ã£o do eleitorado nÃ£o esgotavam as possibilidades de recomposiÃ§Ã£o dos elementos jÃ¡ contados. Estes poderiam ser recontados, um por um, como soldados, e reagregados sob diferentes âmissÃµesâ propostas por um comando centralizado.</p>
+<p>Longe de ser o Ãºnico fator a explicar a vitÃ³ria eleitoral, o âExÃ©rcito do Lulaâ pode ser encarado, ainda assim, como emblema de um tipo de operaÃ§Ã£o que, sob as mais diversas modalidades, foi decisivo para o triunfo: tratava-se de transmitir Ã s pessoas a certeza de que suas aÃ§Ãµes podem interferir decisivamente no estado da situaÃ§Ã£o e redeterminar o cenÃ¡rio polÃ­tico.</p>
+<p>Dar conta dessa perspectiva extraordinÃ¡ria âou ârevolucionÃ¡riaâ, como Janones gostava de repetirâ requer ir alÃ©m da matemÃ¡tica conjuntista, sem abandonar sua liÃ§Ã£o-chave para este argumento: a apresentaÃ§Ã£o de uma multiplicidade nÃ£o implica que todos os elementos que a compÃµem estejam apresentados na situaÃ§Ã£o. A distinÃ§Ã£o convida a nÃ£o tomar as formas estabelecidas de contagem como medida definitiva do que uma coletividade pode fazer. Existem, portanto, razÃµes para apostar na recomposiÃ§Ã£o polÃ­tica das multiplicidades, sob outros comandos e vocaÃ§Ãµes. Essa aposta Ã© inerentemente polÃ­tica e experimental: nÃ£o encontra garantias na matemÃ¡tica nem nos atributos comportamentais dos grupos e segmentos jÃ¡ sondados pela estatÃ­stica e pela ciÃªncia social. A polÃ­tica cria coletivos, opera divisÃµes e recomposiÃ§Ãµes, nÃ£o se deixa balizar pelos agrupamentos cristalizados.</p>
+<p>Ã no terreno da polÃ­tica que as possibilidades de recomposiÃ§Ã£o adquirem existÃªncia efetiva. Nele, uma multiplicidade pode desenvolver capacidades de aÃ§Ã£o que excedem as classificaÃ§Ãµes estabelecidas e produzem tendÃªncias que os recortes anteriores nÃ£o permitiam antever. Isso aconteceu na mobilizaÃ§Ã£o popular com vistas ao segundo turno: novas formas de atuaÃ§Ã£o coletiva, constituÃ­das no curso da prÃ³pria disputa, desenvolveram uma capacidade polÃ­tica que nÃ£o poderia ser deduzida das tendÃªncias anteriormente identificadas e contribuÃ­ram para reorientar a disputa.</p>
+<h3><strong>A obscuridade como recusa do novo</strong></h3>
+<p>Derrotado, o bolsonarismo nÃ£o se limitou a deplorar o prÃ³prio fracasso e a execrar a patologia dos contingentes de brasileiros que fizeram a balanÃ§a dos votos inclinar-se de modo desfavorÃ¡vel a um projeto de humilhaÃ§Ã£o e subserviÃªncia crÃ´nicas. Diante da derrota, o bolsonarismo tambÃ©m expÃ´s, de modo cabal, uma de suas facetas definitÃ³rias menos problematizadas: a obscuridade, isto Ã©, a tendÃªncia de projetar sombras sobre as novas potÃªncias experimentadas no seio do povo.</p>
+<p>Para figuras destacadas do obscurantismo, nada ocorreu entre o primeiro e o segundo turno que nÃ£o possa ser compreendido pela aÃ§Ã£o das partes jÃ¡ discriminadas na situaÃ§Ã£o original. As explicaÃ§Ãµes mobilizadas nas sombras nÃ£o sÃ£o coerentes entre si: suborno aos pobres com o aumento do Bolsa FamÃ­lia; disseminaÃ§Ã£o de notÃ­cias falsas; fraude eleitoral orquestrada pelo governo e por seus aliados no âsistemaâ. A coerÃªncia dessa mistura estranha estÃ¡ em negar nosso admirÃ¡vel novo presente, no qual uma potÃªncia subversiva das tendÃªncias conhecidas torna-se artefato central da polÃ­tica e reorienta a conjuntura. O tempo presente nÃ£o Ã© aquele devir dÃ³cil que um Nikolas Ferreira, confuso e despeitado, gostaria de fazer desaguar em â<a href="https://www.brasildefato.com.br/2026/10/25/nikolas-ferreira-e-figuras-da-extrema-direita-atacam-zanin-e-ameacam-processo-eleitoral-ou-a-gente-ganha-ou-a-gente-ganha/" rel="noopener noreferrer" target="_blank">mais um impeachment</a>â, em 2027.</p>
+<p>A negaÃ§Ã£o bolsonarista do presente tem correlato na convocaÃ§Ã£o do poder de polÃ­cia, tanto no nÃ­vel nacional como internacional. Tal Ã© o poder de Trump e o dos golpistas de plantÃ£o no Parlamento brasileiro. Ã a polÃ­cia que desbarata as multiplicidades capazes de desafiar os desequilÃ­brios do mundo. E Ã© a manutenÃ§Ã£o desses desequilÃ­brios, amparada por discursos hierÃ¡rquicos, que estÃ¡ estampada na bandeira do bolsonarismo, erguida em nome do âBemâ, dos âcidadÃ£os de bemâ, de qualquer unidade a-histÃ³rica que possa recobrir o amanhecer de novas capacidades coletivas.</p>
+<p>Para a subjetividade sombria que se perfila sob essa bandeira, as Ãºltimas semanas nÃ£o assistiram Ã  emergÃªncia de nada original, de nenhuma multiplicidade que relativizou o comportamento atÃ© entÃ£o conhecido da populaÃ§Ã£o votante e evitou que a eleiÃ§Ã£o apenas verificasse tendÃªncias estatÃ­sticas. Ã supostamente âimpossÃ­velâ que essa multiplicidade tenha se apresentado. Se ela se apresentou, sÃ³ pode ser falsa, o que requer seu descrÃ©dito e a repressÃ£o das consequÃªncias de seus atos, entre elas, a vitÃ³ria de Lula.</p>
+<h3><strong>Nossas sombras e as luzes do presente</strong></h3>
+<p>Ã difÃ­cil imaginar, no campo progressista, a manifestaÃ§Ã£o das tendÃªncias obscuras que com muita facilidade se observam no campo bolsonarista. NÃ£o obstante, ali tambÃ©m sÃ£o comuns certas predisposiÃ§Ãµes que produzem cumplicidade com a negaÃ§Ã£o violenta do presente e de suas incertezas criadoras.</p>
+<p>Uma dessas predisposiÃ§Ãµes se manifesta quando o movimento de massas das Ãºltimas semanas Ã© reduzido a uma mobilizaÃ§Ã£o em defesa da democracia realmente existente, sem conteÃºdo novo no tocante Ã s capacidades populares de exercer poder e participar do governo. Em vista disso, caberia a Lula, a partir de agora, reunir em torno de si os restos ainda confiÃ¡veis da institucionalidade democrÃ¡tica, pactar com o âcentroâ, dar bons sinais ao âmercadoâ e lubrificar as acanhadas engrenagens capitalistas disponÃ­veis, Ã  revelia de qualquer aposta soberana com apelo Ã s grandes esperanÃ§as populares. Em poucas palavras: isolar o bolsonarismo, administrar a ordem existente e aguardar, bem-comportado, que a direita encontre seu caminho de volta ao poder em 2030.</p>
+<p>A cumplicidade sombria, na trincheira progressista, Ã© dedutÃ­vel tambÃ©m de uma concepÃ§Ã£o de polÃ­ticas pÃºblicas âmuito comum no lulismoâ que procura enclausurar as capacidades populares nos quadros institucionais estabelecidos, como coadjuvantes na resoluÃ§Ã£o de problemas definidos pela tecnocracia. A tendÃªncia Ã© <a href="https://outraspalavras.net/?p=3131930&amp;utm" rel="noopener noreferrer" target="_blank">suturar rapidamente as experiÃªncias populares de organizaÃ§Ã£o e cuidado em soluÃ§Ãµes restritivas e pontuais</a>. Exclui-se, assim, a hipÃ³tese de que, nas formas populares e nÃ£o estatais de organizaÃ§Ã£o, resplandeÃ§am outros planos integrais de vida, suscetÃ­veis de serem estimulados em seus prÃ³prios termos, o que Ã© muito diferente de subordinÃ¡-los aos domÃ­nios da governanÃ§a neoliberal.</p>
+<p><a href="https://outraspalavras.net/outrasaude/editorial-ousadia-e-maos-a-obra" rel="noopener noreferrer" target="_blank">Lula reconheceu</a> com essas palavras a entrada em cena de uma nova multiplicidade: âA participaÃ§Ã£o do povo nesta campanha, a saÃ­da na rua dos estudantes, das mulheres, dos trabalhadores, vai nos obrigar a fazer um novo jeito de governar este paÃ­sâ. E acrescentou que o Brasil nunca mais seria o mesmo. Lula tem sensibilidade Ã s luzes do presente. Ã certo que seu ExÃ©rcito e as histÃ³ricas marchas de outubro arrefeceram. Entretanto, os elementos nÃ£o contados que lhes deram corpo seguem disponÃ­veis na conjuntura, eventualmente ocultos sob formas de agrupamento que nÃ£o fazem jus ao seu potencial criativo e transformador.</p>
+<p>Reencontrar, nas formas de agrupamento estabelecidas, as capacidades coletivas que, num primeiro momento, elas nÃ£o souberam discernir foi parte da faÃ§anha vitoriosa da esquerda. <a href="https://outraspalavras.net/estadoemdisputa/o-voto-nao-encerra-a-tarefa/" rel="noopener noreferrer" target="_blank">Reconhecer e prolongar essas capacidades</a> serÃ¡ necessÃ¡rio para enfrentar, em mÃºltiplos terrenos e territÃ³rios, os gargalos impostos pela tensa conjuntura que agora se desenvolve sob nossos pÃ©s.</p>
+<p>NÃ£o contavam conosco! Somos mais do que aquilo que jÃ¡ foi contado.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/estadoemdisputa/a-matematica-de-uma-vitoria-impossivel/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Men weren’t always “bad at friendship” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Men weren’t always “bad at friendship”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/explain-it-to-me/510725/men-friendship-loneliness-debate-history-artistotle" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2198977844.jpg?quality=90&strip=all&crop=0%2C16.466184933581%2C100%2C67.067630132837&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Men weren’t always “bad at friendship”
+                            </p>
+                            <p>The headlines may be dominated by artificial intelligence and electoral politics, but beneath it all, another debate constantly simmers, forever threatening to erupt.</p><p>I write, of course, of the great male friendship debate.</p><p>On one side: writers, journalists, and academics who fret over <a href="https://aibm.org/research/male-loneliness-and-isolation-what-the-data-shows" rel="noopener noreferrer" target="_blank">rising male loneliness</a>, the emotional impact of <a href="https://www.thecut.com/article/my-husband-has-no-friends.html" rel="noopener noreferrer" target="_blank">friendless men on their partners</a>, and the <a href="https://www.bostonglobe.com/magazine/2017/03/09/the-biggest-threat-facing-middle-age-men-isn-smoking-obesity-loneliness/k6saC9FnnHQCUbf5mJ8okL/story.html" rel="noopener noreferrer" target="_blank">threat to society posed</a> by atomized and isolated fellas. On the other: those who <a href="https://www.theatlantic.com/family/2026/07/friendships-men-activities-emotions/688123/" rel="noopener noreferrer" target="_blank">defend male friendships built around shared activities</a> rather than heart-to-hearts.</p><p>These arguments often talk past each other. But the historian Tiffany Watt Smith offered me a way to think differently about both: that the gender roles undergirding the conversation are not nearly as fixed as they seem.</p><p>“I can definitely tell you that men in the past had much more intimate and romantic and involved friendships than we see today, for sure,” said Smith, who has published a number of <a href="https://tiffanywattsmith.co.uk/books/" rel="noopener noreferrer" target="_blank">books on the histories of friendship and emotions</a>. “The idea that women are the kind of great experts in friendship is a really modern idea.”</p><p>I talked with Smith about Aristotle’s idea of the “perfect” friendship (it has to be between two dudes), how gendered notions of friendship inverted in the 19th century, and what men seeking deeper emotional connection from their buddies can learn from the past. You can hear that conversation and and more on the latest episode of <em>Explain It to Me</em>, Vox’s weekly call-in podcast.</p><p>Below is an excerpt of my conversation with Smith, edited for length and clarity. You can listen to the full episode on <a href="https://podcasts.apple.com/us/podcast/explain-it-to-me/id1042433083" rel="noopener noreferrer" target="_blank">Apple Podcasts</a>, <a href="https://open.spotify.com/show/1vSUO6Bg4abtjRF7fnGpT1" rel="noopener noreferrer" target="_blank">Spotify</a>, or wherever you get your podcasts. If you’d like to submit a question, send an email to askvox@vox.com or call 1-800-618-8545.</p><p><strong>How do male friendships today compare to those of the past?</strong></p><p>For thousands of years, it was really men who were considered the great experts in knowing how to form the highest kinds of friendships and the most intimate kind of bonds. And their friendships were considered the most meaningful and enduring and deep kind of friendships.</p><p>If you look back at David and Jonathan in the Bible or Achilles and Patroclus in the <em>Iliad</em>, you see these very dynamic, committed male friendships. When we look at the writings of Aristotle in the fourth-century BC, he’s talking about the deepest kind of friendship. He calls it the perfect friendship.</p><p>And this is between two men who he sees as soulmates. And he does say that there are other kinds of friendship, which are lesser friendships. He says you might make friends because it’s kind of convenient or because you enjoy doing the same kinds of things, or maybe you’re trying to help each other out. There’s a kind of quid pro quo-type of friendship. So he does see these kinds of friendship all around him. And he says women do those kinds of friendships.</p><p>One of the most famous pieces of writing about friendship ever is Michel de Montaigne’s essay “On Friendship.” Montaigne was a 16th-century essayist and lawyer, and he had this very, very close and committed friendship with another writer called La Boétie. And then after La Boétie died very unexpectedly, Montaigne wrote about their friendship and he said they had this kind of ideal friendship, the kind that Aristotle wrote about, this meeting of souls, and that this was rare and extraordinary.</p><p>And he was very explicit. He said, “Men can have these kinds of friendships.” But he very explicitly said, “Women are just incapable of having this kind of perfect friendship. They don’t have the kind of emotional stamina. They’re not clever enough. They’re not educated enough. Their souls aren’t strong enough, essentially, to withstand the complexities and difficulties of friendship.” So it’s a complete inversion from what we see today.</p><p><strong>You used this word when you started: romantic. What did you mean by that? Was the Aristotelian conception of a perfect male friendship, was there a kind of romantic element in the way that we use the word romance?</strong></p><p>Historians call this style of friendship “romantic friendship.” It doesn’t necessarily mean that they were having a physically active relationship or that they were having sex. They did see themselves as a partnership, and some of these male friends talked about themselves as married. This was a marriage of soul.</p><p></p><p>“Friendship is something that we have to negotiate on an individual basis. Each friendship is completely singular and we have to work out its rules.”</p><p>There’s a very important tombstone in Christ’s College in Cambridge, which commemorates these two doctors in the 16th century who basically lived their whole lives together. They traveled together, they did their research together and so on. And when they died, they were buried together. And the tomb does look like a conventional tomb between a husband and wife.</p><p>Now, we don’t know anything about their relationship in practice. I mean, the thing that really matters is the fact that this friendship, because it was commemorated as a friendship, the fact that it could be commemorated so vividly and publicly in such an extravagant way shows us that this is a culture that accepts and idealizes this kind of male friendship.</p><p><strong>So how do we get from there to here?</strong></p><p>Beginning in the 18th century and certainly by the 19th century, there’s a series of things that happen. One is that we get a distinction between the public space of the workplaces, cities are expanding, offices start to exist. The male sphere is fashioned as one of being in public, being a more rational sphere, and the female sphere starts to be connected with the home and intimacy and emotion.</p><p>Those ideas have been kind of floating around for a while, but they start to get really consolidated in the 19th century. And at the same time, a new ideal of femininity starts to emerge and it becomes a real sort of middle-class aspirational goal for women that they have very close friendships, almost as evidence that they can do all of these things.</p><p>Young girls in this era are taught a very particular style of friendship, which is, again, it’s very romantic. There’s lots of kissing and declarations of love and so on, but also it’s shown to be very committed. It’s very thoughtful, it’s very caring. And this is seen to be a kind of training ground for motherhood and for marriage.</p><p>At the end of the 19th century, we start to portray male friendships as kind of blundering and superficial and lacking in intimacy. And then of course, men carry on having close friendships, but by the beginning of the 20th century, another nail in the coffin, as it were, happens, which is that there’s a rise in understanding of homosexuality across Europe and America, and gay culture becomes much more visible.</p><p>In that moment, men become really anxious about having intimate and close relationships with other men. They’re worried about what that looks like and how that might be read. And that, in addition, leads to these anxieties about close male friendships.</p><p><strong>If some guy is hearing this and is interested in having more fulfilling friendships, but he doesn’t know how to get there, where might he start?</strong></p><p>The thing about history is that it shows us how much things have changed, but it also reminds us that things keep changing and can change again.</p><p>We’ve had this amazing history of these very romantic, intense, effusive male friendships. I think a lot of men probably would find that kind of overwhelming and unappealing as a model of friendship, but is there something in between? And one of the things I think that is important to remember is that we can make these changes and these shifts in style and these shifts in the patterns and our approaches to friendships.</p><p>One thing that I think it’s really worth listeners remembering is that since friendship has changed in the past, it can change again. There’s nothing biologically innate about the inability to make friends.</p><p><strong>Which is freeing, the fact that friendship is not a fixed category for men or for women and that things can be what you want them to be. You’re not held back by some innate aspect of our biology.</strong></p><p>I think that’s absolutely true. We get this notion that, well, men are sort of naturally worse at making friends or something, or they naturally have less kind of desire to connect with other people. That’s completely not true. The history of male friendships shows us that that is completely not true. So we can be released from that idea.</p><p>There isn’t an obvious, perfect, one-size-fits-all version of friendship. Friendship is something that we have to negotiate on an individual basis. Each friendship is completely singular and we have to work out its rules. What is my style of friendship? What is your style of friendship? How can we find something in the between so that we understand how to communicate and how not to hurt each other and how to build trust between each other?</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/explain-it-to-me/510725/men-friendship-loneliness-debate-history-artistotle" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

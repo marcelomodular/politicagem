@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tecnofascismo e insurgência democrática - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Tecnofascismo e insurgência democrática</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-12-at-18-02-58-_int2203.jpg-imagem-WEBP-770-%C3%97-513-pixels.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Tecnofascismo e insurgÃªncia democrÃ¡tica
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-12-at-18-02-58-_int2203.jpg-imagem-WEBP-770-%C3%97-513-pixels.png"/>SÃ£o Paulo (SP), 19/10/2026 – OrganizaÃ§Ãµes da sociedade civil e movimentos sociais realizam protesto em frente Ã  sede da MetaÂ , na avenida Faria Lima,3732, para denunciar o que consideram interferÃªncia sistemÃ¡tica daÂ big tech na eleiÃ§Ã£o brasileira. Foto: Paulo Pinto/Agencia Brasil
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Uma nuvem conservadora paira no cÃ©u do mundo, e me convoca a escrever estas linhas. O primeiro conceito com o qual inicio o tÃ­tulo deste artigo Ã© assumido por autores que teorizam sobre o retorno das coordenadas polÃ­ticas fascistas na contemporaneidade, e seu massivo suporte na tecnologia (Carrilho, 2025; Di Cesare, 2026)<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#3e342a72-3a4b-4431-ba4f-f1d4aba4f1ea" rel="noopener noreferrer" target="_blank">1</a>. O incremento da presenÃ§a da InteligÃªncia Artificial (IA), nas mais variadas esferas da vida humana, tem sido vivido num espectro que vai do jÃºbilo ao terror.</p>
+<p>Ao se debruÃ§ar sobre os efeitos Ã©ticos e polÃ­ticos deste fenÃ´meno no cotidiano sociopolÃ­tico, Luiz ClÃ¡udio Costa, no livro âInteligÃªncia Artificial â funcionamento e desafios Ã  Ã©tica, Ã s crenÃ§as e Ã  existÃªncia humanaâ<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#9af77990-ebb5-42ed-b87f-e9843f1d16de" rel="noopener noreferrer" target="_blank">2</a>, oferece informaÃ§Ãµes e reflexÃµes apuradas, e convida a refletir diante do que ele considera uma invenÃ§Ã£o sem precedentes na HistÃ³ria: a capacidade das mÃ¡quinas e sistemas algorÃ­tmicos âaprenderem a pensarâ a partir de comandos humanos.</p>
+<p>A InteligÃªncia Artificial âpercebeâ o que humanos nÃ£o percebem. A detecÃ§Ã£o de padrÃµes e diagnÃ³sticos de doenÃ§as com mais precisÃ£o do que os humanos fariam; a praticidade e rapidez na entrega de informaÃ§Ãµes pelas plataformas de recomendaÃ§Ã£o; assistentes virtuais; tradutores automÃ¡ticos; aplicativos que facilitam a execuÃ§Ã£o de tarefas rotineiras e, por vezes, maÃ§antes, sÃ£o exemplos das competÃªncias da IA que abririam caminho Ã  dedicaÃ§Ã£o dos humanos para tarefas mais criativas. HÃ¡, ainda, o exponencial surgimento de sistemas que aprimoram suas prÃ³prias capacidades de cogniÃ§Ã£o, controle e intervenÃ§Ã£o â as chamadas âsuperinteligÃªnciasâ â com o objetivo nÃ£o sÃ³ de operarem de forma mais autÃ´noma, como tambÃ©m de operarem para melhorar outros sistemas.</p>
+<p>Contudo, hÃ¡ um crescente posicionamento de cientistas â um exemplo notÃ¡vel encontramos no excelente trabalho de Miguel Nicolelis<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#80bd294c-bbf4-4b57-aed0-3bded27f5a51" rel="noopener noreferrer" target="_blank">3</a> â acerca dos riscos que corremos, quando entregamos informaÃ§Ãµes â logo, entregamos tambÃ©m poder â a sistemas que nÃ£o compreendem valores humanos, e tampouco tÃªm a capacidade de julgamento Ã©tico. O âobjetivoâ da mÃ¡quina Ã© somente executar um comando, nÃ£o importando a carga Ã©tica e polÃ­tica que subjaz a este comando. Em seu livro, Costa insiste para que tenhamos cautela, de modo a evitarmos que as mÃ¡quinas sirvam como instrumentos de dominaÃ§Ã£o e perpetuaÃ§Ã£o das desigualdades sociopolÃ­ticas. A saÃ­da, propÃµe o autor, encontra-se na escolha de processos educacionais e formativos que se pautem pela preservaÃ§Ã£o dos melhores valores humanos.</p>
+<p>O alerta Ã© bem-vindo, certamente, mas ao seu tom um pouco ingÃªnuo, cabem alguns contrapontos: se sÃ£o os humanos que criam os algoritmos que fornecem diretrizes de operaÃ§Ã£o Ã  InteligÃªncia Artificial, que as abastecem com dados, que as aprimoram segundo seus conhecimentos e desejos e se sÃ£o tambÃ©m os humanos que forjam sistemas educacionais, os quais nÃ£o sÃ£o, de forma alguma, neutros em termos Ã©ticos e polÃ­ticos, estaria a educaÃ§Ã£o formal Ã  altura de frear o uso nefasto de sistemas de inteligÃªncia a serviÃ§o de regimes sociopolÃ­ticos inÃ­quos? Se testemunhamos, no cenÃ¡rio sociopolÃ­tico contemporÃ¢neo, a recrudescÃªncia de polÃ­ticas totalitÃ¡rias e fascistas, e suas esmeradas tentativas de erosÃ£o da democracia, o que poderia a educaÃ§Ã£o, cada vez mais mercantilizada e digitalizada, diante da desmedida no uso de sistemas tecnolÃ³gicos?</p>
+<p>A pergunta pode soar em uma nota catastrÃ³fica, mas autores como Carrilho, em artigo no site do IHU â Instituto Humanitas, observam que o estabelecimento do regime totalitÃ¡rio na Segunda Guerra Mundial teve o agora aposentado rÃ¡dio elÃ©trico residencial como um instrumento poderoso que permitiu ao nazismo o bombardeio de ordens e premissas, com as quais a populaÃ§Ã£o alemÃ£ era obrigada a conviver e aderir. Suas<br/>descendentes ilustres, as redes sociais, Ã© hoje o locus privilegiado para o inculcamento de injunÃ§Ãµes prÃ©-fabricadas que insuflam os discursos de Ã³dio ao diferente, possibilitando que as redes algorÃ­tmicas sejam uma base material certeira em termos da disseminaÃ§Ã£o do discurso fascista em intensidade e tempo recordes. Hoje, o poder virtualizado faz lembrar o que Hannah Arendt delineou com mestria: os meandros do poder totalitÃ¡rio. A informaÃ§Ã£o superfluida, manipulada por quem detÃ©m os recursos tecnolÃ³gicos mais potentes, exacerba o que a autora antes chamou de âgoverno invisÃ­velâ, dada sua caracterÃ­stica maior de impor sentidos e comandos insensatos e impessoais, nos quais ninguÃ©m pode ser responsabilizado ou identificado rÃ¡pida e diretamente<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#e4d45992-8353-418e-852a-cd339cf44334" rel="noopener noreferrer" target="_blank">4</a>.</p>
+<p>Hoje, vemos que a IA e sua rede algorÃ­tmica sÃ£o recursos cada vez mais utilizados como ferramentas estratÃ©gicas de governos que se favorecem com o exercÃ­cio de um poder que podemos adjetivar de suprainvisÃ­vel e supraimpessoal. Hoje, nÃ£o sÃ³ a burocracia institucional, mas todo o processo de comunicaÃ§Ã£o e transmissÃ£o de dados se digitalizam em registros dÃºbios e ordens cambiantes. A pertinÃªncia ou nÃ£o pertinÃªncia de uma informaÃ§Ã£o, sua veracidade ou sua falsidade apresentam-se, por vezes, pouco nÃ­tidas, pois sofrem a influÃªncia do que, no jargÃ£o tÃ©cnico, tem o sugestivo nome de âalucinaÃ§Ã£o<br/>de IAâ. Sim, as IAâs erram e alucinam. Inventam datas, nomes e informaÃ§Ãµes que, de fato, podem nÃ£o existir.</p>
+<p>Assim, por um lado, o controle e a centralizaÃ§Ã£o de dados, atravÃ©s de sistemas e plataformas, â cujo modus operandis Ã© totalmente desconhecido pela imensa maioria dos cidadÃ£os que as utilizam â trazem uma enorme inseguranÃ§a quanto ao destino e a posse de informaÃ§Ãµes e dados pessoais. Por outro, o controle ideolÃ³gico nas mÃ£os dos que detÃ©m o poder da decisÃ£o de qual conteÃºdo postar na superestrutura tecnolÃ³gica, manipula as relaÃ§Ãµes entre os sujeitos que abastecem e utilizam as plataformas e redes sociais. Um exemplo recente Ã© a nÃ­tida e direta interferÃªncia restritiva da Meta no compartilhamento de notÃ­cias e posts relacionados Ã  campanha para reeleiÃ§Ã£o do atual presidente, interferÃªncia assumida pela prÃ³pria empresa, a qual argumentou tratar-se de erros tÃ©cnicos, e negou qualquer viÃ©s polÃ­tico<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#87b89c12-af55-4250-9ef4-a3d87ebae7a9" rel="noopener noreferrer" target="_blank">5</a>.</p>
+<p>Ao lado desta tendÃªncia tecnocrÃ¡tica vigora uma tendÃªncia etnocrÃ¡tica, tal como Donatela Di Cesare aponta e descreve: o exercÃ­cio familiar do poder e uma gestÃ£o dos povos concebidos imaginariamente como âhiperfamÃ­liasâ, comunidades pensadas como naturais e fechadas em si mesmas, cuja expectativa Ã© de funcionarem como abrigos seguros, prometendo proteÃ§Ã£o e imunidade, em um mundo percebido como caÃ³tico e hostil.</p>
+<p>Os critÃ©rios identitÃ¡rios sobem ao palco e comandam, nos deixando ver que a expressÃ£o tendÃªncia etnocrÃ¡tica, se pensada em um sentido lato, serve muito bem para caracterizar o que chamamos atualmente de âbolhasâ nas redes sociais. Assim, a tecnocracia e a etnocracia obedecem a uma gramÃ¡tica polÃ­tica globalizada e se reforÃ§am reciprocamente, alicerÃ§ando o tecnofascismo. Ainda que trajado de um visual tecnolÃ³gico up to date, como nÃ£o lembrar dos traÃ§os originÃ¡rios do fascismo, tÃ£o bem delineados na pena de Umberto Eco<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#80a0a2da-f1cc-47ae-bc7e-605b727bd666" rel="noopener noreferrer" target="_blank">6</a>?</p>
+<p>Pois hoje, o individualismo pÃ³s-moderno que o fermenta, travestido pelo discurso liberal que promete a impossÃ­vel âliberdade ao povoâ, ergue bolhas formatadas pela lÃ³gica algorÃ­tmica, nas quais os mesmos sujeitos recebem as mesmas mensagens e âdialogamâ (aspas necessÃ¡rias!) com as mesmas pessoas. A coagulaÃ§Ã£o de sentido Ã© facilitada e incrementada por tal lÃ³gica, e o raciocÃ­nio dialÃ©tico, necessÃ¡rio ao pensar<br/>plural, morre no berÃ§o dos sentidos jÃ¡ dados, amantes de verdades inquestionÃ¡veis e hÃ¡beis em vestir a mentira com certezas que cintilam nas roupas das fake news<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#2b2111e8-f45b-4139-be4e-733c5a16fee1" rel="noopener noreferrer" target="_blank">7</a>. O desprezo, tanto pelos fatos quanto pelo raciocÃ­nio crÃ­tico e reflexivo Ã© avassalador, tÃ£o exponencial quanto os posts que o carregam.</p>
+<p>No plano Ã©tico e polÃ­tico, a aglutinaÃ§Ã£o dos sujeitos no formato de massa, agora comandada pela âmÃ£o invisÃ­velâ do mercado tecnolÃ³gico e sua abundante oferta algorÃ­tmica, Ã© vivida com o regozijo que nos leva a habitar e participar na nossa massa-bolha, e encontra o Ã¡pice de prazer nos comentÃ¡rios e memes que reduzem o outro a pÃ³ quando ele ousa manifestar sua opiniÃ£o discordante. Embalados pelo calor da Ã©tica da<br/>âsatisfaÃ§Ã£o imediataâ, a injÃºria ao alcance de poucos caracteres encarcera o outro, seja ele portador de diferenÃ§as em termos de credo polÃ­tico ou religioso, de raÃ§a ou de opÃ§Ã£o sexual, no que Hannah Arendt tÃ£o bem descreveu como âinimigo identificadoâ. E o Grande IrmÃ£o, em sua plenitude tecnolÃ³gica e algorÃ­tmica pode, ao vivo e em cores, comandar tudo e todos.</p>
+<p>NÃ£o, nÃ£o pode. O poder nÃ£o Ã© somente surdo. TambÃ©m Ã© cego. E eis que a resistÃªncia brota de suas prÃ³prias entranhas, usando de seus prÃ³prios meios, se servindo dos mesmos talheres para alimentar polÃ­ticas de vida democrÃ¡tica. Sim, soldados se movem no tabuleiro de xadrez da HistÃ³ria e alavancam hashtags, relanÃ§am vÃ­deos, compartilham posts e multiplicam curtidas. Vestem verde(amar)elo.</p>
+<p>Ouvimos e colocamos em prÃ¡tica o que Foucault ensinou: a resistÃªncia ao poder viceja no terreno micropolÃ­tico, onde os corpos disputam lugares, confrontam dizeres, recusam a mordaÃ§a<a href="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/#39145118-50f4-4478-a3bb-7ffbdfd77d52" rel="noopener noreferrer" target="_blank">8</a>. Servem-se da microfÃ­sica do poder sustentada pelo âum a umâ, promovem insurgÃªncias locais, capilarizando redes de pertencimento e protagonismo que furam a centralizaÃ§Ã£o das bolhas hegemÃ´nicas comandadas pelo discurso acÃ©falo. Assim, a diferenÃ§a faz-se coletivo, nÃ£o para desacreditar as instituiÃ§Ãµes, mas por entender que<br/>seus pilares sÃ£o os sujeitos sociais e polÃ­ticos. Sujeitos que percebem o poder como direito de exercÃ­cio, e nÃ£o como posse. Usam o poder como meio de vida, e nÃ£o como estratÃ©gia de morte. E a democracia, viva, agradece.</p>
+
+<p><strong>Notas</strong></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/tecnologiaemdisputa/tecnofascismo-e-insurgencia-democratica/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

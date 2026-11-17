@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sim, vamos falar sobre as cozinhas do futuro - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Sim, vamos falar sobre as cozinhas do futuro</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/sim-vamos-falar-sobre-as-cozinhas-do-futuro/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/402288354518.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Sim, vamos falar sobre as cozinhas do futuro
+                            </p>
+                            
+<p>UMA ENTREVISTA DE</p><p>
+
+			Jonas Elvander		</p>
+<p>Desde a famosa declaração de Karl Marx contra o utopismo, a esquerda tem se mostrado frequentemente cética em relação ao que ele chamou de “escrever receitas para as cozinhas do futuro”. No entanto, a ideia de uma futura sociedade socialista não parte do zero. A história do século XX oferece muitos exemplos de tentativas de transcender o capitalismo, das quais qualquer discussão atual deve extrair lições.</p>
+<p>É isso que o historiador econômico e teórico social Aaron Benanav faz em uma <a href="https://newleftreview.org/issues/ii153/articles/aaron-benanav-beyond-capitalism-1" rel="noopener noreferrer" target="_blank">série</a> recente de <a href="https://newleftreview.org/issues/ii154/articles/aaron-benanav-beyond-capitalism-2" rel="noopener noreferrer" target="_blank">ensaios</a>. Ele se baseia nessas experiências passadas ao apresentar um plano ambicioso para uma “economia multidimensional” e como alcançá-la.</p>
+<p>Jonas Elvander é editor da revista sueca de esquerda <a href="https://www.flamman.se/aaron-benanav-marknaden-behovs-efter-kapitalismen/" rel="noopener noreferrer" target="_blank"><em>Flamman</em></a> e doutorando no Instituto Universitário Europeu, onde trabalha com a história do planejamento. Ele conversou com Benanav sobre as lições dos planos quinquenais soviéticos e como podemos analisar criticamente as abordagens propostas por Otto Neurath, John Maynard Keynes e a Teoria Monetária Moderna (MMT).</p>
+
+<p>JONAS ELVANDER</p>
+<p><strong>É raro encontrar pessoas que elaborem planos para transcender o capitalismo nos dias de hoje. O que te motivou a fazer isso? E por que você acha que isso se tornou tão incomum?</strong></p>
+<p>AARON BENANAV</p>
+<p>Desde a década de 1970, a classe trabalhadora e a esquerda têm estado em recuo. Isso se estendeu além da estagnação e do colapso da União Soviética, abrangendo partidos social-democratas, ideias keynesianas de esquerda e Estados de bem-estar social. A questão dominante passou a ser como preservar as conquistas anteriores, e não o que fazer para vencer.</p>
+<p>A crise financeira de 2008 trouxe um verdadeiro renascimento: a década de 2010 testemunhou a emergência de grandes movimentos sociais e novos partidos de esquerda. Mas eles não desenvolveram uma nova visão daquilo pelo que lutavam.</p>
+<p>A emoção e a frustração dessa experiência me levaram a analisar o problema com mais seriedade. Cheguei à conclusão de que a esquerda não havia levado em conta adequadamente os fracassos do século XX e que esse fracasso estava bloqueando uma renovação genuína.</p>
+<p>“A década de 2010 testemunhou a emergência de grandes movimentos sociais e novos partidos de esquerda. Mas eles não desenvolveram uma nova visão daquilo pelo que lutavam.”</p>
+<p>JE</p>
+<p><strong>Você faz parte do coletivo <em>Endnotes</em>. Suas propostas devem ser vistas como uma ruptura com eles?</strong></p>
+<p>AB</p>
+<p>Meu novo trabalho surge da minha experiência com o <em>Endnotes</em>. O <em>Endnotes</em> teorizou sobre uma longa era de desindustrialização e desaceleração econômica e examinou os movimentos sociais e trabalhistas que surgiram após o fim do movimento operário clássico. Buscamos compreender como esses movimentos podem se tornar a base para uma saída do capitalismo.</p>
+<p>Mas, como muitos grupos marxistas, não achávamos importante dizer o que deveria vir depois do capitalismo. Levar essa questão a sério mudou minha perspectiva. A transformação que precisamos empreender não pode ser realizada simplesmente por meio de ações autônomas vindas de baixo. Ela precisa ser implementada conscientemente em toda a sociedade.</p>
+<p>O <em>Endnotes</em> também me proporcionou uma maneira rigorosa de pensar sobre o capitalismo como uma sociedade organizada em torno de uma forma específica de valorização das nossas atividades: tudo o que é bom é representado por uma soma monetária, e o objetivo é expandir essas somas por meio da obtenção de lucro.</p>
+<p>Em meu novo trabalho, desenvolvo o que chamo de teoria dos valores. Em vez de um mundo em que tudo precisa ser traduzido em dinheiro, devemos criar um mundo em que uma variedade de valores éticos e políticos — muitos deles difíceis de expressar em termos monetários — possa moldar diretamente o que e como produzimos. </p>
+<p>Esses valores podem incluir sustentabilidade, segurança material, cuidado, qualidade do trabalho, comunidade e autonomia individual.</p>
+<p>JE</p>
+<p><strong>Acho que a questão com o marxismo é que ele é sempre mais relevante quando se vive no capitalismo, enquanto em um mundo não capitalista sua qualidade descritiva se torna menos relevante.</strong></p>
+<p>AB</p>
+<p>Sim, o marxismo apresenta verdades sobre o capitalismo que outras visões de mundo não contemplam. A divisão da renda entre capital e trabalho, por exemplo, não é um resultado técnico determinado automaticamente pela organização da produção. É política, e nossas instituições sistematicamente desfavorecem os trabalhadores nessa luta.</p>
+<p>Mas o marxismo nos diz muito pouco sobre o que vem depois do capitalismo. Ao longo do século XX, as tentativas de usá-lo como guia para uma sociedade ou economia além do capitalismo muitas vezes impediram as pessoas de pensar com mais liberdade sobre novas instituições.</p>
+<p>A conclusão mais controversa a que cheguei, pelo menos de uma perspectiva marxista, é que precisamos de mercados após o capitalismo. Nos debates do final do século XX, qualquer concessão aos mercados era vista como uma concessão ao capitalismo. Mas os mercados tornam uma sociedade pós-capitalista viável mais descentralizada, adaptável e aberta à experimentação.</p>
+<p>“Ao longo do século XX, as tentativas de fazer com que o marxismo servisse de guia para uma sociedade ou economia para além do capitalismo muitas vezes impediram as pessoas de pensarem com mais liberdade sobre novas instituições.”</p>
+<p>O erro dos marxistas foi identificar as trocas de mercado com o investimento orientado para o lucro. Mercados e moedas existiram por milhares de anos antes do capitalismo, sem produzir uma economia dinâmica organizada em torno do lucro. Precisamos preservar as trocas, ao mesmo tempo que eliminamos o poder da lucratividade privada sobre o investimento.</p>
+<p>JE</p>
+<p><strong>Os planos quinquenais da União Soviética são geralmente lembrados como parte de um sistema dispendioso de planejamento centralizado. No entanto, você acredita que eles contêm uma lição importante para nós. O que devemos aproveitar dessa experiência e o que devemos deixar para trás?</strong></p>
+<p>AB</p>
+<p>O plano quinquenal é uma das descobertas institucionais mais importantes do século XX. Ele demonstrou que o investimento pode ser coordenado: a sociedade pode concordar antecipadamente com uma direção geral e fazer com que diferentes setores da economia se movam nessa direção simultaneamente.</p>
+<p>O plano quinquenal não foi elaborado a partir de nenhum modelo marxista. Surgiu das tentativas de resolver um problema prático: como desenvolver uma economia pobre sem criar escassez em um setor e excedentes inutilizáveis ​​em outro. O mesmo desafio de coordenação se repete sempre que uma economia precisa transformar muitos sistemas interdependentes simultaneamente.</p>
+<p>O capitalismo enfrenta dificuldades com transformações desse tipo. Podemos ver isso hoje com a eletrificação: muitos sistemas diferentes precisam mudar simultaneamente, mas cada um se desenvolve separadamente, tornando a transição lenta. Um plano quinquenal permite que uma sociedade escolha uma direção e siga por ela. Pode não ser o melhor caminho, mas a coordenação acelera o processo e permite o aprendizado contínuo.</p>
+<p>A economia soviética era extraordinariamente perdulária. Os problemas de informação e coordenação do planejamento central sobrepujavam o dinamismo dos planos quinquenais.</p>
+<p>O Japão, a Coreia do Sul, Taiwan e a China, posteriormente, separaram o investimento coordenado do planejamento total e o combinaram com as trocas de mercado com maior sucesso, embora tenham permanecido capitalistas. Devemos usar essas ferramentas para nos libertarmos do capitalismo.</p>
+<p>JE</p>
+<p><strong>Você descreve uma “matriz de dados digitais” para coordenar a produção. Isso não corre o risco de trazer de volta o planejamento centralizado por meio de um computador onisciente?</strong></p>
+<p>AB</p>
+<p>Desde que escrevi os ensaios, abandonei esse termo de ficção científica. Ele dava uma impressão errada. Uma vez que as moedas se tornam digitais, torna-se possível produzir uma imagem digital em tempo real, mas necessariamente parcial, dos fluxos econômicos e conectá-la a indicadores biofísicos, sociais e subjetivos. Chamo isso de livro-razão comum.</p>
+<p>Serviços de previsão e consultoria baseados nesse registro podem ajudar famílias, empresas e conselhos de investimento a aplicar essas informações em suas decisões. Mas o registro não tem função executiva: ele sugere as decisões, e não as toma.</p>
+<p>“A economia soviética era extraordinariamente perdulária. Os problemas de informação e coordenação do planejamento central sobrepujavam o dinamismo dos planos quinquenais.”</p>
+<p>JE</p>
+<p><strong>Outro pensador importante para você é o polímata vienense Otto Neurath. Ele participou da República Soviética da Baviera e, posteriormente, tornou-se uma figura importante na Viena Vermelha, cujas propostas ajudaram a iniciar o debate sobre o cálculo socialista. O que o torna tão importante para o seu projeto?</strong></p>
+<p>AB</p>
+<p>Neurath compreendeu que uma sociedade pós-capitalismo poderia ter muitos padrões de valor, em vez de apenas um. Poderíamos organizar a economia em torno da segurança material, da sustentabilidade, do cuidado, do trabalho digno, da equidade e da justiça, em vez da eficiência econômica e da crescente quantidade de bens e serviços que consumimos.</p>
+<p>Neurath também percebeu que nossos valores necessariamente entram em conflito. Nem todos podem ser realizados na mesma medida. Em algum momento, produzir mais bens entrará em conflito com tornar a economia mais sustentável. Uma concepção de bom trabalho entrará em conflito com outra. A sociedade precisa decidir como conciliar esses valores de uma maneira específica.</p>
+<p>As pessoas costumam dizer que preferem o socialismo democrático ao socialismo autoritário, mas não explicam por que a democracia seria, de fato, intrínseca à sua versão de socialismo.</p>
+<p>Neurath nos mostra o caminho. Se não existe uma única medida de valor que possamos usar para identificar o melhor futuro possível, e se diferentes futuros concretizam nossos valores de maneiras distintas, então precisamos de procedimentos democráticos para escolher entre esses futuros.</p>
+<p>O próprio Neurath manteve-se fiel ao planejamento centralizado e não conseguiu explicar como múltiplos valores deveriam entrar em uma economia desse tipo. Sua contribuição não é um modelo institucional completo. É o reconhecimento de que o julgamento econômico não pode ser substituído pelo cálculo. </p>
+<p>Uma sociedade pode mensurar seus recursos e estudar as prováveis ​​consequências de suas opções, mas nenhuma equação pode nos dizer quais sacrifícios valem a pena.</p>
+<p>JE</p>
+<p><strong>As ideias keynesianas estão ressurgindo na esquerda, especialmente nos debates sobre política industrial e transição verde. Mas você acha que Keynes aponta para algo além de um Estado capitalista mais ativo. O que a esquerda ainda tem a aprender com ele?</strong></p>
+<p>AB</p>
+<p>Keynes nos apresenta a ideia de uma economia na qual o investimento foi libertado da necessidade de gerar lucro. Isso soa estranho porque as pessoas ouvem “investimento” e pensam em ativos financeiros adquiridos para obter retorno monetário. Mas já investimos em infraestrutura, escolas e hospitais sem esperar que eles gerem lucros. Investir significa simplesmente mobilizar pessoas, recursos e capacidades produtivas para reconstruir e transformar o que e como produzimos. Podemos investir por razões que nada têm a ver com ganhar dinheiro ou maximizar o crescimento.</p>
+<p>Keynesianos radicais como William Beveridge focavam no pleno emprego como um dos objetivos do investimento sem fins lucrativos. Ele previa que as autoridades públicas controlariam 75% dos investimentos. Eu ampliaria esse percentual para 100%. Rejeito também a abordagem tecnocrática deles: na minha proposta, as decisões de investimento seriam tomadas democraticamente.</p>
+<p>Isso não significa submeter todas as iniciativas à votação. No setor cívico, indivíduos e pequenos grupos podem organizar projetos e atrair recursos sem precisar justificá-los antecipadamente, operando sob regras democráticas e com supervisão mínima.</p>
+<p>JE</p>
+<p><strong>Você defende a “finança funcional”. Como sua abordagem diverge da Teoria Monetária Moderna (MMT)?</strong></p>
+<p>AB</p>
+<p>A principal ideia da MMT está correta. Um governo que emite sua própria moeda não é como uma família. Os limites finais de seus gastos são a mão de obra disponível e outros recursos. A inflação se torna um risco quando os gastos ultrapassam esses limites. Enquanto houver recursos ociosos, os gastos públicos podem e devem mobilizá-los.</p>
+<p>Mas a MMT geralmente utiliza uma garantia de emprego para sustentar as taxas de emprego, ao mesmo tempo que deixa a maior parte do investimento em mãos privadas. A lucratividade ainda determina quais capacidades produtivas serão construídas, enquanto o legislativo tenta estabilizar a economia posteriormente.</p>
+<p>Chego a uma conclusão mais radical a partir da premissa que a MMT compartilha com Keynes. Investir não exige que alguém primeiro poupe dinheiro. Em termos reais, poupar é a decisão da sociedade de reservar parte de sua capacidade produtiva atual para construir o futuro. Uma vez que trabalhadores, máquinas e materiais estejam disponíveis, a sociedade pode criar os fundos necessários para mobilizá-los. O fundo de investimento é social desde o início, não propriedade de quem acumulou dinheiro. A ficção de que poupadores privados criaram esses recursos e, portanto, adquirem o direito de decidir como eles serão usados, cai por terra.</p>
+<p>Uma vez que o investimento se liberta do lucro e do controle individual, a questão torna-se política: o que devemos construir com essas capacidades? Não existe um único futuro ideal para o qual possamos simplesmente nos lançar. Temos muitas boas opções.</p>
+<p>JE</p>
+<p><strong>Se as decisões sobre investimento se tornarem políticas em vez de privadas, como isso funcionaria na prática? Quem decidiria para onde os recursos deveriam ser destinados?</strong></p>
+<p>AB</p>
+<p>A maioria das decisões de investimento seria tomada por conselhos setoriais democráticos, cada um responsável por um setor de produção. Considere a saúde. Deveriam ser destinados mais recursos à expansão do atendimento em saúde mental, à medicina preventiva ou aos cuidados paliativos?</p>
+<p>Essas escolhas exigem conhecimento técnico, mas também refletem diferentes julgamentos sobre o que importa e diferentes visões sobre o futuro do setor.</p>
+<p>Um conselho de saúde poderia reunir representantes eleitos de profissionais da área da saúde, pacientes, especialistas técnicos e grupos da sociedade civil preocupados com os impactos sociais e ecológicos mais amplos do setor. O conselho receberia um orçamento e escolheria entre propostas de investimento. Cada proposta incorporaria uma visão de como o setor deveria se desenvolver. O pacote resultante não apontaria necessariamente para um futuro único e coerente.</p>
+<p>O planejamento democrático permite que a sociedade avance sem resolver essas divergências de uma vez por todas: as pessoas podem continuar a favorecer futuros diferentes, decidindo juntas quais projetos apoiar e em que escala.</p>
+<p>Dessa perspectiva, um conselho setorial seria menos como um centro de comando central e mais como um governo representativo dentro de um setor produtivo. Assim, como algumas transformações transcendem as fronteiras setoriais, comitês de missão adicionais coordenariam projetos como a ecologização da economia ou a redução da jornada de trabalho.</p>
+<p>Junte as peças e você terá a estrutura básica: a descoberta soviética do investimento coordenado, a análise de Neurath sobre valores múltiplos e conflitantes, o investimento público keynesiano e os mercados que preservam o conhecimento descentralizado.</p>
+<p>JE</p>
+<p><strong>O argumento de Friedrich Hayek contra o planejamento era que o conhecimento econômico está disperso pela sociedade e que os mercados o coordenam melhor do que qualquer planejamento centralizado. Você parece estar dizendo que o que é necessário para resolver essa “questão do conhecimento” não é mais poder computacional ou inteligência artificial, mas sim democracia.</strong></p>
+<p>AB</p>
+<p>O ponto de partida de Hayek estava correto. A sociedade moderna não possui apenas uma divisão do trabalho, mas também uma divisão do conhecimento. Os preços permitem que pessoas com conhecimentos distintos coordenem suas atividades sem que ninguém precise compreender a economia como um todo.</p>
+<p>Mas os mercados não são as únicas instituições que resolvem esse tipo de problema de conhecimento. A ciência climática reúne físicos atmosféricos, oceanógrafos, geólogos e ecologistas, cada um trabalhando com um corpo de conhecimento diferente. A corporação moderna faz algo semelhante dentro da empresa, reunindo engenheiros, designers, contadores e operários da produção em uma organização comum.</p>
+<p>Ambos os exemplos mostram que os mercados são apenas uma forma de coordenar o conhecimento disperso.</p>
+<p>O problema mais profundo é que uma economia precisa coordenar não apenas diferentes formas de conhecimento, mas também diferentes valores éticos. Uma vez reconhecida essa pluralidade de valores, as decisões econômicas se tornam problemas de composição. Os valores em jogo não podem ser classificados em uma única escala. Cada escolha realiza alguns bens e sacrifica outros.</p>
+<p>“Os preços permitem que pessoas com conhecimentos distintos coordenem suas atividades sem que ninguém precise compreender a economia como um todo. Mas os mercados não são as únicas instituições que resolvem esse tipo de problema de conhecimento.”</p>
+<p>As pessoas discordam sobre o que fazer. Hayek queria que os indivíduos fizessem julgamentos sobre valores dentro de suas próprias vidas, enquanto o mercado coordenaria os resultados.</p>
+<p>Mas muitas escolhas econômicas carregadas de valores são inevitavelmente coletivas. As decisões de investimento determinam quais possibilidades a sociedade cria para todos: se produzimos em direção a um maior consumo material, mais cuidados, menores emissões poluentes ou menos trabalho. Democracia e mercados podem trabalhar juntos dentro do mesmo processo de composição.</p>
+<p>JE</p>
+<p><strong>Você defendeu a manutenção dos mercados após o capitalismo. Mas esses mercados operariam com duas moedas em vez de uma. Por quê?</strong></p>
+<p>AB</p>
+<p>Inicialmente, os bolcheviques pensaram em abolir o dinheiro. O que a União Soviética acabou fazendo foi dividir o dinheiro em dois circuitos: rublos em espécie para consumo e rublos não monetários para produção. Mas os dois permaneceram formas da mesma moeda, mantidos em uma relação fixa de um para um. As pessoas recebiam salários, mas muitas vezes não conseguiam encontrar bens para comprar, então enormes poupanças se acumulavam no lado do consumo. Na década de 1980, esse excesso monetário contribuiu para o colapso do sistema. Uma verdadeira divisão requer circuitos separados com uma taxa de conversão flexível entre eles.</p>
+<p>Isso me levou a estudar a história do dinheiro. Antes do século XIX, os mercados geralmente operavam com moedas diferentes, atendendo a circuitos distintos. Camponeses e comerciantes distantes tinham necessidades monetárias diferentes, e suas moedas não convergiam inevitavelmente enquanto os circuitos permanecessem em grande parte separados.</p>
+<p>O capitalismo exigiu um esforço político contínuo para produzir uma moeda única que pudesse servir tanto como meio de troca universal quanto como reserva universal de riqueza. Se os mercados persistirem após o capitalismo, provavelmente também será necessária a existência de múltiplas moedas.</p>
+<p>JE</p>
+<p><strong>Por que essa separação é tão importante? Por que uma moeda única não pode sustentar uma economia organizada em torno de muitos valores?</strong></p>
+<p>AB</p>
+<p>O problema é que, no capitalismo, o mesmo dinheiro acumulado passa pela produção, pelo consumo e pelo investimento. O excedente que uma empresa obtém pode se tornar renda privada para os proprietários das empresas ou financiar mudanças na produção.</p>
+<p>As empresas geram esse excedente reduzindo custos ou aumentando receitas. Os ganhos em eficiência econômica, nesse sentido estrito, têm, portanto, prioridade. Sustentabilidade e qualidade do trabalho só importam quando melhoram o resultado final.</p>
+<p>Os reformadores frequentemente tentam dar peso a outros valores, vinculando recompensas financeiras a indicadores mensuráveis ​​desses valores. Mas isso deixa o ganho financeiro no comando.</p>
+<p>As pessoas manipulam as métricas em vez de buscarem o objetivo fundamental: as escolas ensinam para a prova, enquanto os hospitais manipulam os tempos de espera relatados. Um mercado organizado em torno de uma moeda universal e acumulável não pode tratar os valores éticos como fins em si mesmos.</p>
+<p>A divisão da moeda rompe essa conexão sem abolir os mercados. No meu sistema, os Pontos usados ​​na produção não podem ser convertidos em Créditos usados ​​para consumo, acumulados indefinidamente ou usados ​​para financiar investimentos. Uma empresa não obtém renda privada nem poder produtivo adicional ao gastar menos do que seu orçamento operacional.</p>
+<p>Os produtores ainda enfrentam preços e restrições orçamentárias, por isso precisam usar os recursos com cautela. Mas eles podem conciliar sustentabilidade, qualidade do trabalho, eficiência e outros valores dentro dessas restrições, em vez de serem obrigados a maximizar o excedente.</p>
+<p>A separação também impede que as desigualdades no consumo se transformem em desigualdades de poder produtivo. Quem possui mais Créditos não pode usá-los para comprar ativos produtivos ou direcionar investimentos. O consumo permanece descentralizado, enquanto as decisões sobre o futuro produtivo da sociedade passam por instituições democráticas.</p>
+<p>JE</p>
+<p><strong>Por último, você está escrevendo receitas para as cozinhas do futuro?</strong></p>
+<p>AB</p>
+<p>Não gosto da maneira “utofóbica” como a frase de Marx sobre as cozinhas do futuro é usada para impedir qualquer conversa sobre o que deveria vir depois do capitalismo. Há uma diferença real entre a cozinha e as receitas. Não devemos decidir antecipadamente exatamente como a saúde, a agricultura, a habitação ou a vida familiar serão organizadas. Essas são as receitas: elas continuarão sendo temas de embates políticos.</p>
+<p>Mas precisamos aprofundar o conceito de “cozinha comunitária”: as instituições que permitem que diferentes pontos de vista debatam sem reproduzir o capitalismo. Uma sociedade pós-capitalista ainda terá oponentes políticos com visões incompatíveis sobre o que é uma vida boa. A conquista seria dar a esses conflitos uma forma democrática e duradoura, e não resolvê-los antecipadamente.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Jonas Elvander				
+</h5>
+</p>
+
+<p>é editor de assuntos internacionais na revista socialista sueca <em>Flamman</em> e pesquisador de doutorado em história no Instituto Universitário Europeu, em Florença.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Aaron Benanav				
+</h5>
+</p>
+
+<p>é professor assistente de sociologia na Syracuse University. Ele é o autor de Automação e o Futuro do Trabalho.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/sim-vamos-falar-sobre-as-cozinhas-do-futuro/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

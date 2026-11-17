@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realism Was Forged in Trauma - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Realism Was Forged in Trauma</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/13/realism-hans-morgenthau-david-sacks-the-realist-review-international-relations-theory/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/1-hans-morgenthau-realist-GettyImages-162084772-override.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Realism Was Forged in Trauma
+                            </p>
+                            
+
+<p>Some of the most enduring theories of power were born in its absence. Thucydides, exiled from Amphipolis for failing to ward off the Spartans, surmised that “the strong do what they can and the weak suffer what they must.” Thomas Hobbes, forced to flee an England consumed by civil bloodshed amid an ailing monarchy, argued that only absolute authority can tame humanity’s primal “state of nature.” Machiavelli, tortured and driven from political life by the Medicis, opined that successful rulers must sometimes be ruthless. Circumstances vary, but when the right observer falls into the pits of powerlessness, they can see in human nature what others cannot.</p>
+ 
+<img alt='A book cover featuring a black-and-white photo of an older man resting his chin on his hand, overlaid with yellow text reading, "The Realist: Hans Morgenthau and the Purpose of American Power" by "David M. Sacks."' src="https://foreignpolicy.com/wp-content/uploads/2026/11/Realist-hans-morgenthau-david-sacks-book.png"/>
+
+A book cover featuring a black-and-white photo of an older man resting his chin on his hand, overlaid with yellow text reading, "The Realist: Hans Morgenthau and the Purpose of American Power" by "David M. Sacks."
+<p><strong><i>The Realist: Hans Morgenthau and the Purpose of American Power</i></strong>, David M. Sacks, Henry Holt &amp; Co., 528 pp., $36.99, November 2026 </p>
+
+<p>This is a motif that features heavily in David M. Sacks’ <em>The Realist: Hans Morgenthau and the Purpose of American Power</em>, a meticulously researched biography of the man who made international relations theory a field in its own right—by putting power at its theoretical core.</p>
+<p><em>The Realist </em>starts with a cold open: summer 1922 in Coburg, Germany, on a day Morgenthau would later describe as the worst of his life. A high school junior ranked second in his class, Morgenthau was slated to address his peers as part of a celebratory academic tradition. “But what should have been a triumph quickly turned to humiliation,” writes Sacks. The townspeople turned their backs, spat on Morgenthau, and barraged him with antisemitic vitriol for having the gall to participate in a “Christian Day” ceremony. All because, in their eyes, he was no more than a “stinking Jew.”</p>
+<p>While that day would leave an indelible scar on Morgenthau, it wasn’t his true awakening. Later that year, he would attend one of Hitler’s gatherings in Munich to witness with his own eyes the antisemitic tide said to be sweeping across all of Germany. It was “one of the most profound experiences of my life,” Morgenthau recalled. Soon after, the same scene played out in his own backyard: In defiance of local law, the <em>führer</em> sallied into Coburg with 800 stormtroopers and delivered two fiery philippics, whipping up a public paroxysm of threats, assaults, and mass street brawls, with tacit support from town police.</p>
+<p>In just two days’ time, Morgenthau’s sleepy, parochial hometown became one of the Nazis’ earliest political proving grounds. From this, Morgenthau “drew a clear lesson,” writes Sacks. “He, and other powerless individuals, could not rely on the law or abstract ideals for protection.”</p>
+
+ 
+<img alt="A colorized vintage group photograph of men in hats and suits wearing swastika armbands, posed in front of a large red-and-white swastika flag against a light blue sky." src="https://foreignpolicy.com/wp-content/uploads/2026/11/2-coburg-germany-nazis-GettyImages-184253226.jpg"/>
+
+A colorized vintage group photograph of men in hats and suits wearing swastika armbands, posed in front of a large red-and-white swastika flag against a light blue sky.
+<p>Nazis in Coburg, Germany, in 1922. Universal History Archive/Universal Images Group via Getty Images </p>
+
+<p>In one sense, <em>The Realist</em> is, as its title suggests, a study on an -ism—the school of thought that every international relations major must acquaint themselves with during their baptismal power-skim of Morgenthau’s 750-page syllabus staple, <a href="https://www.amazon.com/Politics-Among-Nations-Hans-Morgenthau/dp/007289539X" rel="noopener noreferrer" target="_blank"><em>Politics Among Nations</em></a>. The book sketches all the contours of political realism: Nations pursue power above all; peace depends on a healthy balance of it; and moral values must align with national interest and practical constraints.</p>
+
+<p>But the basis of this framework, Sacks writes, was not incubated in an ivory tower; it was forged from a story of <em>Sturm und Drang</em>. Growing up Jewish during the rise of the Third Reich, Morgenthau endured a traumatic crescendo of antisemitism that “molded one’s whole life,” he wrote. He was the target of constant bullying and abuse, finding respite only in schoolwork, and sank into isolation and embitterment at a young age. Morgenthau’s father, too, was not spared: A doctor, he lost his medical license after the Nazis falsely accused him of professional misconduct, wiping away what little standing the family had left in Coburg.</p>
+<p>After Morgenthau left for Frankfurt to pursue philosophy and law, he drew on the brutishness he’d seen among the common German <em>volk</em>—that “primitive” and “irrational” impulse—to elaborate his grand theory of power, one that was, in a sense, post-traumatic in character. It demanded constant hypervigilance and self-preservation. It doubted the durability of security commitments, and expressed a healthy skepticism toward rules, norms, and laws. And it saw the world’s default state as anarchy, ready to rear its ugly head yet again at any time. “The distribution of power,” as Morgenthau warned, “is always precarious.”</p>
+<p>In the lead-up to World War II, this distribution of power wasn’t just skewing toward Germany; it was careening dangerously in Hitler’s favor. Few observers at the time saw this as lucidly—or as urgently—as Morgenthau, and Hitler’s expansionist designs were proof of concept.</p>
+<p>But despite this prescience, it seems, Morgenthau mostly floundered as a young academic. He took whatever teaching jobs he could find in a Europe ravaged by the Great Depression with little appetite for his ideas, let alone his ethnic heritage. In Geneva, Sacks writes, colleagues found his Cassandra-like rhetoric a “disturbing influence.” At Brooklyn College, students felt his anticommunism was befitting of a hysterical “Hearst reporter.” In Kansas City, which Morgenthau called an “overgrown cow town,” his émigré ambition clashed with a culture in which academic standards were relatively modest—or, again in his words, “virtually non-existent.” Even when he first arrived at the tony University of Chicago, where he’d be a fixture for the next three decades, Morgenthau’s emphasis on theory over practice and empiricism put him at odds with his department.</p>
+<p>What emerges from this account is a portrait of a man who was not just politically persecuted but constantly intellectually embattled. Yet he was never cowed by power. By Morgenthau’s own admission, he refused “to play the role of the suffering martyr,” and it’s hard not to agree. The book makes clear that Morgenthau met nearly every criticism he faced with an equal and opposite reaction. This is someone who took to prestige media to publicly pillory his detractors with a revolutionary’s zeal (“trash,” “hatchet man,” “fanatical wrongheadedness”), as if their objections were affronts to his own lived experience.</p>
+<p>And perhaps they were. After all, Sacks spills relatively little ink on the thinker’s life outside of work. In this respect, the book seems to imply by omission that Morgenthau’s personal and intellectual identities were, by dint of his traumatic upbringing, fused. We are teased with tidbits about Morgenthau’s wife, who softened his hard edges among friends and whose family supported them financially; his mother, the “closest companion throughout his life”; his authoritarian father, who believed he would never amount to anything; his son, who appeared to suffer from various ailments; and his extramarital affairs, which were far from passionless.</p>
+<p>But for the most part, these read like brief digressions with little bearing on the bigger story. This is a weak point for a first-ever biography of such a fascinating figure, let alone one whose intellectual mission clearly seemed to color his personal life in a number of ways, and vice versa. Consider, for example, Morgenthau’s sudden interest in the Jewish question: The theorist had never been observant, did not know his Hebrew name, and was largely agnostic on Israel and the plight of the Soviet Jewry until his early 60s, believing that the Jewish state fell outside his sphere of interest. But by the late 1960s, after his forced retirement from the University of Chicago, Sacks writes, something “elemental” had shifted in Morgenthau. Feeling “disillusioned and cast aside,” he suddenly found great meaning and purpose in the Jewish community. His personal involvement with Chabad in particular fueled a political zeal for aiding Soviet refuseniks as well as a fierce insistence on Israel’s right to self-defense following the Six-Day War. This is a highly intriguing turn in Morgenthau’s story, but it’s, again, one <em>The Realist</em> gives little airtime.</p>
+<p>Similarly, the book also could have lingered a bit more on Morgenthau’s bond with Hannah Arendt, another Jewish German émigré who fled the Nazis. The duo’s epistolary exchanges are rich with romantic intrigue—he may have proposed to her while still married—and intellectual compatibility. After all, they were both strangers in a strange land, hacking their way through the U.S. garden of liberal rationalism. When Arendt unveiled her infamous theory of the “banality of evil” while covering Adolf Eichmann’s trial in 1963, she provoked an intellectual maelstrom among colleagues at the University of Chicago, many of whom shunned her in response. Morgenthau, meanwhile, stood by Arendt and wrote to her gushingly, “Reality has protruded into the protective armor of illusion and the result is psychological havoc.” His use of the word “reality” was likely no coincidence.</p>
+
+ 
+<img alt="A black-and-white wide-angle photograph of a man in a dark suit speaking at a podium on stage before a large seated audience in a brightly lit auditorium." src="https://foreignpolicy.com/wp-content/uploads/2026/11/3-hans-morgenthau-AP6505150224.jpg"/>
+
+A black-and-white wide-angle photograph of a man in a dark suit speaking at a podium on stage before a large seated audience in a brightly lit auditorium.
+<p>Morgenthau addresses an audience in Washington, D.C., on May 15, 1965, while taking part in a national, 15-hour teach-in on the Vietnam War.Associated Press </p>
+
+<p>Over the past several years, conflicts from Gaza to Ukraine to Iran have prompted a great deal of debate <a href="https://foreignpolicy.com/2025/08/08/washington-realist-united-states-dominant-power/" rel="noopener noreferrer" target="_blank">among</a> <a href="https://www.carnegiecouncil.org/media/article/trump-gaslighting-american-realism" rel="noopener noreferrer" target="_blank">observers</a> <a href="https://www.foreignaffairs.com/iran/false-promise-flexible-realism" rel="noopener noreferrer" target="_blank">about</a> <a href="https://nationalinterest.org/feature/stephen-miller-channels-hans-morgenthau" rel="noopener noreferrer" target="_blank">whether</a> <a href="https://www.ft.com/content/3ae78a93-231b-4006-8739-5738cc367cac" rel="noopener noreferrer" target="_blank">the</a> world is seeing the supposed return of realism. However, it’s worth remembering that aggression alone is not a good proxy for the presence of realism, which, as <a href="https://cirsd.org/horizon-article/realism-and-restraint/" rel="noopener noreferrer" target="_blank">John Mearsheimer notes</a>, is in large part predicated on restraint. Rather, the violence <a href="https://cirsd.org/discussions/john-j-mearsheimer-the-return-of-great-power-politics" rel="noopener noreferrer" target="_blank">exposes a core realist truth</a>: With no mechanism of holding great powers to account, the international rules-based order is still only as strong as those who abide by it.</p>
+
+<p><em>The Realist</em>, for its part, wisely avoids wading into contemporary politics, instead letting the resonance of realism’s history speak for itself. Nowhere is that more striking than in the book’s account of the Vietnam War.</p>
+<p>One might assume that Morgenthau—who called for a very muscular posture toward the Soviet-backed Castro government during the Cuban missile crisis—was all for U.S. intervention in communist North Vietnam. However, Sacks goes to great lengths to show that he was an outspoken opponent from the jump: For two decades, Morgenthau waged a war of words with officials in the Kennedy, Johnson, and Nixon administrations, including McGeorge Bundy, Robert McNamara, Walt Rostow, and Henry Kissinger (a frenemy of sorts). By the mid-1960s, as the conflict became clearly unwinnable, Morgenthau grew deeply distressed by the carnage on moral grounds. But his original argument had always been one of narrow political strategy: that the growth of communism in North Vietnam “simply was not a vital interest,” as Sacks writes. We must only intervene “where our national interest requires it and where our power gives us a chance to succeed,” Morgenthau wrote. “If the United States applies this standard, it will intervene less and succeed more.”</p>
+<p>To say that the United States has done just the opposite would be a great understatement. In the aftermath of 9/11, President George W. Bush’s anti-terror war in Iraq <a href="https://www.nytimes.com/2014/10/02/opinion/how-america-helped-isis.html?smid=tw-share&amp;_r=2" rel="noopener noreferrer" target="_blank">created the conditions</a> for the <a href="https://www.visionofhumanity.org/wp-content/uploads/2025/03/Global-Terrorism-Index-2025.pdf" rel="noopener noreferrer" target="_blank">world’s deadliest</a> terror organization to flourish, while the war in Afghanistan—which spanned four presidents—began and ended with Taliban rule. Though U.S. officials justified both interventions on the basis of national interest, prominent <a href="https://www.bostonreview.net/articles/barry-r-posen-restraint-grand-strategy-united-states" rel="noopener noreferrer" target="_blank">members</a> <a href="https://washingtonnote.com/realists_warn_o/" rel="noopener noreferrer" target="_blank">of</a> <a href="https://foreignpolicy.com/2009/08/18/the-safe-haven-myth-2" rel="noopener noreferrer" target="_blank">the</a> <a href="https://www.mearsheimer.com/wp-content/uploads/2019/07/A0032.pdf" rel="noopener noreferrer" target="_blank">neorealist</a> <a href="https://sadat.umd.edu/sites/sadat.umd.edu/files/iraq_war_ad_2002_2.pdf" rel="noopener noreferrer" target="_blank">school</a> vehemently opposed them. Broadly speaking, this was because the conflicts were driven less by narrow strategy and more by either quixotic (nation-building) or chimeric (eliminating weapons of mass destruction) goals. When those goals could not be realized, the U.S. mission crept, and officials resorted to <a href="https://georgewbush-whitehouse.archives.gov/news/releases/2007/04/20070420-6.html" rel="noopener noreferrer" target="_blank">sunk-cost</a> <a href="https://www.cbsnews.com/news/obama-i-will-finish-the-job-in-afghanistan/" rel="noopener noreferrer" target="_blank">fallacies</a> about credibility instead of retrenchment; the very same tack was taken by Kissinger, who attempted to argue on realist grounds that the United States would lose international “prestige” by pulling out of Vietnam. As for the current war in Iran, declared on the all-too-familiar pretext of imminent nuclear capability, the United States seems <a href="https://foreignpolicy.com/2026/09/17/trump-united-states-losing-iran-war/" rel="noopener noreferrer" target="_blank">woefully bound</a> to repeat the same cycle, and <a href="https://www.indy100.com/politics/trump/trump-iran-war-victory-won-2677992858?utm_source=chatgpt.com" rel="noopener noreferrer" target="_blank">no amount of victory declarations</a> from our commander-in-chief will change that.</p>
+<p>To be sure, these military misadventures do not suggest that realism reigns supreme in international relations. Instead, they point to one of its key weaknesses: the malleability of “national interest”—especially, and perhaps ironically, in the face of trauma.</p>
+<p>When Morgenthau published his first book, <em>Scientific Man versus Power Politics,</em> in 1946, Sacks notes that some critics found the term “national interest” too nebulous—a gripe that Morgenthau actually took in stride. U.S. military misadventures in the Middle East reveal that this problem remains in full effect. The country’s collective trauma after 9/11 gave the U.S. government a pretext to widen the aperture of “national interest” so much so that temporally or geographically distant threats—like simmering political instability in a region many Americans could <a href="https://archive.blogs.harvard.edu/mesh/2008/01/graph_americans_lost_on_map" rel="noopener noreferrer" target="_blank">not</a> <a href="https://sites.geography.unt.edu/~rice/geog3100/3100handouts/nationalgeographicpoll.pdf" rel="noopener noreferrer" target="_blank">point</a> to on a map—suddenly became existentially urgent. “As long as the Middle East remains a place where freedom does not flourish,” as Bush said in 2003, “it will remain a place of stagnation, resentment, and violence ready for export.” The United States met this specter of violence in much the same way it did Vietnam’s communism: with real violence. After two decades, our efforts to install a democratic regime resulted in nothing more than <a href="https://costsofwar.watson.brown.edu/costs/human/civilians-killed-displaced" rel="noopener noreferrer" target="_blank">hundreds of thousands of civilian casualties</a>. “The evil we wanted to prevent,” as Morgenthau wrote of Vietnam, was “nothing compared with the evil we left behind.”</p>
+<p>It may be tempting to see the “return” of realism in a world where the United States continues to pursue power brutally, by any means necessary. Yet if realist thought now predominates among U.S. foreign-policymakers, it is a far cry from the realism of Morgenthau’s making. Instead, it is a realism in which national trauma has turned national interest into an empty signifier, used for vengeful wish fulfillment at the expense of sober statecraft. If “great nations” like the United States are truly great because “they married … power to purpose,” as Morgenthau believed, then what has that purpose been over the last quarter-century of foreign policy? It’s hard to think of anything other than power itself.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/13/realism-hans-morgenthau-david-sacks-the-realist-review-international-relations-theory/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

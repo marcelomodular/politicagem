@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A guerra usurpou o nome da arte - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A guerra usurpou o nome da arte</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/opiniao/a-guerra-usurpou-o-nome-da-arte/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/11/Sun-Tzu.jpeg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A guerra usurpou o nome da arte
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+ <p>No Sudão, 15,4 milhões de pessoas precisam de abrigo emergencial e de artigos essenciais para sobreviver. O alerta, divulgado em 6 de novembro pelo Alto Comissariado das Nações Unidas para Refugiados e pela Organização Internacional para as Migrações, acrescenta um dado particularmente cruel: a escassez de recursos obriga as agências a concentrar o atendimento em apenas um décimo dos necessitados. Famílias expulsas de suas casas enfrentam a falta de água, proteção e condições mínimas de recomeçar.</p><p>
+</p>
+<p>A desproporção revela muito sobre as prioridades do nosso tempo. Estados conseguem reunir recursos financeiros, equipamentos, especialistas e complexas redes de transporte para sustentar campanhas militares a milhares de quilômetros de distância. Diante das populações que essas campanhas deixam desamparadas, surgem verbas insuficientes, disputas de competência e apelos humanitários que se repetem sem produzir respostas proporcionais. A capacidade de organizar a destruição avançou mais depressa do que a decisão política de amparar suas vítimas.</p><p>
+</p>
+<p>Foi essa contradição que me levou de volta a um livro da China antiga, lido pela primeira vez numa biblioteca universitária: A arte da guerra, atribuído a Sun Tzu. Suas páginas continuam influentes entre militares, diplomatas e administradores. Quanto mais se celebra a inteligência do estrategista, porém, mais necessário se torna interrogar a palavra que o Ocidente escolheu para apresentar seu tratado. A pergunta começa na capa e alcança a própria maneira como nossa civilização atribui prestígio à violência.</p><p>
+</p>
+<h2>A criação artística</h2>
+<p>O título chinês, Sunzi Bingfa, aproxima-se de “Métodos militares do mestre Sun”. Sunzi identifica o mestre; bing remete a soldados e assuntos de guerra; fa, a métodos, regras ou princípios. Nenhum desses elementos designa a criação artística. É verdade que arte, do latim ars, também significa técnica, habilidade e domínio de um ofício, sentido que ajuda a compreender a tradução consagrada. A escolha, entretanto, produz hoje um efeito moral que a etimologia, sozinha, jamais poderá absolver: ao aproximar a palavra arte da organização do combate, concede-se à eficácia de submeter e matar uma dignidade cultural que exige contestação. A precisão da tradução interessa porque os nomes moldam a maneira como aprendemos a admirar aquilo que nomeiam.</p>
+<p></p>
+<p>Ao longo dos anos em que lecionei no<strong> Instituto Legislativo Brasileiro, do Senado Federal</strong>, levei para a sala de aula episódios históricos que ajudavam a questionar a diferença entre vencer uma batalha e resolver um conflito. Voltava às decisões dos comandantes, à prudência diante de riscos e aos limites da força, mas procurava deslocar a atenção para quem desaparecia das narrativas heroicas. Quantas famílias suportaram o preço de uma manobra admirada pelos especialistas? Quem decidiu que o resultado de uma campanha podia ser medido apenas pelo território conquistado?</p>
+<p>Em 216 a.C., nas proximidades da antiga Cannas, hoje Canne della Battaglia, perto de Barletta, na região italiana da Apúlia, Aníbal cercou e devastou um exército romano numericamente superior. A manobra permanece entre as mais estudadas da história militar. Roma, contudo, recompôs suas forças e terminou vencedora da Segunda Guerra Púnica. O episódio expõe a fragilidade dos triunfos tratados como definitivos: a superioridade tática pode coexistir com a incapacidade de alcançar um resultado político duradouro. A população submetida às consequências do combate raramente participa da celebração dessa distinção.</p>
+<h2>Vitória pírrica</h2>
+<p>Pirro, rei do Épiro, conheceu outra face do mesmo problema. Depois de derrotar os romanos em Ásculo, em 279 a.C., teria lamentado, segundo o relato preservado por Plutarco, que mais uma vitória semelhante o arruinaria. A expressão vitória pírrica atravessou os séculos porque descreve o absurdo de triunfar a um custo capaz de destruir as condições do próprio triunfo. Entre Cannas e Ásculo, a história oferece dois desmentidos à fascinação pelos resultados imediatos das armas.</p>
+<p>Essa fascinação ajuda a explicar por que o título do tratado me parece tão grave. A arte cria, amplia a consciência, preserva a memória, dá forma à beleza e permite que uma existência seja reconhecida por outra. A guerra arrasa cidades, devasta países, extermina populações inteiras ou parcelas delas, transforma crianças em cadáveres e impõe aos sobreviventes uma herança de perdas que atravessa gerações. Que perversão da linguagem autoriza conferir o nome de arte à inteligência mobilizada para aperfeiçoar os métodos de matar? O engenho de um general pode ser extraordinário; a precisão de seus cálculos também. Nada disso restitui a vida de quem morreu sob as consequências de uma operação considerada brilhante. A admiração pela técnica militar precisa enfrentar a finalidade a que ela serve, sem ocultá-la sob uma palavra associada às mais altas realizações humanas. A arte oferece à humanidade razões para viver; a guerra aperfeiçoa os instrumentos capazes de aniquilá-la.</p>
+<h2>A destruição da memória</h2>
+<p>Há ainda uma violência menos visível no vocabulário dos boletins: a destruição da memória coletiva. Quando bombas atingem bibliotecas, arquivos, museus e escolas, desaparecem documentos e obras que permitiam a uma comunidade reconhecer sua própria história. A criação artística pode sobreviver a regimes e fronteiras; sua perda, provocada pela guerra, priva os que virão de testemunhos que jamais poderão ser refeitos. A agressão alcança também o passado de quem permanece vivo.</p>
+<p>Por fidelidade ao conteúdo, dois outros títulos me parecem mais exatos: O cálculo da vitória e Tratado da estratégia militar. Sun Tzu ensina a reconhecer fraquezas, administrar tropas, escolher terrenos, ocultar intenções, explorar informações e obter a submissão do adversário, preferencialmente sem batalha. Sua lucidez sobre o custo de campanhas prolongadas continua relevante, mas seus ensinamentos respondem à lógica do poder e da sobrevivência do Estado. Trocar o título consagrado por um desses nomes retiraria o prestígio emprestado à destruição e deixaria visível o problema que os estrategistas raramente enfrentam: qual será o destino das pessoas depois que seus governantes declararem a vitória?</p>
+<p>A humanidade dedicou séculos ao aperfeiçoamento da arte da guerra. Formou generais, desenvolveu estratégias, construiu academias militares e mobilizou algumas de suas melhores inteligências para descobrir maneiras cada vez mais eficientes de subjugar adversários. A arte da paz exige uma ambição intelectual e moral superior: compreender as causas da violência, reconhecer a humanidade de quem pensa diferente, transformar interesses antagônicos em compromissos possíveis e construir instituições capazes de impedir que divergências terminem em sepulturas coletivas.</p>
+<p>O próprio Sun Tzu recomendava alcançar objetivos com o menor desgaste possível. Essa cautela pode evitar mortes, e por isso seria intelectualmente pobre desprezar suas advertências. O limite aparece quando a habilidade de vencer passa a ser confundida com a capacidade de produzir convivência. Uma sociedade submetida pela ameaça de aniquilação pode abandonar as armas e conservar intactos os motivos de sua revolta. A duração de um silêncio imposto pela força revela pouco sobre a justiça que o sustenta. O pensador norueguês Johan Galtung ajudou a esclarecer essa diferença ao chamar de paz negativa a interrupção da violência direta e de paz positiva a construção de condições para viver com justiça. A expressão adquire substância quando uma criança pode voltar à escola, uma família recupera seus documentos, um hospital recebe medicamentos e os atingidos participam das decisões que determinarão o futuro de suas comunidades. O restabelecimento de serviços, direitos e possibilidades de participação exige recursos e tempo. É precisamente esse trabalho, menos espetacular que uma ofensiva, que decide a permanência dos acordos.</p>
+<h2>O setembro letal</h2>
+<p>Na Ucrânia, a missão de direitos humanos das Nações Unidas registrou pelo menos 328 civis mortos e 2.105 feridos em setembro de 2026, o setembro mais letal desde o início da invasão em larga escala. Mísseis e drones atingem pessoas longe das linhas de frente, enquanto ataques à infraestrutura energética ameaçam a sobrevivência durante o inverno. Cada relatório confirma a distância entre a precisão dos equipamentos de combate e a capacidade política de proteger a população civil. Os números chegam às manchetes; as consequências permanecem nas casas, nas escolas e nos hospitais.</p>
+<p>Reconhecer essas consequências também exige identificar responsabilidades. A Rússia iniciou a invasão de fevereiro de 2022, violando a soberania ucraniana. A legítima defesa do país agredido, a segurança de seus habitantes e garantias verificáveis precisam orientar qualquer negociação. Apressar uma assinatura à custa de direitos fundamentais significaria transformar a urgência do cessar-fogo em instrumento de pressão sobre quem sofreu a agressão. A paz perde legitimidade quando o futuro dos atingidos é decidido como simples variável de uma barganha entre potências.</p>
+<p>Há um princípio que deve sobreviver a qualquer disputa sobre território: a proteção de civis. As leis da guerra impõem limites à escolha de alvos e ao uso da força, inclusive às partes que alegam agir em legítima defesa. Esse dever jurídico e moral impede que o sofrimento de famílias seja tratado como preço inevitável de decisões militares. Uma sociedade que aceita tal raciocínio acaba oferecendo aos próximos comandantes uma autorização antecipada para repetir a violência.</p>
+<p>A negociação requer, por isso, uma inteligência diferente daquela que prepara emboscadas. Conhecer o adversário, princípio celebrado em Sun Tzu, pode ser útil a quem busca impedir um confronto, desde que o conhecimento se converta em escuta e compreensão dos interesses em disputa. A dissimulação oferece vantagens em operações militares; num acordo, compromete a confiança indispensável ao seu cumprimento. O sigilo pode proteger uma conversa delicada, mas concessões e obrigações precisam, no momento adequado, ser submetidas a instituições responsáveis e ao conhecimento público.</p>
+<h2>A crise dos mísseis</h2>
+<p>A crise dos mísseis de outubro de 1962 mostra a força e os limites dessa prudência. John Kennedy e Nikita Khrushchev afastaram o risco de uma guerra nuclear com concessões que contrariavam a retórica pública de ambos. A retirada dos mísseis soviéticos de Cuba, o compromisso americano de não invadir a ilha e um entendimento reservado sobre armamentos instalados na Turquia integraram a solução. O mundo escapou de uma catástrofe, enquanto Cuba permaneceu à margem de decisões que afetavam diretamente sua segurança. O êxito da negociação entre potências deixou uma pergunta ainda sem resposta satisfatória: quem se atribui o direito de decidir pelo povo situado no centro da crise?</p>
+<h2>O Acordo de Belfast</h2>
+<p>Décadas depois, o Acordo de Belfast, assinado em 1998, na Irlanda do Norte, mostrou a importância de outra dimensão: instituições compartilhadas, reconhecimento de identidades distintas e aprovação popular. A paz exigiu mais do que a habilidade dos negociadores reunidos à mesa; precisou encontrar instrumentos capazes de administrar divergências históricas na vida política cotidiana. As crises posteriores demonstram a dificuldade dessa construção, sem apagar o avanço representado pela possibilidade de disputar o poder por meios políticos. O contraste entre essas experiências leva a uma dimensão que os tratados costumam registrar mal: a memória. Ao escrever sobre terreno e clima, Sun Tzu pensava nas condições materiais de uma campanha. Na vida de um povo, o terreno inclui também o nome de uma cidade destruída, a lembrança de uma expulsão e a história de uma promessa traída. Negociar ignorando essas experiências produz textos impecáveis que podem se tornar estranhos àqueles cuja existência pretendem reorganizar.</p>
+<h2>Perguntar pelos ausentes</h2>
+<p>Conheci, pelo ofício jornalístico, a facilidade com que a linguagem oficial elimina pessoas. Mapas indicam posições; comunicados enumeram alvos; declarações proclamam sucessos. A reportagem precisa perguntar pelos ausentes: quem perdeu a casa, quem procura um desaparecido, quem poderá voltar a estudar, quem responderá pelos abusos. Quando um documento reduz a morte de civis à expressão “danos colaterais”, já ocorreu uma escolha moral. A linguagem tornou administrável aquilo que deveria provocar indignação pública.</p>
+<p>As tecnologias militares ampliaram o alcance dessa escolha. Satélites, sensores, drones e sistemas automatizados permitem localizar alvos a grandes distâncias e executar ataques com velocidade crescente. O aperfeiçoamento técnico aumenta a obrigação de justificar cada decisão e proteger quem está fora do combate. Uma tela pode oferecer coordenadas exatas sem mostrar a história das pessoas que vivem naquele endereço. A distância física entre o comando e suas vítimas jamais poderá servir de distância moral. Por isso, a prevenção precisa disputar recursos e atenção com a indústria das armas. Escolas preservadas, serviços públicos capazes de reduzir desigualdades, instituições de mediação e compromissos internacionais fiscalizáveis evitam perdas que nenhuma reconstrução devolve integralmente. O governante que anuncia uma nova aquisição militar recebe fotografias e manchetes; quem impede uma escalada dificilmente encontra reconhecimento equivalente. Essa diferença de prestígio ajuda a perpetuar a preferência política pela força, mesmo quando seus resultados demonstram repetidamente seus limites.</p>
+<h2>Reflexões sobre a harmonia</h2>
+<p>A tradição chinesa que legou Sun Tzu também cultivou reflexões sobre a harmonia, associadas ao conceito de he. Essa herança oferece uma possibilidade de pensar convivência entre diferenças, desde que a autoridade aceite o dissenso e respeite a liberdade. A ordem imposta pelo medo pode permanecer estável por algum tempo, enquanto acumula razões para uma ruptura futura. Governar sociedades diversas exige criar condições para que discordâncias sejam expressas e resolvidas sem recorrer à violência.</p>
+<p>Há uma urgência adicional. Uma guerra altera preços de alimentos, energia, rotas comerciais e orçamentos de países distantes do campo de batalha. O mundo tornou-se materialmente interdependente numa velocidade muito superior àquela com que desenvolvemos responsabilidades políticas correspondentes. Decisões tomadas por poucos governos podem comprometer o sustento de milhões de pessoas que jamais participaram de sua elaboração. A soberania de cada Estado precisa conviver com deveres concretos perante a comunidade humana.</p>
+<p>Traduzir essa ambição em decisões públicas exige compromissos cuja execução possa ser acompanhada pela sociedade. A investigação de crimes, a reparação de injustiças, a proteção dos vulneráveis e a participação das comunidades atingidas precisam ter responsáveis identificados, recursos e prazos verificáveis. Perdão, reconciliação e memória pertencem às pessoas que atravessaram a violência; nenhum governante pode decretá-los em nome delas. É preciso definir quem assegurará o abastecimento de água, quem fiscalizará o desarmamento, como serão apuradas violações e a quais instituições recorrerá quem continuar ameaçado. A palavra paz só ganha credibilidade quando essas medidas alcançam a vida cotidiana, muito depois que os negociadores deixam os salões oficiais.</p>
+<h2>O preço da reconstrução</h2>
+<p>Resta a questão do dinheiro, quase sempre tratada como assunto secundário nas cerimônias diplomáticas. Armamentos recebem justificativas de urgência e segurança; operações humanitárias precisam renovar apelos para garantir água, remédios e abrigo. Essa diferença decorre de escolhas orçamentárias, prioridades estratégicas e decisões que possuem autores. Governos devem responder publicamente por quanto destinam à capacidade de destruir e por quanto se dispõem a investir na reconstrução das sociedades feridas. O preço de prevenir uma tragédia raramente recebe a mesma atenção que o custo de vencê-la. E, quando os recursos finalmente chegam, sua distribuição costuma ser discutida em linguagem financeira, longe das pessoas que já perderam anos de trabalho, vínculos comunitários e a possibilidade de planejar a própria existência.</p>
+<p>Sun Tzu ensinou governantes a calcular o preço de combater. Passados mais de dois milênios, continuamos esperando que a inteligência humana desenvolva semelhante capacidade para prevenir guerras e preservar vidas. A arte da paz começa pela recusa de aceitar como inevitável a destruição que decisões políticas poderiam impedir. Volto às famílias do Sudão, aos filhos que perderam os pais, às crianças privadas de suas escolas. Uma civilização que aprendeu a calcular com extraordinária precisão a trajetória de um míssil precisa responder por sua incapacidade de assegurar a essas crianças o direito elementar de chegar à idade adulta.</p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/opiniao/a-guerra-usurpou-o-nome-da-arte/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

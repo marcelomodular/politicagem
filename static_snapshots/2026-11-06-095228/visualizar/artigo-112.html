@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O terceiro turno dos mercados - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O terceiro turno dos mercados</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Opera</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaopera.operamundi.uol.com.br/2026/11/04/o-terceiro-turno-dos-mercados/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaopera.operamundi.uol.com.br/wp-content/uploads/2026/11/lula-2.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O terceiro turno dos mercados
+                            </p>
+                            
+<p>No domingo, 25 de outubro, Luiz Inácio Lula da Silva venceu o segundo turno das eleições presidenciais brasileiras com<a href="https://resultados.tse.jus.br/" rel="noopener noreferrer" target="_blank"> 51,8% dos votos</a>. Seu adversário, Flávio Bolsonaro, obteve 48,2%. Flávio é filho do ex-presidente Jair Bolsonaro,<a href="https://rtvc.es/bolsonaro-condenado-carcel-intento-golpe-estado-12-septiembre-2025/" rel="noopener noreferrer" target="_blank"> condenado em 2025 a 27 anos de prisão</a> por tentativa de golpe de Estado. No dia seguinte, os mercados financeiros não puniram nenhuma medida do governo. Eles puniram o voto.</p>
+<p>O Ibovespa, índice da Bolsa de Valores de São Paulo,<a href="https://www.infomoney.com.br/mercados/ibovespa-hoje-bolsa-de-valores-ao-vivo-26102026/" rel="noopener noreferrer" target="_blank"> caiu 13,88%</a>, com a primeira suspensão automática das negociações (<i>circuit breaker</i>) desde março de 2020. O dólar subiu 8,21%, e o mercado futuro já antecipa um aumento das taxas de juros em novembro. No mesmo dia, Wall Street subiu. O choque foi brasileiro e tem uma causa conhecida.</p>
+<p>Três semanas antes, quando Flávio ficou na frente no primeiro turno, a Bolsa<a href="https://www.itatiaia.com.br/economia/ibovespa-recorde-dolar-queda-eleicao-primeiro-turno/" rel="noopener noreferrer" target="_blank"> havia batido um recorde com uma alta de 7,7%</a>. A aposta tinha nome e programa, e perdeu nas urnas. Na terça-feira (27), a tempestade se acalmou. O dólar<a href="https://ac24horas.com/2026/10/27/dolar-cai-quase-1-e-ibovespa-recua-apos-tombo-eleitoral/" rel="noopener noreferrer" target="_blank"> caiu 1,07%</a> e a Bolsa recuou apenas 0,51%, à espera da nova equipe econômica. Mas o pânico que durou um dia ameaça definir a política fiscal dos próximos quatro anos.</p>
+<h2><b>O terceiro turno</b></h2>
+<p>Os mercados não estão sozinhos. Na noite da eleição, Flávio se recusou a reconhecer a derrota e prometeu pedir a anulação do segundo turno. Alegou uma prorrogação de duas horas da votação que sua própria campanha havia solicitado para dezessete municípios. Após as 17h,<a href="https://www.opovo.com.br/noticias/politica/eleicoes/2026/10/26/no-2-turno-apenas-35-mil-votos-foram-registrados-apos-17h.html" rel="noopener noreferrer" target="_blank"> foram registrados 35.521 votos</a>, menos de 0,03% do total. Na segunda-feira, seu partido, o Partido Liberal (PL),<a href="https://www.infomoney.com.br/politica/partido-de-flavio-bolsonaro-reconhece-vitoria-eleitoral-de-lula/" rel="noopener noreferrer" target="_blank"> reconheceu o resultado</a>. Flávio então trocou o pedido de anulação por uma ação para revogar o mandato de Lula, a quem acusa de comprar votos. Donald Trump, que em 2025<a href="https://expansion.mx/mercados/2025/07/09/trump-amenaza-a-brasil-con-aranceles-del-50-en-represalia-por-trato-a-bolsonaro" rel="noopener noreferrer" target="_blank"> impôs tarifas de 50% ao Brasil</a> em retaliação ao processo contra Jair Bolsonaro, afirmou<a href="https://br.investing.com/news/world-news/trump-afirma-sem-provas-que-a-eleicao-no-brasil-parece-manipulada-2103154" rel="noopener noreferrer" target="_blank"> sem provas</a> que a eleição “parecia mais uma eleição fraudulenta”.</p>
+<p>Na terça-feira (28), Flávio fugiu para os Estados Unidos. No dia anterior, o ministro do Supremo Tribunal Federal Alexandre de Moraes havia ordenado que ele<a href="https://www.gazetadopovo.com.br/republica/pf-confirma-flavio-bolsonaro-deixou-brasil/" rel="noopener noreferrer" target="_blank"> entregasse os passaportes</a> e proibido que saísse do país, por risco de fuga, relacionado a uma investigação por lavagem de dinheiro. Flávio respondeu em um vídeo que nunca havia pensado em sair do Brasil.</p>
+<p><a href="https://www.revistaopera.com.br/cursos" rel="noopener noreferrer" target="_blank"><img alt="" src="https://controle.revistaopera.operamundi.uol.com.br/wp-content/uploads/2026/07/cursos-1.jpg"/></a></p>
+<p>O prazo venceu sem que os passaportes fossem entregues; a Polícia Federal cancelou os passaportes e ele<a href="https://www.infomoney.com.br/politica/flavio-bolsonaro-viaja-para-os-eua-apos-derrota-na-eleicao-diz-agencia/" rel="noopener noreferrer" target="_blank"> viajou para os Estados Unidos</a> sem que houvesse registro de sua passagem por nenhum posto de controle de imigração. O governo de Trump<a href="https://www.opovo.com.br/noticias/brasil/2026/10/28/flavio-bolsonaro-fugiu-do-brasil-rumo-aos-eua-dizem-aliados.html" rel="noopener noreferrer" target="_blank"> concederá vistos</a> a ele, à sua esposa e às suas duas filhas. Seu pai, derrotado por Lula em 2022, também partiu para a Flórida antes da posse.</p>
+<p>As frentes se unem. Flávio chama o pacote social da reta final de “compra de votos”. Os mercados chamam essas mesmas medidas de “risco fiscal”. A direita quer anular o resultado na Justiça. A Faria Lima quer desfazê-lo no orçamento. É o terceiro turno.</p>
+<h1><b>O corte orçamentário derrotado</b></h1>
+<p>Vale lembrar qual programa foi derrotado. A coordenadora econômica de Flávio, Daniella Marques,<a href="https://www.gazetadopovo.com.br/eleicoes/2026/daniella-marques-diz-que-plano-de-flavio-bolsonaro-preve-corte-de-r-190-bi-em-gastos/" rel="noopener noreferrer" target="_blank"> anunciou um corte de 190 bilhões de reais</a> nos gastos públicos, cerca de 32 bilhões de euros e 1,5% do PIB. Meses antes, a imprensa havia revelado<a href="https://www.correiobraziliense.com.br/politica/2026/04/7403233-flavio-avalia-reajuste-de-gastos-sociais-pela-inflacao-e-mais-privatizacoes.html" rel="noopener noreferrer" target="_blank"> estudos da campanha</a> para limitar a reajuste das aposentadorias e dos gastos mínimos com saúde e educação à inflação. A campanha negou isso. Era um corte drástico, e o eleitorado rejeitou a medida.</p>
+<p>Os mercados estão pedindo que ela volte, com outro nome. Os economistas consultados pela imprensa<a href="https://maringapost.com.br/2026/10/27/governo-tem-seis-medidas-para-recuperar-a-confianca-do-mercado/" rel="noopener noreferrer" target="_blank"> querem</a> um plano fiscal com metas e prazos, além da revisão dos gastos obrigatórios, incluindo as aposentadorias. Na mesma segunda-feira (26), o ministro da Fazenda, Dario Durigan,<a href="https://www.poder360.com.br/poder-economia/apos-reacao-negativa-do-mercado-durigan-diz-que-vai-ampliar-superavit/" rel="noopener noreferrer" target="_blank"> prometeu um superávit primário maior em 2027</a>. Ele quer mudar as regras para atingir o centro da meta, 0,5% do PIB, enquanto o projeto de orçamento prevê 0,13%. O programa rejeitado volta pela porta do Ministério da Fazenda.</p>
+<h1><b>Austericídio e fraude eleitoral</b></h1>
+<p>Já vimos esse filme duas vezes. A última, há pouco tempo. Entre meados de 2024 e 2025, o Ministério da Fazenda apertou o orçamento, e sua própria<a href="https://static.poder360.com.br/2025/12/Boletim-RFE-2024-1o-Semestre-de-2025.pdf" rel="noopener noreferrer" target="_blank"> Secretaria de Política Econômica classificou o ajuste como restritivo</a>. Ao mesmo tempo, o Banco Central<a href="https://www.bcb.gov.br/controleinflacao/historicotaxasjuros" rel="noopener noreferrer" target="_blank"> aumentou a taxa oficial</a> de juros<a href="https://www.bcb.gov.br/controleinflacao/historicotaxasjuros" rel="noopener noreferrer" target="_blank">, a Selic, de 10,5% para 15%</a>. Nesse período, a avaliação positiva do governo nas pesquisas do Datafolha<a href="https://www.intercept.com.br/2026/10/02/governo-extrema-direita-acelera-colapso-democracia/" rel="noopener noreferrer" target="_blank"> caiu de 36% para 24%</a>, e de 46% para 29% entre aqueles que ganham até dois salários mínimos. O ajuste ajudou a afundar a popularidade de Lula. A reviravolta eleitoral veio com o movimento contrário, quando o governo abriu a mão na reta final.</p>
+<p>A vez anterior foi em 2015. Dilma Rousseff venceu prometendo proteger os empregos e os salários e, reeleita, entregou o Ministério da Fazenda a um banqueiro com o programa do adversário. A economia contraiu-se mais de 3% em 2015 e novamente em 2016; a arrecadação caiu e o déficit cresceu. A presidente perdeu o apoio daqueles que a haviam eleito e ficou à mercê de um Congresso que a destituiu sob o pretexto de manobras contábeis, as “pedaladas fiscais”. O estelionato eleitoral não acalma os mercados. Abre caminho para o golpe.</p>
+<p>Na Europa, o roteiro é conhecido. Na Grécia, em 5 de julho de 2015,<a href="https://www.elsaltodiario.com/grecia/10-anos-del-referendum-griego-cuando-toda-una-generacion-creyo-otro-camino-era-posible" rel="noopener noreferrer" target="_blank"> 61,3% votaram “não”</a> às condições da troika e, poucos dias depois, o governo aceitou um terceiro resgate com mais austeridade. Na Espanha, em agosto de 2011, o PSOE e o PP<a href="https://es.ara.cat/economia/deuda-constitucion-crisis-respuesta-economica_1_4112209.html" rel="noopener noreferrer" target="_blank"> acordaram em um único dia a reforma do artigo 135</a> da Constituição, sem referendo e sob pressão da Alemanha e do Banco Central Europeu. Nos dois casos, a pressão financeira prevaleceu sobre a deliberação democrática.</p>
+<h1><b>Um Congresso pior do que o de 2015</b></h1>
+<p>O Congresso que tomará posse em 1º de fevereiro pode ser ainda mais golpista do que o de 2015. O PL terá<a href="https://www.gazetasp.com.br/politica/camara-tera-121-deputados-do-pl-e-70-do-pt-confira-como-ficaram-as-513-cadeiras-por-partido-e-os-mais-votados-das-eleicoes-de-2026-no-brasil/" rel="noopener noreferrer" target="_blank"> a maior bancada na Câmara</a>, com 121 dos 513 deputados, contra 70 do Partido dos Trabalhadores (PT), de Lula. No Senado, a direita somará<a href="https://www12.senado.leg.br/noticias/materias/2026/10/25/fim-da-eleicao-define-composicao-do-senado-em-2027-com-13-partidos" rel="noopener noreferrer" target="_blank"> 49 das 81 cadeiras</a>, exatamente os três quintos necessários para reformar a Constituição. O PL<a href="https://www.congressoemfoco.com.br/noticia/122994/valdemar-diz-que-pl-quer-eleger-rogerio-marinho-presidente-do-senado" rel="noopener noreferrer" target="_blank"> quer Rogério Marinho</a>, relator da reforma trabalhista de 2017, à frente do Senado. E<a href="https://www.cnnbrasil.com.br/blogs/caio-junqueira/politica/pl-rejeita-acordao-e-defende-impeachment-de-moraes-e-dino/" rel="noopener noreferrer" target="_blank"> afirma ter 49 dos 54 votos</a> necessários para destituir Alexandre de Moraes, que instruiu o processo contra Jair Bolsonaro. Diante desse Congresso, um governo que abandonar seu eleitorado fica sem base social e sem base parlamentar.</p>
+<h1><b>O que fazer agora</b></h1>
+<p>Os mercados pedem sinais de curto prazo, e alguns fazem sentido. A equipe econômica deve ser anunciada logo, pois a incerteza sobre quem comandará o Ministério da Fazenda pesa sobre os preços. O nome escolhido significa o programa escolhido. Um ministro que anuncie mais ajustes acalmará a Faria Lima por uma semana e repetirá o erro de 2024.</p>
+<p>Na segunda-feira, o Tesouro<a href="https://www.tribunadosertao.com.br/financas/2026/10/26/1006752-lula-se-reune-com-ministros-da-fazenda-e-do-planejamento-apos-queda-da-bolsa-e-alta-do-dolar" rel="noopener noreferrer" target="_blank"> recomprou dívidas</a> e o Banco Central vendeu swaps cambiais. No dia seguinte, seu presidente, Gabriel Galípolo,<a href="https://ac24horas.com/2026/10/27/dolar-cai-quase-1-e-ibovespa-recua-apos-tombo-eleitoral/" rel="noopener noreferrer" target="_blank"> disse que poderia intervir no câmbio</a> caso detectasse disfunções. Essa coordenação deve continuar, mas o Banco Central não deve responder ao pânico com aumentos nas taxas. A Selic está em<a href="https://www.bcb.gov.br/controleinflacao/historicotaxasjuros" rel="noopener noreferrer" target="_blank"> 13,75%</a>, com uma das taxas reais mais altas do mundo. Aumentá-la em 4 de novembro encareceria a dívida pública e sufocaria as famílias que destinam<a href="https://www.bcb.gov.br/estatisticas/estatisticasmonetariascredito" rel="noopener noreferrer" target="_blank"> 28,7% de sua renda</a> a parcelas e juros. Os bancos públicos podem fazer o resto. Antes do primeiro turno, o Banco do Brasil<a href="https://gazetabrasil.com.br/economia/2026/10/14/juros-do-emprestimo-pessoal-caem-para-855-ao-mes-aponta-procon-sp/" rel="noopener noreferrer" target="_blank"> reduziu a taxa de crédito pessoal de 7,43% para 5,86% ao mês</a>, quase 100% ao ano.</p>
+<p>Há outra alavanca, pouco lembrada. A meta de inflação de 3%<a href="https://www2.camara.leg.br/legin/fed/decret/2024/decreto-12079-26-junho-2024-795845-publicacaooriginal-172205-pe.html" rel="noopener noreferrer" target="_blank"> é definida por um conselho</a> no qual o governo detém dois dos três votos. Uma meta menos austera reduziria a taxa de juros necessária para cumpri-la.</p>
+<h1><b>Uma nova PEC de Transição</b></h1>
+<p>O sinal de médio prazo tem mais peso, e aqui o governo deve escolher como alcançar o equilíbrio fiscal. O próprio Tesouro reconhece, em<a href="https://static.poder360.com.br/uploads/2026/07/RPF-jun26-1.pdf" rel="noopener noreferrer" target="_blank"> suas projeções de junho</a>, que a partir de 2028 as metas do marco fiscal, a regra de gastos de 2023, ficarão fora de alcance. Nem mesmo o congelamento máximo de gastos permitido pela lei seria suficiente. A revisão ocorrerá de qualquer maneira. A questão é quem a redigirá: este Congresso, até 22 de dezembro, ou o próximo, a partir de fevereiro.</p>
+<p>Em dezembro de 2022, antes da posse de Lula, um Congresso em fim de mandato aprovou em poucas semanas a<a href="https://www.migalhas.com.br/quentes/379051/pec-da-transicao-e-promulgada-pelo-congresso" rel="noopener noreferrer" target="_blank"> PEC de Transição</a>. Essa emenda constitucional abriu 145 bilhões de reais acima do teto de gastos de 2023. Foi assim que se pagou o Bolsa Família de 600 reais por mês. Lula precisa de uma nova PEC de Transição. A essência é simples. Os investimentos públicos e as injeções de capital nas empresas públicas e no banco de desenvolvimento, o BNDES, ficam fora do teto de gastos. O aumento do Bolsa Família e a reajuste do salário mínimo de acordo com o crescimento do PIB ficam garantidos. E as novas receitas, arrecadadas na fonte, reduzem o déficit sem ampliar o teto de gastos.</p>
+<p>Por que uma emenda constitucional, se o marco fiscal é uma lei complementar? Porque o próximo Congresso só poderá revogar a emenda com três quintos dos votos, em duas votações em cada câmara, enquanto uma lei complementar é revogada por maioria absoluta. Aprová-la exige agora esses mesmos três quintos, e não será fácil. A alternativa é negociar cada rubrica do orçamento com o Congresso de Rogério Marinho.</p>
+<p>O equilíbrio fiscal tem dois caminhos, e o eleitorado escolheu um. Tributar os mais ricos é feito por lei. Se for publicada antes de 31 de dezembro, entra em vigor em janeiro, pois o imposto de renda não se enquadra na<a href="https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm" rel="noopener noreferrer" target="_blank"> regra constitucional dos 90 dias</a>. Uma<a href="https://www.migalhas.com.br/depeso/445501/reforma-do-irpf-o-que-muda-em-cada-faixa-de-renda-com-a-lei-15-270-25" rel="noopener noreferrer" target="_blank"> lei de 2025</a> já isentou quem ganha até 5.000 reais por mês. Também estabeleceu uma alíquota mínima de até 10% para rendimentos acima de 600.000 reais por ano. O que continua pouco tributado é sabido: parte dos dividendos, os juros sobre o capital próprio, uma remuneração ao acionista que a empresa deduz como despesa e os investimentos isentos, concentrados nas rendas mais altas. Esse imposto sobre os super-ricos seria capaz de financiar o programa eleito, com equilíbrio fiscal por meio da justiça tributária e não da injustiça social.</p>
+<p>O Brasil não tem uma crise da dívida. Tem uma crise do custo da dívida. Os juros custaram 1,18 trilhão de reais em 12 meses, 8,9% do PIB. O déficit primário ficou em 0,6%. Os mercados apostaram em Flávio e perderam. A conta dessa aposta não deve ser paga com as promessas que reelegeram Lula. As urnas se pronunciaram. Os mercados não podem disputar o terceiro turno.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaopera.operamundi.uol.com.br/2026/11/04/o-terceiro-turno-dos-mercados/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Tragedy of Tanzania - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The Tragedy of Tanzania</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/11/tanzania-samia-hassan-lissu-chadema-sentence/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/Tanzania-Tundu-Lissu-GettyImages-2303349316.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Tanzanian Opposition Leader Lissu Sentenced to Prison
+                            </p>
+                            
+<p>Welcome to <em>Foreign Policy</em>’s Africa Brief.</p>
+<p>The highlights this week: <strong>Tanzania’s opposition leader</strong> is sentenced to prison, the <strong>African National Congress </strong>suffers historic losses in South Africa’s local elections, and the <strong>Ethiopia-Sudan rift</strong> deepens.</p>
+<p>
+</p>
+
+<p>One year after Tanzania’s disputed October 2025 presidential election, the country remains in a political crisis. Incumbent President Samia Suluhu Hassan ran largely uncontested, <a href="https://www.reuters.com/business/media-telecom/tanzania-president-hassan-wins-re-election-with-98-vote-commission-says-2025-11-01/" rel="noopener noreferrer" target="_blank">winning </a>98 percent of the vote after the country’s electoral body <a href="https://www.aljazeera.com/news/2025/11/1/tanzanian-president-samia-suluhu-hassan-declared-winner-of-election" rel="noopener noreferrer" target="_blank">disqualified</a> her main opponents. Her second term began with a deadly<a href="https://www.ohchr.org/en/press-releases/2025/12/tanzania-un-experts-condemn-post-election-lethal-crackdown-and-digital" rel="noopener noreferrer" target="_blank"> crackdown</a> on protesters by state security forces that saw <a href="https://www.washingtonpost.com/world/2025/11/07/tanzania-election-crackdown-killings-hassan/" rel="noopener noreferrer" target="_blank">more than 1,000 people</a> killed, according to rights groups.</p>
+<p>Since before the elections, prominent opposition figures have been <a href="https://www.amnesty.org/en/latest/news/2026/10/tanzania-authorities-weaponize-counterterrorism-laws-to-restrict-civic-space-amid-pervasive-impunity-over-violent-election-crackdown/" rel="noopener noreferrer" target="_blank">charged with treason</a>, allegations that they strongly reject. Among them is Tundu Lissu, the leader of opposition party Chadema, whom authorities blocked from running against Hassan last year. On Friday, Lissu was <a href="https://www.washingtonpost.com/world/2026/11/06/tanzanian-opposition-leader-found-guilty-incitement-handed-4-year-sentence/" rel="noopener noreferrer" target="_blank">sentenced</a> to four years in prison for “incitement” but acquitted of treason.</p>
+<p>“History will record how the court searched for a lesser charge simply to keep me in prison,” read a <a href="https://x.com/TunduALissu/status/2118775085435617705" rel="noopener noreferrer" target="_blank">post</a> published by Lissu’s team on his X account after the verdict. Fellow Chadema party member John Pambalu was <a href="https://allafrica.com/stories/202610230122.html" rel="noopener noreferrer" target="_blank">charged</a> with treason last month.</p>
+<p>Following Lissu’s verdict, Chadema on Sunday <a href="https://x.com/ChademaTZ2/status/2119360401745846394" rel="noopener noreferrer" target="_blank">accused</a> police of holding 10 of its leaders and members for “prolonged periods” without bringing them before a court, alleging torture and forced confessions. Rights groups, including Amnesty International, <a href="https://www.amnesty.org/en/latest/news/2026/11/tanzania-conviction-and-sentencing-of-opposition-leader-tundu-lissu-a-travesty-of-justice/" rel="noopener noreferrer" target="_blank">labeled</a> Lissu’s trial “a deeply flawed process” and called on Tanzania’s government to “end the misuse of treason” and other laws to silence government critics.</p>
+<p>Tanzanian activists report a <a href="https://www.bbc.com/mediacentre/2026/bbc-africa-eye-state-of-fear" rel="noopener noreferrer" target="_blank">continuous wave</a> of state-sponsored intimidation and abductions since last year’s election, allegations that the government denies. In July, authorities arrested more than <a href="https://www.reuters.com/world/africa/tanzania-arrests-130-people-government-cracks-down-dissent-2026-07-09/" rel="noopener noreferrer" target="_blank">130 people</a> over planned anti-government demonstrations—before they took place. The government had banned <a href="https://apnews.com/article/tanzania-political-rallies-ban-830f6a6db6ac7d8573b12e146006cd35" rel="noopener noreferrer" target="_blank">political rallies</a> the previous month.</p>
+<p>“Young people are wandering around with no place where they feel they can speak out. When they do speak, they face intimidation. They are threatened and told they could disappear, be abducted, or face various other forms of harassment,” <a href="https://thechanzo.com/2026/07/12/tanzania-and-saba-saba-moment-a-nation-in-need-of-new-hope/" rel="noopener noreferrer" target="_blank">said</a> Gasper Kagonda, a prominent Tanzanian content creator, at a July conference on the country’s political landscape. Much of Kagonda’s <a href="https://www.tiktok.com/@gaspercomic" rel="noopener noreferrer" target="_blank">TikTok channel</a> is devoted to anti-corruption activism.</p>
+<p>One year on from the post-election violence, Tanzanians are no closer to accountability. Even casualty figures are still in dispute: In April, a government-appointed commission of inquiry said that it documented at least <a href="https://www.reuters.com/world/africa/tanzania-inquiry-says-over-500-killed-last-years-election-violence-2026-04-23/" rel="noopener noreferrer" target="_blank">518 deaths</a> and more than 2,000 injuries during the unrest, a fraction of the numbers <a href="https://edition.cnn.com/2025/11/05/world/tanzania-election-protest-deaths-intl" rel="noopener noreferrer" target="_blank">estimated by rights groups</a>. The commission also placed most of the blame on protesters.</p>
+<p>The government withheld its full report from the public, drawing criticism from <a href="https://www.amnesty.org/en/latest/news/2026/10/tanzania-authorities-weaponize-counterterrorism-laws-to-restrict-civic-space-amid-pervasive-impunity-over-violent-election-crackdown/" rel="noopener noreferrer" target="_blank">Amnesty International</a> and the <a href="https://www.ohchr.org/en/press-releases/2026/10/tanzania-concealing-inquiry-findings-undermines-right-truth-and-fuels" rel="noopener noreferrer" target="_blank">United Nations Human Rights Office</a>. Hassan then ordered a second commission of inquiry in August that is still underway. Critics say that both commissions have <a href="https://www.bbc.co.uk/news/articles/cqdr8mgl5756o" rel="noopener noreferrer" target="_blank">failed</a> to engage with victims’ families.</p>
+<p>“There has been no justice or accountability for the hundreds of victims of enforced disappearances, extrajudicial killings, arbitrary arrests and those subjected to torture and other cruel, inhuman and degrading treatment,” <a href="https://www.ohchr.org/en/press-releases/2026/10/tanzania-concealing-inquiry-findings-undermines-right-truth-and-fuels" rel="noopener noreferrer" target="_blank">wrote</a> a group of U.N. experts last month.</p>
+<p>Tanzania’s weakened opposition continues to resist Hassan’s growing <a href="https://sites.uab.edu/humanrights/2026/11/03/continued-authoritarianism-in-tanzania-the-tundu-lissu-case/" rel="noopener noreferrer" target="_blank">authoritarianism</a> through legal appeals and <a href="https://youthdemocracycohort.com/stories/voices-of-change-tanzania/" rel="noopener noreferrer" target="_blank">underground</a> movements. But with her mandate secured through 2030, it is unlikely that she will face major domestic opposition during the remainder of her term.</p>
+<p>The international community is unlikely to speak out, either: Amid <a href="https://africa.businessinsider.com/local/markets/tanzania-strikes-gas-for-the-first-time-in-over-10-years-as-the-country-looks-to/ypwpmcx" rel="noopener noreferrer" target="_blank">new discoveries</a> of natural <a href="https://www.bbc.co.uk/news/articles/c5m2dry2xwwvo" rel="noopener noreferrer" target="_blank">gas deposits</a> in Tanzania, foreign powers appear to be prioritizing critical minerals investment and <a href="https://dailynews.co.tz/tanzania-eyes-global-energy-conquest-using-2026-adipec-to-lure-foreign-capital/" rel="noopener noreferrer" target="_blank">energy security</a> over human rights.</p>
+<p>A U.S. government-backed consortium is <a href="https://www.bloomberg.com/news/articles/2026-08-20/us-backed-group-weighs-500-million-tanzania-nickel-investment" rel="noopener noreferrer" target="_blank">negotiating</a> an agreement to invest more than $500 million in a nickel mining project in Tanzania. The Tanzanian government is also nearing a previously stalled $42 billion <a href="https://www.reuters.com/business/energy/tanzania-close-finalising-42-billion-lng-deal-finance-minister-says-2026-10-13/" rel="noopener noreferrer" target="_blank">gas deal</a> with Norwegian energy firm Equinor and British energy giant Shell. U.S. multinational ExxonMobil also has stakes in the project.</p>
+<p>These investments are mistakes, argued Kenneth Mohammed in the <em>Guardian</em>. “The world cannot celebrate Africa’s economic rise while ignoring the blood staining the streets,” he <a href="https://www.theguardian.com/global-development/2025/nov/18/tanzania-africa-governance-human-rights-tanzania-samia-suluhu-hassan-uganda-drc-rwanda-sudan" rel="noopener noreferrer" target="_blank">wrote</a> last year. “Tanzania’s tragedy is not an isolated event—it reflects the broader struggle for democracy across the continent.”</p>
+
+<p><strong>Thursday, Nov. 12: </strong>Ghanaian Finance Minister Cassiel Ato Forson presents the country’s 2027 budget.</p>
+<p>The U.N. Security Council renews its mandate for the U.N. Multidimensional Integrated Stabilization Mission in the Central African Republic.</p>
+<p><strong>Sunday, Nov. 15: </strong>Cape Verde holds presidential elections.</p>
+<p><strong>Africa at COP31.</strong> This year’s U.N. climate change conference, known as COP31, began this week in the Turkish city of Antalya amid global <a href="https://foreignpolicy.com/2026/08/19/africa-climate-change-drought-wildfires-flooding-el-nino/" rel="noopener noreferrer" target="_blank">heat waves, floods, and droughts</a>.</p>
+<p>Africa is the source of just <a href="https://www.aljazeera.com/news/2023/9/4/how-much-does-africa-contribute-to-global-carbon-emissions" rel="noopener noreferrer" target="_blank">4 percent</a> of global carbon emissions, despite being home to 17 percent of the world’s population. Yet the continent faces an <a href="https://wmo.int/media/news/africa-suffers-disproportionately-from-climate-change" rel="noopener noreferrer" target="_blank">outsized impact</a> from climate change. Deadly <a href="https://www.france24.com/en/wildfires-hound-tunisia-algeria-and-morocco" rel="noopener noreferrer" target="_blank">wildfires ravaged</a> forests across Algeria, Morocco, and Tunisia earlier this year, while seasonal floods <a href="https://www.theguardian.com/world/2026/jul/16/how-global-heating-supercharged-floods-west-africa-displacing-thousands" rel="noopener noreferrer" target="_blank">displaced</a> thousands of people in <a href="https://www.theguardian.com/global-development/2026/jul/11/every-time-the-rain-falls-the-fear-comes-back-life-in-lagos-under-the-constant-threat-of-floods" rel="noopener noreferrer" target="_blank">Nigeria</a> and <a href="https://www.bbc.co.uk/news/articles/cn4r8zlv8edo" rel="noopener noreferrer" target="_blank">Ghana</a>.</p>
+<p>Led by Ghana, African countries are negotiating as a <a href="https://mo.ibrahim.foundation/news/2026/cop31-africas-road-implementation" rel="noopener noreferrer" target="_blank">unified front</a> at COP31. As the world’s biggest historical fossil fuel polluters backtrack on their previous <a href="https://www.carbonbrief.org/chart-trumps-big-beautiful-bill-blows-us-emissions-goal-by-7bn-tonnes" rel="noopener noreferrer" target="_blank">emissions targets</a> and commitments to mobilize <a href="https://www.wri.org/insights/ncqg-climate-finance-goals-explained" rel="noopener noreferrer" target="_blank">$300 billion</a> annually on climate finance for developing countries by 2035, African nations have focused on securing equitable climate finance.</p>
+<p>The African bloc <a href="https://agnonclimatechange.org/agn-pushes-for-adaptation-finance-gcf-funding-assessment-at-cop31/" rel="noopener noreferrer" target="_blank">wants</a> to ensure that countries meet their previous financial commitments, especially to the <a href="https://www.greenclimate.fund/" rel="noopener noreferrer" target="_blank">Green Climate Fund</a>, which helps finance climate resilience and green <a href="https://africa.wri.org/insights/cop31-delivering-africas-climate-priorities" rel="noopener noreferrer" target="_blank">energy access</a> projects in developing countries.</p>
+<p>Next year, the U.N. climate summit moves to Africa, with Ethiopia due to host COP32.</p>
+<p><strong>South Africa’s election. </strong>The African National Congress (ANC) <a href="https://www.reuters.com/world/africa/south-africas-anc-battered-by-local-election-losses-ahead-coalition-talks-2026-11-08/" rel="noopener noreferrer" target="_blank">won</a> less than 31 percent of the overall vote in local elections held last Wednesday in South Africa. It was the party’s worst result ever and a further sign that the country’s political landscape is fragmenting.</p>
+<p>The ANC’s main rival—the largely white-led and pro-business Democratic Alliance (DA)—gained nearly 25 percent of votes. Former President Jacob Zuma’s far-left party uMkhonto weSizwe came third, with about 10 percent.</p>
+<p>As predicted in <a href="https://foreignpolicy.com/2026/11/04/un-peacekeeping-mission-western-sahara-africa-morocco/" rel="noopener noreferrer" target="_blank">last week’s newsletter</a>, in many cities, no party won a majority. In Johannesburg—where the DA <a href="https://apnews.com/article/elections-south-africa-anc-services-johannesburg-35f673cfe16bee26a94f9810d221771f" rel="noopener noreferrer" target="_blank">won</a> nearly 35 percent of the vote to the ANC’s 20 percent—leaders will now need to decide on a coalition government that may include different combinations of the ANC; DA; and a smaller party, the center-right ActionSA, which came third in the city with 16 percent of the vote.</p>
+<p><strong>U.S.-Congo peace deal.</strong> The Democratic Republic of the Congo has <a href="https://www.reuters.com/world/africa/congo-says-us-minerals-deal-should-be-judged-by-projects-not-signed-deals-2026-11-06/" rel="noopener noreferrer" target="_blank">urged</a> the ‌United States to deliver investments promised under a <a href="https://foreignpolicy.com/2025/04/30/congo-conflict-m23-rebels-trump-rubio-us-peace-deal-critical-minerals/" rel="noopener noreferrer" target="_blank">peace-for-minerals deal</a> after the joint steering committee overseeing the countries’ strategic minerals partnership met in Paris last week.</p>
+<p>The United States brokered a peace deal between Congo and Rwanda in 2025 that granted U.S. companies “exclusive” mineral extraction rights in Congo. “Our requirement is to move from signed agreements to real investments,” Congolese Economy Minister Daniel Mukoko Samba <a href="https://africa.businessinsider.com/local/markets/congo-tells-us-to-turn-privileged-access-to-the-worlds-largest-cobalt-supply-into/yr9180p" rel="noopener noreferrer" target="_blank">said</a> on Thursday</p>
+<p>Congo wants the partnership to focus on local mineral processing and ending the conflict in the country’s eastern region. Congo has increased its copper <a href="https://www.cnbcafrica.com/2026/congo-copper-exports-hit-record-levels-as-sales-to-us-and-europe-double" rel="noopener noreferrer" target="_blank">exports</a> to the United States since the deal was signed. But U.S. companies have faced legal hurdles in implementing the agreement from <a href="https://www.ft.com/content/d35c065f-0aef-44fa-a0d8-be1e0e5281c8?syn-25a6b1a6=1" rel="noopener noreferrer" target="_blank">Chinese</a> and <a href="https://www.dw.com/en/belgian-museum-and-us-startup-in-dispute-over-over-colonial-era-resource-data/a-77585740" rel="noopener noreferrer" target="_blank">European</a> organizations, which have voiced concerns over international law.</p>
+<p>Also at issue: The deal has not been approved by Congo’s parliament. And it has sparked <a href="https://www.citizen.org/article/critical-minerals-and-contested-sovereignty/" rel="noopener noreferrer" target="_blank">complaints</a> over its suspension of informal artisanal mining in the country.</p>
+<p><strong>Ethiopia-Sudan rift.</strong> Ethiopia and Sudan <a href="https://www.aljazeera.com/news/2026/11/4/sudan-ethiopia-order-tit-for-tat-diplomatic-expulsions" rel="noopener noreferrer" target="_blank">expelled</a> each other’s diplomats and closed their consulates last Wednesday, the latest episode in an escalating spat between the two neighbors.</p>
+<p>Sudan <a href="https://suna-sd.net/posts/al-eisir-urges-arab-information-ministers-to-adopt-firm-stance-on-rsf-attacks-against-sudan-from-ethiopia" rel="noopener noreferrer" target="_blank">accuses</a> Ethiopia of backing the Rapid Support Forces (RSF), a paramilitary group fighting Sudan’s military in the country’s civil war. Ethiopia <a href="https://apnews.com/article/ethiopia-tigray-war-eritrea-sudan-egypt-6b3208122a4221f3c2e8dcbe21630016" rel="noopener noreferrer" target="_blank">accuses</a> Sudan and its allies, Egypt and Eritrea, of backing rebels in its Tigray province. (During the height of the 2020-2022 Tigray civil war, Sudanese <a href="https://www.middleeasteye.net/news/sudan-ethiopia-fashaga-dispute-threatens-regional-stability" rel="noopener noreferrer" target="_blank">troops moved</a> into the border area, leading to <a href="https://www.bbc.co.uk/news/world-africa-55476831" rel="noopener noreferrer" target="_blank">localized clashes</a> with Ethiopian forces.) All countries deny the accusations.</p>
+<p>Meanwhile, Sudan’s de facto military government <a href="https://www.dabangasudan.org/en/all-news/article/sudan-govt-accuses-ethiopia-of-backing-rsf-drone-attacks-analysts-question-un-complaint" rel="noopener noreferrer" target="_blank">filed</a> a formal complaint with the U.N. Security Council and the African Union last week accusing Ethiopia of allowing the RSF to launch devastating <a href="https://www.aljazeera.com/news/2026/11/3/deadly-rsf-drone-strikes-reveal-deep-divisions-between-sudan-and-ethiopia" rel="noopener noreferrer" target="_blank">drone attacks</a> from its territory. The risk of a <a href="https://foreignpolicy.com/2026/09/30/ethiopia-return-civil-war-tigray-regional-impact-eritrea-horn-africa/" rel="noopener noreferrer" target="_blank">proxy war</a> in the Horn of Africa is growing.</p>
+
+
+<p><strong>Historic appointment. </strong>Morocco’s King Mohammed VI appointed Fatima Ezzahra Mansouri as the country’s first female prime minister in September after her party won general elections earlier that month. In <em>Foreign Policy,</em> Ilhem Rachidi <a href="https://foreignpolicy.com/2026/11/05/morocco-first-woman-leader-head-government-mansouri/" rel="noopener noreferrer" target="_blank">argues</a> that while Mansouri may have limited powers compared to the king, her new role is still symbolically important.</p>
+<p>“If she succeeds in shaping policies that improve Moroccans’ lives and support gender equality, she may very well leave her mark on a country that is striving to modernize even as it has long leaned conservative,” Rachidi writes.</p>
+<p><strong>UNESCO bids. </strong>In the <em>South China Morning Post</em>, Jevans Nyabiage <a href="https://www.scmp.com/news/china/diplomacy/article/3373662/only-fraction-world-heritage-sites-are-africa-china-wants-fix" rel="noopener noreferrer" target="_blank">reports</a> that Beijing is providing financial backing and technical training to help African nations combat underrepresentation on the UNESCO World Heritage List.</p>
+<p>African sites account for just <a href="https://whc.unesco.org/en/list/stat" rel="noopener noreferrer" target="_blank">9 percent</a> of UNESCO’s 1,273 total locations, while Europe and Asia are home to the vast <a href="https://www.visualcapitalist.com/mapped-countries-with-the-most-unesco-heritage-sites/" rel="noopener noreferrer" target="_blank">majority</a> of global listings. China’s initiative is anchored by a $1 million fund established by Quanzhou municipal authorities in March 2025, which supports nomination dossiers and conservation capacity-building across the continent.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/11/tanzania-samia-hassan-lissu-chadema-sentence/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

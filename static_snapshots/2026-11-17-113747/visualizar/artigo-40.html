@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet the new Southern progressives - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Meet the new Southern progressives</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/politics/510933/andrews-talarico-colom-ojeda-new-southern-progressives" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2303882460.jpg?quality=90&strip=all&crop=0%2C10.764467168084%2C100%2C78.471065663832&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Meet the new Southern progressives
+                            </p>
+                            <p>If you want to own a gun, there are few places better to do it than South Carolina. As the gun rights organization the National Rifle Association (NRA) notes on <a href="https://www.nraila.org/gun-laws/state-gun-laws/south-carolina/" rel="noopener noreferrer" target="_blank">its database of state gun laws</a>, the Palmetto State has no restrictions on the class of guns dubbed assault weapons or large-capacity magazines; there is no permit required to openly carry firearms.</p><p>Its outgoing governor, Republican Henry McMaster, <a href="https://www.nrapvf.org/emails/2018/south-carolina/nra-endorses-gov-mcmaster-for-re-election-in-south-carolina/" rel="noopener noreferrer" target="_blank">was supported</a> by the NRA’s political wing, which noted that he netted an “A” rating in their 2018 scores. None of this is surprising. It’s located in the Deep South, after all — that’s the <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9896914/" rel="noopener noreferrer" target="_blank">headquarters of America’s gun culture</a>.</p><p>But what is surprising is that the NRA lost a key election this midterms, when <a href="https://www.live5news.com/2026/10/31/national-rifle-association-endorses-sen-darline-graham/" rel="noopener noreferrer" target="_blank">its candidate</a>, the incumbent Republican Sen. Darline Graham, lost to Democratic nominee Annie Andrews.</p><p>“I hate the NRA,” <a href="https://x.com/AnnieAndrewsMD/status/1836936760674165199?a=ltusNYRUszOr6PGcIT4&amp;s=20" rel="noopener noreferrer" target="_blank">Andrews wrote on her X page</a> in September 2024. In another previous missive, she blamed the NRA for creating a “<a href="https://x.com/AnnieAndrewsMD/status/1207278352136060928" rel="noopener noreferrer" target="_blank">hellscape</a>” at her child’s school where a police officer stands guard during recess.</p><p>The pediatrician-turned-senator-elect was not shy about her view on America’s easy access to guns. She had previously <a href="https://scdailygazette.com/2026/10/23/republicans-call-annie-andrews-anti-gun-she-explains-her-platform-to-end-gun-violence/" rel="noopener noreferrer" target="_blank">held a job</a> at Everytown for Gun Safety, a group that organizes for more strict gun laws. Her campaign website this cycle <a href="https://drannieandrews.com/issue/an-end-to-gun-violence/" rel="noopener noreferrer" target="_blank">included a call to ban</a> “weapons of war from our streets” — an allusion to assault weapons.</p><p>In 2013, <a href="https://abcnews.com/Politics/15-democrats-helped-tank-2013-assault-weapons-ban/story?id=50275295" rel="noopener noreferrer" target="_blank">15 Democratic senators voted</a> against one such proposed ban on assault weapons, including lawmakers from significantly more liberal states like Virginia and Colorado. That year, Georgia’s Democratic gubernatorial candidate Jason Carter (the grandson of former president Jimmy Carter) <a href="https://www.voanews.com/a/grandson-wants-to-follow-in-jimmy-carters-footsteps-as-georgia-governor/1925363.html" rel="noopener noreferrer" target="_blank">campaigned on his proud support for gun rights</a> — one story noted that he held a 92 percent rating from the NRA.</p><p>And yet starting in January, an even more conservative state will be sending an avowed opponent of the NRA to the Senate.</p><p>And it’s not just guns where Andrews is much more liberal than the traditional Southern or red-state Democrat. If her X page is any indication, <a href="https://x.com/AnnieAndrewsMD/status/1235702600399499264?a=W261-mg1tMrzzJEQkbg&amp;s=20" rel="noopener noreferrer" target="_blank">her ideal president is Elizabeth Warren</a>. She finds Israel’s conduct toward the Palestinians to be “<a href="https://x.com/AnnieAndrewsMD/status/1948840512062194072?a=_JhOvqyufavVotS28Ww&amp;s=20" rel="noopener noreferrer" target="_blank">morally unconscionable</a>” and <a href="https://x.com/AnnieAndrewsMD/status/2018431089019154539?a=ZoOKg61aRqVX--Al3oE&amp;s=20" rel="noopener noreferrer" target="_blank">she pledged</a> to never take money from the American Israel Public Affairs Committee (AIPAC). <a href="https://x.com/AnnieAndrewsMD/status/1541808422412247041?a=Vkg-I02Vk4bh26UFnHk&amp;s=20" rel="noopener noreferrer" target="_blank">She’s ardently</a> pro-choice. She posed with a sticker reading “<a href="https://x.com/AnnieAndrewsMD/status/1616504640073523200?a=iMnZvtPXCqUnp2Sifto&amp;s=20" rel="noopener noreferrer" target="_blank">protect trans kids</a>.” She wants to <a href="https://x.com/AnnieAndrewsMD/status/1951769787417399698?a=pz9qGqCjc_KLkutFCAU&amp;s=20" rel="noopener noreferrer" target="_blank">dramatically expand tax credits</a> for families with kids. And her old Resistance-style social media videos have become an object of popular fascination.</p><p>Andrews is part of a wave of Southern and red-state Democrats who are redefining what it means to be a Democrat in these traditionally conservative environments. While these Democrats don’t have the politics of, say, your average member of the Democratic Socialists of America or Vermont’s independent Sen. Bernie Sanders, they represent a significant departure from the conservative Democrats who dominated the region the last time they represented these states.</p><p><h2><strong>How the changing South explains the new candidates</strong></h2></p><p>For years, it was assumed that Democrats who hail from the South and other conservative-leaning states would only be viable if they matched a certain traditional motif — think a white guy who poses with his gun and speaks in a thick accent <a href="https://www.youtube.com/watch?v=xIJORBRpOPM" rel="noopener noreferrer" target="_blank">in his ads</a>.</p><p>But this crop of Democrats is leaning into a new, millennial era of voters who are significantly more progressive than the Dixiecrats of old.</p><p>The South’s booming economies have attracted an influx of <a href="https://www.brookings.edu/articles/a-new-great-migration-is-bringing-black-americans-back-to-the-south/" rel="noopener noreferrer" target="_blank">Black voters</a> — who turned out in huge numbers <a href="https://www.wabe.org/black-voters-help-propel-democrats-in-sweeping-midterm-victories" rel="noopener noreferrer" target="_blank">for Democrats this cycle</a> — and grown its <a href="https://newlinesmag.com/reportage/the-new-georgia-points-to-americas-future/" rel="noopener noreferrer" target="_blank">diverse cities and suburbs</a> in multiple states, which have become more favorable territory for Democrats. “The white population keeps getting better in Mississippi,” Democratic Senate leader Chuck Schumer bluntly told skeptics of his party’s candidates, according to <a href="https://www.theatlantic.com/ideas/2026/11/midterms-democrats-mississippi-senate/689301/" rel="noopener noreferrer" target="_blank">The Atlantic,</a> pointing to new tech workers with more progressive views. Pair those trends with a new openness <a href="https://www.washingtonpost.com/politics/2026/11/05/rural-voters-gop-strongholds-helped-carry-democrats-midterm-victories/" rel="noopener noreferrer" target="_blank">among rural voters</a> to Democrats’ increasingly populist message — and depressed turnout from some upset with President Donald Trump’s record — and that’s a coalition that can elect some very different candidates.</p><p>You have, for instance, Georgia’s Sen. Jon Ossoff. Ossoff, a <a href="https://sfs.georgetown.edu/news/alumnus-jon-ossoff-sfs09-wins-historic-georgia-senate-race-says-sfs-training-has-been-indispensable/" rel="noopener noreferrer" target="_blank">graduate of Georgetown University</a> and the <a href="https://www.facebook.com/lseps/posts/lse-alumnus-jon-ossoff-msc-econ-politics-of-the-world-economy-2013-has-been-elec/10158475482858347/" rel="noopener noreferrer" target="_blank">London School of Economics</a>, leaned into his identity as a <a href="https://www.youtube.com/watch?v=xnj-2yfL13U" rel="noopener noreferrer" target="_blank">booksmart critic of corruption and a rigged economy</a>. Unlike the Joe Manchins and Kyrsten Sinemas of yesteryear, he supported most major Democratic policies in Congress. He <a href="https://www.timesofisrael.com/jewish-sen-jon-ossoff-increasingly-critical-of-israel-projected-to-win-reelection/" rel="noopener noreferrer" target="_blank">earned the ire of AIPAC</a> for his votes to curb some arms sales to Israel. His victory speech following the election included zero Clintonian rhetoric about curbing government deficits or cracking down on street crime; instead, he pledged to fight corporate money, end endless wars, and establish universal health care.</p><p>He campaigned proudly as an opponent of bigotry and racism. One of his main lines of attack on his opponent, Republican Rep. Mike Collins, was that he had surrounded himself with racist and white nationalist staffers and family members.</p><p>“If John Lewis were marching today from Selma to Montgomery, Mike Collins would be grabbing a billy club,” <a href="https://www.youtube.com/watch?v=ZyRji58xqwg" rel="noopener noreferrer" target="_blank">he said during one debate</a> with Collins.</p><p>Although <a href="https://www.youtube.com/watch?v=td26bk2AiIY" rel="noopener noreferrer" target="_blank">he courted Republicans</a> through <a href="https://electjon.com/two-key-south-georgia-gop-mayors-endorse-sen-ossoff/" rel="noopener noreferrer" target="_blank">his strong constituent services</a> and support for community services, he also maintained his progressive cultural commitments. Despite <a href="https://www.georgiatrend.com/2025/05/31/ossoffs-vulnerability/" rel="noopener noreferrer" target="_blank">prognostication from Republicans</a> that his refusal to compromise on transgender issues would serve as a vulnerability, it had no apparent impact on his landslide victory.</p><p>And he wasn’t the only statewide Democrat in Georgia who donned a populist mantle. Across the state, the newly elected Democrats plan to take on corporate power, a departure from the state’s traditionally big business-friendly regulatory environment. Lt. Gov.-elect Josh McLaurin <a href="https://www.joshmclaurin.com/priorities" rel="noopener noreferrer" target="_blank">campaigned against</a> the state’s anti-union “right-to-work” law and against the power of “oligarchs and billionaires.” Insurance Commissioner-elect Keisha Waites is <a href="https://www.cbsnews.com/atlanta/news/georgias-insurance-commissioner-elect-wants-to-ban-using-zip-codes-to-price-premiums/" rel="noopener noreferrer" target="_blank">proposing banning insurers from using zip codes</a> to discriminate on price. Attorney General-elect Tanya Miller is <a href="https://www.fox5atlanta.com/news/georgia-ag-elect-tanya-miller-pledges-action-price-spikes" rel="noopener noreferrer" target="_blank">taking aim</a> at grocery price gouging and utility rate increases. Like Ossoff, Miller refused to compromise on her principles when it comes to transgender people; as a member of the Georgia House, she <a href="https://www.ajc.com/politics/democratic-house-members-leave-chamber-mid-debate-of-bill-regulating-transgender-people/OL6AQYR6ZJFKBDC2E7CHNDZBSA/" rel="noopener noreferrer" target="_blank">walked out of the chamber</a> <a href="https://www.ajc.com/politics/2026/11/georgia-attorney-general-tanya-miller-prosecutor-representative/?utm_campaign=mrf-twitter-ajc&amp;utm_source=twitter&amp;utm_medium=social&amp;mrfcid=202611116af4cf71a506936e413dde94" rel="noopener noreferrer" target="_blank">to protest</a> a GOP effort to ban gender-affirming care for <a href="https://www.thecentersquare.com/georgia/article_13e21432-982c-4b38-a965-4bdb7d14bdcb.html" rel="noopener noreferrer" target="_blank">transgender people</a> in Georgia prisons, defending her stance in a debate with her opponent.</p><p><h2><strong>Who are the new Southern progressives</strong>?</h2></p><p>Arguably the most strident incoming House members are, paradoxically, in some of the most conservative districts — often protest candidates who ran with little expectation of winning and felt less pressure to adjust their message to please strategists or donors. In Tennessee, eight-term GOP incumbent Rep. Scott DesJarlais fell to Democratic candidate Victoria Broderick, a progressive who campaigned on <a href="https://www.victoria4tennessee.org/more-about-my-platform" rel="noopener noreferrer" target="_blank">raising corporate taxes</a> as well as <a href="https://nashvillebanner.com/2026/07/16/victoria-broderick-congress-tennessee-district-4/" rel="noopener noreferrer" target="_blank">establishing Medicare-for-all</a>. She will also be the <a href="https://www.lgbtqnation.com/2026/11/victoria-broderick-flipped-a-deep-red-district-to-become-tennessees-first-out-queer-congressperson/" rel="noopener noreferrer" target="_blank">first openly queer person</a> to serve in the state’s congressional delegation.</p><p>In North Carolina, 24-year Army veteran Richard Ojeda won a seat for Democrats in a <a href="https://www.nbcnews.com/politics/2026-elections/north-carolina-us-house-district-9-results" rel="noopener noreferrer" target="_blank">narrow victory</a> over the Republican incumbent; Ojeda, who was an outspoken opponent of Trump in his first term, is no less fiery now. He’s <a href="https://x.com/Ojeda4America/status/2119938026935582879" rel="noopener noreferrer" target="_blank">defending immigrants</a>, <a href="https://x.com/Partisan_12/status/2120859736900059431" rel="noopener noreferrer" target="_blank">denouncing the war in Iran</a>, and <a href="https://x.com/Ojeda4America/status/2120624268602179779" rel="noopener noreferrer" target="_blank">making it his personal mission</a> to remove Secretary of Defense Pete Hegseth.</p><p>Texas’s James Talarico, who will become the first Democratic senator to represent the state in almost 40 years, ran a campaign railing against the power of billionaires in the American political and economic system — sounding at times more like Bernie Sanders than a Blue Dog Democrat.</p><p>“The billionaires who own the social media algorithms, who own the cable news networks, who own the politicians fighting on the screens, they want us at each other’s throats,” <a href="https://www.youtube.com/watch?v=C8A-jOwfZ4Q" rel="noopener noreferrer" target="_blank">he told the assembled crowd after his victory</a>.</p><p>His platform included <a href="https://www.elpasotimes.com/story/news/politics/elections/2026/04/14/talarico-announces-close-billionaire-loopholes-agenda-in-texas-us-senate-race/89605865007/" rel="noopener noreferrer" target="_blank">raising taxes on the ultra-rich</a>, a departure from the tax-skeptical climate of the American South. And he warned that “the real fight in this country is not left versus right. It is top versus bottom.”</p><p>Texas Gov.-elect Gina Hinojosa, who <a href="https://www.foxnews.com/politics/texas-governor-elect-plan-freeze-electricity-prices-raises-questions-legal-authority" rel="noopener noreferrer" target="_blank">wants to freeze electricity rates</a>, sounded similar notes.</p><p>“We see that things are so stacked against working people in this country….if I were to pick a label to describe what are my politics, it is economic populism,” she told the <a href="https://www.nytimes.com/2026/10/24/magazine/gina-hinojosa-interview.html" rel="noopener noreferrer" target="_blank">New York Times</a>.</p><p>Even Scott Colom, the Democrat who won notoriously conservative Mississippi with a comparatively more moderate platform, has sounded a few progressive notes. He has <a href="https://x.com/scott_colom/status/2107172556113617091" rel="noopener noreferrer" target="_blank">rejected money</a> from AIPAC and he campaigned not just on prosecuting violent crime but also on <a href="https://x.com/scott_colom/status/2117300939220480460?a=f6KWDAVCxgngKVOyFyE&amp;s=46" rel="noopener noreferrer" target="_blank">reforming the criminal justice system</a> to make it more humane.</p><p>In a poetic twist, Colom was blocked from becoming a federal judge by incumbent Republican Cindy Hyde-Smith, who cited his <a href="https://mississippitoday.org/2023/04/07/dick-durbin-cindy-hyde-smith-scott-colom" rel="noopener noreferrer" target="_blank">purported opposition to restrictions</a> on transgender athletes’ participation in girls’ and women’s sports; now she has found herself soon to be replaced by Colom.</p><p>And while factionalist debates between avowed progressives and centrists roil social media, Colom’s coalition was cross-ideological — Morris Katz, a consultant who previously worked for New York City Mayor Zohran Mamdani, helped make ads that <a href="https://x.com/jmart/status/2119821586907693472?a=z_bHs3HKMExOGmHJJvk&amp;s=20" rel="noopener noreferrer" target="_blank">attacked his GOP opponent</a>. Colom also <a href="https://x.com/scott_colom/status/2118827585614528631" rel="noopener noreferrer" target="_blank">credited a former Bernie Sanders and Jeremy Corbyn</a> operative with helping craft his video strategy.</p><p>This isn’t to say that these Democrats don’t have their own peculiarities that distinguish them from progressives on the coasts. They do, after all, represent states with their own unique culture and interests. Ossoff <a href="https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm" rel="noopener noreferrer" target="_blank">voted to toughen immigration enforcement</a> after the murder of his constituent Laken Riley. Talarico made a point to <a href="https://www.facebook.com/NBCNews/posts/in-2022-james-talarico-vowed-to-take-on-the-fossil-fuel-industry-after-texas-dea/1488182256506968/" rel="noopener noreferrer" target="_blank">support Texas’s local oil and gas industry</a>. Andrews, despite her general support for transgender rights, <a href="https://19thnews.org/2026/10/trans-voters-democrats-midterm-elections/" rel="noopener noreferrer" target="_blank">opposed allowing</a> gender surgery for kids and what she called “men in women’s sports.”</p><p>But one thing is certain. For decades, Southern states were used to sending Democrats to Congress who in many ways resembled their Republican colleagues more than they did Democrats elsewhere in the country. But this new crop of red-state Democrats are much more unabashedly populist, focused on fighting corporate power, and culturally liberal than their most recent ancestors were.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/politics/510933/andrews-talarico-colom-ojeda-new-southern-progressives" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

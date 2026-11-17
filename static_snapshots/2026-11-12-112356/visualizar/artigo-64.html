@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O teste econômico da IA chegou pra valer - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O teste econômico da IA chegou pra valer</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Nucleo Jornalismo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://nucleo.jor.br/raiox/2026/11/11/o-teste-economico-da-ia-chegou-pra-valer/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://nucleo.jor.br/content/images/size/w1200/2026/11/bolha_da_ia_2.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O teste econômico da IA chegou pra valer
+                            </p>
+                            
+<p><em>Raio-X</em> é uma editoria de análise crítica sobre assuntos e eventos envolvendo tecnologia e inteligência artificial e pode conter opiniões</p>
+<p>O segmento de inteligência artificial de ponta se prepara para entrar em uma nova realidade, em um momento no qual dois grandes laboratórios de IA (Anthropic e OpenAI) estão perto de abrir capital em bolsa de valores, o que exigirá maior transparência com números e resultados financeiros e colocará sob uma lupa a saúde do setor, cujos investimentos têm <a href="https://www.imf.org/annual-report/2026/in-focus/ai-deployment-and-disruption/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">sustentado</a> boa parte do crescimento econômico mundial.</p><p>O pontapé inicial será assim que a Anthropic – desenvolvedora do chatbot Claude – realizar sua oferta pública inicial de ações (IPO, na sigla em inglês), algo que pode acontecer já na semana que vem e <a href="https://www.nytimes.com/2026/11/10/technology/anthropic-ipo-valuation-share-price.html?unlocked_article_code=1.PlE.FoY5.xIQ0V0yJlFKf&amp;smid=url-share&amp;ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">movimentar até</a> US$100 bilhões.</p>
+
+
+
+
+<p>Jornalismo crítico sobre tecnologia acontece com o apoio de pessoas como você. <b><strong>Apoie o Núcleo e construa com a gente um futuro mais humano.</strong></b></p>
+
+<a href="https://nucleo.jor.br/assine/" rel="noopener noreferrer" target="_blank">
+                            Quero apoiar o Núcleo
+                        </a>
+
+
+
+<p>No cenário mais otimista, a empresa espera chegar a um valor de mercado de até US$1,41 trilhão (ou seja, a soma dos valores de todas as suas ações). Esse valor colocaria a empresa imediatamente entre as maiores do mundo, acima até da OpenAI, cujo valor atualmente é <a href="https://www.theverge.com/ai-artificial-intelligence/1030703/anthropic-ipo-1-4-trillion?view_token=eyJhbGciOiJIUzI1NiJ9.eyJpZCI6Ink2ZDBoMUNFdk0iLCJwIjoiL2FpLWFydGlmaWNpYWwtaW50ZWxsaWdlbmNlLzEwMzA3MDMvYW50aHJvcGljLWlwby0xLTQtdHJpbGxpb24iLCJleHAiOjE3OTQ4MzkzMDgsImlhdCI6MTc5NDQwNzMwOH0.xSJ9Q9nMcsiVSdDCig-4rcEqNCRrYc1bpU5nhTxIj1w&amp;utm_medium=gift-link&amp;ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">estimado</a> em US$1,25 trilhão, e que espera abrir o capital em breve (no fim de 2026 ou no começo do ano que vem).</p><p>Como você pode ver, são números estratosféricos, que se igualam aos de empresas de tecnologia que estão, bem ou mal, há décadas construindo mercados e faturando alto, como Apple, Google e Amazon.</p>
+<p>💰</p><p>IPO é quando uma empresa começa a vender suas ações na bolsa de valores, fazendo parte diretamente do mercado financeiro regulado, e assumindo compromissos de governança.<br/><br/>Há dois tipos de oferta: 1. uma oferta primária (cujo dinheiro vai para a empresa) e 2. uma oferta secundária (cujo dinheiro vai para os sócios que querem vender ações). </p><p>Esse tipo de ambição, somada à inclinação de algumas empresas do setor de exagerar as capacidades e impactos da inteligência artificial, tem feito alguns críticos de tecnologia e até analistas soar alertas de uma potencial <a href="https://www.nytimes.com/2026/06/10/opinion/ai-ipo-openai-anthropic.html?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">bolha</a> no setor – além, claro, de uma <a href="https://ai-circular-economy.com/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank"><em>economia circular</em></a>, na qual as mesmas empresas investem umas nas outras e compram produtos e serviços umas das outras.</p><p>Embora a animação do mercado com esses IPOs esteja alta, com muito hype, os sinais de preocupação estão lá, girando em torno dessas empresas.</p><p>A Anthropic estava inicialmente mirando uma oferta de ações que pudesse levar a empresa a um valor de mercado de US$2 trilhões. Uma das empresas do setor, a SpaceX – que além de desenvolver seu modelo tem investido em data centers, exploração espacial e telecomunicações – fez seu IPO em junho, e suas ações já acumulam queda de 12% no ano. Em outro caso, os papéis da fornecedora de infraestrutura digital Oracle tiveram queda de 46% num período de 12 meses, em parte por causa do alto endividamento.</p><p>E tem ainda o caso da Nvidia, cujo CEO, Jensen Huang, <a href="https://nucleo.jor.br/segue-o-fio/2026/11/11/segue-o-fio-14-huang-vs-huang-nvidia-e-espionagem/" rel="noopener noreferrer" target="_blank">admitiu ter tido um caso</a> com uma mulher suspeita de espionagem para a China, o que tem derrubado o valor da ação da empresa e colocou em risco uma das principais figuras do mundo da IA. </p><p>Enquanto isso, Anthropic e OpenAI ainda possuem balanços financeiros com prejuízos operacionais (o que é normal para empresas de tecnologia em ascensão) e receitas ainda modestas para justificar esses valores de mercado astronômicos.</p><a href="https://nucleo.jor.br/raiox/2026/07/22/hype-declarar-os-riscos-de-modelos-de-ia/" rel="noopener noreferrer" target="_blank"><p>O hype em declarar riscos de modelos de IA</p><p>Como empresas de inteligência artificial ganham ao dizer que seus modelos são perigosos</p></a><h3><strong>A culpa é das estrelas</strong></h3><p>Mas esse é um setor cuja possibilidade de crescimento acelerado que, para muitos, vale o risco.</p><p>A principal promessa que anima potenciais investidores está dividida, principalmente, entre a <strong>1.</strong> aceleração da geração de receitas e <strong>2.</strong> a redução dos custos de processamento computacional e data centers – de longe a principal despesa do setor.</p><p>Os detalhes da OpenAI ainda são desconhecidos, mas a Anthropic divulgou recentemente um documento para o mercado que conta uma história mista, interpretada pelos mais otimistas como "boa" e pelos cautelosos como "<em>red flag</em>". </p><p>De um lado, a empresa acumula sucessivos prejuízos operacionais que já somam mais de US$20 bilhões de 2023 a meados de 2026. Mas a proporção de custos com processamento de dados em relação às receitas caiu de 1.000% (ou seja, despesas do tipo eram cerca de 10x maiores do que a receita) para 55% no mesmo período, à medida que as receitas cresceram mais do que as despesas com servidores.</p><p>E dá pra dizer que o crescimento das receitas foi super acelerado: em 2023, o faturamento do ano todo foi de US$43 milhões, ao passo que no primeiro semestre de 2026 a Anthropic gerou entradas de US$16,3 bilhões – amplamente impulsionado pelo mercado corporativo, que utiliza suas soluções de desenvolvimento de software (Claude Code).</p><p>Só que uma receita de US$16 bilhões não justifica um valor de mercado trilionário, ainda mais com os pesados compromissos financeiros assumidos pela Anthropic com seus fornecedores. A empresa tem uma exposição absurda de pelo menos US$431 bilhões em compras não canceláveis de capacidade de processamento com empresas como Broadcom, Google, Microsoft, Nvidia e Amazon, entre outras.</p><p>Ou seja, a Anthropic precisa crescer muito, em mercado lotado de concorrentes com muito dinheiro, como Google, Meta e Apple. <a href="https://www.theguardian.com/technology/2026/oct/26/anthropic-stock-market-filing-takeaways?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">Apenas cinco clientes</a> da Anthropic foram responsáveis por 25% de todo o faturamento da empresa em 2026 – algo que, num mercado que continua lançando novos modelos, um mais capaz que o outro, cria incertezas, visto que clientes podem facilmente mudar de provedores. </p><p>O documento da Anthropic enviado a investidores listou mais de <a href="https://www.fastcompany.com/91630776/anthropic-ipo-filing-business-risks-quadruple-other-ai-ipos-weapons-blackmail-rogue-agents?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">90 páginas</a> de possíveis riscos que a empresa enfrenta, inclusive riscos "catastróficos" de IA ser utilizada para destruir a humanidade.</p><p>A OpenAI ainda não divulgou seus dados abertamente, mas é possível presumir que a empresa também apresenta riscos semelhantes. Seu projeto Stargate prevê gastos na ordem de <a href="https://openai.com/index/announcing-the-stargate-project/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">US$500 bilhões</a> em quatro anos, ao passo que a <a href="https://finance.yahoo.com/technology/ai/articles/openai-revenue-appears-20-billion-100435362.html?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">receita</a> da empresa está na ordem de US$50 bilhões por ano.</p><p>Para quem estava esperando para saber se IA é mesmo uma bolha ou não, o momento começa assim que essas empresas abrirem seu capital em bolsa e começarem a divulgar balanços financeiros trimestrais, efetivamente jogando luz sobre se é um mercado de crescimento acelerado ou se é um negócio construído em cima de hype. </p><h6>Texto <strong>Sérgio Spagnuolo</strong><br/>Arte <strong>Aleksandra Ramos</strong><br/>Edição <strong>Alexandre Orrico</strong></h6>
+
+<p>Fuja dos algoritmos</p>
+<p>Baixe o app do Núcleo no seu celular</p>
+<p>Leia nossas reportagens e newsletters onde você estiver.</p>
+
+
+<p>Apoie o jornalismo independente do Núcleo</p>
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/comunidade-nucleo.png?v=qclCYJkMSegKKOEr"/>
+
+<strong>Comunidade Núcleo</strong>
+<p>Assinatura cheia de coisa legal. Ideal pra quem quer apoiar por um valor camarada e mesmo assim receber vários benefícios.</p>
+
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/apoie-nossa-missao-2.png?v=4SmHzh8eQPpy2d4B"/>
+
+<strong>Apoie nosso futuro</strong>
+<p>Esse plano é pra quem realmente vai além. De quebra, ainda está recheado com benefícios fenomenais.</p>
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://nucleo.jor.br/raiox/2026/11/11/o-teste-economico-da-ia-chegou-pra-valer/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

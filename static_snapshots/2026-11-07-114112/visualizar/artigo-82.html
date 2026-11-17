@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Como a modernidade forjou o cidadão-soldado - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Como a modernidade forjou o cidadão-soldado</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/historia-e-memoria/como-a-modernidade-forjou-o-cidadao-soldado/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5147861141890469587-1.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Como a modernidade forjou o cidadÃ£o-soldado
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5147861141890469587-1.jpg"/>Imagem: Kaiser Wilhelm II revendo as tropas prussianas, por Carl RÃ¶chling
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>A conscriÃ§Ã£o obrigatÃ³ria apresenta-se, ao mesmo tempo, como um instrumento de participaÃ§Ã£o ativa do cidadÃ£o na vida polÃ­tica e como um dispositivo de disciplina social que o separa da sociedade civil. O soldado-cidadÃ£o encarna, assim, uma duplicidade irresolvida: possui direitos cÃ­vicos e autonomia polÃ­tica enquanto membro do corpo soberano, mas sofre, ao mesmo tempo, uma subordinaÃ§Ã£o hierÃ¡rquica e uma privaÃ§Ã£o autoritÃ¡ria da liberdade pessoal no interior da estrutura militar. Essa tensÃ£o entre cidadania e disciplina faz do serviÃ§o militar uma figura contraditÃ³ria em si mesma, pois a instituiÃ§Ã£o afirma o que nega e nega o que afirma. AlÃ©m disso, o princÃ­pio igualitÃ¡rio da conscriÃ§Ã£o diz respeito exclusivamente Ã  populaÃ§Ã£o masculina, refletindo a exclusÃ£o das mulheres dos direitos polÃ­ticos, e permanece constantemente atravessado pelas tensÃµes entre a universalidade da obrigaÃ§Ã£o e os interesses de classe.</p>
+<p>Para enquadrar essa ambivalÃªncia, Hippler constrÃ³i um quadro teÃ³rico baseado na relaÃ§Ã£o tripartite entre indivÃ­duo, Estado e NaÃ§Ã£o. O serviÃ§o militar liga o indivÃ­duo ao Estado e Ã  NaÃ§Ã£o em um nÃ­vel existencial, exigindo a disposiÃ§Ã£o de sacrificar a prÃ³pria vida. Ao mesmo tempo, o Estado moderno se define como a expressÃ£o da vontade geral da naÃ§Ã£o cÃ­vica, estabelecendo com o conscrito uma relaÃ§Ã£o de pertencimento recÃ­proco. Nesse contexto, Hippler analisa o conceito de subjetividade polÃ­tica, observando que o termo âsujeitoâ encerra um duplo sentido: indica a sujeiÃ§Ã£o ao controle alheio e, ao mesmo tempo, constitui a condiÃ§Ã£o primÃ¡ria da aÃ§Ã£o autÃ´noma. O autor toma distÃ¢ncia da anÃ¡lise de Michel Foucault sobre a sociedade moderna entendida unicamente como matriz de aparatos de disciplina social. Embora reconheÃ§a o valor dos estudos foucaultianos, Hippler vÃª nessa perspectiva um limite decisivo: o desenvolvimento do Estado moderno inclui uma dimensÃ£o de autonomia e de direitos polÃ­ticos que nÃ£o se reduz ao simples exercÃ­cio do poder disciplinar. A conscriÃ§Ã£o supera o modelo tradicional das instituiÃ§Ãµes totais, pois procura estender seu modelo educativo e organizacional a toda a sociedade por meio da socializaÃ§Ã£o do militar e da militarizaÃ§Ã£o da sociedade.</p>
+<p>Essa tensÃ£o permanente constitui um <strong>nÃ³ estrutural da modernidade polÃ­tico-militar</strong>, refletindo as dÃºvidas fundamentais sobre a natureza das instituiÃ§Ãµes do Estado moderno. A resposta a esse dilema gera duas trajetÃ³rias histÃ³ricas distintas e interligadas, desenvolvidas na FranÃ§a e na PrÃºssia entre a RevoluÃ§Ã£o Francesa e a RestauraÃ§Ã£o. A via francesa toma forma com os eventos de 1789, partindo do armamento popular, da Guarda Nacional e da posterior introduÃ§Ã£o da conscriÃ§Ã£o institucionalizada com a lei Jourdan de 1798. Nesse percurso, <strong>o exercÃ­cio da soberania popular e a educaÃ§Ã£o cÃ­vica fundem-se com o dever militar</strong>, em busca de unificar a forÃ§a pÃºblica. JÃ¡ a trajetÃ³ria prussiana se desenvolve por meio das reformas iniciadas apÃ³s a derrota de Iena e Auerstedt, em 1806. O <strong>Estado prussiano promove uma reorganizaÃ§Ã£o vinda de cima que combina a disciplina estatal com a filosofia do idealismo alemÃ£o</strong>, o conceito de educaÃ§Ã£o nacional e as instituiÃ§Ãµes da <em>Landwehr</em> e do <em>Landsturm</em>. Apesar das diferenÃ§as ideolÃ³gicas e institucionais, essas duas opÃ§Ãµes representam respostas alternativas ao mesmo dilema originÃ¡rio e influenciam-se mutuamente no longo prazo, por meio de trocas e reimportaÃ§Ãµes dos respectivos modelos militares.</p>
+<h3><strong>As premissas setecentistas: do exÃ©rcito do Antigo Regime Ã  virtude cÃ­vica</strong></h3>
+<p>No reino da FranÃ§a do Antigo Regime, a construÃ§Ã£o do Estado centralizado entrelaÃ§a-se com o monopÃ³lio rÃ©gio da forÃ§a armada, reafirmado pela ordenanÃ§a de 1583, sob Henrique III. O recrutamento militar articula-se por meio de diversas prÃ¡ticas coexistentes, entre elas o recrutamento feudal, o aliciamento urbano (<em>racolage</em>) e a milÃ­cia real. O recrutamento feudal assenta-se nas redes locais e familiares da aristocracia, no interior das quais coronÃ©is e capitÃ£es alistam homens de suas prÃ³prias terras graÃ§as a relaÃ§Ãµes pessoais, como demonstram os casos do capitÃ£o Mercoyrol de Beaulieu, em 1746, ou da dama dâAudrieu, na Normandia. O <em>racolage</em> atua nas grandes cidades e nas tavernas, por meio de oficiais recrutadores que prometem soldo, dinheiro e aventura. Em tempos de guerra, como durante a Guerra de SucessÃ£o Espanhola, essa prÃ¡tica recorre a embustes, embriaguez forÃ§ada e sequestros diretos, provocando sublevaÃ§Ãµes populares abertas e assaltos Ã s prisÃµes civis. InstituÃ­da em 1688 por Louvois e definitivamente institucionalizada em 1726, a milÃ­cia real representa mais uma forma de recrutamento, baseada na obrigaÃ§Ã£o comunitÃ¡ria. A administraÃ§Ã£o central fixa os contingentes e as intendÃªncias repartem as cotas entre as parÃ³quias, que identificam os conscritos por meio de sorteio (<em>tirage au sort</em>). O amplo sistema de isenÃ§Ãµes pessoais e coletivas favorece o clero, a nobreza, a burguesia, os funcionÃ¡rios pÃºblicos e os homens casados, descarregando o Ã´nus do serviÃ§o sobre as camadas camponesas mais pobres. Segundo os cÃ¡lculos da Ã©poca elaborados por Des Pommelles, de um total de cerca de 1.450.000 solteiros aptos, apenas 339.000 participam do sorteio. Para escapar Ã  milÃ­cia, as comunidades rurais e os jovens recorrem Ã  compra de substitutos, Ã  fuga para os bosques â descrita por Turgot no Limousin â e atÃ© a mutilaÃ§Ãµes fÃ­sicas. O soldado mercenÃ¡rio ocupa, assim, uma posiÃ§Ã£o marginal e alheia ao Estado, descrito pelas autoridades civis e pela literatura do sÃ©culo XVIII como um elemento degradado e desprovido de virtude, em aberto contraste com a figura ideal do legionÃ¡rio romano evocada por autores como o padre Daniel em 1721. Nas Ãºltimas dÃ©cadas do Antigo Regime, as reformas de Belle-Isle e Choiseul introduzem o recrutamento nacional direto e os registros administrativos das tropas, enquanto a reaÃ§Ã£o aristocrÃ¡tica culmina no Ã©dito de SÃ©gur, de 1781.</p>
+<p><strong>A filosofia iluminista inverte esse paradigma, superando a separaÃ§Ã£o absolutista entre a esfera moral privada e a razÃ£o de Estado.</strong> No modelo absolutista, o Estado funciona como uma estrutura racional e politicamente autÃ´noma em relaÃ§Ã£o Ã s convicÃ§Ãµes morais do indivÃ­duo, exigindo uma obediÃªncia externa. Pensadores como Montesquieu, Mably e Condorcet introduzem a polÃ­tica da virtude, vinculando a cidadania polÃ­tica Ã  dimensÃ£o moral e ao sentimento de pertencimento Ã  comunidade. Montesquieu define o amor pela repÃºblica como paixÃ£o pela igualdade e pela frugalidade, na qual a norma coletiva orienta os desejos individuais rumo Ã  ordem social. Mably vÃª na educaÃ§Ã£o e na disciplina militar o instrumento para transformar o indivÃ­duo em encarnaÃ§Ã£o abstrata dos princÃ­pios republicanos, associando a virtude cÃ­vica Ã  masculinidade e identificando o vÃ­cio com a degeneraÃ§Ã£o efeminada. Condorcet propÃµe uma instruÃ§Ã£o pÃºblica permanente, estendida Ã  idade adulta por meio de cerimÃ´nias, desfiles e exercÃ­cios militares destinados a reforÃ§ar o laÃ§o cÃ­vico com a pÃ¡tria.</p>
+<p><strong>A filosofia de Jean-Jacques Rousseau coloca o serviÃ§o militar no centro da teoria polÃ­tica, rejeitando o exÃ©rcito permanente como instrumento de tirania e defendendo o sistema de milÃ­cia.</strong> No <em>Contrato social</em>, o ato de associaÃ§Ã£o nasce da alienaÃ§Ã£o total de cada associado, com todos os seus direitos, Ã  comunidade, gerando um corpo moral e coletivo dirigido pela vontade geral. A igualdade transforma o interesse particular em utilidade pÃºblica, universalizando a vontade dos indivÃ­duos no interior do corpo soberano. Para superar o paradoxo do legislador e estruturar concretamente a comunidade polÃ­tica, Rousseau atribui uma funÃ§Ã£o decisiva Ã s prÃ¡ticas cÃ­vicas e ao serviÃ§o militar. Portar armas constitui o ato material pelo qual o indivÃ­duo participa diretamente do exercÃ­cio da soberania e da formaÃ§Ã£o da forÃ§a pÃºblica. <strong>Rousseau liga o porte de armas ao direito de voto e ao exercÃ­cio da cidadania polÃ­tica, identificando no soldado-cidadÃ£o o lugar institucional em que a produÃ§Ã£o da individualidade polÃ­tica coincide com a constituiÃ§Ã£o da comunidade.</strong></p>
+<p>O ideal do soldado-cidadÃ£o difunde-se tambÃ©m entre os oficiais e os teÃ³ricos militares do sÃ©culo XVIII. O general MaurÃ­cio da SaxÃ´nia propÃµe, jÃ¡ em 1732, o serviÃ§o obrigatÃ³rio universal para todos os jovens, sem distinÃ§Ã£o de classe. O general e teÃ³rico militar francÃªs Jacques-Antoine-Hippolyte de Guibert concebe, em seu <em>Essai gÃ©nÃ©ral de tactique</em>, de 1772, uma constituiÃ§Ã£o polÃ­tica e militar unificada, sustentando que a forÃ§a pÃºblica representa o principal vÃ­nculo do Estado. Guibert critica os exÃ©rcitos mercenÃ¡rios do Antigo Regime e teoriza um exÃ©rcito de cidadÃ£os movidos por honra e patriotismo, ciente de que a militarizaÃ§Ã£o do cidadÃ£o transforma a guerra em um evento nacional global. Seu colega Joseph Marie Servan de Gerbey analisa, na obra <em>Le Soldat citoyen, ou Vues patriotiques sur la maniÃ¨re la plus avantageuse de pourvoir Ã  la dÃ©fense du royaume</em>, de 1780, a usurpaÃ§Ã£o aristocrÃ¡tica do poder militar e propÃµe um sistema misto, composto por voluntÃ¡rios profissionais e conscritos de todas as camadas sociais. Servan teoriza uma educaÃ§Ã£o militar capaz de interiorizar a disciplina por meio do patriotismo, da tutela social do soldado e da honra cÃ­vica, transformando a subordinaÃ§Ã£o externa em uma autonomia moral orientada ao bem da <em>res publica</em>.</p>
+<h3><strong>A RevoluÃ§Ã£o Francesa e a institucionalizaÃ§Ã£o da violÃªncia de massa</strong></h3>
+<p>Em julho de 1789, os eleitores do Terceiro Estado em Paris fundam a milÃ­cia burguesa no HÃ´tel de Ville, distribuindo duzentos homens para cada um dos sessenta distritos da cidade. Com a tomada da Bastilha, a instituiÃ§Ã£o passa a chamar-se Guarda Nacional, sob o comando do marquÃªs de La Fayette, veterano da Guerra de IndependÃªncia Americana, e a lideranÃ§a do prefeito Jean Sylvain Bailly. Nos primeiros anos da RevoluÃ§Ã£o, o serviÃ§o na Guarda Nacional liga-se Ã  definiÃ§Ã£o de cidadania ativa estabelecida pela ConstituiÃ§Ã£o de 1791, que limita os direitos polÃ­ticos a quem paga uma contribuiÃ§Ã£o financeira equivalente a trÃªs dias de trabalho. O serviÃ§o armado configura-se como um direito polÃ­tico reservado Ã s classes proprietÃ¡rias, excluindo os cidadÃ£os passivos, os assalariados e os empregados domÃ©sticos. Essa exclusÃ£o suscita protestos diretos, como a petiÃ§Ã£o apresentada pelos criados do distrito da Isle Saint-Louis em agosto de 1789, que reivindicam o acesso Ã  Guarda Nacional e aos direitos cÃ­vicos. As cerimÃ´nias de alistamento, como a celebrada pelo padre e prefeito Gautier em Cesson, em julho de 1790, conferem ao serviÃ§o armado um valor ritual, descrevendo a pÃ¡tria como uma mÃ£e comum a quem os filhos oferecem a vida.</p>
+<p>No inverno de 1789 para 1790, a Assembleia Nacional enfrenta a reorganizaÃ§Ã£o das forÃ§as armadas no debate sobre a constituiÃ§Ã£o militar. O deputado Dubois-CrancÃ© defende a introduÃ§Ã£o do serviÃ§o obrigatÃ³rio universal, afirmando que, em uma naÃ§Ã£o soberana, a forÃ§a pÃºblica pertence ao povo e a liberdade coletiva exige a defesa direta da pÃ¡tria. Na mesma linha, outro deputado, Jean-Paul Rabaut, propÃµe o uso de festas cÃ­vicas e militares para educar os cidadÃ£os no respeito Ã  lei. A maioria dos deputados, liderada por figuras como o conde de Liancourt, rejeita, contudo, a obrigaÃ§Ã£o militar, qualificando-a como uma forma de despotismo incompatÃ­vel com as liberdades individuais. Em 16 de dezembro de 1789, a Assembleia decreta que o exÃ©rcito de linha deve ser recrutado exclusivamente em bases voluntÃ¡rias. O relatÃ³rio subsequente do marquÃªs de Bouthillier, de dezembro de 1790, mantÃ©m a estrutura do exÃ©rcito profissional, com engajamentos de oito anos, e estabelece a privaÃ§Ã£o dos direitos cÃ­vicos para os soldados em serviÃ§o, deixando a Guarda Nacional como Ãºnico baluarte armado da burguesia.</p>
+<p>O agravamento das tensÃµes internacionais e a emigraÃ§Ã£o de 2.169 oficiais aristocratas subvertem esse arranjo. Em junho de 1791, a Assembleia decreta a formaÃ§Ã£o dos primeiros batalhÃµes de voluntÃ¡rios nacionais, recrutados no interior da Guarda Nacional. Em 1792, o governo multiplica os chamados de voluntÃ¡rios e organiza corpos especiais de federados, favorecendo o ingresso de numerosos cidadÃ£os passivos e transformando a composiÃ§Ã£o social das tropas. Em 3 de agosto de 1792, a Assembleia concede a cidadania ativa a todos os combatentes. Em fevereiro de 1793, apÃ³s a execuÃ§Ã£o do rei e a ampliaÃ§Ã£o da coalizÃ£o inimiga, a ConvenÃ§Ã£o decreta o recrutamento de 300.000 homens, impondo a cada comuna a tarefa de fornecer uma cota fixa de conscritos entre dezoito e quarenta anos. Como a lei deixa Ã s comunidades a escolha das modalidades de seleÃ§Ã£o, as comunas recorrem ao sorteio ou Ã  designaÃ§Ã£o direta, admitindo a substituiÃ§Ã£o mediante pagamento e provocando fortes resistÃªncias camponesas.</p>
+<p>A crise do verÃ£o de 1793 leva Ã  <em>levÃ©e en masse</em>, decretada em 23 de agosto de 1793 pela ConvenÃ§Ã£o com base em um relatÃ³rio redigido por Danton. O decreto declara todos os franceses em estado de requisiÃ§Ã£o permanente: os jovens solteiros vÃ£o para a frente de batalha, os homens casados fabricam armas, as mulheres confeccionam tendas e prestam serviÃ§o nos hospitais, as crianÃ§as desfiam tecido e os idosos arengam nas praÃ§as para incitar Ã  bravura. A palavra <em>levÃ©e</em> encerra tanto o sentido de recrutamento quanto o de insurreiÃ§Ã£o popular. Por meio dessa medida, o Estado jacobino captura o Ã­mpeto insurrecional dos <em>sans-culottes</em> e o converte em um dispositivo de comando estatal controlado pelas autoridades. Esse percurso de institucionalizaÃ§Ã£o encontra seu cumprimento definitivo em 1798, com a lei Jourdan, que formaliza a conscriÃ§Ã£o geral como registro administrativo permanente, distinguindo a inscriÃ§Ã£o cadastral da convocaÃ§Ã£o efetiva Ã s armas.</p>
+<p>No plano ideolÃ³gico, a invenÃ§Ã£o do soldado-cidadÃ£o baseia-se em um processo de abstraÃ§Ã£o e identificaÃ§Ã£o. O indivÃ­duo despoja-se de sua identidade particular, ligada aos interesses de estamento ou de renda, para tornar-se uma encarnaÃ§Ã£o abstrata dos princÃ­pios da comunidade republicana, atuando como uma <em>pars totalis</em> do corpo soberano. O serviÃ§o militar universaliza o interesse privado, fazendo-o coincidir com a vontade geral. Nessa perspectiva, a figura do combatente transforma-se em um elemento intercambiÃ¡vel a serviÃ§o da naÃ§Ã£o. A morte em batalha recebe uma reinterpretaÃ§Ã£o no interior de uma nova teologia polÃ­tica democrÃ¡tica. No discurso intitulado <em>Sur la thÃ©orie du gouvernement dÃ©mocratique</em>, pronunciado em 20 de abril de 1794 por Jacques-Nicolas Billaud-Varenne diante da ConvenÃ§Ã£o Nacional, a morte constitui um lembrete da igualdade que um povo livre consagra em um ato pÃºblico. O sacrifÃ­cio supremo do soldado representa o Ã¡pice Ã©tico da participaÃ§Ã£o polÃ­tica, transformando o fim fÃ­sico do cidadÃ£o na prova fundadora da soberania popular e garantindo a regeneraÃ§Ã£o moral da naÃ§Ã£o.</p>
+<p>Esse momento histÃ³rico marca a institucionalizaÃ§Ã£o polÃ­tica da violÃªncia de massa no quadro do Estado Popular: a forÃ§a insurrecional bruta da multidÃ£o (<em>potentia</em>) Ã© canalizada e disciplinada pelas instituiÃ§Ãµes estatais (<em>potestas</em>), garantindo a sobrevivÃªncia da RepÃºblica por meio da mobilizaÃ§Ã£o total dos recursos humanos. O dilema entre cidadania e disciplina encontra uma resposta na reconceituaÃ§Ã£o da obediÃªncia militar. O soldado-cidadÃ£o nÃ£o obedece Ã  vontade arbitrÃ¡ria de um soberano ou de um comandante aristocrata, mas se submete Ã  lei e Ã  vontade geral, da qual ele prÃ³prio Ã© coautor. A disciplina republicana Ã© definida como uma mola do amor (<em>ressort de lâamour</em>) e como uma forma de autocontrole moral, transformando a subordinaÃ§Ã£o em extensÃ£o da liberdade cÃ­vica. A unificaÃ§Ã£o da forÃ§a pÃºblica elimina a separaÃ§Ã£o entre o exÃ©rcito permanente e a Guarda Nacional, superando o dualismo do Antigo Regime e realizando a identidade entre o povo e o aparato militar do Estado.</p>
+<h3><strong>O Antigo Regime prussiano e a resposta da filosofia idealista alemÃ£</strong></h3>
+<p>No reino da PrÃºssia, o rei Frederico Guilherme I formaliza o sistema cantonal de recrutamento (<em>Kantonsystem</em>) com os decretos de 1733, combinando a estrutura do exÃ©rcito permanente com elementos da milÃ­cia local. A reforma responde Ã  necessidade de sustentar o crescimento dos efetivos militares, que passaram de 40.000 homens em 1713 para 80.000 em 1740, enfrentando ao mesmo tempo os custos e os limites do recrutamento estrangeiro. As prÃ¡ticas tradicionais de alistamento urbano provocam abusos, brigas e episÃ³dios de violÃªncia, como a expediÃ§Ã£o de 1720 a Hagen, que terminou com cinco mortos. O sistema atribui a cada regimento uma zona de recrutamento (cantÃ£o), subdividida em distritos de companhia. Todos os homens adultos aptos, a partir da idade da confirmaÃ§Ã£o religiosa, constam das listas e fornecem uma cota anual para manter os regimentos completos. Os conscritos cumprem um ou dois anos de treinamento inicial e depois retornam Ã  vida civil por meio da licenÃ§a temporÃ¡ria (<em>Beurlaubung</em>), por cerca de dez meses ao ano, trabalhando no campo ou no artesanato. O capitÃ£o retÃ©m o soldo dos soldados licenciados, reduzindo os custos do Estado e transferindo o alojamento e o sustento Ã s comunidades locais. Os cantonistas permanecem ligados Ã  sua aldeia, convocados todos os anos para dois meses de exercÃ­cios e mobilizados em caso de guerra, enquanto os mercenÃ¡rios estrangeiros constituem cerca de metade das tropas e prestam o serviÃ§o permanente de guarniÃ§Ã£o. Em 1792, o regulamento cantonal fixa em vinte anos o limite mÃ¡ximo de serviÃ§o.</p>
+<p>O impacto social do sistema cantonal recai sobretudo sobre homens adultos de alta estatura das zonas rurais, onde a altura mÃ­nima exigida oscila entre 165,5 e 169 centÃ­metros. A historiografia tradicional de Otto BÃ¼sch identifica no sistema cantonal um vÃ­nculo funcional com a servidÃ£o e com a propriedade fundiÃ¡ria nobiliÃ¡rquica (<em>Junker</em>), interpretando a PrÃºssia como uma sociedade integralmente militarizada, em que a hierarquia militar prolonga o domÃ­nio feudal sobre os camponeses. Os estudos revisionistas de autores como Bleckwenn, Kloosterhuis, Wilson e Winter demonstram, ao contrÃ¡rio, a flexibilidade do sistema e a presenÃ§a de amplas isenÃ§Ãµes para as cidades, as indÃºstrias e as classes proprietÃ¡rias. O sistema cantonal representa um compromisso histÃ³rico em que o absolutismo prussiano concentra o monopÃ³lio fiscal e militar em detrimento das ordens intermediÃ¡rias, integrando a nobreza ao corpo de oficiais e estabelecendo um contato burocrÃ¡tico direto entre o Estado e os sÃºbditos. Hans Bleckwenn vÃª um elemento de emancipaÃ§Ã£o camponesa na tutela estatal diante do poder arbitrÃ¡rio do senhor. As famÃ­lias camponesas e as comunidades rurais pÃµem em prÃ¡tica estratÃ©gias coletivas para evitar a conscriÃ§Ã£o de seus filhos, adquirindo propriedades ou casando os conscritos com viÃºvas de arrendatÃ¡rios. A responsabilidade coletiva da aldeia e o confisco dos bens dos desertores reduzem as taxas de DESERÃÃO em comparaÃ§Ã£o com as tropas mercenÃ¡rias. Nas cidades, artesÃ£os e diaristas recorrem Ã  divisÃ£o do trabalho no interior da companhia, pagando aos companheiros mais pobres para que cumpram em seu lugar o serviÃ§o de guarniÃ§Ã£o.</p>
+<p>Antes das guerras revolucionÃ¡rias francesas, o sistema militar prussiano recebe severas crÃ­ticas internas. O treinamento e a disciplina prussianos baseiam-se em puniÃ§Ãµes corporais sistemÃ¡ticas, em espancamentos e no suplÃ­cio das varas (<em>SpieÃrutenlaufen</em>), no qual um prisioneiro Ã© obrigado a caminhar entre duas fileiras de homens que o golpeiam repetidamente com chicotes ou cordas, castigo aplicado aos desertores atÃ© trinta vezes. Ulrich BrÃ¤ker descreve o treinamento como um mecanismo violento destinado a reduzir os soldados a corpos enrijecidos e desprovidos de vontade. Em 1761, Thomas Abbt publica o escrito <em>Vom Tode fÃ¼r das Vaterland</em>, tentativa de nacionalizar o conceito de honra e de estender o patriotismo monÃ¡rquico a todas as camadas da populaÃ§Ã£o. JÃ¡ os cameralistas como Justi e os cÃ³digos militares de 1797 consideram a obediÃªncia passiva e o temor das puniÃ§Ãµes os Ãºnicos pilares da tropa, rejeitando a honra como recurso popular. Em 1798, o ex-oficial Georg Heinrich von Berenhorst publica as <em>Betrachtungen Ã¼ber die Kriegskunst</em>, formulando uma crÃ­tica de matriz kantiana Ã  arte militar absolutista. Berenhorst mostra como o sistema militar do Antigo Regime serve para transformar os homens em mÃ¡quinas obedientes apenas por medo. Em defesa do modelo tradicional posiciona-se Johann Friedrich von der Decken, com o tratado de 1800 <em>Betrachtungen Ã¼ber das VerhÃ¤ltnis des Kriegsstandes zu dem Zwecke der Staaten</em>. Decken sustenta que a civilizaÃ§Ã£o moderna exige a especializaÃ§Ã£o das funÃ§Ãµes sociais e defende a passividade mecÃ¢nica e o hÃ¡bito do soldado profissional em contraposiÃ§Ã£o ao entusiasmo (<em>SchwÃ¤rmerei</em>) revolucionÃ¡rio, comparando a disciplina militar Ã  ascese e Ã  uniformidade da regra monacal.</p>
+<p>O choque das vitÃ³rias francesas leva a cultura alemÃ£ a uma profunda reelaboraÃ§Ã£o simbÃ³lica e filosÃ³fica da experiÃªncia revolucionÃ¡ria. A literatura reinterpreta a figura do soldado francÃªs por meio das estruturas narrativas do romance de formaÃ§Ã£o (<em>Bildungsroman</em>), associando ao combatente republicano os traÃ§os da juventude, da virilidade e do entusiasmo pela liberdade. Escritores como Klopstock, Schiller e Novalis celebram a guerra popular e o sacrifÃ­cio pela pÃ¡tria como momentos de elevaÃ§Ã£o espiritual e de superaÃ§Ã£o do vazio da mentalidade mercantilista. Do ponto de vista filosÃ³fico, Immanuel Kant examina as implicaÃ§Ãµes da RevoluÃ§Ã£o Francesa em seu sistema de direito pÃºblico. Kant rejeita o direito de resistÃªncia e de revoluÃ§Ã£o, definindo o regicÃ­dio e a seditio como violaÃ§Ãµes lÃ³gicas da soberania estatal, que fazem a sociedade retornar ao estado de natureza. Ao mesmo tempo, porÃ©m, Kant reconhece no republicanismo a Ãºnica constituiÃ§Ã£o conforme ao direito e aceita os resultados da RevoluÃ§Ã£o uma vez institucionalizados como direito positivo. A filosofia kantiana exerce influÃªncia direta sobre os reformadores prussianos como Stein, Hardenberg, SchÃ¶n, SchrÃ¶tter, Boyen, Scharnhorst e Gneisenau.</p>
+<p>Para enquadrar a tensÃ£o entre liberdade e vÃ­nculo, a filosofia prÃ¡tica de Kant distingue a dimensÃ£o numÃªnica da fenomÃªnica. O indivÃ­duo empÃ­rico busca a satisfaÃ§Ã£o pessoal e o amor-prÃ³prio (<em>EigendÃ¼nkel</em>, <em>Eigenliebe</em>), enquanto o ser racional responde ao dever incondicional da lei moral. A relaÃ§Ã£o entre essas duas esferas gera um conflito permanente, no qual a lei moral inflige uma humilhaÃ§Ã£o ao egoÃ­smo individual. Essa âhumilhaÃ§Ã£o heroicaâ suscita o respeito (<em>Achtung</em>) pela norma e eleva o sujeito moral por meio de uma luta interior. No plano polÃ­tico, a liberdade dos indivÃ­duos requer a coerÃ§Ã£o jurÃ­dica para limitar o arbÃ­trio (<em>WillkÃ¼r</em>) e evitar a destruiÃ§Ã£o recÃ­proca. A tendÃªncia ambivalente do ser humano â de um lado, a necessidade de unir-se aos outros; de outro, a propensÃ£o a isolar-se ou entrar em conflito por causa do prÃ³prio egoÃ­smo, a insociÃ¡vel sociabilidade (<em>Ungeselligkeit</em>) da natureza humana â torna necessÃ¡rio um mestre universal, identificado com o Estado republicano, capaz de dobrar a vontade particular a uma lei universal. Nessa estrutura teleolÃ³gica, a disciplina externa e a guerra funcionam como etapas histÃ³ricas para constranger o homem Ã  autodisciplina moral e Ã  paz perpÃ©tua. Kant funda assim uma subjetividade polÃ­tica cindida, na qual a obediÃªncia Ã s leis estatais coincide com a realizaÃ§Ã£o da autonomia moral individual.</p>
+<p>Johann Gottlieb Fichte radicaliza a perspectiva kantiana nos <em>Discursos Ã  naÃ§Ã£o alemÃ£</em> (<em>Reden an die deutsche Nation</em>), de 1807-1808, e nos escritos sobre a guerra de 1813. Fichte propÃµe um programa de educaÃ§Ã£o nacional (<em>Nationalerziehung</em>) baseado nas teorias pedagÃ³gicas de Pestalozzi, voltado ao aniquilamento do livre-arbÃ­trio individual e Ã  sua completa reestruturaÃ§Ã£o moral em direÃ§Ã£o ao bem comum. A educaÃ§Ã£o articula-se em uma primeira fase de submissÃ£o disciplinar por medo da puniÃ§Ã£o, seguida de uma fase de adesÃ£o autÃ´noma e de sacrifÃ­cio voluntÃ¡rio pela comunidade. Fichte formula o conceito de fronteira interna (<em>innere Grenze</em>), sustentando que as fronteiras geogrÃ¡ficas do Estado devem coincidir com os limites espirituais e linguÃ­sticos da naÃ§Ã£o. A fronteira interna define a comunidade excluindo quem quer que se recuse a identificar-se com a causa nacional. Na situaÃ§Ã£o existencial da guerra de libertaÃ§Ã£o, o Estado mecÃ¢nico cede lugar Ã  naÃ§Ã£o espiritual: a guerra torna-se o evento em que a vida temporal se sacrifica pela vida eterna do povo. A palavra de ordem do soldado transforma-se do francÃªs <em>vivre libre ou mourir</em> no alemÃ£o <em>siegen schlechthin</em> (vencer absolutamente). O idealismo alemÃ£o reelabora as categorias de liberdade, naÃ§Ã£o e disciplina, externalizando o conflito sobre o inimigo estrangeiro e interiorizando a obediÃªncia no dever Ã©tico do cidadÃ£o, fornecendo aos reformadores prussianos o fundamento teÃ³rico para a criaÃ§Ã£o da <em>Landwehr</em> (defesa territorial) e da conscriÃ§Ã£o universal.</p>
+<h3><strong>A reforma prussiana: sistematizar a naÃ§Ã£o em armas dentro de uma hierarquia</strong></h3>
+<p>ApÃ³s a derrota de Iena e Auerstedt, em 1806, a monarquia prussiana sofre um colapso polÃ­tico e militar que leva a ComissÃ£o de ReorganizaÃ§Ã£o Militar, dirigida por Gerhard von Scharnhorst e August Neidhardt von Gneisenau, a iniciar uma profunda transformaÃ§Ã£o institucional. Os reformadores prussianos, apoiados pelos ministros Heinrich Friedrich Karl vom Stein e Karl August von Hardenberg, identificam na mobilizaÃ§Ã£o da naÃ§Ã£o a chave da superioridade bÃ©lica francesa. Hardenberg define esse projeto como uma revoluÃ§Ã£o vinda de cima, fundada na introduÃ§Ã£o de princÃ­pios democrÃ¡ticos no interior de um governo monÃ¡rquico. O Estado prussiano pretende apropriar-se das forÃ§as latentes da populaÃ§Ã£o que o Antigo Regime mantinha reprimidas, transformando os sÃºbditos em defensores ativos da pÃ¡tria sem abalar a autoridade da coroa.</p>
+<p>A reforma visa constituir um corpo polÃ­tico unificado por meio da instituiÃ§Ã£o do serviÃ§o militar obrigatÃ³rio, concebido como a principal escola de educaÃ§Ã£o nacional. Scharnhorst e Hermann von Boyen superam a dependÃªncia dos mercenÃ¡rios estrangeiros, abolindo o recrutamento no exterior para fundar o exÃ©rcito exclusivamente sobre os naturais do territÃ³rio prussiano. O exÃ©rcito torna-se o lugar material e simbÃ³lico em que a naÃ§Ã£o adquire consciÃªncia de si e interioriza o dever de lealdade ao Estado. Os reformadores integram a dimensÃ£o disciplinar Ã  filosofia idealista da educaÃ§Ã£o e da formaÃ§Ã£o pessoal, transformando a obediÃªncia passiva do Antigo Regime em uma adesÃ£o Ã©tica autÃ´noma. No novo cÃ³digo de puniÃ§Ãµes militares de agosto de 1808, a comissÃ£o abole as penas corporais infamantes para o soldado comum, estendendo o senso de honra a todos os membros do corpo armado e permitindo o acesso aos postos de oficial com base no mÃ©rito individual, e nÃ£o no berÃ§o aristocrÃ¡tico.</p>
+<p>Diferentemente da abstraÃ§Ã£o igualitÃ¡ria da RevoluÃ§Ã£o Francesa, a PrÃºssia estrutura a conscriÃ§Ã£o segundo princÃ­pios precisos de estratificaÃ§Ã£o social, compatÃ­veis com uma sociedade articulada em estamentos e classes. Os reformadores rejeitam a prÃ¡tica da substituiÃ§Ã£o mediante pagamento, considerando-a um fator de corrupÃ§Ã£o moral que descarrega o imposto de sangue apenas sobre as classes menos abastadas. Para integrar a burguesia abastada e instruÃ­da sem destruir seu papel econÃ´mico e cultural, a lei institui o sistema dos voluntÃ¡rios de um ano. Os jovens instruÃ­dos que custeiam por conta prÃ³pria o equipamento cumprem um serviÃ§o reduzido a doze meses e obtÃªm acesso ao corpo de oficiais da <em>Landwehr</em>, o exÃ©rcito territorial de reserva. O aparato militar articula-se, assim, em uma estrutura dual, na qual o exÃ©rcito de linha exerce uma funÃ§Ã£o disciplinadora sobre as camadas populares, enquanto as unidades especiais e a <em>Landwehr</em> valorizam a extraÃ§Ã£o social e a cultura das classes mÃ©dias.</p>
+<p>Os dois modelos oferecem respostas opostas Ã  tensÃ£o entre cidadania e disciplina. A resposta francesa se funda no universalismo igualitÃ¡rio abstrato derivado da teoria do contrato social de Rousseau, em que cada indivÃ­duo aliena inteiramente seus direitos Ã  comunidade para integrar-se como parte indivisÃ­vel do povo soberano. Nesse quadro, o soldado-cidadÃ£o participa diretamente da vontade geral, e a disciplina representa a execuÃ§Ã£o da lei que ele prÃ³prio contribui para criar. A resposta prussiana constrÃ³i, ao contrÃ¡rio, um corpo polÃ­tico hierarquicamente diferenciado, no qual a soberania reside na autoridade monÃ¡rquica e o Estado opera como sÃ­ntese harmÃ´nica dos estamentos. A igualdade dos prussianos define-se como igual submissÃ£o ao dever de defesa do Estado, mas o cumprimento desse dever adapta-se Ã s hierarquias sociais existentes e ao grau de instruÃ§Ã£o individual. A PrÃºssia nacionaliza a obrigaÃ§Ã£o militar sem democratizar o ordenamento polÃ­tico, unificando a forÃ§a pÃºblica no interior de um quadro monÃ¡rquico e conservador.</p>
+<p>Em 1809, a expediÃ§Ã£o do capitÃ£o Schill e o surgimento de sociedades secretas sinalizam, na PrÃºssia, a disseminaÃ§Ã£o de uma agitaÃ§Ã£o patriÃ³tica contra a ocupaÃ§Ã£o francesa. JÃ¡ em seu memorando de agosto de 1808, Scharnhorst teoriza a possibilidade de organizar burocraticamente uma insurreiÃ§Ã£o popular por meio de uma rede de homens de confianÃ§a. A virada decisiva ocorre em dezembro de 1812, com a convenÃ§Ã£o de Tauroggen, assinada pelo general York sem autorizaÃ§Ã£o rÃ©gia, e com a subsequente convocaÃ§Ã£o dos estados provinciais da PrÃºssia Oriental em fevereiro de 1813. Os estados provinciais organizam o armamento popular e a <em>Landwehr</em> antes do consentimento formal da coroa, transferindo a forÃ§a da multidÃ£o para o controle das autoridades monÃ¡rquicas. Em 21 de abril de 1813, o rei promulga o decreto sobre o <em>Landsturm</em>, considerado um exemplo raro, para nÃ£o dizer Ãºnico, de institucionalizaÃ§Ã£o de uma guerra de guerrilha. A medida impÃµe a cada cidadÃ£o a obrigaÃ§Ã£o de combater o invasor por todos os meios, de atacar os comboios de suprimentos e de ignorar as determinaÃ§Ãµes inimigas, delegando a direÃ§Ã£o da luta a comitÃªs locais de defesa (<em>Schutzdeputationen</em>).</p>
+<p>A aplicaÃ§Ã£o do <em>Landsturm</em> provoca acirradas disputas na administraÃ§Ã£o estatal e na polÃ­cia. O chefe de polÃ­cia de Berlim, Lecoq, e o funcionÃ¡rio Scharnweber denunciam o risco de que a distribuiÃ§Ã£o de armas Ã s classes populares destrua a ordem civil e subverta as hierarquias sociais, assimilando o comitÃª do <em>Landsturm</em> ao jacobinismo francÃªs. Scharnweber sustenta que a guerra de guerrilha expÃµe a populaÃ§Ã£o a represÃ¡lias brutais e dissolve a proteÃ§Ã£o da propriedade privada garantida pelo Estado. Em sentido contrÃ¡rio, Gottfried von Hippel defende a distribuiÃ§Ã£o de armas ao povo, identificando na classe mÃ©dia a verdadeira base moral da naÃ§Ã£o, situada entre o egoÃ­smo das elites ricas e os excessos da plebe.</p>
+<p>A experiÃªncia insurrecional contra NapoleÃ£o encontra uma formalizaÃ§Ã£o permanente na lei sobre o serviÃ§o militar de 3 de setembro de 1814, formulada pelo ministro da Guerra Hermann von Boyen. A lei define o exÃ©rcito como a principal escola de educaÃ§Ã£o de toda a naÃ§Ã£o (<em>Haupt-Bildungsschule der ganzen Nation</em>) e estabelece a obrigaÃ§Ã£o de alistamento para todos os jovens ao completarem vinte anos. O serviÃ§o prevÃª trÃªs anos no exÃ©rcito de linha, dois anos na reserva, seis anos no primeiro contingente da <em>Landwehr</em> e oito anos no segundo contingente, estendendo os deveres militares atÃ© os trinta e nove anos de idade. O sistema mantÃ©m a estratificaÃ§Ã£o social por meio do instituto dos voluntÃ¡rios de um ano (<em>EinjÃ¤hrige-Freiwillige</em>), que permite aos jovens cultos e abastados cumprir um serviÃ§o reduzido e acessar diretamente o corpo de oficiais.</p>
+<h3><strong>ConclusÃ£o</strong></h3>
+<p>A anÃ¡lise geral conduzida por Thomas Hippler evidencia a divergÃªncia estrutural entre as respostas francesa e prussiana ao dilema polÃ­tico-militar da modernidade.</p>
+<p>Na FranÃ§a, a violÃªncia de massa se institucionaliza por meio de uma abstraÃ§Ã£o igualitÃ¡ria universal, inaugurada pela <em>levÃ©e en masse</em> de 1793 e codificada pela lei Jourdan de 1798. O modelo francÃªs unifica a forÃ§a pÃºblica anulando as distinÃ§Ãµes estamentais, reconhece no sacrifÃ­cio supremo do soldado o Ã¡pice da participaÃ§Ã£o democrÃ¡tica e define a morte na frente de batalha como o lembrete da igualdade.</p>
+<p>JÃ¡ a PrÃºssia promove uma sistematizaÃ§Ã£o hierÃ¡rquica e reformista que nacionaliza os deveres militares sem democratizar o ordenamento polÃ­tico. A reforma prussiana preserva as hierarquias sociais e econÃ´micas por meio da articulaÃ§Ã£o do alistamento e da instruÃ§Ã£o, substituindo o entusiasmo revolucionÃ¡rio pela interiorizaÃ§Ã£o Ã©tica do dever, derivada da filosofia idealista de Kant e Fichte.</p>
+<p>Ã o modelo prussiano, e nÃ£o o francÃªs, que se torna o paradigma dominante dos exÃ©rcitos nacionais europeus ao longo do sÃ©culo XIX. A PrÃºssia demonstra que o Estado moderno pode mobilizar toda a populaÃ§Ã£o masculina e canalizar suas forÃ§as para dentro das casernas sem expor as instituiÃ§Ãµes ao risco da revoluÃ§Ã£o ou da insurreiÃ§Ã£o popular. A prÃ³pria FranÃ§a reimporta o sistema conscricional prussiano apÃ³s a derrota de 1870-1871.</p>
+<p>A anÃ¡lise das origens do serviÃ§o militar moderno mostra como a tensÃ£o originÃ¡ria entre cidadania e disciplina permanece uma questÃ£o em aberto ainda hoje, dividida entre o conceito de <strong>soldado como integrante de uma comunidade de cidadÃ£os, capazes de decidir coletivamente a polÃ­tica do Estado, ou como membro de uma naÃ§Ã£o espiritual, cujo dever moral interior Ã© aderir Ã  autoridade estatal que encarna a naÃ§Ã£o na luta contra seus adversÃ¡rios</strong>.</p>
+<p></p>
+<p><em>Sem publicidade ou patrocÃ­nio, dependemos de vocÃª. FaÃ§a parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/historia-e-memoria/como-a-modernidade-forjou-o-cidadao-soldado/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

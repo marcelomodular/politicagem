@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A German Movie Previews Its Far-Right Future - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A German Movie Previews Its Far-Right Future</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/06/germany-movies-prosecution-film-far-right-afd/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/Hockenos-Prosecution-Juenglinge-Film.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A German Movie Previews Its Far-Right Future
+                            </p>
+                            
+<p>Contemporary cinema from Germany seems determined to disabuse anyone—including Germans—who still imagines it as a nation of Birkenstock-wearing, anti-nuclear peaceniks who shrink from their own shadows. A spate of new, sharply edged films deftly take up where the socially critical New German Cinema of the 1970s—featuring directors such as Rainer Werner Fassbinder, Volker Schlöndorff, and Margarethe von Trotta—left off. This new Germany is something much darker than that portrayed in lighthearted films from recent decades like <em>Fack ju Göhte</em> and <em>Good Bye, Lenin!</em>, and the far right’s stunning results in September’s regional elections portend how much darker it may still become.</p>
+<p>One of these unflinching filmmakers is the German Iranian director Faraz Shariat, whose <em>Prosecution</em> is a harrowing thriller about a young German lawyer with Korean roots—a lesbian named Seyo Kim (Chen Emilie Yan)—who starts as a state prosecutor in a small eastern German city. After winning three prizes at the Berlinale film festival in February, the arthouse thriller was released in Germany over the summer and was described by one reviewer as “a film of the political moment.”</p> 
+
+
+<p>Contemporary cinema from Germany seems determined to disabuse anyone—including Germans—who still imagines it as a nation of Birkenstock-wearing, anti-nuclear peaceniks who shrink from their own shadows. A spate of new, sharply edged films deftly take up where the socially critical New German Cinema of the 1970s—featuring directors such as Rainer Werner Fassbinder, Volker Schlöndorff, and Margarethe von Trotta—left off. This new Germany is something much darker than that portrayed in lighthearted films from recent decades like <em>Fack ju Göhte</em> and <em>Good Bye, Lenin!</em>, and the far right’s stunning results in September’s regional elections portend how much darker it may still become.</p>
+
+<p>One of these unflinching filmmakers is the German Iranian director Faraz Shariat, whose <em>Prosecution</em> is a harrowing thriller about a young German lawyer with Korean roots—a lesbian named Seyo Kim (Chen Emilie Yan)—who starts as a state prosecutor in a small eastern German city. After winning three prizes at the Berlinale film festival in February, the arthouse thriller was released in Germany over the summer and was described by one reviewer as “a film of the political moment.”</p>
+<p>It opens with a tense courtroom scene in which the freshly appointed Kim treats a racist attack on a Black citizen as a petty crime and not a politically motivated assault. She is the proud representative of Germany’s institutional justice, which she believes is “the most objective in the world.”</p>
+<p> </p><p></p>
+<p>But her attitude changes quickly. After reprimanding a neo-Nazi defendant, she is deliberately knocked off her bike while cycling through a park by a hooded man beneath a bridge. From above, Molotov cocktails rain down, one of which explodes on her back, setting her jacket ablaze and burning her neck and jaw. The attackers flee yelling, “Take that, cunt!” Despite her injuries, Kim remains at the crime scene to ensure that forensic evidence is properly secured. She’s the victim now, and she’s determined to obtain justice in a system that isn’t objective, and perhaps never was.</p>
+<p>Kim’s lawyer, Alexandra Tiedemann (played by Julia Jentsch), is the same lawyer who represented the Black citizen in the first scene, and raised the objection (then against Kim) that the German system is “blind in the right eye.” In other words, the establishment refuses to treat right-wing extremism with the same severity it does other politically motivated acts. Kim tells Tiedemann that, had Muslims been suspected of the attack on her, it would immediately have been labeled terrorism and all of the state’s resources brought to bear. This charge of official partiality has long been made by the German left—going all the way back to the 1950s when the West German justice system was stacked with former Nazis, the topic of Lars Kraume’s <em>The People vs. Fritz Bauer </em>(2015). But that was a long, long time ago, right?</p>
+ 
+<img alt="A film still of a white-haired man in a suit smoking a cigarette while holding up a newspaper toward the camera." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Hockenos-The-People-vs.-Fritz-Bauer-Martin-Valentin-Menke-zero-one-film-GmbH.png?w=800"/>
+
+A film still of a white-haired man in a suit smoking a cigarette while holding up a newspaper toward the camera.
+<p>Actor Burghart Klaussner as Fritz Bauer in <em>The People vs. Fritz Bauer</em> (2015).Martin Valentin Menke/zero one film GmbH</p>
+<p>Racist hate crimes, critics like Shariat charge, are all too often either not prosecuted at all or treated as apolitical infractions. This spares perpetrators stiff sentences and hides Germany’s ugly secret: Eighty years after Nazi rule, a potent fascist network runs across the country, in all directions, not just in former East Germany. This leads to a sobering conclusion, namely that contemporary Germany has failed at its most elemental undertaking: ensuring that fascism never again flourishes on German soil.</p>
+<p>Germany’s highest profile institutional failure (so far) were the murders committed by a neo-Nazi cell called the National Socialist Underground (NSU) between 2000 and 2007. The group murdered a German policewoman and nine people from primarily Turkish backgrounds. Despite evidence that piled up over those years, the NSU continued to kill, its murders constituting the deadliest extremist killing spree in postwar Germany at the time. Instead of homing in on the widespread neo-Nazi networks, the authorities targeted the victims’ families. As depicted in <em>The Barber and the Bomb</em> (a 2015 documentary by Andreas Maus), the German authorities falsely claimed the murders were tied to Turkish organized crime or gambling mafias. German authorities only identified the killers after they found a video made by the NSU claiming responsibility for the murders, bombings, and robberies.</p>
+ 
+<img alt="A photograph of a protestor, seen from the shoulders down, as he holds up a sign with pictures of victims of the National Socialist Underground terrorist group. The photographs are headshots of nine men and one woman of varying ages." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Hockenos-GettyImages-996039194.png?w=800"/>
+
+A photograph of a protestor, seen from the shoulders down, as he holds up a sign with pictures of victims of the National Socialist Underground terrorist group. The photographs are headshots of nine men and one woman of varying ages.
+<p>A protester holds a sign with pictures of victims of the National Socialist Underground terrorist group, seen in front of the Higher Regional Court in Munich, Germany, on July 11, 2018.Matthias Balk/Getty Images</p>
+<p>In <em>Prosecution</em>, Kim believes that the state’s institutions of justice can and will function, if worked the right way. (In the 2017 German film <em>In the Fade, </em>directed by Fatih Akin, the protagonist gives up on the justice system; she kills her family’s murderers and herself with a homemade bomb.) Nevertheless, Kim doesn’t count on the state to protect her. She arms herself and buys a jet-black, bulletproof sports car. As her legitimate quest for justice becomes an obsession, she crosses lines that make the film more than a black-and-white tale of good versus evil. Does she really have to break the law to make the law work? Do Germans with darker skin tones need to be armed on the street? Does Kim selfishly put others in harm’s way to convict her attackers?</p>
+<p>As Kim immerses herself in the case—against the warnings of her superiors—she undertakes the investigative legwork that the city’s authorities themselves should do be doing but aren’t. Secure in her standing as a German professional, she refuses to act the way many non-German victims do: passive and defenseless, cowed by Germany’s intimidating bureaucracy. At night, Kim sneaks into the city’s archives to piece together evidence that reveals a dense far-right network that penetrates deep into the justice and public-security organs. She tracks down previous victims whose cases were swept under the rug—obvious leads not followed up, pertinent questions unasked, connections to other similar crimes unaddressed.</p>
+<p>The obstacles that Kim encounters again and again point to sympathy for the far right beyond city hall’s custodial staff and a handful of police. Her superior, a senior prosecutor—an urbane, educated, reasonable-looking man—tells her that 80 percent of cases like hers go unsolved, and hers very well might too. He’s not a beer hall lowlife or neo-Nazi thug, and that’s exactly what’s so disturbing: The institutions of justice belie their neutral and orderly veneers. Germany’s far right wear ties, drive Porsches, possess law degrees. “Yeah, there are Germans around here who think like this,” a colleague tells her. “They can’t be excluded from public service. There’s no law.” The threat to people of color in Germany no longer lies exclusively outside the institutions but inside them as well.</p>
+ 
+<img alt="A film still of a woman with blonde hair screaming while being held down against pavement by two police officers, whose uniforms are partly visible." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Hockenos-In-the-Fade-Magnolia-Pictures.png?w=800"/>
+
+A film still of a woman with blonde hair screaming while being held down against pavement by two police officers, whose uniforms are partly visible.
+<p>Actress Diane Kruger as Katja Sekerci in the film <em>In the Fade</em> (2017).Magnolia Pictures</p>
+<p>The film’s German title, <em>Staatsschutz</em> (literally “state protection”), does work for it that the English translation misses. In Germany, the federal and state-level <em>Staatsschutz</em> is the police organ responsible for defending the constitutional order, state institutions, and national security. This object of prosecution is unnamed, but democratic Germany protects its citizens from the likes of terrorism. But switch out the object and the state could be protecting another group: the perpetrators. What it protects above all else is itself: its own institutions, personnel, reputation. An image stained by far-right xenophobes is the last thing that Germany (of all countries) wants, so it’s not in the state’s interest to make federal cases out of racist and neo-Nazi crimes, neither in the former West or East.</p>
+<p><em>Prosecution</em> is all the more chilling today. It portrays conditions <em>before</em> the far-right Alternative for Germany (AfD) racked up 44 percent of the vote in the eastern German state of Saxony-Anhalt in September and then 38 percent in another eastern state two weeks later. These votes constitute seismic events in postwar Germany, but <em>Prosecution</em> reveals the extent to which the far right has crept into German institutions without ever being voted into them. Regularly and for years now, German media has reported on cases of far-right chat groups in police units, neo-Nazi cliques in the armed forces, and AfD-affiliated judges and prosecutors. And as we see in <em>Prosecution</em>, for people of color and the LGBTQ community, that’s scary enough. In 2025, right-wing extremists committed 42,544 crimes across Germany, according to interior ministry statistics, including 8,396 explicitly xenophobic hate crimes—and these are the numbers of a system blind in the right eye. Critics suspect they are much higher.</p>
+<p> </p>
+<p>How threatening will life in an AfD-led Saxony-Anhalt be for the far right’s enemies? One has to assume significantly so. And for this reason, many who fall on the far right’s undesirable list are sitting on packed bags, report German media. In an AfD-governed state, the well-being of people of color and the LGBTQ community will likely be distinctly worse than that of Kim in <em>Prosecution</em>. With the justice and interior ministers in its portfolio, an AfD government will control the Staatsschutz and the state intelligence agency, too—the latter of which currently classifies the AfD as “right-wing extremist.” So, too, will it control police personnel, and thus the department’s priorities and deployment, as well as asylum and deportation rules in the state. Ministers appoint political civil servants such as state secretaries and department heads. The justice ministry gives instructions to public prosecutors like Kim.</p>
+<p>The AfD and its cronies already set the tone in bastions like Saxony-Anhalt, and have done so for years. But now the hatred bears a stamp of legitimacy, even if it violates the law. Under the wing of the AfD, perpetrators like those who fire-bombed Kim in <em>Prosecution</em> will surely feel emboldened—and protected.</p>
+<p>
+</p><p>
+</p>
+<p>In pondering the larger issue of how this can happen in Germany (a country long considered a pioneer in coming to terms with the past), one has to watch another contemporary German film, <em><a href="https://foreignpolicy.com/2026/10/23/fatherland-nazis-postwar-trauma-rubble-movies/" rel="noopener noreferrer" target="_blank">Fatherland</a></em>, directed by Pawel Pawlikowski. The black-and-white biopic follows the great German writer Thomas Mann as he and his daughter, Erika, who have been living in the United States, tour eastern and western Germany in 1949, just as the country’s postwar division is solidifying. In Frankfurt, in the West, the state is stocked with former Nazis. In the East, the Soviet system, with all of its flaws, is assuming shape. There’s something profoundly wrong and disturbing at this birth moment of the two Germanys, and the Manns sense it. These birth defects resonate to today.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/06/germany-movies-prosecution-film-far-right-afd/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

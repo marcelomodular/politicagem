@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema eleitoral distrital misto: retrocesso democrático - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Sistema eleitoral distrital misto: retrocesso democrático</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vermelho</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://vermelho.org.br/2026/11/05/sistema-eleitoral-distrital-misto-retrocesso-democratico/?utm_source=rss&utm_medium=rss&utm_campaign=sistema-eleitoral-distrital-misto-retrocesso-democratico" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://vermelho.org.br/wp-content/uploads/2025/07/congresso-nacional-foto-agencia-brasil.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Sistema eleitoral distrital misto: retrocesso democrático
+                            </p>
+                            
+
+<img src="https://vermelho.org.br/wp-content/uploads/2025/07/congresso-nacional-foto-agencia-brasil.webp"/> Congresso Nacional | Foto: Lula Marques/ Agência Brasil
+
+<p>O presidente da Câmara dos Deputados, Hugo Motta, tem declarado que pretende aprovar o sistema eleitoral distrital misto ainda este ano. Essa iniciativa expressa o objetivo do Centrão de acabar com os chamados “puxadores de votos”, que levaram o PL a eleger uma expressiva bancada em detrimento de outros partidos.</p>
+<p>O “puxador de votos”, ao obter uma votação muito grande, permite que um candidato com votação pouco expressiva se eleja em detrimento de candidatos de outro partido ou federação que, mesmo tendo mais votos, não se elegem. Isso ocorre porque o puxador de votos, ao contribuir para que o partido alcance várias vezes o quociente eleitoral, assegura a eleição de candidatos que obtiveram votações pequenas. Enquanto isso, outro partido ou federação que, por exemplo, alcançou apenas um quociente eleitoral elege somente um parlamentar. Os demais candidatos, mesmo com votações expressivas, não se elegem. Para solucionar esse problema, o Centrão propõe a adoção do sistema eleitoral distrital misto.</p>
+<p>De fato, o sistema eleitoral proporcional de lista aberta causa distorções. Estas decorrem da própria lista aberta, que não só permite que os puxadores de votos contribuam para a eleição de candidatos com pequenas votações, mas também, pela falta de identidade político-ideológica das listas partidárias, possibilita que uma pessoa vote em um candidato de esquerda e contribua para eleger um de direita, ou vice-versa. Isso ocorre porque são eleitos os candidatos que obtêm as maiores votações dentro da lista partidária.</p>
+<p>Assim, é necessário aperfeiçoar o sistema proporcional, mas sem abandonar o aspecto positivo do atual sistema eleitoral: a proporcionalidade.</p>
+<p>O sistema proporcional foi uma conquista da luta dos trabalhadores. Em 1885, na Conferência Internacional sobre a Representação Proporcional, realizada na Bélgica, foi adotada uma resolução que declarava “que o sistema eleitoral por maioria absoluta, sistema distrital, viola a liberdade do eleitor […] e pode dar uma maioria de cadeiras para uma minoria do eleitorado” e que “a representação proporcional é o único meio de assegurar […] poder para uma real maioria do país”.</p>
+<p>Diferentemente do sistema majoritário distrital, o sistema proporcional assegura que os partidos elejam parlamentares proporcionalmente ao número de votos obtidos no processo eleitoral.</p>
+<p>O sistema eleitoral distrital misto combina o sistema distrital com o proporcional. Metade dos parlamentares é eleita pelo sistema distrital e a outra metade, pelo proporcional. Nesse modelo, cada eleitor tem direito a dois votos para a escolha de deputados. O primeiro voto é dado a um candidato que disputa a representação de determinado distrito eleitoral. O segundo, o voto proporcional, é atribuído a uma lista partidária, utilizada para definir outra parcela das cadeiras legislativas.</p>
+<p>Todavia, o sistema eleitoral distrital misto apresenta várias consequências negativas.</p>
+<p>O voto distrital afasta o debate dos grandes temas nacionais, rebaixando o nível político da disputa eleitoral. Ao eleger metade dos parlamentares pelo voto distrital, o debate passa a ocorrer em torno de questões locais, e não de um projeto de nação. O parlamentar termina se transformando em uma espécie de vereador federal, rebaixando o nível dos debates.</p>
+<p>A votação no distrito estabelece a lógica de que o “vencedor leva tudo”. Ou seja, a força majoritária conquista a cadeira em disputa, excluindo as demais forças políticas. Esse formato dificulta a eleição de candidaturas de trabalhadores, minorias sociais, mulheres e grupos politicamente desfavorecidos que não possuam concentração geográfica suficiente para vencer em um distrito específico. Assim, fragiliza a representação das minorias.</p>
+<p>O voto distrital golpeia o voto de opinião. Em um país tão vasto como o Brasil, onde existem grandes diferenças sociais, ideológicas, políticas e religiosas, o sistema político precisa contemplar toda essa diversidade.</p>
+<p>Por outro lado, a divisão dos estados em distritos abre espaço para manobras de redefinição dos limites eleitorais com o objetivo de favorecer determinados partidos.</p>
+<p>Outra consequência é que, no modelo em que apenas metade das cadeiras é preenchida pelo voto proporcional, o quociente eleitoral dessa parcela aumenta. Isso dificulta a eleição de candidatos populares. Além disso, o voto distrital termina por influenciar o voto proporcional, ao organizar a campanha no distrito.</p>
+<p>A alternativa mais democrática, que resolve os problemas levantados sobre o sistema eleitoral proporcional de lista aberta, é o sistema eleitoral proporcional de lista pré-ordenada.</p>
+<p>O sistema proporcional de lista pré-ordenada, ou lista fechada, estabelece que o eleitor vote diretamente na legenda programática do partido e em uma lista partidária cuja ordem dos candidatos é definida previamente em convenções partidárias.</p>
+<p>Esse modelo assegura a elevação do nível dos debates ao colocar em discussão os programas partidários, com propostas para enfrentar os problemas do país. O modelo desloca o eixo da disputa política do indivíduo para o programa de governo. Em vez do personalismo e de campanhas centradas na imagem, na influência das mídias e no poder financeiro dos candidatos, estimula-se o debate de propostas e a fidelidade partidária.</p>
+<p>A lista pré-ordenada possibilita a aplicação de regras de alternância de gênero e diversidade, intercalando homens e mulheres na composição da lista, bem como candidatos negros e indígenas, assegurando a ocupação de cadeiras parlamentares por grupos historicamente sub-representados.</p>
+<p>Com a centralização da campanha no programa da legenda, reduz-se a competição destrutiva entre candidatos do próprio partido. Isso barateia o custo das campanhas.</p>
+<p>Garante-se, assim, que a composição do Parlamento reflita as preferências ideológicas e políticas da sociedade.</p>
+<p>Cabe lembrar que o sistema proporcional foi adotado no Brasil após a Revolução de 1930, como um importante avanço democrático, tendo sido incorporado à Constituição de 1934 e mantido, com alterações, até os dias atuais. A ditadura militar, por iniciativa do general João Figueiredo, tentou implantar o sistema eleitoral distrital misto, mas não conseguiu. Em vários momentos, surgiram no Congresso tentativas de aprovar o sistema distrital misto, mais favorável aos interesses das classes dominantes.</p>
+<p>Fica evidente que a adoção do sistema eleitoral distrital misto significa um retrocesso que deve ser combatido, de forma enérgica, pelos democratas e progressistas.</p>
+<p>Pela importância da questão, o debate sobre a reforma política deve alcançar todo o país. A sociedade brasileira precisa conhecer as alternativas para opinar sobre qual sistema eleitoral permite maior aprofundamento das conquistas democráticas e sociais.</p>
+<p>O modelo eleitoral que permite o aprofundamento dessas conquistas é o sistema eleitoral proporcional de lista pré-ordenada, que conta com o apoio das forças democráticas e progressistas do país.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://vermelho.org.br/2026/11/05/sistema-eleitoral-distrital-misto-retrocesso-democratico/?utm_source=rss&utm_medium=rss&utm_campaign=sistema-eleitoral-distrital-misto-retrocesso-democratico" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

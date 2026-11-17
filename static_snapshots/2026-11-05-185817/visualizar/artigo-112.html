@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El espejo de Narciso se ha roto - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">El espejo de Narciso se ha roto</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">El Pais Mundo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://elpais.com/us/2026-11-04/el-espejo-de-narciso-se-ha-roto.html" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://imagenes.elpais.com/resizer/v2/XJ2YRLJIDRMAVAN7HHVAUKI7AU.jpg?auth=af75e5d09c9d7603146415fa807e7521ad224fabe44bd3c68624086d88dc82c8&width=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: El espejo de Narciso se ha roto
+                            </p>
+                            <p>Donald Trump llegaba a las <i>midterms</i> con los índices de aprobación más bajos desde Harry Truman en 1946.<b> </b>Sus bases de electores, los hombres y las zonas rurales, empezaban a rechazarle. Había perdido todo el apoyo ganado entre los jóvenes para convertirse de nuevo en presidente en 2024. Y ya en ningún tema recibía una valoración positiva, ni siquiera en la economía, que desde que entró en política era su punto más destacado.</p><p>Pese a todo eso, Trump vio su reflejo, igual que el famoso mito de Narciso al ver su rostro en el espejo del agua, y siguió embelesado con su figura. Aunque<a href="https://elpais.com/us/2026-11-04/los-democratas-arrasan-en-las-midterms-a-lomos-del-voto-de-castigo-a-la-caotica-presidencia-de-trump.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/us/2026-11-04/los-democratas-arrasan-en-las-midterms-a-lomos-del-voto-de-castigo-a-la-caotica-presidencia-de-trump.html"> los propios candidatos republicanos trataron de alejarse </a>cada vez más de su protagonismo (pasó de ser el foco central en los spots de las primarias a ocupar el <a href="https://www.axios.com/2026/11/03/republican-campaign-ads-trump-midterms" rel="noopener noreferrer" target="_blank" title="https://www.axios.com/2026/11/03/republican-campaign-ads-trump-midterms">puesto 33 de la lista</a>), él mismo decidió hacer una campaña situándose en el punto central. En las últimas semanas hizo 28 eventos en varios estados y en todos repetía el mismo mensaje: “Vayan a votar como si yo estuviese en la papeleta”. Si todavía quedaba alguna duda, <a href="https://elpais.com/us/2026-11-04/trump-admite-la-amarga-derrota-en-las-midterms-estoy-un-poco-sorprendido-pense-que-lo-hariamos-mejor.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/us/2026-11-04/trump-admite-la-amarga-derrota-en-las-midterms-estoy-un-poco-sorprendido-pense-que-lo-hariamos-mejor.html">se aseguró de que los comicios se convirtieran en un referéndum sobre su presidencia.</a> Justo lo que menos necesitaba. El narcisismo es incompatible con lo conveniente y necesario.</p><p>En paralelo, las encuestas mostraban una realidad muy clara: el alto coste de la vida se estaba transformando en la principal preocupación de los estadounidenses y en una motivación prioritaria para ir a votar. Ya había pasado algo similar en 2024. Los ciudadanos querían precios más bajos y apoyaron a Trump porque se los prometió. Pero dos años después, lo único que trajo fue un repunte de la inflación y un aumento exorbitante de los precios de los combustibles por culpa de sus aranceles y de la guerra de Irán. Y, finalmente, la corrupción —la suya y la de su familia— pasó a ocupar un lugar central. Sus votantes tomaron nota. Trump los abandonó para mirarse en el espejo. Trump los dejó solos… ¿por qué iban a acompañarle en estas elecciones?</p><p>Los demócratas leyeron bien la situación. Viendo que era la principal preocupación de los electores, basaron sus campañas en el metro cuadrado de la gente, en hablar de lo que les preocupaba y proponer llevar el asunto a su agenda parlamentaria desde el día uno. Lo hicieron con candidatos en su mayoría moderados y transversales que atrajeron a los independientes y no levantaron miedo entre los republicanos. Hoy <a href="https://elpais.com/us/2026-11-04/cuatro-victorias-clave-y-dos-sorpresas-repaso-a-los-triunfos-democratas-en-las-elecciones.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/us/2026-11-04/cuatro-victorias-clave-y-dos-sorpresas-repaso-a-los-triunfos-democratas-en-las-elecciones.html">los demócratas tienen un banquillo plural,</a> diverso y atractivo de posibles candidatos presidenciales para 2028. </p><p>Y así se gestó entonces el fracaso del <i>Narciso Trump</i>. Repasar los lugares en los que concentró la mayor cantidad de sus eventos de campaña muestra sin ninguna duda la dimensión de su derrota<b>:</b> fue tres veces a Texas y los republicanos <a href="https://elpais.com/us/2026-11-04/la-democrata-gina-hinojosa-da-la-sorpresa-en-texas-para-convertirse-en-la-primera-mujer-hispana-en-ser-gobernadora.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/us/2026-11-04/la-democrata-gina-hinojosa-da-la-sorpresa-en-texas-para-convertirse-en-la-primera-mujer-hispana-en-ser-gobernadora.html">perdieron ahí el escaño para el Senado y la gobernación.</a> Esto a pesar de que en más de 30 años ningún demócrata había ganado una elección estatal allí. Fue dos veces a Kansas y, por primera vez en más de 90 años, un demócrata ganó un escaño al Senado en ese estado. Fue a Ohio tres veces y también perdió la competencia por el senado y la gobernación. Y se repite una historia similar en Georgia, Iowa, Carolina del Sur, Michigan, Carolina del Norte…</p><p>Al final ha quedado demostrado que el reflejo de Trump no es el reflejo de Estados Unidos. Mientras que él representa un país dominado por una élite blanca y masculina, en las <i>midterms </i>se han logrado muchas primeras veces: la primera vez que hay una gobernadora latina de Texas, la primera afroamericana de Georgia, el primer gobernador abiertamente gay, la primera gobernadora nativa americana de Nuevo México, la primera mujer gobernadora de Ohio, <a href="https://elpais.com/us/2026-11-04/la-victoria-de-el-sayed-en-michigan-permite-al-ala-progresista-de-los-democratas-sonar-con-la-casa-blanca.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/us/2026-11-04/la-victoria-de-el-sayed-en-michigan-permite-al-ala-progresista-de-los-democratas-sonar-con-la-casa-blanca.html">el primer senador musulmán</a>… De espejo trumpista a la ventana abierta de la nueva América. </p><h2>¿Y ahora qué?</h2><p>Hay un dicho que apunta a que nadie cambia realmente después de los 15 años. Y Trump tiene ochenta. Así que Narciso seguirá siendo Narciso. Le quedan dos años de mandato como un <i>pato cojo </i>y ahora la duda es cuál va a ser su reacción. Lo que es seguro es que su enfoque principal estará centrado en la construcción del legado de su presidencia.</p><p>Históricamente, cuando los <i>patos cojos</i> quedan con el Congreso en contra, se centran en la agenda internacional por ser el espacio en el que pueden gestionar en mayor medida a través de órdenes ejecutivas.<b> </b>Por ejemplo, fue este el tiempo en el que Barack Obama intentó cambiar la política de Estados Unidos hacia Cuba. Si este también fuera el caso con Trump, es probable que su atención se dirija a acabar con las guerras en Irán y Ucrania y en poner fin al régimen de los Castro en Cuba. Juzgando por el pasado reciente, esto no es necesariamente tranquilizador, aunque su meta podría ser terminar como el presidente que acabó con esas guerras y con la Cuba castrista. </p><p>En la versión más conocida del mito de Narciso, la de Ovidio en las <i>Metamorfosis</i>, Narciso no muere ahogado: muere de consunción, consumido por el deseo de su propia imagen e incapaz de apartarse de ella. Es decir: deja de atender sus necesidades y se va apagando junto al agua. Muere por no poder dejar de mirarse. Por eso, no es casualidad que el último día de campaña Trump eligiera quedarse en DC interviniendo con la piscina recién reformada del monumento a Lincoln de fondo. Aprovechó para hablar durante minutos de los proyectos urbanísticos que tiene preparados y solo al final mencionó levemente las <i>midterms.</i> Ya no le interesaban las elecciones porque sabía que se le venía encima una derrota estrepitosa; tan grande, que ni siquiera se ha preocupado en decir que se las han robado. Lo único que se ha limitado a declarar es que él no estaba en la papeleta de voto. Que la culpa fue de otros, como siempre hace. Egoísta y cobarde. </p><p>Quedan dos años de presidencia de Trump. Pero con las elecciones del martes ha comenzado el fin de su era política. Esto no significa que no vayamos a tener más declaraciones altisonantes, desmanes autoritarios o cabreos políticos. Seguro que los habrá, y muchos. Sin embargo, comienza la etapa en la que se termina de construir el legado que dejará el mandatario. </p><p>El martes se rompió el espejo narcisista. Hoy se abre la ventana de la nueva América, más diversa que nunca. </p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://elpais.com/us/2026-11-04/el-espejo-de-narciso-se-ha-roto.html" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

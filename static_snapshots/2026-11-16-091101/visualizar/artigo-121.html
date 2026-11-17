@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A crescente preocupação de Wall Street em relação à IA - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A crescente preocupação de Wall Street em relação à IA</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/a-crescente-preocupacao-de-wall-street-em-relacao-a-ia/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/460153696873.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A crescente preocupação de Wall Street em relação à IA
+                            </p>
+                            
+<p>Para uma indústria que nos dizem ser fundamental para o nosso futuro coletivo, a indústria da inteligência artificial (IA) parece estar cada vez mais assentada em uma combinação de esperanças artificialmente infladas e contabilidade mal feita.</p>
+<p>Os críticos do setor vêm levantando preocupações sobre suas finanças há algum tempo: o fato de a maioria de suas empresas líderes serem extremamente <a href="https://econjared.substack.com/p/ai-companies-are-in-a-race-against" rel="noopener noreferrer" target="_blank">deficitárias</a>, de terem que <a href="https://www.forbes.com/councils/forbestechcouncil/2026/06/12/ai-costs-are-rising-businesses-are-paying-the-price/" rel="noopener noreferrer" target="_blank">aumentar</a> seus preços para tentar atingir o ponto de equilíbrio (levando seus clientes corporativos a <a href="https://www.scmp.com/news/world/united-states-canada/article/3355439/firms-spent-heavily-ai-now-rising-costs-are-outpacing-its-value" rel="noopener noreferrer" target="_blank">frear o</a> uso de seus produtos) ou de muitos dos anúncios de investimento impressionantes que supostamente demonstram a forte demanda por IA serem, na verdade, <a href="https://www.bis.org/publications/bulletin-137-circular-relationships-among-ai-firms" rel="noopener noreferrer" target="_blank">financiamento circular</a> — ou seja, diferentes empresas de IA transferindo dinheiro entre si.</p>
+<p>Mas nada disso pareceu frear o crescimento do setor ou a incessante máquina de propaganda que o sustenta. Pelo menos até agora. Antes, as preocupações com os fundamentos econômicos do setor eram expressas principalmente em jornais, blogs, redes sociais e podcasts, e não se refletiam no mercado. Mas agora, essas preocupações parecem finalmente ter influenciado a visão dos investidores.</p>
+<p></p>
+<h2>A movimentação do dinheiro</h2>
+<p>O preço dos títulos emitidos para financiar a construção de data centers <a href="https://www.ft.com/content/678bcd31-6c2a-447b-a68c-ce6dec220bbc?syn-25a6b1a6=1" rel="noopener noreferrer" target="_blank">caiu</a> drasticamente nos últimos meses, assim como o preço dos títulos de empresas de “neocloud”, empresas intermediárias que fornecem poder computacional para empresas de IA que podem não ter seus próprios data centers. A maior dessas neoclouds, a CoreWeave, viu recentemente seus títulos <a href="https://www.bloomberg.com/news/articles/2026-10-14/coreweave-bonds-tumble-into-distress-drawing-yikes-from-musk" rel="noopener noreferrer" target="_blank">entrarem em</a> território de risco.</p>
+<p>O que isso significa? Em resumo, significa que os investidores estão abandonando repentinamente as dívidas relacionadas à IA que financiavam com entusiasmo até poucos meses atrás, quando pareciam um ótimo investimento, porque <a href="https://www.reuters.com/legal/transactional/why-coreweaves-troubles-are-rattling-ai-boom-2026-10-15/" rel="noopener noreferrer" target="_blank">começam</a> a <a href="https://www.reuters.com/legal/transactional/why-coreweaves-troubles-are-rattling-ai-boom-2026-10-15/" rel="noopener noreferrer" target="_blank">suspeitar</a> que <a href="https://finance.yahoo.com/markets/stocks/articles/bond-market-sending-warning-nvidia-223000334.html" rel="noopener noreferrer" target="_blank">essas empresas não conseguirão</a>, de fato, pagá-las. Quase metade dos títulos emitidos este ano para financiar projetos de data centers por algumas das maiores empresas de tecnologia agora são <a href="https://www.forbes.com/sites/giacomotognini/2026/10/16/why-debt-laden-neoclouds-could-become-a-trillion-dollar-wework-20/" rel="noopener noreferrer" target="_blank">classificados como</a> “lixo”.</p>
+<p>Ao mesmo tempo, o mercado de <em>credit default swaps</em> (CDSs) para IA está <a href="https://www.ft.com/content/6dd31584-064c-4015-bf5d-e5747799ccd5" rel="noopener noreferrer" target="_blank">em plena expansão</a>, com o valor negociado de CDSs vinculados a grandes empresas de IA tendo mais do que quadruplicado entre julho e setembro. Tornados famosos por <a href="https://www.youtube.com/watch?v=UqYGWXMJ78I" rel="noopener noreferrer" target="_blank">seu papel</a> na crise financeira de 2008, os CDSs são basicamente um seguro contra futuros inadimplementos de dívidas, outro sinal da dúvida dos investidores sobre a capacidade das empresas do setor de IA de honrar os empréstimos adquiridos para financiar seu desenvolvimento.</p>
+<p>Em outras palavras: as pessoas que movimentam dinheiro profissionalmente estão começando a ter sérias dúvidas sobre a sustentabilidade do boom da IA, e sabemos disso não apenas porque falam sobre, mas porque estão <em>tomando decisões financeiras</em> nesse sentido.</p>
+<p>O que mudou para provocar essa transformação? Vários fatores, incluindo o fato de que algumas vozes do mundo financeiro agora <em>afirmam</em> isso.</p>
+<p>“As pessoas que movimentam dinheiro profissionalmente estão começando a ter sérias dúvidas sobre a sustentabilidade do boom da IA.”</p>
+<p>A atual falta de lucratividade da indústria de IA era aceitável enquanto parecesse plausível que, em algum momento futuro indefinido, essa tecnologia começasse a gerar lucro. Mas uma série de notícias e análises recentes ressaltou a matemática fantasiosa por trás da contabilidade das empresas de IA.</p>
+<p>De acordo com um estudo altamente citado da Brookings Institution, as quantias colossais de dinheiro já investidas na expansão da IA ​​significam que os consumidores e empresas dos EUA precisarão gastar o suficiente nessa tecnologia até 2032 para gerar US$ 3,5 trilhões em receita, ou quase 9% do PIB do país, para que o investimento se torne viável. Não há, literalmente, nenhum precedente para isso na história estadunidense — o boom ferroviário <a href="https://www.axios.com/2026/09/30/ai-profits-spending-hyperscalers" rel="noopener noreferrer" target="_blank">envolveu</a> investimentos de capital mais de um ponto percentual abaixo do PIB dos EUA em comparação com a expansão da IA. Segundo o <a href="https://www.wsj.com/tech/ai/will-america-spend-9-of-its-gdp-on-ai-the-industry-is-counting-on-it-3501bb4f" rel="noopener noreferrer" target="_blank"><em>Wall Street Journal</em></a>, isso significaria que o país gastaria anualmente em IA aproximadamente a mesma quantia que gasta atualmente com alimentos, ou sete vezes o valor gasto com internet, telefonia e outros meios de comunicação combinados.</p>
+<p>Nem preciso dizer que isso parece improvável.</p>
+<p>No mês passado, o economista-chefe da gestora de ativos Apollo <a href="https://www.apollo.com/insights-news/insights/daily-spark/tech-trillion-dollar-internal-inconsistency" rel="noopener noreferrer" target="_blank">destacou</a> o grande abismo entre o enorme fluxo de caixa operacional futuro que os analistas esperam especificamente para o setor de tecnologia e o fluxo de caixa operacional futuro muito menor que os analistas esperam para empresas de outros setores. Em outras palavras, não se espera que as empresas que, em teoria, deveriam ser clientes do mundo da tecnologia tenham, de fato, o dinheiro disponível que as empresas de tecnologia alardeiam que irão extrair delas.</p>
+<p>Alguém errou nos cálculos, e é razoável supor que sejam as empresas de IA. Anos de projeções de receita excessivamente otimistas e prejuízos constantes no setor foram dramaticamente ilustrados no início deste mês, quando uma empresa proeminente, a Character.ai, deu entrada em um pedido de falência. Nesse pedido, a empresa <a href="https://www.404media.co/character-ais-bankruptcy-documents-show-the-economics-of-ai-dont-work/" rel="noopener noreferrer" target="_blank">revelou</a> que vinha perdendo cerca de US$ 8 a 9 milhões por mês ao longo deste ano — o que, segundo ela, representava uma <em>melhora</em> em relação aos anos anteriores — e que sua receita de assinaturas sempre representou apenas uma fração do valor gasto com a computação necessária para executar sua IA.</p>
+<p></p>
+<h2>Os riscos abundam</h2>
+<p>Esses receios foram intensificados por algumas notícias negativas em torno das ofertas públicas iniciais (IPOs) de várias empresas de IA de alto perfil, quando uma empresa privada começa a vender suas ações ao público em geral pela primeira vez.</p>
+<p>Primeiramente, a OpenAI, empresa por trás do ChatGPT, adiou seu IPO devido a <a href="https://www.nytimes.com/2026/06/25/technology/openai-ipo-artificial-intelligence.html" rel="noopener noreferrer" target="_blank">preocupações internas</a> de que pudesse ser um fracasso, já que os investidores de varejo — basicamente, você e eu, se entrássemos no mercado de ações — poderiam não estar tão dispostos a comprar suas ações quanto esperavam. Entre os motivos estavam a incerteza geral do mercado causada pela guerra com o Irã, o crescente ceticismo em relação à IA, uma série de notícias negativas sobre os problemas de segurança da tecnologia e uma base de usuários estagnada para o ChatGPT. A empresa agora teve que <a href="https://www.ft.com/content/bb564eb1-79d4-4694-aa24-1155202a9abc?syn-25a6b1a6=1" rel="noopener noreferrer" target="_blank">reduzir</a> sua avaliação para a última rodada de financiamento devido a uma queda palpável no entusiasmo dos investidores.</p>
+<p>Enquanto isso, a Anthropic, criadora do Claude, esteve nas manchetes por um prospecto — o documento divulgado por uma empresa que abre capital, explicando o negócio e expondo sua realidade financeira para potenciais investidores — que parece confirmar todas as preocupações já mencionadas sobre o modelo de negócios da IA. A versão mais recente do documento, <a href="https://www.wsj.com/tech/ai/anthropic-revenue-growth-ipo-accaf0f1" rel="noopener noreferrer" target="_blank">obtida</a> pelo <em>Wall Street Journal</em> no final de outubro, mostrou que a empresa registrou um prejuízo de mais de US$ 80 bilhões este ano, enquanto seus gastos com computação e infraestrutura estão crescendo exponencialmente, sua demanda por capacidade computacional supera a oferta disponível e sua lista de possíveis fatores de risco é <a href="https://www.reuters.com/business/finance/anthropic-warns-ai-may-pose-existential-risks-humanity-ipo-filing-2026-09-29/" rel="noopener noreferrer" target="_blank">maior</a> do que a descrição da empresa.</p>
+<p>Um desses fatores de risco tornou-se uma grande preocupação geral para os investidores em IA: a crescente aversão pública aos data centers e a pressão para restringir ou mesmo interromper completamente sua construção. A antipatia popular pelos data centers transcende as linhas partidárias e ideológicas e tornou-se uma questão central nas eleições de meio de mandato, aumentando a probabilidade de uma intensificação da repressão governamental a eles.</p>
+<p>Somente no primeiro semestre deste ano, ativistas ambientais e moradores locais <a href="https://www.bloomberg.com/news/articles/2026-10-20/oracle-data-center-fight-hands-activists-path-to-us-wide-blitz" rel="noopener noreferrer" target="_blank">bloquearam</a> mais de cem data centers, avaliados em cerca de US$ 198 bilhões. Isso incluiu um grande projeto da Oracle no Novo México, que levou a empresa a declarar <em>force majeure</em> — ou seja, rescindir o contrato devido a um evento natural imprevisto — depois de já ter gasto <a href="https://kfoxtv.com/news/local/oracle-project-jupiter-has-brought-in-nearly-80m-in-taxes-7000-jobs-projected" rel="noopener noreferrer" target="_blank">milhões</a>.</p>
+<p>“Um fator de risco que se tornou uma grande preocupação geral para os investidores em IA é a crescente aversão pública aos data centers e a pressão para restringir ou impedir sua construção.”</p>
+<p>Este é mais um motivo, e um dos mais importantes, para os investidores em IA se preocuparem com a possibilidade de não recuperarem seu investimento. Para que as empresas de IA tenham alguma chance de atingir suas metas de receita, já irreais, <em>é preciso</em> construir data centers em algum lugar; mas eleitores em todo o país se opõem veementemente à construção dessas estruturas em <em>seus</em> bairros, pois os consideram barulhentos, invasivos, prejudiciais ao meio ambiente e potencialmente causadores de <a href="https://www.psu.edu/news/research/story/ask-expert-are-data-centers-driving-my-electricity-bills" rel="noopener noreferrer" target="_blank">aumento</a> em suas contas de luz. Por isso, estão se organizando para restringir ou até mesmo proibir completamente a construção de data centers, o que já aconteceu em mais de <a href="https://heatmap.news/politics/data-center-local-laws-bans-total" rel="noopener noreferrer" target="_blank">quinhentos</a> condados e municípios. Algo terá que mudar.</p>
+<p>Isso sem mencionar o receio dos investidores de ficarem com o prejuízo da dívida dos data centers. O estudo da Brookings mencionado anteriormente <a href="https://www.brookings.edu/articles/the-10-trillion-question-financing-the-ai-buildout/" rel="noopener noreferrer" target="_blank">estima que</a> a expansão dos data centers de IA custará um total de US$ 10,3 trilhões até 2032; a empresa de pesquisa de mercado Gartner <a href="https://www.bloomberg.com/news/articles/2026-10-15/ai-race-puts-3-5-trillion-at-write-down-risk-gartner-warns" rel="noopener noreferrer" target="_blank">estima</a> que os proprietários de data centers de IA precisarão gerar a impressionante receita de <a href="https://www.bloomberg.com/news/articles/2026-10-15/ai-race-puts-3-5-trillion-at-write-down-risk-gartner-warns" rel="noopener noreferrer" target="_blank">US$ 8,5 trilhões</a> até 2030 para cobrir a expansão e obter um retorno decente. São somas enormes por trás de algo que está sendo financiado em grande parte por níveis <a href="https://financialpost.com/financial-times/ai-debt-worries-spark-surge-in-default-insurance-trading" rel="noopener noreferrer" target="_blank">massivos</a> e <a href="https://finance.yahoo.com/markets/stocks/article/debt-is-fueling-the-ai-boom-and-warning-signs-are-flashing-094352460.html" rel="noopener noreferrer" target="_blank">crescentes</a> de empréstimos.</p>
+<p>Além disso, os chips nos quais as empresas de IA confiam, e nos quais investem <a href="https://tomorrowsaffairs.com/who-will-pay-when-ai-chips-lose-value" rel="noopener noreferrer" target="_blank">bilhões</a> de dólares, estão se tornando <a href="https://www.sfweekly.com/news/national/ais-400-bn-problem-are-chips-getting-old-too-fast/article_804c060f-6ed1-51fc-aeef-a151e6bc45d3.html" rel="noopener noreferrer" target="_blank">obsoletos</a> cada vez mais rápido — muito mais rapidamente do que a vida útil inicialmente prevista por muitas dessas empresas. Trata-se de mais um caso de contabilidade otimista por parte do setor e mais um motivo de preocupação para os investidores, visto que os empréstimos concedidos às empresas de IA geralmente são garantidos por chips que perderão seu valor antes do término do prazo do empréstimo.</p>
+<p>Não é de se admirar, portanto, que os investidores estejam agora desconfiados com a IA ​​e protegendo seus investimentos na expectativa de um estouro da bolha. Isso pode acontecer mais cedo do que imaginávamos: a Oracle, <a href="https://www.cnbc.com/2026/10/19/oracle-debt-faces-an-ai-stress-test-why-some-investors-arent-worried-.html" rel="noopener noreferrer" target="_blank">considerada</a> um indicador para o mercado de crédito de IA em geral, teve seus títulos <a href="https://www.barrons.com/articles/ai-oracle-stock-downgrade-917e4f5d" rel="noopener noreferrer" target="_blank">rebaixados</a> para um nível pouco acima do grau especulativo. Um economista <a href="https://www.cnbc.com/2026/10/19/coreweave-oracle-ai-credit-stress.html%20" rel="noopener noreferrer" target="_blank">acredita</a> que, se seus títulos chegarem a esse ponto mais baixo, será um sinal de contágio para o setor como um todo.</p>
+<p></p>
+<h2>Para além da IA</h2>
+<p>Os riscos aqui são altos. Segundo algumas <a href="https://www.federalreserve.gov/econres/notes/feds-notes/the-ai-buildout-and-the-economy-publicly-available-data-to-assess-ais-impact-20260717.html" rel="noopener noreferrer" target="_blank">estimativas</a>, a IA é hoje um pilar fundamental da economia, contribuindo <a href="https://www.stlouisfed.org/on-the-economy/2026/jan/tracking-ai-contribution-gdp-growth" rel="noopener noreferrer" target="_blank">para</a> o crescimento do PIB mais do que a bolha da internet em 2000, antes de estourar, de acordo com o Banco da Reserva Federal de St. Louis. Portanto, qualquer desaceleração da IA ​​provavelmente afetaria a economia em geral, particularmente o setor da construção civil, onde está impulsionando um <a href="https://www.businessinsider.com/blue-collar-jobs-data-center-spending-boom-2026-9" rel="noopener noreferrer" target="_blank">boom de empregos</a> para a classe trabalhadora.</p>
+<p>Mas talvez ainda mais importantes sejam os efeitos em cadeia que isso pode ter no sistema financeiro. O <a href="https://www.reuters.com/business/finance/bank-england-sees-growing-risks-financial-stability-ai-2026-07-07/" rel="noopener noreferrer" target="_blank">Banco da Inglaterra</a> e o <a href="https://www.theguardian.com/business/2026/oct/13/ai-share-crash-risk-global-imf-debt-corrowing-cyber-attacks" rel="noopener noreferrer" target="_blank">Fundo Monetário Internacional</a> destacaram a economia duvidosa por trás do boom da IA ​​como uma ameaça potencial à estabilidade financeira global.</p>
+<p>Jason Thomas, chefe de pesquisa global e estratégia de investimento do Carlyle Group, alertou <a href="https://www.bloomberg.com/news/articles/2026-09-15/carlyle-s-thomas-says-ai-financing-echoes-pre-crisis-mortgages" rel="noopener noreferrer" target="_blank">repetidamente</a> <a href="https://seekingalpha.com/news/4652174-limits-on-ai-financing-are-needed-before-the-buildout-grows-further-carlyle-s-jason-thomas" rel="noopener noreferrer" target="_blank">que</a> vê semelhanças entre o financiamento de projetos de IA e a crise dos subprimes. Segundo ele, os credores não estão liberando dinheiro com base na viabilidade econômica do projeto em si, mas sim na capacidade da empresa patrocinadora de arcar com os passivos, se necessário — algo semelhante ao que faziam nos anos que antecederam a crise de 2008. Ele advertiu que, diante disso, os investidores estão muito mais expostos ao setor do que deveriam para ficarem tranquilos.</p>
+<p>O que chama a atenção é que Thomas não é apenas um analista, mas tem interesses diretos no negócio: a empresa para a qual trabalha, a Carlyle, investe fortemente no setor de IA.</p>
+<p>Um dos riscos inerentes a esse setor é o fato de muitas empresas de IA estarem construindo data centers sem <a href="https://app.ft.com/content/9cb63980-cd43-419d-a7e5-42039b9fd01e" rel="noopener noreferrer" target="_blank">seguro</a> adequado, já que os projetos são simplesmente caros, complexos e arriscados demais para que muitas seguradoras os assumam. Isso deixa as empresas construtoras de data centers vulneráveis ​​a perdas que podem chegar a bilhões de dólares caso algo atrapalhe a construção. Outro fator envolvido é o setor <a href="https://prospect.org/2026/08/03/ai-bailout-could-be-baked-into-bubble-private-equity-life-insurers-loans/" rel="noopener noreferrer" target="_blank">de crédito privado</a>, avaliado em US$ 3 trilhões, ou o que antes era chamado de “sistema bancário paralelo”: as empresas de private equity, gestoras de ativos e outras entidades não bancárias cujos riscos sistêmicos há <a href="https://www.federalreserve.gov/newsevents/speech/tarullo20131122a.htm" rel="noopener noreferrer" target="_blank">tempos</a> <a href="https://www.imf.org/en/publications/fandd/issues/series/back-to-basics/shadow-banks" rel="noopener noreferrer" target="_blank">preocupam</a> os analistas financeiros, visto que atuam como bancos, mas sem a regulamentação, a supervisão e o respaldo governamental que os acompanham.</p>
+<p></p>
+<h2>Não se esqueça</h2>
+<p>Isso não significa necessariamente que uma crise semelhante à de 2008 esteja a caminho. Há um <a href="https://www.reuters.com/legal/transactional/furious-pace-ai-investment-some-fed-officials-radar-now-2026-08-06/" rel="noopener noreferrer" target="_blank">debate</a> em curso sobre o nível de risco que a IA representa para a estabilidade financeira em geral, e alguns <a href="https://am.jpmorgan.com/us/en/asset-management/adv/insights/market-insights/market-updates/on-the-minds-of-investors/how-much-of-the-ai-boom-is-adding-to-us-growth/" rel="noopener noreferrer" target="_blank">especialistas</a> acreditam que <a href="https://www.washingtonpost.com/technology/2026/02/23/ai-economic-growth-gdp-mirage/%20%20" rel="noopener noreferrer" target="_blank">a</a> <a href="https://www.washingtonpost.com/technology/2026/02/23/ai-economic-growth-gdp-mirage/" rel="noopener noreferrer" target="_blank">contribuição da IA</a> ​​para a economia dos EUA é superestimada. Não saberemos exatamente como será o desfecho do boom da IA ​​ou o quão gravemente isso nos afetará até que tal coisa aconteça.</p>
+<p>Mas, neste momento, parece improvável acreditar que isso não acarretará, pelo menos, <em>um</em> nível significativo de sofrimento para os trabalhadores e famílias estadunidenses em geral.</p>
+<p>O que podemos afirmar com segurança é que os cálculos por trás do modelo de negócios das empresas de IA e suas projeções fiscais futuras simplesmente não fecham, e podemos ter certeza disso porque as pessoas que têm dinheiro de verdade em jogo — investidores, operadores de títulos, seguradoras — estão agindo de acordo. Apesar da suposta racionalidade dos mercados e do setor privado, o boom da IA ​​está se parecendo cada vez mais com mais um episódio histórico em que o pensamento de manada e a euforia estão impulsionando as decisões de alto risco do capital privado.</p>
+<p>“O que podemos afirmar com segurança é que os cálculos por trás do modelo de negócios das empresas de IA e suas projeções fiscais futuras simplesmente não fecham.”</p>
+<p>Acima de tudo, é um desperdício colossal de dinheiro. As somas gigantescas de que estamos falando são comparáveis ​​ao que deveríamos ter começado a investir anos atrás na transição para energias renováveis, a fim de evitar uma catástrofe climática — uma catástrofe que a expansão da inteligência artificial, paradoxalmente, está <a href="https://heated.world/p/ais-climate-problem-is-worse-than" rel="noopener noreferrer" target="_blank">agravando</a>.</p>
+<p>Em vez disso, como esse dinheiro está concentrado em mãos privadas, esses recursos estão sendo investidos em uma indústria que, na realidade, não gera lucro e parece ser baseada em ilusões. Vemos algo semelhante <a href="https://www.nytimes.com/2026/09/20/business/china-ai-economy.html" rel="noopener noreferrer" target="_blank">acontecendo</a> na China, onde, como essas decisões são tomadas de forma igualmente antidemocrática, vastas somas também são lançadas em uma grande aposta na IA, enquanto o resto da economia estagna.</p>
+<p>Se tudo isso desmoronar e os efeitos colaterais desse colapso forem tão graves quanto alguns preveem, é bem provável que os contribuintes sejam chamados a <a href="https://jacobin.com/2026/07/ai-policy-nationalization-commons-work" rel="noopener noreferrer" target="_blank">arcar com os custos</a> de outro resgate. Quando esse momento chegar, lembrem-se de que havia inúmeros sinais de alerta e que tudo poderia ter sido evitado.</p>
+<p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/a-crescente-preocupacao-de-wall-street-em-relacao-a-ia/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

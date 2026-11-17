@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COP31: Como evitar outro “teatro do clima” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">COP31: Como evitar outro “teatro do clima”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/terraeantropoceno/cop31-como-evitar-outro-teatro-do-clima/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5163527464599358800_y.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: COP31: Como evitar outro âteatro do climaâ
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5163527464599358800_y.jpg"/>Foto: Khalil Hamra/AP Photo
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Por <strong>Tanuj Samaddar</strong>, no <a href="https://www.resilience.org/stories/2026-10-29/cop31-performative-summit-or-a-catalyst-for-climate-justice/" rel="noopener noreferrer" target="_blank"><em>Resilience.org</em></a> | TraduÃ§Ã£o: <strong>RÃ´ney Rodrigues</strong></p>
+<p>Apelidada de “COP da ImplementaÃ§Ã£o” e “COP do Futuro”, a conferÃªncia deste ano tem como foco tirar a agenda climÃ¡tica global do campo das promessas e levÃ¡-la a resultados concretos. Mas, em meio Ã  retÃ³rica otimista e Ã s metas ignoradas em anos anteriores, uma pergunta continua mais pungente do que as demais: esta cÃºpula produzirÃ¡ as mudanÃ§as urgentes necessÃ¡rias para evitar novas catÃ¡strofes climÃ¡ticas, ou serÃ¡ apenas mais um fiasco climÃ¡tico disfarÃ§ado de encontro de alto nÃ­vel entre supostos lÃ­deres do clima?</p>
+<p>De 9 a 20 de novembro, a COP31 estÃ¡ programada para acontecer em Antalya, na Turquia, que acumula as funÃ§Ãµes de paÃ­s-sede e de presidente oficial da COP, responsÃ¡vel por conduzir a conferÃªncia e a Agenda de AÃ§Ã£o ClimÃ¡tica Global. Ã AustrÃ¡lia coube a lideranÃ§a das negociaÃ§Ãµes, em um novo modelo de governanÃ§a estabelecido na COP30, no ano passado.</p>
+<p>Os lÃ­deres de ambas as presidÃªncias ressaltaram a importÃ¢ncia do diÃ¡logo, do consenso e da aÃ§Ã£o, e declararam sua visÃ£o de colocar o Acordo de Paris em prÃ¡tica em frentes prioritÃ¡rias: financiamento climÃ¡tico, transiÃ§Ã£o energÃ©tica e planos climÃ¡ticos nacionais, as chamadas ContribuiÃ§Ãµes Nacionalmente Determinadas (NDCs). A isso se somam temas transversais mais amplos, como agricultura sustentÃ¡vel, seguranÃ§a alimentar e transformaÃ§Ãµes industriais verdes, a serem incorporados Ã  polÃ­tica internacional.</p>
+<p>Mas como confiar que os lÃ­deres mundiais agirÃ£o com urgÃªncia contra a mudanÃ§a climÃ¡tica se, atÃ© agora, eles prÃ³prios minaram os esforÃ§os locais para enfrentÃ¡-la?</p>
+<p>A Turquia, por exemplo, continua subsidiando a expansÃ£o dos combustÃ­veis fÃ³sseis. Um relatÃ³rio oficial do Banco de Desenvolvimento Industrial da Turquia constatou que, somente em 2025, os combustÃ­veis fÃ³sseis responderam por 58% de toda a oferta de eletricidade do paÃ­s, bem acima da mÃ©dia global, de 30%. Enquanto muitas naÃ§Ãµes da OrganizaÃ§Ã£o para a CooperaÃ§Ã£o e Desenvolvimento EconÃ´mico (OCDE), uma “organizaÃ§Ã£o intergovernamental” composta por 38 paÃ­ses-membros, entre eles Estados Unidos, CanadÃ¡, Reino Unido e AustrÃ¡lia, se comprometeram a estabelecer metas de eliminaÃ§Ã£o gradual do carvÃ£o no Ã¢mbito do Acordo de Paris, a Turquia se mostra visivelmente “relutante” em fixar qualquer objetivo desse tipo, ao mesmo tempo que explora plenamente suas reservas domÃ©sticas de linhito.</p>
+<p>Em 2024, a Human Rights Watch chamou a atenÃ§Ã£o para o modo como os complexos termelÃ©tricos da provÃ­ncia de KahramanmaraÅ, na Turquia, estÃ£o provocando graves crises de saÃºde pÃºblica nas comunidades locais. A investigaÃ§Ã£o revelou nÃ­veis extremamente perigosos de toxinas no ar, diretamente associados ao aumento de casos de doenÃ§as respiratÃ³rias e cardiovasculares e atÃ© de cÃ¢ncer.</p>
+<p>A ironia da ambiÃ§Ã£o turca de consagrar a COP31 como a “COP da ImplementaÃ§Ã£o” por excelÃªncia fica evidente diante da atenÃ§Ã£o internacional crescente Ã  sua prÃ³pria trajetÃ³ria de descarbonizaÃ§Ã£o. Enquanto se prepara para pressionar os delegados a garantir que suas prÃ³ximas NDCs 3.0 estejam alinhadas ao limite de 1,5 Â°C, o plano de Ancara tem sido alvo de duras crÃ­ticas de especialistas independentes. A NDC turca para 2030 prevÃª uma reduÃ§Ã£o de 41% nas emissÃµes de gases de efeito estufa (GEE) em relaÃ§Ã£o a um cenÃ¡rio de manutenÃ§Ã£o das prÃ¡ticas atuais (<em>business as usual</em>, BAU).</p>
+<p>Embora haja uma clara lacuna de implementaÃ§Ã£o na polÃ­tica climÃ¡tica turca, o arcabouÃ§o climÃ¡tico global, sobretudo no Ã¢mbito do Acordo de Paris, oferece terreno fÃ©rtil para que tais incoerÃªncias prosperem: polÃ­ticas ineficientes, que no fundo repetem abordagens que jÃ¡ fracassaram, sÃ£o rebatizadas como avanÃ§os e acabam conferindo legitimidade ao status quo. O arcabouÃ§o carece de um mecanismo adequado de cumprimento, o que remete ao que a pesquisadora Iza Ding chama de “governanÃ§a performÃ¡tica”, em que linguagem, sÃ­mbolos e gestos sÃ£o usados sob a fachada de uma governanÃ§a eficaz diante de uma plateia global.</p>
+<p>Por quase trÃªs dÃ©cadas, as cÃºpulas internacionais rodearam o principal motor do aquecimento global, recorrendo a eufemismos e a metas perifÃ©ricas. Foi somente na COP28, em Dubai, que um texto final negociado trouxe Ã  tona um chamado Ã  transiÃ§Ã£o para se afastar dos combustÃ­veis fÃ³sseis. No entanto, esse mandato logo esbarrou na jÃ¡ conhecida inÃ©rcia da implementaÃ§Ã£o. Os lobistas do setor fÃ³ssil continuam dominando o debate polÃ­tico, apesar de realidades tÃ£o evidentes. Isso ficou claro na COP30, em que todos os 25 delegados representavam interesses ligados aos combustÃ­veis fÃ³sseis. Do mesmo modo, a COP28, em Dubai, registrou a presenÃ§a sem precedentes de cerca de 2.400 delegados com vÃ­nculos diretos ou indiretos com a indÃºstria fÃ³ssil. A verdadeira resiliÃªncia sÃ³ se constrÃ³i indo alÃ©m da fachada do discurso de neutralidade de carbono (<em>net zero</em>) e rumo a uma responsabilizaÃ§Ã£o estrutural de fato.</p>
+<h3><strong>JustiÃ§a climÃ¡tica e a COP31</strong></h3>
+<p>Em uma conferÃªncia das partes em que hÃ¡ contradiÃ§Ãµes visÃ­veis entre as promessas dos paÃ­ses-sede e a realidade no terreno, a justiÃ§a climÃ¡tica para o Sul Global corre o risco de ser relegada Ã  periferia. Recentemente, estudos de caso de alguns paÃ­ses em desenvolvimento voltaram a trazer o tema ao centro do debate.</p>
+<p>Em agosto, o colapso catastrÃ³fico de uma montanha glacial no Nepal desencadeou uma avalanche gigantesca que varreu o sistema do rio Trishuli, matando quase 1.400 pessoas e deixando atÃ© 5.000 desaparecidos. Enquanto o Nepal sofreu perdas estimadas em US$ 4,7 bilhÃµes, o Fundo para Responder a Perdas e Danos (FRLD), administrado pela ONU, reservou apenas US$ 21,6 milhÃµes para reparaÃ§Ãµes. Embora represente um marco em termos de agilidade burocrÃ¡tica, o valor corresponde a uma fraÃ§Ã£o (0,5%) das necessidades de recuperaÃ§Ã£o do paÃ­s, o que evidencia o abismo entre os recursos disponÃ­veis e a escala da destruiÃ§Ã£o. Mesmo essa rapidez se mostrou lenta demais para uma emergÃªncia real, o que gerou crÃ­ticas de ativistas locais.</p>
+<p>O caso das Maldivas tambÃ©m merece destaque. O paÃ­s estÃ¡ na linha de frente de uma crise existencial provocada pela elevaÃ§Ã£o do nÃ­vel do mar, acelerada pelo clima, e por uma erosÃ£o severa. Mais de 80% de seu territÃ³rio fica a menos de 1 metro acima do nÃ­vel do mar, o que exige bilhÃµes de dÃ³lares em investimentos contÃ­nuos para adaptaÃ§Ã£o climÃ¡tica. As Maldivas respondem por apenas 0,003% das emissÃµes globais, mas seus apelos urgentes por financiamento previsÃ­vel, na forma de doaÃ§Ãµes, seguem em grande parte sem resposta, colocando seus 520 mil habitantes em perigo iminente.</p>
+<p>Sem recursos diretos da ONU, esse pequeno paÃ­s insular precisa recorrer a apoio externo, o que o empurra ainda mais para o endividamento. Desde outubro, enfrenta uma grave crise econÃ´mica, e o ministro das FinanÃ§as, Hassan Zareer, busca ajuda financeira internacional para evitar a falÃªncia.</p>
+<p>Segundo a campanha Fill The Fund, as perdas e danos econÃ´micos agravados pelo clima nos paÃ­ses em desenvolvimento podem chegar a uma mÃ©dia estimada de cerca de US$ 400 bilhÃµes atÃ© 2030, e a valores muito maiores nas dÃ©cadas seguintes. Enquanto o Norte Global continua protelando a capitalizaÃ§Ã£o da Nova Meta Coletiva Quantificada (NCQG), as naÃ§Ãµes mais vulnerÃ¡veis se veem obrigadas a financiar a prÃ³pria sobrevivÃªncia, forÃ§adas a pagar a dÃ­vida de carbono dos paÃ­ses industrializados com a prÃ³pria ruÃ­na econÃ´mica e ambiental.</p>
+<p>Esses casos expÃµem o cruel paradoxo do financiamento climÃ¡tico: paÃ­ses como Nepal e Maldivas, responsÃ¡veis por uma parcela insignificante das emissÃµes mundiais, sÃ£o obrigados a escolher entre o calote fiscal e a submersÃ£o ambiental total. Tais evidÃªncias levantam a dÃºvida de se os fÃ³runs internacionais nÃ£o estariam servindo apenas de palco para promessas vazias, concebidas para mascarar a inaÃ§Ã£o das naÃ§Ãµes ricas, ao custo existencial de algumas das populaÃ§Ãµes mais vulnerÃ¡veis do planeta.</p>
+<p>O campo da governanÃ§a climÃ¡tica precisa urgentemente de uma definiÃ§Ã£o de agenda eficaz, que inclua a revisÃ£o dos critÃ©rios de alocaÃ§Ã£o de recursos escassos e das arquiteturas financeiras geradoras de endividamento. AlÃ©m disso, enfrentar o desvio de recursos concessionais para longe dos paÃ­ses apontados como de alto risco pelo Ãndice de Vulnerabilidade Multidimensional (MVI) da ONU Ã© condiÃ§Ã£o indispensÃ¡vel para uma justiÃ§a climÃ¡tica verdadeira. No fim das contas, sÃ³ o tempo dirÃ¡ se os compromissos firmados na COP31 serÃ£o capazes de cumprir esse mandato ou se estÃ£o fadados a se tornar apenas mais um capÃ­tulo vazio da diplomacia climÃ¡tica global.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/terraeantropoceno/cop31-como-evitar-outro-teatro-do-clima/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

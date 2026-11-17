@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Did the midterms kill MAGA? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Did the midterms kill MAGA?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/podcasts/509789/midterm-elections-2026-maga-rod-dreher" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2303168184.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Midterms 2026: Is MAGA over?
+                            </p>
+                            <p>In 2015, Donald Trump descended a <a href="https://www.youtube.com/watch?v=D-RdSQpH6y8" rel="noopener noreferrer" target="_blank">golden escalator</a> and launched a presidential campaign that reshaped American politics. More than a decade later, with his <a href="https://www.reuters.com/world/us/trump-approval-falls-record-low-31-midterms-near-reutersipsos-poll-finds-2026-10-19/" rel="noopener noreferrer" target="_blank">record-low approval ratings</a> and the US embroiled in a war with Iran, he asked voters to treat the 2026 midterms as a referendum on him.</p><p>“Please pretend I’m on the ballot. Because in a way, I am on the ballot,” Trump <a href="https://www.youtube.com/watch?v=7GbPSx0ZnAc&amp;t=3s" rel="noopener noreferrer" target="_blank">told</a> a crowd in North Carolina last month.</p><p>As it turns out, voters did as Trump asked: Democrats won in a landslide, taking control of both chambers of Congress with victories in Republican strongholds like <a href="https://www.nbcnews.com/politics/2026-election/annie-andrews-south-carolina-senate-win-darline-graham-gop-rcna603338" rel="noopener noreferrer" target="_blank">South Carolina</a> and <a href="https://www.npr.org/2026/11/04/nx-s1-6028587/adam-hamilton-kansas-senate-political-divides" rel="noopener noreferrer" target="_blank">Kansas</a>. Now, Republicans have to decide what those losses mean for the future of the movement Trump built.</p><p>As Vox’s Andrew Prokop <a href="https://www.vox.com/politics/509258/republicans-midterm-disaster-blame-theories-iran-war-corruption" rel="noopener noreferrer" target="_blank">reported</a>, there are already competing explanations for the losses that are taking shape on the right. “The reason we lost is the war,” Vice President JD Vance <a href="https://x.com/jdvance/status/2118004988433641835?s=46" rel="noopener noreferrer" target="_blank">posted on social media</a>. The conservative commentator Erick Erickson offered a longer list of <a href="https://www.yahoo.com/news/politics/articles/conservatives-stunned-catastrophic-midterm-blue-061045776.html" rel="noopener noreferrer" target="_blank">reasons for the GOP’s failure</a>: “It was also the corruption. The incompetence. The tariffs. The playing nice with Russia. The impression of cruelty. The overly aggressive deportations.” Others emphasized affordability. “Life is too expensive,” right-wing commentator Benny Johnson <a href="https://x.com/bennyjohnson/status/2085047060059832780?lang=bg" rel="noopener noreferrer" target="_blank">wrote</a>. “Especially for young people.”</p><p>Whoever defines what went wrong will likely help determine which parts of Trump’s politics survive, and who gets to lead the presidential ticket in 2028.</p><p>The conservative writer Rod Dreher has a stake in that debate. He supported Trump in 2024. He’s friends with Vance, and he shares the vice president’s interest in combining social conservatism with economic policies that support families. His critiques come from someone who wanted this administration to succeed.</p><p><em>Today, Explained</em> co-host Noel King spoke with Dreher about whether the midterms mean the end of MAGA, what might replace it, and whether Republicans can move past a president who still has two years left in office.</p><p>Below is an excerpt of their conversation, edited for length and clarity. There’s much more in the full podcast, so listen to <em>Today, Explained</em> wherever you get podcasts, including <a href="https://podcasts.apple.com/us/podcast/today-explained/id1346207297" rel="noopener noreferrer" target="_blank">Apple Podcasts</a>, <a href="https://www.pandora.com/podcast/today-explained/PC:140" rel="noopener noreferrer" target="_blank">Pandora</a>, and <a href="https://open.spotify.com/show/3pXx5SXzXwJxnf4A5pWN2A" rel="noopener noreferrer" target="_blank">Spotify</a>.</p><p><strong>Before the midterm results even came in, you wrote that Republicans were likely to be shellacked and that they had nobody to blame but Donald Trump and themselves. What do you think it is your fellow conservatives need to admit today? </strong></p><p>That MAGA is over. It’s done. It’s been a failure. It brought Trump to power twice. I think there were some good ideas in MAGA and certainly the old Republican establishment, the pre-Trump establishment, needed to go.</p><p>But MAGA couldn’t deliver on good government. And if you can’t deliver on good government, it doesn’t matter how charismatic the leader is. It’s not going to work. And I think that there can be no doubt after this week’s election that it was a complete referendum on Donald Trump and he failed. And we have to build from there.</p><p><strong>You supported Trump in 2024. At the time you wrote that you were aware of some of his failings. I think many people who voted for Trump were aware of some of his failings, but he had a mandate. </strong></p><p><strong>He had the popular vote, he had the House, he had the Senate. Why couldn’t MAGA, his movement, deliver on good government? </strong></p><p></p><p>“But MAGA couldn’t deliver on good government. And if you can’t deliver on good government, it doesn’t matter how charismatic the leader is.”</p><p>I think that it all comes down to the fact that Trump made decisions based not on rational calculation, by listening to expert advice, but on gut instinct.</p><p>I think that the wheels began to fall off of the Trump train on April 2, 2025. That was the so-called Liberation Day when Trump announced these wide tariffs. They weren’t thought out at all. They just came out of his gut. And that set a pattern for the way that Trump made decisions. Plus. he promoted people not based on competence, but based on loyalty to him, personal loyalty.</p><p>I think this administration has gone from one crisis to another because of that, because Trump doesn’t have a theory or practice of governance. When he came into office, he signed a bunch of executive orders. Some of them did things that I thought were really good, but he didn’t turn them into legislation. This is a guy whose party held both houses of Congress and the White House, yet he just sailed right along as if he was going to be president forever.</p><p>And then of course, this gets us to the Iran war, which was another gut instinct thing by Trump, which became the symbol for all of the disasters of Trumpism.</p><p><strong>Can MAGA be divorced from Donald Trump? Can it exist without Donald Trump? </strong></p><p>No, MAGA is Donald Trump. Donald Trump himself said so. The challenge is going to be, how does the Republican Party rebuild and regroup for 2028 with Trump still in the White House?</p><p>I mean, think about it. They’re fighting a two-front battle now. You’re going to have to fight the Democrats, who are energized, who are going to come in and make the next two years — justifiably, I would say — about investigating Trump administration corruption.</p><p>But they’re also going to have to fight Donald Trump himself. Sitting in the White House, he’s not going to shut up. He’s not going to do what is best for his party. He’s going to try to salvage his legacy.</p><p><strong>What is the next conservative movement? Where do conservatives go from here? </strong></p><p>The next few months are going to be really interesting in this respect. Until now, everybody on the right has thought that JD Vance, the vice president, is Trump’s natural successor, even though he hasn’t announced whether or not he’s going to run. I think that has now been called severely into question.</p><p>I say this as someone who’s a personal friend of the vice president and would like to see him be president one day. Nevertheless, even though he strongly opposed the Iran war from behind the scenes, he and Marco Rubio and everyone else in this administration are tied to it and all the other failures of Trumpism.</p><p>So who does that leave on the outside? I was very surprised, in the past 24 hours, to see and hear Gov. Ron DeSantis, the outgoing governor of Florida, who as we all remember, ran against Trump for the Republican nomination and never stood a chance. He’s not charismatic. He’s super competent, but not charismatic. And so Trump won the 2024 nomination.</p><p>Well, now DeSantis is coming out making strong, clear, rational critiques of MAGA and Trumpism. And I think that DeSantis could be the outside candidate who has the best [chance] because he’s the only national Republican politician not tainted by Trumpism.</p><p><strong>JD Vance is a friend of yours. He’s credited you with getting him involved in politics. You say you’d like to see him be president. I think a legitimate question following what we’ve seen over the past two years and then last night is why? </strong></p><p><strong>Why do you want JD Vance to be president? </strong></p><p>JD Vance has been associated with the national conservatism movement, as have I — the movement started by Yoram Hazony, which has been about prioritizing national sovereignty, national interest, a cultural conservatism that is also in favor of economic reforms to make it easier to raise families.</p><p>JD Vance has been the avatar for that sort of conservatism. I see the bones of this kind of conservatism within Trump and MAGA, but it got completely crushed by Trump’s own obsessions. If JD can go back to the man I think he is deep down and start to champion this sort of thing — more of a pro-family economic liberalism with social conservatism and no new wars — if it’s possible for any Republican to claim that now, then I think that he could have a chance.</p><p>I think he is a good man. I have criticized him publicly, in print, as a friend for not separating himself from the bigots on the dissident right — the antisemites and the white nationalists. This extremist crowd is going to make a bid for power in the rubble of MAGA. And I think whether it’s JD or whoever becomes a Republican standard bearer is going to have to face them down.</p><p><strong>We’ve talked about JD Vance. We have talked about Ron DeSantis. They represent different things within conservatism. Tucker Carlson represents something else within conservatism. I think it’s something you don’t like very much. And, um, and then there’s Marco Rubio, who represents something that we were all familiar with from the early aughts. </strong></p><p><strong>What do you think of these two other boldface names as we head into 2028? </strong></p><p>Tucker Carlson has beclowned himself, and it’s really sad. As someone who used to be friends with him, I thought he was a sensible, interesting commentator who often said a lot of common-sense things. But sometime in the last couple of years, he lost his mind and became antisemitic and just a crazy conspiracy theorist.</p><p>A lot of people are worried about his influence on the vice president because they’ve been close for years. Tucker was key in getting Donald Trump to choose JD Vance as vice president. I have no inside knowledge of that at all, but it worries me as well. I think JD is his own man, but it’s going to be very hard for JD going forward to maintain viability as a potential Republican Party leader until and unless he addresses the Tucker Carlson problem.</p><p>I don’t think Tucker’s going to run for president. If he did that, he could only be a spoiler, and I don’t think he actually wants it.</p><p>In Marco Rubio’s case, he’s been a real chameleon. He was against MAGA. He was the neocon’s neocon for a while, but he has been a faithful servant and executor of Trump’s foreign policy. And for some reason, it doesn’t seem to have stuck to him the way it has stuck to JD Vance. I’m not sure why that is, but with all of these guys who have been part of the Trump administration, it’s gonna be very, very hard to cut that albatross from around their neck.</p><p><strong>One of the dynamics that we’ve seen in the Trump era over the last decade is that Republicans in Congress don’t want to stand up to Donald Trump. They don’t want to cross him.</strong></p><p><strong>What should Republicans in Congress do? Should they finally grow a spine and say, </strong>“<strong>Look, we don’t have to obey every single thing that President Trump says</strong>”?</p><p>Absolutely. I mean, what do they have to lose now?</p><p>Trump has never been loyal to anybody who’s pledged loyalty to him. Greg Abbott, the three-term governor of Texas who lost his bid for reelection — no sooner had the election been called and Trump put out a statement <a href="https://thehill.com/homenews/campaign/6197177-donald-trump-greg-abbott-criticism-2026-midterms-texas/" rel="noopener noreferrer" target="_blank">calling him a RINO</a>.</p><p>Trump is not loyal. And so there is nothing in it left for Republicans to stick with him. He’s not going to be a factor in 2028. Maybe they want his endorsement in the 2028 primaries. Really? After this? That would be the kiss of death.</p><p>Republicans are now, and Congress is now, going to have to find a spine and stand up and establish some independence. If they had done that earlier, we might not be in the situation today.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/podcasts/509789/midterm-elections-2026-maga-rod-dreher" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

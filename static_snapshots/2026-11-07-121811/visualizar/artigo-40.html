@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>This election’s biggest AI story isn’t about data centers - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">This election’s biggest AI story isn’t about data centers</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/future-perfect/509829/data-centers-ai-midterm-election-congress" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/GettyImages-2287661202.jpg?quality=90&strip=all&crop=0%2C10.737892056687%2C100%2C78.524215886627&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: What are Democrats doing about AI and data centers?
+                            </p>
+                            <p>You’ve probably been hearing a lot about data centers this week.</p><p>Candidates in several races made regulating data centers a key part of their campaigns. Now, 40 ballot measures to slow or stop data centers have passed. And in an <a href="https://www.nbcnews.com/politics/2026-elections/exit-polls" rel="noopener noreferrer" target="_blank">exit poll</a>, when respondents were asked how important AI and data centers were in their vote for Congress, 56 percent answered that it was a “crucial or a major factor.”</p><p>Data centers are the physical infrastructure that powers AI, and they’ve become deeply unpopular <a href="https://www.vox.com/future-perfect/490350/data-center-moratoria-ai-backlash" rel="noopener noreferrer" target="_blank">not just because of their noisiness, ugliness, or electricity demand</a>, but because of what they symbolize: the acceleration of a technology that <a href="https://www.vox.com/future-perfect/2023/9/19/23879648/americans-artificial-general-intelligence-ai-policy-poll" rel="noopener noreferrer" target="_blank">many Americans fear</a> and that they feel Silicon Valley is foisting upon them.</p><p></p><ul><li>Key figures to watch include Abdul El-Sayed, Jon Ossoff, and Scott Wiener. And Sen. Maria Cantwell has already put out a framework that could have bipartisan appeal.</li><li>Data centers have grabbed the headlines, but the bigger story is the sweeping success of candidates who prioritize AI safety.</li><li>These leaders will be poised to rein in the tech itself through hearings and lawmaking.</li></ul><p>If you’re one of the Americans worried about AI — or just prefer a more serious regulatory approach over the hands-off, Trump White House approach — there’s a problem with confining your attention to data centers. Even a successful push against them won’t address the bigger issues around the technology. And picking off data center projects one by one <a href="https://www.axios.com/2026/11/05/ai-data-center-election-backlash-concessions" rel="noopener noreferrer" target="_blank">will slow, but not stop, the buildout</a>. AI companies will still find jurisdictions that are willing to let them build — it’ll just cost them more.</p><p>The election outcome that matters far more, though it was far less trumpeted, is that voters just elected a new crop of leaders promising to actually push to regulate the tech itself. These are people who are concerned not just about AI’s physical infrastructure, but about AI regulation and safety. And they’ve signaled that they’ll push for laws that address the full spectrum of risks from AI — from cyber hacks and job losses all the way to bioweapons, power concentration, and even the possibility of human extinction.</p><p>In fact, for AI watchers, one of the most striking things about this election cycle is how safety-pilled many candidates have become since the major <a href="https://huggingface.wtf/" rel="noopener noreferrer" target="_blank">AI hacks</a> this summer.</p><p>“If you go back before the summer, most conversations from policymakers around AI were at a very, very high level of abstraction. Few of them were focused on how these AI models may be highly capable and may pose rather unique risks,” Mackenzie Arnold, an analyst at the Institute for Law &amp; AI, told me. “But there’s been a big shift.”</p><p>The midterm results — and the Democrats’ stunning takeover of Congress — improve the odds of reining in AI. But now, the big question is: Can the new victors use the momentum they built up around data centers — the kitchen-table issue that initially brought many voters into the tent — and broaden out beyond that to mobilize for greater AI safety? They may have a lot of ideas, but are they any good?</p><p><h2><strong>The new (and newly emboldened) crop of AI safety advocates </strong></h2></p><p>Among the newly elected Democrats, a striking number are very vocal about AI risks. And a few have clearly taken the time to educate themselves on the finer points. So before considering what concrete changes they can actually implement, it’s worth getting to know what they’ve proposed.</p><p><a href="https://www.vox.com/politics/508901/abdul-el-sayed-wins-michigan-senate" rel="noopener noreferrer" target="_blank">Abdul El-Sayed</a>, who won the Michigan Senate race, <a href="https://x.com/ONagel33303/status/2117452882773684550" rel="noopener noreferrer" target="_blank">said</a> that we need a “full-on pause” on frontier AI research. He’s also advocated for global coordination on a slowdown, including a treaty with China aimed at avoiding an arms race dynamic. He supports a ban on recursive self-improvement, where AI models build the next, even smarter AI models. He also wants a new federal safety agency that would inspect companies and block releases if necessary.</p><p>Even if not all his ideas resonate with experts (like the simplistic idea of a “kill switch” for dangerous models), having him in the Senate means that AI safety advocates will have an easier time arguing for a pause on frontier research.</p><p>Another winner to watch is <a href="https://www.vox.com/podcasts/500647/jon-ossoff-natalie-harp-viral-rally-moment-2028-speculation" rel="noopener noreferrer" target="_blank">Jon Ossoff</a>, who prevailed in his Georgia Senate race. In his victory speech, he <a href="https://x.com/JayShooster/status/2117818842831609869" rel="noopener noreferrer" target="_blank">lambasted</a> AI developers, saying, “The titans of Silicon Valley dig bunkers for themselves and warn that the artificial intelligence they’re creating risks human extinction.”</p><p>Back in September, he impressed safety advocates by explicitly mentioning “catastrophic risks” like AI-engineered bioweapons. Conveying his priorities, he <a href="https://x.com/ossoff/status/2099272935106130094" rel="noopener noreferrer" target="_blank">said</a>, “A capable president would move swiftly to secure and reassure the American people, rush inspectors into frontier labs, fortify the nation against bioterrorism, demand legislation from Congress, and lead the world toward an AI treaty. But President Trump is compromised.”</p><p>Two other Democrats with strong AI safety bona fides and specific policy ideas have emerged victorious this week. Scott Wiener — the longtime California state senator who was behind two important pieces of legislation, <a href="https://www.vox.com/future-perfect/361562/california-ai-bill-scott-wiener-sb-1047" rel="noopener noreferrer" target="_blank">SB 1047</a> (which was ultimately <a href="https://www.vox.com/future-perfect/369628/ai-safety-bill-sb-1047-gavin-newsom-california" rel="noopener noreferrer" target="_blank">vetoed</a>) and <a href="https://sd11.senate.ca.gov/news/governor-newsom-signs-senator-wieners-landmark-ai-law-set-commonsense-guardrails-boost" rel="noopener noreferrer" target="_blank">SB 53</a> (which was signed into law) — won Nancy Pelosi’s seat this week. He’s <a href="https://newspack-missionlocal.s3.amazonaws.com/mission/wp-content/uploads/2026/05/Scott-Wieners-Tech-Platform-1.pdf" rel="noopener noreferrer" target="_blank">said</a> he’ll work to institute strict federal safety standards and “guard against catastrophic risk from AI.”</p><p>And Manny Rutinel — who cosponsored a 2024 law that sought to regulate AI use — won his race in Colorado. Rutinel has ties to effective altruism, a movement long preoccupied with AI safety, and you can hear it in the way he talks: “This technology has a 10 percent risk of wiping out human civilization,” he recently <a href="https://www.nytimes.com/2026/10/20/us/politics/colorado-elections-ai.html" rel="noopener noreferrer" target="_blank">told</a> The New York Times. “I don’t want human civilization to come to an end.”</p><p>Sam Forstag, who just became Montana’s first Democratic member of Congress in decades, also <a href="https://nbcmontana.com/news/local/forstag-flint-lay-out-policy-positions-ahead-of-election" rel="noopener noreferrer" target="_blank">stated</a> that AI poses an “existential risk to all of humanity.” Troy Jackson, the Democrat who won his Senate race in Maine, has vowed that he’s “not going to let the billionaires write the rules,” <a href="https://www.c-span.org/clip/campaign-2026/maine-democratic-senate-candidate-troy-jackson-says-ai-regulation-is-imperative/5209759" rel="noopener noreferrer" target="_blank">adding</a>, “We are not that far from ‘Terminator,’ and I don’t want to be ‘hasta la vista, baby.’”</p><p>You can expect these new victors to be reliable votes supporting the cause of AI regulation come early 2027. But what, exactly, might that look like?</p><p><h2>What Democrats plan to do now on AI</h2></p><p>As Democrats are poised to take power in Congress, they will have two big levers to pull on AI safety: hearings and lawmaking.</p><p>Now that the election is over, expect a whole lot of hearings. Sen. Ed Markey, who won reelection in Massachusetts, signaled that he’s coming for Big Tech executives. “They are going to need to plant new forests for all of the subpoenas we’ll be printing,” he <a href="https://x.com/edmarkey/status/2117834099696205871?s=46" rel="noopener noreferrer" target="_blank">posted on X</a>.</p><p>What will it look like if these executives are called to testify under oath? “Some of the hearings are going to be focused on safety practices — and evidence that the company’s practices are not up to snuff,” Arnold told me. “Asking for answers to questions of: ‘Why didn’t you find that earlier? Why didn’t you tell us?’ And while that doesn’t get you all the way [to safety], this public pressure is why so many companies have adopted voluntary practices, why they’ve improved their internal monitoring, their incident reporting, their response time to various incidents.”</p><p>As for lawmaking, experts I spoke with are now bullish that we’ll see much stronger AI legislation in 2027 than we’ve seen to date. Sen. Maria Cantwell, who’s slated to chair the Senate Commerce Committee, is a key player to watch. She’s already <a href="https://www.spokesman.com/stories/2026/oct/07/cantwell-unveils-ai-safety-framework-as-congress-s/" rel="noopener noreferrer" target="_blank">put out a framework</a> for governing AI that could have bipartisan appeal, which she’s called a precursor to legislation. It requires mandatory safety standards for cutting-edge AI models, independent testing and audits that models would have to pass before release, and prompt reporting of safety incidents.</p><p>“Cantwell is going to push that, and she’s in a place to basically be the voice of the caucus on that,” Brad Carson, an advocate for stricter AI policies who leads Americans for Responsible AI and a former congressman, told me. “Every single Democrat supports it, and all they need is five or six Republicans to beat the filibuster, and I bet you they can find that.”</p><p>Carson is hopeful that Democrats can get Republican votes “especially as the gravitational pull of the White House eases,” he said. “Trump has led them down the primrose path of defeat. A lot of smart politicians are going to be distancing themselves.”</p><p>Yes, President Donald Trump ultimately holds veto power. And he’s allowed American tech companies to race ahead on the technology with very few guardrails. But as AI companies make more and more <a href="https://openai.com/index/securing-our-frontier-model-training-environment/" rel="noopener noreferrer" target="_blank">concessions to safety</a> in light of security incidents, the president may be more willing to sign on to some safety regulations.</p><p>“He’s mercurial enough that I can see him signing something like this,” Carson told me, “especially if some of these Republicans say, ‘Look, we’re getting battered on data centers and AI. This is a terrible thing. Let’s do this.’”</p><p>Of course, the most surefire way to gain control of AI lawmaking, unobstructed by a veto, would be to lay the groundwork for a Democratic White House in 2028. And the midterms showed that a focus on reining in AI can help propel Democrats to victory. “The road to 2028 starts today,” <a href="https://x.com/AlexBores/status/2118188441548607515" rel="noopener noreferrer" target="_blank">wrote Alex Bores</a>, the New York Assembly member who has made AI his main focus. “In order to maintain voters’ trust and avoid catastrophic risk, we need a unified baseline around AI safety in the Democratic Party.”</p><p>Although many voters focused on data centers this election cycle, it’s reasonable to predict — as cyber breaches and other security incidents proliferate — that they will move from symbol to substance, focusing more on safety in the run-up to 2028.</p><p>“We shouldn’t view voter sentiment towards data centers and AI as stagnant or static,” Arnold told me. “I think it will continue to update to events in the world, and I think it will increasingly focus on AI itself as we see events in the world that make that very obvious to people.”</p><p>Or as Greg Casar, chair of the Congressional Progressive Caucus that sets policy and legislative strategy, <a href="https://www.yahoo.com/news/politics/articles/casar-markey-put-ai-executives-174945782.html" rel="noopener noreferrer" target="_blank">put it</a>, “The revolt against data centers was one of the top issues of the 2026 election, and in a few years we will look back on it as just the early tremor of a much bigger AI earthquake upending American politics.”</p><p>The savviest politicians are already preparing with that earthquake in mind.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/future-perfect/509829/data-centers-ai-midterm-election-congress" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

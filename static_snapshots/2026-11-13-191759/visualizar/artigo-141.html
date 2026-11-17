@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hora de “desbigtechtizar” a vida [4] - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Hora de “desbigtechtizar” a vida [4]</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/11/160349/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2019/07/coluna_4.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Hora de “desbigtechtizar” a vida [4]
+                            </p>
+                            
+<p><strong>Por Marcelo Tavares de Santana*</strong></p>
+<p>Nas eleições brasileiras, mês passado, vimos uma inédita virada onde o segundo colocado no primeiro turno ganhou as eleições no segundo turno. Provavelmente uma grande parte dessa vitória foi o entendimento que as eleições brasileiras estavam sofrendo interferências externas, que as <i>big techs</i> participavam dessas interferências manipulando algoritmos, e que era necessário uma coordenação que conhecesse esses algoritmos para os vencer. Particularmente, vejo que de modo geral o campo da esquerda não investiu o suficiente em compartilhamento de conhecimento para tornar a população menos vulnerável às mentiras, e de repente explicaram para milhões como os algoritmos funcionavam e como fazer para eles não potencializarem os adversários. Cabe assim relembrarmos como foi um dos grandes movimentos de controle de narrativas em meios digitais e como ele foi reduzido.</p>
+<p>Nas eleições estadunidenses de 2016, a extrema direita tinha já estruturada uma rede de desinformação que utilizada o ecossistema de monetização automatizada de publicidade digital (como Google AdSense, AppNexus, Criteo e dezenas de intermediários) para obter recursos financeiras espalhando anúncios em milhares de portais, incluindo sites extremistas e produtores de notícias falsas, sem que o departamento de <i>marketing</i> das empresas soubessem. Não existia na época mecanismos de verificação sobre onde as propagandas apareciam, assim uma marca de tênis que usa a imagem de jogadores negros poderia aparecer como publicidade em uma página propagadora de racismo. Dessa forma foi estabelecido uma tática de controle em massa que incluía ‘inundar a sociedade com merda’ (é assim mesmo que chamavam), ‘criar uma guerra cultural e mobilização pelo ressentimento’ e trazer pessoas ressentidas para a extrema direita. Em outras palavras, eles jogavam “merda” na sociedade para tirar suas referências, deixar as pessoas perdidas, e depois ofereciam um caminho como solução da insegurança que foi propositalmente criada por eles mesmos. Essa tática teve sucesso até aparecer o movimento Sleeping Giants, que tinha com ação expor as marcas cujas publicidades apareciam em portais de discriminação, <i>fake news</i> e batalhas morais. Quando grandes empresas, que estavam “dormindo” enquanto financiavam conteúdo de intolerância com suas marcas aparecendo diretamente nesses locais, perceberam o risco a seus produtos, rapidamente os incluíram em suas listas de bloqueios de publicidade, fazendo a captação financeira do esquema cair drasticamente; mas não o suficiente para inibir o efeito da influência digital nas eleições daquele ano. A esse processo, com fases e funções delimitadas, podemos dar o nome de protocolo ou metodologia algorítmica.</p>
+<p>O Brasil sofreu o mesmo processo, com diversos portais espalhando desinformação de 2018 a 2022 com coordenação do grupo conhecido como Gabinete do Ódio, e também tivemos o movimento Sleeping Giants Brasil, que hoje é um exemplo de combate a esse tipo de manipulação da sociedade. Em seu <i>site </i><strong>[1]</strong> exclama que a “Tecnologia não é neutra. As decisões tomadas por plataformas, anunciantes, governos e empresas têm consequências para a vida das pessoas”, e sua história precisa ser conhecida como parte de nossa formação contra <i>fake news</i>; quanto mais soubermos sobre os meios de publicidade nazista, mais podemos nos defender.</p>
+<p>Se naquela época era preciso estar presente em diversos portais, em diversos sistemas de publicidade, para alcançar dezenas de milhões de pessoas, hoje essa população pode ser encontrada em poucas plataformas digitais dado o tamanho da captura de nossas vidas, nossas fotos, nossas lembranças dentro delas. As redes sociais comerciais e centralizadas são grandes sistemas de retenção de dados que, apesar de existirem legislações de proteção de dados pessoais, dificultam acesso aos nossos registros exceto pelas suas próprias aplicações; acho que falta nas legislações exigir um botão para baixar todo conteúdo pessoal de forma fácil e compatível com outras plataformas. Essas redes sociais, além de seus algoritmos obscuros, ainda permitem o impulsionamento mediante pagamento, ou seja, aparece mais quem paga mais, e no caso das eleições siglas com mais fundo partidário podem fazer mais publicidade e impulsionamento, quase que destruindo a isonomia de ideias. De uma forma ou de outra, assim com o Sleeping Giants Brasil conseguiu desmonetizar criadores de <i>fake news</i> em R$ 203 Milhões só levando a conhecimento o quê estava sendo financiado, uma boa percepção de como os algoritmos estavam funcionando associada a disseminação desse conhecimento permitiu a virada histórica nas eleições brasileiras. No entanto, isso só dura até o próximo algoritmo obscuro, já vemos denúncias de que conteúdo de canais progressistas não estão sendo normalmente distribuídos mesmo com a produção diária de conteúdo; será que já estamos nas campanhas para 2028 e 2030? O fato é que só podemos ter percepções do que as redes sociais comerciais fazem pois não temos acesso ao que é executado em outros países. Se o comportamento do algoritmo é bem percebido pode-se agir contra conteúdo falso ou enganoso, caso contrário, qualquer esforço foi perda de energia.</p>
+<p>O único cenário onde não ficamos mêrce da vontade das <i>big techs</i> é sair das redes sociais e parar de usar suas ferramentas de comunicação. Talvez o mais difícil, e triste, é pensar em deixar pessoas queridas num ambiente tóxico, mas um aprendizado tirado no exemplo que foi o Exército do Lula e seus mais de dez milhões de membros é o de não interagir em conteúdos enganosos ou provocativos, de não responder nem tentar mostrar a verdade. Esses algoritmos fechados a sete chaves nas <i>big techs</i> só nos deixaram a opção de não interagir, pois mesmo reações a conteúdo antiético conta como engajamento, logo se não vamos trocar ideias com nossas pessoas queridas nessas plataformas, não há motivos razoáveis para continuar nesses ambientes e podemos usar outros canais para renovar os laços familiares e de amizade.</p>
+<p>Não temos como saber qual o anterior, o atual ou o próximo algoritmo que as <i>big techs</i> vão usar, elas podem até usar demonstrações como “Não tenho interesse” para impulsionar mais um conteúdo a outros e nos enganar achando que estamos tirando engajamento – e talvez por isso exista a orientação de só rolar rápido o conteúdo indesejado para demonstrar falta de interesse – assim, somente o controle das tecnologias pela população em redes federadas públicas pode trazer um pouco de paz. Logo precisamos reforçar alguns conteúdos, segue sugestões de (re)leitura:</p>
+<p>* Construir o nosso terreno (3): comunicação descentralizada <strong>[2]</strong>;</p>
+<p>* A importância das redes federadas públicas <strong>[3]</strong>;</p>
+<p>* Precisamos usar mais o Fediverso <strong>[4]</strong>.</p>
+<p>Acredito que estamos num momento que vai exigir mais reflexão a mundaça de hábito, mas tem alguns aplicativos que tenho usado satifastoriamente e acho que são boas opções na loja do F-Droid, são eles o navegador Fennec Droid, a gerenciador de mídia Aves Libre, e o bloqueador de aplicativos App Lock (para controle parental); e assim aos poucos vamos mudando.</p>
+<p>Boa reflexão a todos!</p>
+<p><strong>*</strong> Professor de Ensino Básico, Técnico e Tecnológico do Instituto Federal de São Paulo.</p>
+<p><strong>Nota</strong></p>
+
+<p><strong>[1] </strong>https://sleepinggiantsbrasil.com/institucional/#historia</p>
+
+
+<p><strong>[2] </strong>https://passapalavra.info/2021/05/138385/</p>
+
+
+<p><strong>[3]</strong> https://passapalavra.info/2023/01/147005/</p>
+
+
+<p><strong>[4] </strong>https://passapalavra.info/2025/08/157230/</p>
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/11/160349/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

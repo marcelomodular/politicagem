@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A vizinhança da inteligência artificial - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A vizinhança da inteligência artificial</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Ponte Jornalismo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://ponte.org/a-vizinhanca-da-inteligencia-artificial/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://ponte.org/wp-content/uploads/2026/11/moradia-semente-de-deus-belem-joao-paulo-guimaraes.jpg-scaled.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Data center em Belém preocupa comunidades vizinhas
+                            </p>
+                            
+<h4>Em Belém, a instalação de um data center de R$ 250 milhões preocupa moradores de duas ocupações que enfrentam disputas por terra, falta de saneamento e incertezas sobre os impactos do empreendimento</h4>
+<img alt="Fachada de tijolos aparentes, com portas de madeira, roupas na janela e uma bicicleta rosa encostada à frente, no Residencial Semente de Deus, em Belém." src="https://ponte.org/wp-content/uploads/2026/11/moradia-semente-de-deus-belem-joao-paulo-guimaraes.jpg-scaled.webp"/>Moradia no Residencial Semente de Deus, em Belém, onde mais de 300 famílias vivem entre a disputa pela terra e a falta de infraestrutura básica, nas proximidades da área prevista para o BEL1 | Foto: João Paulo Guimarães/Ponte Jornalismo
+<h4>Resumo</h4>
+
+<strong>Belém deve receber, em 2027, o BEL1, um data center com investimento anunciado de R$ 250 milhões</strong>, em uma área próxima a comunidades que vivem há anos entre a falta de infraestrutura básica, a disputa pela terra e a violação de direitos humanos.
+<strong>Mais de 300 famílias vivem no Residencial Semente de Deus, enquanto a Comunidade Mirandinha-Miramar Shalon reúne mais de 450 casas. </strong>Moradores relatam dificuldades de acesso à água, saneamento e saúde, além de temerem os possíveis impactos ambientais da instalação do data center.
+<strong>O BEL1 ainda não aparece nos processos judiciais que envolvem as comunidades.</strong> Moradores afirmam que não foram procurados diretamente pelas empresas responsáveis pelo projeto e cobram informações sobre os impactos das instalações e seus possíveis efeitos sobre o território.
+
+<p>Belém deve receber, em 2027, o BEL1, um data center com investimento anunciado de R$ 250 milhões. Essas estruturas, responsáveis pelo armazenamento e processamento de grandes volumes de dados, são parte da infraestrutura que sustenta o avanço da inteligência artificial. O empreendimento é apresentado pela Elea Data Centers em parceria com a AXIA Energia, antiga Eletronorte, e está previsto para a região da Subestação Miramar II, em uma área próxima a comunidades que vivem há anos entre a falta de infraestrutura básica, a disputa pela terra e a violação de direitos humanos.</p><p></p>
+<p></p>
+<p>A poucos minutos do local projetado para o empreendimento estão o Residencial Semente de Deus (Deus Proverá), com mais de 300 famílias ocupando a área na região da Avenida/Rodovia Arthur Bernardes, e a Comunidade Mirandinha-Miramar Shalon, ocupação que fica na região do Barreiro-Miramar, também nas proximidades da Arthur Bernardes e do Complexo Miramar.</p>
+<p>Separadas por menos de dois quilômetros, as duas ocupações ficam a aproximadamente 5 km e 6 km do centro histórico de Belém, respectivamente. Um ano após sediar a 30ª Conferência das Nações Unidas sobre Mudanças Climáticas (COP30), a capital paraense se prepara para receber um empreendimento voltado à economia digital enquanto famílias que vivem nas proximidades da área prevista para sua instalação ainda reivindicam acesso à água, saneamento básico, moradia digna e segurança fundiária.</p>
+<p>O BEL1 ainda não aparece como objeto dos processos judiciais que envolvem as duas comunidades. No entanto, os impactos térmicos, sonoros e ambientais específicos do projeto já deveriam ter sido demonstrados por estudos e processos de licenciamento, que permanecem inexistentes. Para quem mora no Barreiro, a preocupação real chegou antes da inteligência artificial.</p>
+<p>Questionada pela <strong>Ponte </strong>sobre os impactos do empreendimento, a Elea Data Centers afirmou que o BEL1 está em fase de pré-projeto e desenvolvimento de engenharia. Segundo a empresa, os estudos em andamento orientarão o controle de ruído e a dissipação de calor. A resposta, porém, não apresenta resultados que permitam dimensionar esses possíveis impactos sobre as comunidades nem detalha a situação do licenciamento ambiental. Sobre o cronograma, a companhia disse que a previsão de início da operação depende da conclusão dessas fases (leia nota na íntegra ao final do texto).</p>
+<h4>O calor, a terra e a incerteza</h4>
+Milson Lopes, uma das lideranças do Residencial Semente de Deus, relata aumento do calor na comunidade e teme os possíveis impactos da instalação do BEL1 | Foto: João Paulo Guimarães/Ponte Jornalismo
+<p>A ocupação do Residencial Semente de Deus teve início em abril de 2022, na região do Barreiro, próxima à Baía do Guajará, onde mais de 300 famílias passaram a ocupar uma área da Avenida Arthur Bernardes, nas proximidades do centro da capital paraense.</p>
+<p>O processo judicial registra relatos de incursões policiais nos primeiros dias da ocupação. Em 26 e 28 de abril, agentes estiveram no local para exigir que moradores deixassem a área. Numa segunda ocasião, segundo os depoimentos, os policiais intensificaram a abordagem, muxando os ocupantes com uso de  spray de pimenta e ameaças de acionar os agentes da Companhia de Operações Especiais (COE) e das Rondas Ostensivas Táticas Motorizadas (ROTAM). A ação policial de desocupação da área chegou a ocorrer, e houve relatos de agressões a uma mulher grávida.</p>
+<p>Quatro anos depois, a comunidade permanece no local, apesar das disputas pela terra e das tentativas de desocupação. Milson Lopes, uma das lideranças e principais referências da comunidade, fala do calor dentro de sua casa enquanto limpa o suor da testa e regula o ventilador que tenta vencer a temperatura próxima dos 39 °C. “Belém costuma ter chuva toda a tarde. Nós não estamos tendo”, comenta. Milson lembra que costumava dormir na rede durante a tarde. Hoje, por conta do calor, afirma não conseguir mais. Ele conta que uma área de vegetação próxima à ocupação foi desmatada recentemente e que, com isso, sentiu mudança na temperatura do entorno.</p>
+<p>Sobre o futuro empreendimento, Milson se diz preocupado. “Eu costumo dizer que o El Niño já está acontecendo. Hoje eu vejo que estamos com 38 °C. Pode ter certeza que quando começar a funcionar aqui [o datacenter], a gente estará com 40 °C nesse horário.” </p>
+<p>Toniel Ferreira Barbosa, de 46 anos, também mora na comunidade, mas não tinha noção de que uma empresa de tecnologia se aproximava do seu território. Seu cotidiano é marcado por uma perda recente. O filho morreu há pouco tempo.</p>
+<p>Entre as hipóteses levantadas pelos médicos estavam asma, pneumonia e tuberculose. Mais tarde, surgiu a suspeita de leptospirose, que foi confirmada por meio de um teste. A doença infecciosa está associada, segundo o Ministério da Saúde, a condições precárias de saneamento básico e a presença de roedores infectados. Mas a confirmação veio tarde demais. “Meu filho foi morrendo aos poucos.” Toniel também precisa de acesso à saúde, mas enfrenta dificuldades para conseguir atendimento. Doente, ele não pode nem deve trabalhar, mas, mesmo assim procura um emprego.</p>
+<p><strong>Leia também: <a href="https://ponte.org/sem-direito-a-moradia/" rel="noopener noreferrer" target="_blank">Sem direitos: como vivem os brasileiros em casas sem banheiro</a></strong></p>
+<p>Sobre data centers, seu conhecimento vem sobretudo dos filmes de ação a que assiste, nos quais associa as estruturas a apostas e golpes virtuais. Mesmo sem saber exatamente o que são data centers, ele imagina o que está em risco. “Para quem vive numa calmaria como a gente, na beira do rio, com esse vento que Deus nos dá todos os dias, a nossa vida pode ser transformada num inferno.”</p>
+<p>Para ele, a possibilidade de uma estrutura desse porte próxima à comunidade é motivo de preocupação concreta caso haja aumento do calor e do barulho durante as 24 horas do dia. Ele resume seu temor: “Se for para botar um data center aqui para destruir a comunidade, tem crianças, muita criança mesmo aqui ao redor. Eu acho que é uma má opção, isso daí a gente tem que botar no local onde não tenha nem vida humana.”</p>
+Toniel Ferreira Barbosa, morador do Residencial Semente de Deus, teme que a instalação do BEL1 altere o cotidiano da comunidade | Foto: João Paulo Guimarães/Ponte Jornalismo
+<h4>O projeto que não entrou na conversa</h4>
+<p>Na Comunidade Mirandinha-Miramar Shalon, a disputa pela permanência no território se arrasta desde pelo menos 2022. O processo movido pela antiga Eletronorte, hoje AXIA Energia, teve uma decisão favorável à reintegração de posse inclusive com o uso de força policial, caso fosse necessário. A possibilidade de demolir as construções existentes, porém, ficou para ser analisada posteriormente. Em 2023, uma missão da Defensoria Pública registrou aproximadamente 140 famílias vivendo na área.</p>
+<p>A disputa continuou nos anos seguintes. Em janeiro de 2025, já no âmbito da Comissão de Soluções Fundiárias, o processo apontou que havia mais de 450 casas na comunidade e determinou a realização de uma visita de reconhecimento ao local.</p>
+Mapa apresentado pela Eletronorte no processo de reintegração de posse identifica a área em disputa no Complexo Miramar, em Belém | Foto: Reprodução
+<p>Enquanto a permanência das famílias é discutida em uma tentativa de conciliação, um novo empreendimento surge no entorno sem integrar as negociações. O BEL1, previsto para uma área próxima à comunidade, ainda não faz parte do processo judicial movido pela AXIA Energia. Segundo os moradores e representantes que acompanham o caso, o projeto também não foi apresentado nas discussões sobre o futuro do território.</p>
+<p>A falta de informações sobre o empreendimento preocupa os moradores. Sidney Costa, presidente da associação de moradores local, resume a sensação: “A comunidade está sem saber de nada aqui. De empresa, ninguém chegou ainda para falar nada com a gente.”</p>
+<p>Embora já saibam onde o data center deve ser instalado e tenham recebido informações sobre possíveis impactos na região, os moradores afirmam que não foram procurados diretamente pelas empresas responsáveis pelo projeto.</p>
+<p>Em resposta à <strong>Ponte</strong>, a Elea afirmou que está avançando no diagnóstico social da região e na estruturação do relacionamento com a comunidade. Disse também ter iniciado conversas com pesquisadores, especialistas e entidades locais. A nota não informa quem foi ouvido nem esclarece se houve contato direto com os moradores das duas ocupações.</p>
+<p>“A gente precisa dessa terra para fazer uma moradia digna. Não tem para onde ir. Se fosse uma coisa que não fosse causar problema, tudo bem. Mas aqui não é lugar para isso. Está no meio da cidade, ao lado de uma comunidade que precisa de água, saneamento e moradia.”</p>
+Em anúncio no Instagram, a Elea promove o BEL1 com referências à inteligência artificial, à energia renovável e a novos ecossistemas digitais | Foto: Reprodução
+<h4>A visita judicial e as dúvidas sobre o empreendimento</h4>
+<p>A ausência de informações sobre o BEL1 nos processos judiciais envolvendo a comunidade ficou evidente durante uma visita da Comissão de Soluções Fundiárias do Tribunal de Justiça do Pará (TJPA) à ocupação Mirandinha-Miramar Shalon.</p>
+<p>O juiz Andrey Barbosa esteve no local acompanhado de representantes da Defensoria Pública, do Ministério das Cidades e da própria AXIA Energia. O objetivo era conhecer as condições de vida das famílias e contribuir para uma possível conciliação da disputa fundiária. “A gente vai estar caminhando com vocês dentro da comunidade, para que a gente possa estar conhecendo um pouco da realidade daqui.” </p>
+<p>Ao ser questionado sobre o empreendimento, o magistrado afirmou que não havia informações sobre o projeto nos autos da ação. “Dentro dos autos, não tem uma informação que possa afetar esta comunidade ou algo que diga respeito ao data center.” </p>
+<p>Fora do processo judicial, porém, a instalação de data centers na região já mobiliza moradores. Carlos Alves, que também vive na comunidade, acompanha a mobilização popular contra os empreendimentos nas redes sociais. Ele reconhece que uma estrutura desse porte pode ter importância para a economia digital, mas questiona quem ficará com os benefícios e quem assumirá os custos. “Eles querem ficar com o lucro e a gente ficar com a miséria.”  </p>
+<p>Carlos retoma uma preocupação presente nos relatos de moradores das duas ocupações. As comunidades convivem com problemas de saneamento, abastecimento de água e infraestrutura elétrica, enquanto os data centers demandam grandes quantidades de água e energia para seu funcionamento. “Esse data center é um grande consumidor de energia elétrica e de água. Então, se eles querem trazer o empreendimento para cá, precisam também olhar para quem já está aqui.”</p>
+<p><strong>Leia também:<a href="https://dev.ponte.org/comunidade-em-belo-horizonte-denuncia-racismo-ambiental-as-vesperas-da-cop30/" rel="noopener noreferrer" target="_blank"> Comunidade denuncia racismo ambiental às vésperas da COP30</a></strong></p>
+<p>Sobre a demanda por água e energia, a Elea afirmou que o projeto prevê resfriamento a ar e fluido refrigerante em circuito fechado, sem uso de água para resfriar os servidores. Segundo a companhia, o consumo de água ficará restrito às instalações sanitárias e demais necessidades de apoio, e o abastecimento de energia será feito com fontes renováveis, por meio de contrato com a AXIA Energia e certificação por I-RECs. A nota não informa os volumes previstos de consumo de água e energia da BEL1.</p>
+<p>A discussão também ganhou espaço na Frente em Defesa da Amazônia Sem Data Centers, que cobra transparência, estudos de impacto e participação pública por meio de uma petição on-line que já conta com mais de 5 mil assinaturas. Carlos retoma o debate para reforçar o ponto que considera central. Não se trata apenas de ser contra ou a favor da tecnologia, mas de discutir o território onde ela será instalada. “O aquecimento dessa área vai ser insuportável.”</p>
+<p>Manoel Fonseca, morador do Barreiro e da região da Sacramenta há mais de quatro décadas, acompanhou as transformações do lugar desde antes da formação da atual ocupação. Ele lembra da vegetação que ajudava a ventilar o bairro e diz que a população foi ficando cercada por construções. “Aqui era uma mata densa que dava uma ventilação pro bairro todo.”</p>
+<p>A preocupação de Manoel é também com a falta de informação. “A gente se depara com uma situação dessa aqui sem a devida informação que seria preciso pra gente poder não ficar todo o tempo assustado.” Ele também não rejeita a ideia de desenvolvimento. “Ninguém é contra o progresso. Mas que esse progresso venha dar o progresso para a população também.” </p>
+Carlos Alves, morador da comunidade Mirandinha, questiona quem ficará com os benefícios da BEL1 e quem assumirá os possíveis impactos do empreendimento | Foto: João Paulo Guimarães/Ponte Jornalismo
+<h4>A disputa pelo território</h4>
+<p>Domingos Oliabe, da União Nacional por Moradia, acompanha outras sete ocupações na Grande Belém. Ele vê na história do terreno ocupado há cinco anos uma repetição do abandono e da criminalização de quem luta por um chão, paredes e um teto com água e energia. Segundo ele, a área permaneceu ociosa durante anos e chegou a ser associada pelos moradores a episódios de violência e desaparecimentos. “Eles abandonaram isso aqui e virou um cemitério clandestino. Onde você cavava para construir haviam ossos.”</p>
+<p>Para Domingos, o discurso muda quando uma área ocupada por famílias passa a despertar interesse econômico. “Quando você entra numa área de ocupação, os advogados chamavam de invasão. As mulheres da invasão são tudo prostitutas, os jovens são todos ladrões. É assim que eles nos veem.” </p>
+<p>Sobre o BEL1, ele não vê utilidade direta para quem vive ali. “O data center não vai servir para essas pessoas que estão aqui. Porque nenhuma delas precisa de data center.” Ele questiona a escolha de uma área ocupada por famílias para receber uma estrutura tecnológica de grande porte, com possíveis impactos ambientais e sociais.</p>
+<p>“A Secretaria de Meio Ambiente tem que se pronunciar referente ao data center. E o Ministério do Meio Ambiente, em Brasília, tem que se pronunciar. Isso aqui é da União. E a União somos nós”, afirma.</p>
+<h4>Leia a nota da Elea Data Centers na íntegra</h4>
+<p><em>A Elea Data Centers esclarece que BEL1, em Belém/PA, está em fase de pré-projeto e desenvolvimento de engenharia. Os estudos em andamento irão definir as características do empreendimento e orientar suas próximas etapas. A previsão de início de operação depende da conclusão dessas fases.</em></p>
+<p><em>O projeto prevê refrigeração por Expansão Direta (DX), com resfriamento a ar e fluido refrigerante em circuito fechado, sem uso de água para resfriar os servidores. O consumo de água ficará restrito às instalações sanitárias e demais necessidades de apoio. Para a energia, está previsto o uso de fontes renováveis, por meio de contrato de longo prazo com a AXIA Energia e certificação por I-RECs. Os estudos de engenharia também irão orientar o controle de ruído e a dissipação de calor, considerando os equipamentos, as alternativas de isolamento acústico, a circulação de ar e as condições climáticas da região.</em></p>
+<p><em>Em paralelo, a Elea está avançando no diagnóstico social da região e na estruturação do relacionamento com a comunidade, que acompanhará o desenvolvimento do projeto e a consolidação das informações técnicas. A empresa já iniciou conversas com pesquisadores, especialistas e entidades locais para apresentar o BEL1 e compartilhar informações sobre suas fases.</em></p>
+<p><em>Todas as etapas descritas fazem parte do processo de implantação do BEL1 e seguem os procedimentos técnicos e regulatórios aplicáveis.</em></p>
+<p><em>A Elea traz para esse desenvolvimento a experiência de suas operações no Brasil. Em 2024, a companhia registrou índice de eficiência no uso da água (WUE) de 0,07 litro por kWh e redução de 22,3% nas emissões totais de CO₂ equivalente, com compensação de 100% das emissões remanescentes. A empresa também recebeu o Selo Ouro do Programa Brasileiro GHG Protocol pelo inventário de emissões.</em></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://ponte.org/a-vizinhanca-da-inteligencia-artificial/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luchamos para poder seguir ejerciendo un periodismo independiente en Egipto - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Luchamos para poder seguir ejerciendo un periodismo independiente en Egipto</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">El Pais Mundo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://elpais.com/internacional/2026-11-09/luchamos-para-poder-seguir-ejerciendo-un-periodismo-independiente-en-egipto.html" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://imagenes.elpais.com/resizer/v2/L3VHCC3WUZHKLJYVMVNN2FKIQA.jpg?auth=913730cc84b64fbc008d7e71cefdb4c55fb8b6e666d84066263605db2fd9f7f5&width=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Luchamos para poder seguir ejerciendo un periodismo independiente en Egipto
+                            </p>
+                            <p>El 27 de octubre comparecí ante un juez en una sala de tribunales en El Cairo, acompañada por mi equipo de defensa compuesto por ocho abogados comprometidos. Una semana antes había sido citada a declarar; <a href="https://elpais.com/internacional/2026-10-27/egipto-ordena-el-cierre-del-principal-medio-independiente-del-pais-y-detiene-durante-varias-horas-a-su-directora.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2026-10-27/egipto-ordena-el-cierre-del-principal-medio-independiente-del-pais-y-detiene-durante-varias-horas-a-su-directora.html">me acusaban de operar una página web sin licencia</a>. Era la sexta vez en los últimos años en los que me enfrentaba a un interrogatorio de la fiscalía. Pero era la primera vez que mi caso llegaba a juicio.</p><p>Al principio de la sesión judicial, el juez me aseguró en repetidas ocasiones que éste era un caso simple y pequeño; que no tenía mayor importancia. Al parecer, para este juez y <a href="https://elpais.com/internacional/2026-06-24/el-doble-rasero-de-la-ue-en-migracion-defiende-los-derechos-humanos-mientras-pacta-con-regimenes-represivos.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2026-06-24/el-doble-rasero-de-la-ue-en-migracion-defiende-los-derechos-humanos-mientras-pacta-con-regimenes-represivos.html">otras personas en el poder</a>, cerrar el principal medio independiente de Egipto no tenía mayor importancia. A medida que avanzaba el juicio, todas las peticiones de nuestro equipo de defensa fueron rechazadas de plano, entre ellas, más tiempo para preparar la defensa, la presentación de documentación adicional o la citación de testigos. Conforme la sala se <a href="https://elpais.com/planeta-futuro/2026-01-22/abogadas-de-victimas-egipcias-del-test-forzado-de-virginidad-celebran-una-sentencia-historica-que-lo-considera-una-forma-de-tortura.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/planeta-futuro/2026-01-22/abogadas-de-victimas-egipcias-del-test-forzado-de-virginidad-celebran-una-sentencia-historica-que-lo-considera-una-forma-de-tortura.html">iba vaciando progresivamente</a> de todo principio del Estado de derecho, el juez decidió prescindir de todos mis abogados y nombró a un abogado de oficio para que asumiera mi defensa. Objeté, mis ocho abogados objetaron y el juez procedió a dictar la sentencia de este caso, pequeño y simple, mientras la policía me desalojaba a la fuerza de la sala. No llegué a escuchar el veredicto.</p><p>Tras siete horas bajo custodia —en un calabozo oscuro y húmedo— me enteré por el documento que tuve que firmar para quedar en libertad que el tribunal había ordenado el cierre de <i>Mada Masr</i> y había impuesto una multa de tres millones de libras egipcias (51.200 euros). Así, sin más, 13 años ejercicendo periodismo terminaron en una actuación judicial de cinco minutos.</p><p>Aquel día en los tribunales supuso <a href="https://elpais.com/internacional/2020-05-19/egipto-estrecha-el-cerco-contra-la-prensa.html#?rel=mas" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2020-05-19/egipto-estrecha-el-cerco-contra-la-prensa.html#?rel=mas">la culminación de muchos otros encuentros con la ley</a> en los que habíamos hecho todo lo posible para evitar este desenlace. <a href="https://elpais.com/internacional/2018/07/20/mundo_global/1532082498_967483.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2018/07/20/mundo_global/1532082498_967483.html">La ley de medios de comunicación de 2018</a> nos ordenó obtener una licencia. La solicitamos de inmediato, pero nunca recibimos una respuesta. En 2020, cuando finalmente se publicaron los reglamentos de la ley, postulamos de nuevo. Y tampoco recibimos respuesta, pese a que la ley obligaba a la autoridad encargada de emitir las licencias a dar una respuesta en un plazo de 90 días desde la presentación de la solicitud. En 2022, descubrimos, durante un interrogatorio en la oficina de la fiscalía pública, que nuestra solicitud, de hecho, había sido denegada; una decisión que nunca nos fue comunicada y para la que jamás se ofreció explicación alguna. Aun así, recurrimos la decisión al Consejo de Estado y, cuando nuestro recurso fue rechazado, volvimos a presentar la solicitud con documentación adicional. No hemos recibido ninguna respuesta de las autoridades desde 2023. Relatar estos detalles no es más que una muestra de cómo siempre hemos procurado mantenernos dentro de los márgenes de una ley concebida para controlar, no para regular.</p><p>Nuestra lucha no ha consistido únicamente en ejercer un periodismo independiente, sino en instaurar una manera sostenible —incluso a través de mecanismos legales— de expandir el espacio en el que tanto nosotros como otros podamos trabajar.</p><p>En 2013, un grupo de periodistas de El Cairo nos unimos para crear <i>Mada Masr</i> en un momento de convulsión política. El <a href="https://elpais.com/internacional/2013/07/03/actualidad/1372839418_154017.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2013/07/03/actualidad/1372839418_154017.html">cambio de régimen era inminente</a> y un año después llegaría <a href="https://elpais.com/internacional/2014/05/29/actualidad/1401370728_660497.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2014/05/29/actualidad/1401370728_660497.html">la elección del presidente Abdel Fatah al Sisi</a>. Siguieron 13 años de un férreo control político, en el que apenas quedaron espacios para la política, ni siquiera para la pugna por el poder, y de una creciente integración en la economía global como <a href="https://elpais.com/planeta-futuro/2025-07-01/infraestructuras-faraonicas-y-ciudadanos-cada-dia-mas-empobrecidos-el-agujero-de-la-deuda-consume-a-egipto.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/planeta-futuro/2025-07-01/infraestructuras-faraonicas-y-ciudadanos-cada-dia-mas-empobrecidos-el-agujero-de-la-deuda-consume-a-egipto.html">uno más de tantos mercados “emergentes” borrachos de deuda,</a> todo ello en una región que cambiaba de forma radical.</p><p>Aquel verano de 2013, lo que nos urgía era entender ese momento, darle forma en el pensamiento y en la escritura, dejar constancia de él. Al hacerlo, buscábamos mantener a la gente involucrada en estas transformaciones, y conectarlas con sus vidas diarias. Este es el espacio político que hemos estado construyendo durante los últimos 13 años.</p><p>Para nosotros, el periodismo siempre ha sido un espacio vocacional donde podemos resistir la supresión activa de la política. En tiempos en que esta anulación se materializa en la supresión de espacios y personas —parlamentos que no representan a nadie, <a href="https://elpais.com/internacional/2023-12-10/al-sisi-abre-las-urnas-en-egipto-en-una-eleccion-presidencial-sin-rivales-de-peso.html" rel="noopener noreferrer" target="_blank">partidos de oposición </a>sin poder, <a href="https://elpais.com/internacional/2020-11-20/egipto-arresta-a-tres-miembros-de-una-ong-que-se-reunio-con-diplomaticos-europeos.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2020-11-20/egipto-arresta-a-tres-miembros-de-una-ong-que-se-reunio-con-diplomaticos-europeos.html">una sociedad civil fracturada</a>, opositores <a href="https://elpais.com/internacional/2020/02/23/actualidad/1582491167_985291.html" rel="noopener noreferrer" target="_blank">al régimen encarcelados</a>, y medios de comunicación de propaganda— el periodismo independiente, con <i>Mada Masr</i> a la cabeza, mantuvo vivo parte de ese espacio. La esencia del mismo consiste en hacer preguntas, encontrar respuestas, reflexionar sobre ellas y presentarlo todo al público, lo que amplía el alcance de las preguntas y de las respuestas. Es el dinamismo del pensamiento lo que mantiene viva la dimensión política de la vida.</p><p>Mantener viva la dimensión política de nuestra vida, vivir nuestra vida políticamente, es una forma de afirmar la legitimidad de nuestra existencia como pueblo; una legitimidad que convierte nuestra necesidad de una vida digna en un derecho.</p><p>Durante los últimos 13 años hemos seguido trabajando mientras, por encima de nuestras cabezas, un coro repetía a los egipcios, y a veces nos gritaba, que quienes ostentan el poder lo saben todo, que la estabilidad de nuestro país solo recae en sus manos, que deberíamos ocuparnos solamente de lo nuestro —que, para las clases medias y bajas, <a href="https://elpais.com/economia/negocios/carta-del-corresponsal/2026-08-30/las-familias-egipcias-se-quedan-sin-colchon-financiero.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/economia/negocios/carta-del-corresponsal/2026-08-30/las-familias-egipcias-se-quedan-sin-colchon-financiero.html">se limitan estrictamente a poner un plato de comida en la mesa</a>—, que somos demasiado exigentes y que se hacen muchos sacrificios por nosotros. En <i>Mada Masr</i>, sencillamente, decidimos no hacer caso de los gritos y seguir haciendo nuestro trabajo.</p><p>Hoy, no es sorprendente que se nos castigue por haber hecho caso omiso los gritos. Por eso nos encontramos bajo una tormenta de gritos dirigidos directamente contra nosotros.</p><p>Por eso luchamos por ampliar ese espacio, para que nosotros y los demás podamos ejercer el periodismo. Y por eso seguimos aferrándonos a nuestro derecho a recurrir, con una vista judicial fijada para el 25 de noviembre.</p><p>Y así es como vamos a volver a los tribunales este miércoles 11 de noviembre. Porque, cuando fui puesta en libertad la semana pasada, descubrí que en 2024 había sido condenada en rebeldía por publicar noticias “falsas” y gestionar una página web sin licencia (otra vez), sentenciada a un año de prisión y a (otra) multa de dos millones de libras egipcias [más de 33.100 euros]. Me acusaron, me juzgaron y nunca me informaron. La sentencia se dictó en rebeldía a pesar de que siempre he residido en el país. Volveremos al tribunal la semana que viene e intentaremos que se nos permita exponer nuestros alegatos de defensa, pero esta vez añadiremos que nuestra postura, en contra del encarcelamiento de periodistas, no solo como una postura moral, sino como un derecho recogido en la Constitución egipcia.</p><p>Porque los periodistas no deberían ser encarcelados, porque en un contexto así no hay salvación individual, esperamos salir libres de esta vista, pero precedidos y seguidos de los otros 26 periodistas que permanecen entre rejas. Los últimos encarcelados fueron seis jóvenes , algunos de los cuales he formado personalmente, que componían <a href="https://elpais.com/internacional/2026-10-08/egipto-intensifica-la-persecucion-de-la-prensa-independiente-con-el-arresto-y-la-presunta-tortura-de-los-seis-periodistas-de-un-medio-de-investigacion.html" rel="noopener noreferrer" target="_blank" title="https://elpais.com/internacional/2026-10-08/egipto-intensifica-la-persecucion-de-la-prensa-independiente-con-el-arresto-y-la-presunta-tortura-de-los-seis-periodistas-de-un-medio-de-investigacion.html">la redacción entera de la plataforma de verificación de datos<i> Matsadaash</i></a>.</p><p>Espero salir del tribunal este miércoles, volver a nuestra redacción y quedarme allí hasta altas horas de la noche, intentando comprender, informar, escribir, seguir construyendo la institución y tomar café con los jóvenes periodistas, también con los de <i>Matsadaash</i>, que entraron en nuestro mundo con la mágica doble C: curiosidad y coraje. Estas son las sustancias de una vida política por la que estamos luchando para no perder.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://elpais.com/internacional/2026-11-09/luchamos-para-poder-seguir-ejerciendo-un-periodismo-independiente-en-egipto.html" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

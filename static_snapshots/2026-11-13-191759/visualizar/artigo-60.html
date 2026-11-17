@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI is betting a data center rebrand will make you hate them less - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">OpenAI is betting a data center rebrand will make you hate them less</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/podcasts/510722/openai-chris-lehane-data-center-rebrand-2026-midterms-regulation" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2299246559.jpg?quality=90&strip=all&crop=0%2C10.700234488601%2C100%2C78.599531022798&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: OpenAI is betting a data center rebrand will make you hate them less
+                            </p>
+                            <p>Republicans weren’t the only big losers in last week’s midterms: Across the country, voters also backed restrictions on data centers and elected candidates promising tougher oversight of AI companies. Out of 41 local ballot initiatives limiting the data center buildout, 40 of them passed, <a href="https://www.nytimes.com/2026/11/04/technology/midterm-elections-ai-data-centers.html" rel="noopener noreferrer" target="_blank">according to the New York Times</a>.</p><p>The AI industry knows it was a tough cycle: Chris Lehane, the chief global affairs officer for OpenAI, told <em>Today, Explained</em> co-host Sean Rameswaram that “I could take my shirt off and show you my [metaphorical] bruises if you want.”</p><p>Now, OpenAI is figuring out how to move forward. Lehane talked with Sean from rural Texas, where he said he was on a “listening and learning” tour of communities around the site of a <a href="https://www.datacenterdynamics.com/en/news/openai-stargates-milam-texas-freebird-data-center-to-span-548950-sq-ft-in-first-phase/" rel="noopener noreferrer" target="_blank">massive OpenAI data center</a>. They discussed the lessons of the midterm election, why OpenAI would prefer that we call data centers “compute campuses,” and why Lehane thinks the 2028 presidential election will largely revolve around AI — just not in the same way that 2026 did.</p><p>“I just don’t think it’s going to be good enough for a candidate from either party to emerge from their primary by simply being the person who’s against things,” Lehane explained.</p><p>Below is an excerpt of their conversation, edited for length and clarity. There’s much more in the full podcast, so listen to <em>Today, Explained</em> wherever you get podcasts, including <a href="https://podcasts.apple.com/us/podcast/today-explained/id1346207297" rel="noopener noreferrer" target="_blank">Apple Podcasts</a>, <a href="https://www.pandora.com/podcast/today-explained/PC:140" rel="noopener noreferrer" target="_blank">Pandora</a>, and <a href="https://open.spotify.com/show/3pXx5SXzXwJxnf4A5pWN2A" rel="noopener noreferrer" target="_blank">Spotify</a>.</p><p><strong>You guys at OpenAI, in the wake of this shellacking, </strong><a href="https://openaiglobalaffairs.substack.com/p/special-edition-2028-the-ai-election" rel="noopener noreferrer" target="_blank"><strong>put out this big document</strong></a><strong> saying that you’re going to be listening, you’re going to be learning, you’re going to be empowering local people and bringing jobs.</strong></p><p><strong>You’re also, in this document, rebranding data centers to “compute campuses,” which when I say it, I have trouble not laughing because it sounds like a bit of a joke to meet everyone’s concerns with a rebrand. Please tell us why you think this could work or why it’s a good idea.</strong></p><p>We were very intentional in actually using that phrase. And we did it with the full knowledge that people would potentially be skeptical of it. But I do think there’s an intent behind provoking this conversation.</p><p>Data centers have existed for 20-odd years and at some level they’re the proverbial empty box in a pasture. And they’re called data centers because that’s in fact what they were. When people talked about the cloud, this is actually where the cloud was housed, where you would load data if you were streaming a video, if you were ordering something from a delivery service. These AI facilities are really fundamentally different.</p><p>What is being generated at these facilities is something called compute. And compute is just the raw computing power that it takes to train AI systems and then run AI tools and products when you’re using them.</p><p>Second of all, they’re different because [of] the amount of jobs that do get created directly. This is not half a dozen people in that empty box. These are real jobs, these are six-figure jobs. They are also huge opportunities for economic transformation if a community approaches it in a really strategic way and companies like ours do our part to work with those communities. We’re not just building in the communities, we’re building with the communities.</p><p><strong>You’re out there in Texas because essentially, data centers and artificial intelligence have a PR problem. Seventy percent of the country, maybe more than that, says that they’re against data centers, or “compute campuses,” as you’re now calling them. </strong></p><p><strong>Why do you think it is that data centers have such a public relations issue in this country right now?</strong></p><p>There’s a variety of factors, but before even jumping into those, I do think it’s worth noting and worth emphasizing that we have roughly six of these projects up and running in the country. They’re in different stages of being built out and developed, but each and every one of them is moving forward. I do think that there is a right way to build these and perhaps a wrong way and we can get into that.</p><p><strong>Do you think that you guys were doing it the wrong way before?</strong></p><p>This goes to why I think we’ve actually been able to get approvals for each of the projects that we are doing.</p><p>I think each of the individual projects themselves have been some version of a laboratory of democracy, where you actually learn from each project and apply those learnings to the next project. But I do think we got the fundamental insight right at the beginning, which is to actually go on the ground, listen, learn, hold yourself accountable and take the feedback and build your facility with the community.</p><p>I think that for a lot of communities, folks were coming in, they were building data centers, they were then transferring the electricity costs to the public, they were potentially impacting their water, they weren’t necessarily doing the type of community investments that you should do if you’re going to be building with a community.</p><p>Where we’ve really tried to differ ourselves — and again, we’re not perfect, we’re learning every step of the way — but I do think that we have successfully applied the baseline as we’ve gone through this, which is, we make sure we’re paying for our own electricity, our own energy.</p><p>Point two is that we make sure we’re preserving water. We have something called closed water loops. I know this is getting a little bit technical, but think of these as sort of large radiators. You fill it up once and therefore you’re able to preserve the water.</p><p><strong>One thing that seems clear from the election results is that there’s just not a lot of trust. Now there’s going to be a new Congress, and various components of said Congress are pledging to do more to regulate AI and tech. </strong></p><p><strong>It wasn’t so long ago that the head of your company, Sam Altman, was calling for Congress to get more involved. Does that call still stand now that it’s a different Congress that might be more inclined to come down hard on AI?</strong></p><p>When it comes to data centers, these are typically state or local issues. We envisioned that as state legislation that would actually make these requirements for folks who are building data centers to help give the public confidence that there’s going to be a real material benefit for them.</p><p>I think what you’re referring to was our call as OpenAI for there to be national-level mandatory safety requirements for the frontier labs who are building AI. We thought about that and called for it before the election. We think it’s more important than ever.</p><p>Back in early September, I had a <a href="https://openai.com/index/ai-policy-window/" rel="noopener noreferrer" target="_blank">blog post</a> out there that talked about this idea that the policy window was opening up to create a real opportunity to pass those mandatory safety requirements. And the reason I talked about the policy window being opened up is that you could clearly see where the politics were going, what was likely to happen with the election.</p><p>You’re in Washington, DC. At some level, you have to be a romanticist to believe that you can actually get legislation passed. But what is happening is the politics are coming into alignment with the policy. I actually think both parties do recognize the importance of having mandatory national safety standards that would be good for the country. It would also put us in a position to be able to create international standards, which we also think is very important.</p><p><strong>It’s funny, because we just had New York [state] assemblyman Alex Bores on the show. He was trying to be a congressperson, but a super PAC partly funded by OpenAI co-founders and some other Silicon Valley tech types </strong><a href="https://www.vox.com/politics/493132/alex-bores-ny-primaries-micah-lasher-ai-regulation" rel="noopener noreferrer" target="_blank"><strong>spent a lot of money</strong></a><strong> — millions — to defeat him. </strong></p><p><strong>We asked him, if Democrats in Congress could do one thing to regulate AI, what would it be? And he said banning full recursive self-improvement, ban the practice of letting AIs build the next AIs without any human in the loop. Would OpenAI be open to that kind of regulation immediately?</strong></p><p>The version that we have talked about is some version of broadly defined speed limits. I’ll use an analogy: As we were building out the automobile, ultimately we built out speed limits. Now, those speed limits changed over time, but the idea was to make sure that humans could actually have both hands on the wheel and be able to control the car and the car should not be able to go at a speed where a human would not be able to control it.</p><p>Our north star in everything when it comes to AI is that people should be in control of this technology. The technology itself is accelerating, the capabilities are becoming stronger. And so I think there is a world here where we do need to build out a framework, potentially a regulatory framework, through legislation that effectively imposes some version of a speed limit.</p><p>If you think of speed limits being applied in the context of your question about recursive self-improvement, that’s a place where you could see the speed of the technology getting so strong that actually humans do lose control over it.</p><p>I’m not sure it’s quite as binary as saying you do or do not do RSI. But I think spiritually, a similar concept, which is making sure that at the end of the day we have a lot of confidence that humans are actually in control of this, able to monitor it, able to make sure that it is not getting out of their control.</p><p><strong>Before you worked with companies like OpenAI or Coinbase or Airbnb, you worked in government and you worked specifically in [the] Clinton White House.</strong></p><p><strong>I wonder, in the wake of this election — which people are calling the first big American AI election, and are saying that AI is going to be an even bigger issue for the presidential election in 2028 — what do you think companies like yours and all the other big frontier AI companies need to be doing to flip the script in the United States, maybe around the world?</strong></p><p>I think of 2026 as the trailer to 2028. AI was an issue. It wasn’t a top issue, but it was certainly an issue and an issue that was moving up the charts as we got closer and closer to the election. I think there is a decent chance, maybe even a strong chance, that AI is <em>the</em> issue in 2028.</p><p>First and foremost, how do we make sure that people are actually in control of this technology? Who’s actually putting out an idea and a vision and approach to give people confidence that they’re going to actually be able to control this?</p><p>I do think the 2026 election now sets up 2028, frankly for both parties, to have a conversation that I just don’t think we’ve had in this country for a long, long, long time. And that is, what does this social contract look like? Who actually has a big idea about how we’re going to make sure that the American dream actually exists in this country? And as part of that big idea, what is the role of AI going to be in that?</p><p>I just don’t think it’s going to be good enough for a candidate from either party to emerge from their primary by simply being the person who’s against things. I think they’re actually going to have to have some real ideas of what they are for. And at the core of that is, how are they going to address this anxiety that the American people have? And at the center of that anxiety is their ability to control their lives and make decisions about their lives.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/podcasts/510722/openai-chris-lehane-data-center-rebrand-2026-midterms-regulation" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

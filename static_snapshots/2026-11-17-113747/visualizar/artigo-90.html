@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da Redação | Mais câmeras significam mais segurança? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Da Redação | Mais câmeras significam mais segurança?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Ponte Jornalismo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://ponte.org/da-redacao-mais-cameras-significam-mais-seguranca/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://ponte.org/wp-content/uploads/2025/10/SmartSampa-scaled.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Da RedaÃ§Ã£o | Mais cÃ¢meras significam mais seguranÃ§a?Â
+                            </p>
+                            
+<p><h4>Vendido como a grande soluÃ§Ã£o para os problemas de seguranÃ§a pÃºblica, o Smart Sampa apresentou falhas de seguranÃ§a digital, enquanto estudos nÃ£o encontraram evidÃªncias de que o programa tenha contribuÃ­do para a reduÃ§Ã£o da criminalidade</h4></p>
+InauguraÃ§Ã£o da central de monitoramento por cÃ¢meras do programa Smart Sampa em agosto de 2024| Foto: Rovena Rosa/AgÃªncia Brasil
+<h4>Resumo</h4>
+
+<strong>Reportagens expuseram falhas graves de seguranÃ§a digital, governanÃ§a e transparÃªncia no Smart Sampa</strong>, incluindo acessos indevidos, ausÃªncia de auditoria independente e pouca supervisÃ£o pÃºblica sobre os sistemas de reconhecimento facial usados na capital paulista.
+<strong>Mais cÃ¢meras e mais abordagens nÃ£o significam, por si sÃ³, mais seguranÃ§a.</strong> Estudos e dados mostram que a tecnologia pode produzir conduÃ§Ãµes indevidas e nÃ£o demonstrou impacto significativo na reduÃ§Ã£o de crimes no perÃ­odo analisado.
+<strong>Tecnologias de vigilÃ¢ncia precisam vir acompanhadas de regulaÃ§Ã£o, proteÃ§Ã£o de dados, fiscalizaÃ§Ã£o e avaliaÃ§Ã£o de resultados.</strong> Sem isso, cÃ¢meras e inteligÃªncia artificial podem ampliar riscos e controle sobre a populaÃ§Ã£o sem garantir uma polÃ­tica de seguranÃ§a pÃºblica mais eficaz.
+
+<p>Um sistema que promete manter a populaÃ§Ã£o segura ao monitorar seus movimentos, mas que, atÃ© ser questionado pela imprensa, nÃ£o exigia sequer autenticaÃ§Ã£o em dois fatores para acessar sua plataforma, talvez jÃ¡ nÃ£o possa ser considerado tÃ£o seguro assim. Nas Ãºltimas semanas, o jornalista <a href="https://noticias.uol.com.br/colunas/artur-rodrigues/" rel="noopener noreferrer" target="_blank">Artur Rodrigues</a> publicou no UOL reportagens demonstrando vazamentos de dados de acesso do maior programa de monitoramento urbano da AmÃ©rica Latina: o <a href="https://ponte.org/tag/smart-sampa/" rel="noopener noreferrer" target="_blank">Smart Sampa</a>, vendido como a grande soluÃ§Ã£o para os problemas de seguranÃ§a pÃºblica da capital paulista. Ao longo de quase um ano, as falhas permitiam acessar imagens de mais de <a href="https://noticias.uol.com.br/colunas/artur-rodrigues/2026/10/20/falha-de-seguranca-permite-acesso-indevido-a-58-mil-cameras-do-smart-sampa.htm" rel="noopener noreferrer" target="_blank">58 mil cÃ¢meras</a>, algumas em equipamentos pÃºblicos usados por pessoas em vulnerabilidade, como postos de saÃºde, creches e escolas. </p><p></p>
+<p></p>
+<p>Para alÃ©m de revelar essa grave falha de seguranÃ§a digital, que permitiu o acesso indevido a imagens e informaÃ§Ãµes pessoais e colocou em risco a privacidade da populaÃ§Ã£o, o trabalho investigativo de Artur apontou questÃµes tÃ£o preocupantes quanto. Ao ser questionada sobre a gestÃ£o da tecnologia que usa inteligÃªncia artificial para reconhecimento facial, a <a href="https://prefeitura.sp.gov.br/home" rel="noopener noreferrer" target="_blank">Prefeitura de SÃ£o Paulo</a> informou que nÃ£o possui acesso aos modelos de IA, nem ao cÃ³digo fonte, nem Ã s bases usadas para treinar o algoritmo. AlÃ©m disso, admitiu nÃ£o participar diretamente do desenvolvimento dos algoritmos, nÃ£o ter informaÃ§Ãµes detalhadas sobre como eles sÃ£o treinados e tampouco realizar auditorias independentes desses modelos.Â </p>
+<p>AlguÃ©m certamente levantarÃ¡ o argumento de que o Smart Sampa jÃ¡ prendeu milhares de pessoas desde sua implementaÃ§Ã£o, masÂ  serÃ¡ mesmo que isso Ã© ser eficiente? O estudo <a href="https://cesecseguranca.com.br/wp2025/wp-content/uploads/2025/07/O-PANOPTICO_Smart-Sampa-vigia-mas-n%C3%A3o-protege-falta-de-evid%C3%AAncia-na-redu%C3%A7%C3%A3o-de-crimes-e-aumento-da-produtividade-policial-na-cidade-de-S%C3%A3o-Paulo.pdf?utm_source=chatgpt.com" rel="noopener noreferrer" target="_blank"><em>Smart Sampa vigia, mas nÃ£o protege</em></a>, publicado em 2025 pelo <a href="https://cesecseguranca.com.br/" rel="noopener noreferrer" target="_blank">Centro de Estudos de SeguranÃ§a e Cidadania (CESeC)</a>, nÃ£o encontrou efeitos estatisticamente significativos sobre furtos, roubos, homicÃ­dios, prisÃµes em flagrante e cumprimento de mandados no perÃ­odo analisado. Ora, isso nÃ£o significa que as cÃ¢meras sejam incapazes de auxiliar investigaÃ§Ãµes. Entretanto, aponta que os resultados examinados nÃ£o sustentaram a promessa de impacto do programa nesses indicadores. PrisÃµes podem render nÃºmeros impressionantes para a propaganda institucional, mas nÃ£o sÃ£o, isoladamente, prova de que a populaÃ§Ã£o estÃ¡ mais segura.Â </p>
+<p><strong>Leia tambÃ©m: <a href="https://ponte.org/sem-resultados-efetivos-prefeitura-ja-gastou-mais-de-r-100-milhoes-com-o-smart-sampa/" rel="noopener noreferrer" target="_blank">Sem resultados efetivos, Prefeitura jÃ¡ gastou mais de R$ 100 milhÃµes com o Smart Sampa</a></strong></p>
+<p>O caso do Smart Sampa expÃµe trÃªs problemas distintos, mas interligados: a seguranÃ§a digital, a governanÃ§a dos dados e a eficÃ¡cia da polÃ­tica pÃºblica. Um sistema pode ter senhas seguras e, ainda assim, reproduzir identificaÃ§Ãµes discriminatÃ³rias. Pode reconhecer corretamente uma pessoa, mas consultar um banco de mandados de prisÃ£o desatualizado. E pode produzir milhares de identificaÃ§Ãµes sem que isso represente uma reduÃ§Ã£o da criminalidade. Uma coisa nÃ£o garante a outra.</p>
+<p><h4><strong>Tecnologia nÃ£o Ã© polÃ­tica pÃºblica</strong></h4></p>
+<p>Por isso, a discussÃ£o sobre o <a href="https://ponte.org/com-reconhecimento-facial-edital-de-tarcisio-para-cameras-vai-ampliar-vigilancia-da-populacao/" rel="noopener noreferrer" target="_blank">uso de tecnologias digitais na seguranÃ§a pÃºblica</a> nÃ£o pode ser resumida a âvamos colocar cÃ¢mera e IA em tudo e estaremos segurosâ. Apostar nessa perspectiva Ã© oferecer uma resposta superficial ao medo e Ã  inseguranÃ§a da populaÃ§Ã£o, sem necessariamente enfrentar as causas da violÃªncia.</p>
+<p>Esta semana, mediei uma mesa sobre o uso de dados e tecnologias na seguranÃ§a pÃºblica durante a <a href="https://escoladedados.org/coda/coda2026/" rel="noopener noreferrer" target="_blank">ConferÃªncia Brasileira de Jornalismo de Dados e MÃ©todos Digitais (Coda.Br)</a>. Entre os participantes estava <a href="https://ponte.org/tag/pablo-nunes/" rel="noopener noreferrer" target="_blank">Pablo Nunes</a>, pesquisador e diretor do CESeC, parceiro recorrente da Ponte. Uma das reflexÃµes que ele trouxe Ã© que a tecnologia nÃ£o pode ser apresentada como soluÃ§Ã£o isolada, sem polÃ­ticas pÃºblicas que orientem, monitorem e regulem seu uso. A cÃ¢mera, por si sÃ³, nÃ£o produz seguranÃ§a. O que pode fazer diferenÃ§a sÃ£o as aÃ§Ãµes realizadas a partir das informaÃ§Ãµes que ela fornece. Mas, para isso, Ã© preciso tambÃ©m deixar de tratar a seguranÃ§a pÃºblica como assunto exclusivo das polÃ­cias e reconhecÃª-la como um direito da populaÃ§Ã£o, que deve participar da discussÃ£o sobre essas polÃ­ticas e ter condiÃ§Ãµes de fiscalizÃ¡-las.</p>
+<p><strong>Leia tambÃ©m: <a href="https://ponte.org/coluna-lasintec-a-muralha-invisivel-controle-a-ceu-aberto-e-policia-preditiva/" rel="noopener noreferrer" target="_blank">Coluna LASInTec | A muralha invisÃ­vel: controle a cÃ©u aberto e polÃ­cia preditiva</a></strong></p>
+<p>Uma cÃ¢mera pode identificar que uma pessoa tem um mandado de prisÃ£o aberto. Sozinho, o equipamento nÃ£o tem o poder de checar se o mandado ainda Ã© vÃ¡lido, nem de abordar e conduzir ninguÃ©m atÃ© uma delegacia. Ã preciso que haja protocolos de verificaÃ§Ã£o dessas informaÃ§Ãµes e humanos aplicando estes mecanismos. E mesmo assim, tudo isso pode falhar quando se tem uma seguranÃ§a pÃºblica orientada para produzir prisÃ£o em vez de investigaÃ§Ã£o. </p>
+<p>De novembro de 2024 a maio de 2026, 268 pessoas foram conduzidas a delegacias apÃ³s alertas de reconhecimento facial do Smart Sampa, mas acabaram liberadas. Os dados da prefeitura, compilados pelo UOL, apontam que 181 foram liberadas por causa de mandados sem baixa, 75 por inconsistÃªncias faciais eÂ  12 por problemas cadastrais. Essas liberaÃ§Ãµes representam 7,9% das 3.400 conduÃ§Ãµes registradas no perÃ­odo. Estes nÃºmeros indicam que a tecnologia, junto com bases desatualizadas e processos de verificaÃ§Ã£o, nÃ£o impediu conduÃ§Ãµes indevidas. Quando uma informaÃ§Ã£o desatualizada Ã© transformada em alerta policial, a consequÃªncia nÃ£o fica restrita Ã  tela de um computador. Ã uma pessoa que pode ser abordada, levada Ã  delegacia e obrigada a enfrentar as consequÃªncias de um erro que nÃ£o cometeu.</p>
+<p>Algo parecido se aplica Ã s <a href="https://ponte.org/tag/cameras-corporais/" rel="noopener noreferrer" target="_blank">cÃ¢meras corporais</a>. O uso delas pode, sim, reduzir a letalidade policial e proteger o profissional de seguranÃ§a, mas, sem polÃ­ticas de governanÃ§a dos dados e das imagens e sem o uso desses dados em investigaÃ§Ãµes e inquÃ©ritos, sÃ£o apenas uma ferramenta de ponta. Um caso recente que publicamos Ã© o do <a href="https://ponte.org/massacre-alemao-cameras-policiais-mortes/" rel="noopener noreferrer" target="_blank">Massacre da Penha e do AlemÃ£o</a>: foram mais de 4 mil horas de gravaÃ§Ãµes levantadas pela Human Rights Watch durante as quais nenhuma das mais de 120 mortes foi registrada.Â </p>
+<p><strong>Leia tambÃ©m: <a href="https://ponte.org/reconhecimento-facial-tem-alto-indice-de-erro-e-vies-racista-e-transfobico-dizem-especialistas/" rel="noopener noreferrer" target="_blank">Reconhecimento facial tem alto Ã­ndice de erro e viÃ©s racista e transfÃ³bico, dizem especialistas</a></strong></p>
+<p>Sem polÃ­ticas de governanÃ§a, preservaÃ§Ã£o e acesso Ã s imagens, assim como mecanismos de investigaÃ§Ã£o e responsabilizaÃ§Ã£o, as cÃ¢meras corporais correm o risco de se tornar mais um equipamento tecnolÃ³gico sem cumprir plenamente sua funÃ§Ã£o de controle da atividade policial.</p>
+<p>No fim do dia, precisamos questionar algumas coisas. Primeiro: a quem estas tecnologias estÃ£o de fato servindo? A populaÃ§Ã£o? A interesses polÃ­ticos? A indÃºstria da seguranÃ§a e vigilÃ¢ncia privada? Elas estÃ£o, de fato, produzindo seguranÃ§a efetiva ou sÃ£o um verniz bonito para a propaganda da TV? Na mesa em que participei, Pablo associou essa aposta tecnolÃ³gica Ã  demanda por respostas rÃ¡pidas Ã  inseguranÃ§a e Ã  existÃªncia de mercados polÃ­tico e econÃ´mico interessados em vender soluÃ§Ãµes de vigilÃ¢ncia.</p>
+<p>Em segundo lugar, precisamos perguntar quem controla, armazena, processa e pode acessar as imagens e os dados pessoais de milhÃµes de pessoas monitoradas por esses sistemas. Qual Ã© a responsabilidade do poder pÃºblico sobre as informaÃ§Ãµes coletadas e compartilhadas com empresas privadas? Quem fiscaliza o uso desses dados e garante que nÃ£o sejam utilizados para outras finalidades? A <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm" rel="noopener noreferrer" target="_blank">Lei Geral de ProteÃ§Ã£o de Dados Pessoais (LGPD)</a> prevÃª uma legislaÃ§Ã£o especÃ­fica para o tratamento de dados pessoais voltada Ã  seguranÃ§a pÃºblica e Ã  investigaÃ§Ã£o criminal, mas ainda nÃ£o temos uma regulamentaÃ§Ã£o nacional abrangente para essa finalidade. Os episÃ³dios envolvendo o Smart Sampa e, mais recentemente, sistemas privados de monitoramento em outros sete estados e no Distrito Federal, expÃµem a urgÃªncia dessa discussÃ£o. </p>
+<p><strong>Leia tambÃ©m: <a href="https://ponte.org/artigo-quem-tem-medo-das-cameras-corporais-em-pms/" rel="noopener noreferrer" target="_blank">Artigo | Quem tem medo das cÃ¢meras corporais em PMs?</a></strong></p>
+<p>A questÃ£o nÃ£o Ã© apenas quem poderia ter acessado essas imagens durante quase um ano. Ã como um sistema de vigilÃ¢ncia dessa dimensÃ£o pÃ´de operar com informaÃ§Ãµes de acesso expostas, sem que os mecanismos de seguranÃ§a impedissem a situaÃ§Ã£o ou que a falha fosse corrigida antes de se tornar notÃ­cia. Se o poder pÃºblico nÃ£o consegue garantir a proteÃ§Ã£o das informaÃ§Ãµes que coleta, como pode apresentar essa tecnologia como garantia de seguranÃ§a para a populaÃ§Ã£o?</p>
+<p>Mais do que instalar cÃ¢meras e alimentar bancos de dados, uma polÃ­tica pÃºblica precisa demonstrar resultados, proteger direitos e permitir que a sociedade fiscalize seus instrumentos. Afinal, o que estÃ¡ em discussÃ£o nÃ£o Ã© apenas a eficiÃªncia de um algoritmo, mas o modelo de seguranÃ§a pÃºblica que estamos financiando. E, principalmente, a quem ele realmente serve.</p>
+<p><strong><em>Este texto chegou primeiro para quem assina a âSete Diasâ, a newsletter da Ponte. Todo sÃ¡bado, enviamos reflexÃµes sobre seguranÃ§a pÃºblica e uma curadoria de reportagens relevantes, produzidas pela prÃ³pria Ponte ou por outros veÃ­culos. VocÃª pode se inscrever clicando</em></strong> <a href="https://relacionamento.ponte.org/news-da-ponte" rel="noopener noreferrer" target="_blank"><strong><em>aqui</em></strong></a><strong><em>.</em></strong></p>
+<p><strong><em>Assine tambÃ©m a nossa newsletter de cultura, a âRolÃª da Ponteâ. Ela Ã© enviada Ã s quartas-feiras, com pelo menos trÃªs dicas que podem incluir livros, filmes, exposiÃ§Ãµes e outros programas culturais. Para receber, clique</em></strong> <a href="https://relacionamento.ponte.org/role-da-ponte" rel="noopener noreferrer" target="_blank"><strong><em>aqui</em></strong></a><strong><em>.</em></strong></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://ponte.org/da-redacao-mais-cameras-significam-mais-seguranca/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

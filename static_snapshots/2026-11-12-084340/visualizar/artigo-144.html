@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O dia depois de amanhã - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O dia depois de amanhã</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/11/160312/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/11/texto2.1.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O dia depois de amanhã
+                            </p>
+                            
+<h3>Por Charles Junior, Antonio Carlos e Pedro Seeger</h3>
+<p>O Brasil parece que capotou umas trinta vezes, pelo amor de Santa Rosa de Luxemburgo.</p>
+<p>Realmente não temos motivos para ficar tristes depois da reeleição de Luiz Inácio Lula da Silva, conduzido pela 4ª vez à presidência do país. Mas, parafraseando Maiakovski<strong> [1]</strong>, também não temos motivos para ficar felizes. Não apenas porque temos o Congresso mais a direita desde as últimas eleições, com a possibilidade inclusive de barrar PECs enviadas pelo governo<strong> [2]</strong>, mas essencialmente porque vem chumbo grosso aí. Como falado em outros momentos, as classes dominantes brasileiras e internacionais querem mais arrocho<strong> [3]</strong>, haja vista as falas de representantes do mercado já na 2⁠ª feira pós-eleições. A interminável ladainha do aumento dos juros, necessidade de ajuste fiscal e descontrole das contas públicas já tomou conta novamente dos noticiários da economia, com os agentes do mercado exigindo compromissos do presidente reeleito. Mesmo com negativas por parte dos representantes do governo federal, sabemos muito bem para que lado pende Lula e o PT<strong> [4]</strong>.</p>
+<p>Antes disso, precisamos olhar um pouco mais como se desenha o quadro político após a votação do dia 25. Então bora lá, CHAMA!</p>
+<p>Pressionado e acuado, o governo petista fez em um mês o que não se dispôs (ou não se arriscou) a fazer em quatro anos: proibição das <em>bets</em>; aprovação do fim da escala 6×1 e diminuição da jornada de trabalho; perdão das dívidas de milhões de microempreendedores individuais (MEIs), com ampliação de faturamento possível para esse enquadramento e até a possibilidade de ter mais funcionários. Se o segundo turno durasse mais uma semana, ninguém sabe o que mais poderia ter sido abocanhado.</p>
+<p>Reiteramos que, graças à derrota no 1º turno, o avanço foi maior do que nos outros 46 meses de Lula 3. O novo foi a boa e velha meia esquerda da seleção da classe trabalhadora. Veloz e hábil, as mobilizações de rua entortaram as defesas de seu próprio time e dos adversários. Tanto nas capitais quanto no interior entrou em jogo nossa melhor jogadora empurrando as duas defesas para dentro do gol. Marta Maria entrou com bola e tudo, cantando:</p>
+<p>Mas é preciso ter força, é preciso ter raça</p>
+<p>É preciso ter gana sempre</p>
+<p>Quem traz no corpo a marca</p>
+<p>Maria, Maria, mistura a dor e a alegria</p>
+<p>…</p>
+<p>Marta, Maria, é um dom, uma certa magia</p>
+<p>Uma força que nos alerta</p>
+<p>Uma mulher que merece viver e amar</p>
+<p>Como outra qualquer do planeta<strong> [5]</strong></p>
+<p>Sem superestimar os números nem a determinação política das ruas, mas foi algo novo, que chacoalhou a conjuntura. Muitas dessas manifestações foram feitas a contragosto e à revelia do PT, que continuava apostando unicamente na mudança de comunicação para tentar alcançar o oponente bolsonarista (sabemos que se tem uma coisa que a direção petista tem medo, desde 2013, é de gente na rua). Soma-se a isso a postura diferente de Lula no 2꠶ turno e os vacilos de Flávio, que demorou a perceber a mudança enquanto já dividia ministérios e falava em mudar a constituição<strong> [6]</strong>, ou seja, entrou de salto alto e levou a virada.</p>
+<p>O que todos os jornais nacionais (muito a contragosto, ainda desejosos de uma terceira via e de uma mítica direita não-bolsonarista) e internacionais louvaram como sagacidade e capacidade miraculosa de Lula nada mais é do que a alienação típica das eleições e da democracia burguesa: toda a frenética militância de inúmeras pessoas se torna fruto da ação de uma única pessoa. Assim, Lula pode alardear que conseguiu derrotar mais uma vez o clã Bolsonaro, ainda que se dependesse unicamente dele e do seu partido as coisas teriam provavelmente tomado um rumo muito diferente.</p>
+<p>Devemos ficar atentos no desenrolar desse processo, se toda essa explosão vem de anseios anteriores à eleição que emergiram agora ou não, e como e por quais canais essa onda vai seguir. Que Lula e aliados busquem convertê-la unicamente a seu favor e, no limite, desmobilizá-la, não é novidade. Como o farão e que resistência irão enfrentar é o que nos parece ser a chave para o próximo período. Na conta entra o papel do chamado exército de Lula, comandado pelo general Janones. Não nos espanta que uma esquerda acostumada a falar de quadros, tática e estratégia goste de se acomodar na hierárquica estrutura militar. Mas uma análise dessa ferramenta está além desse nosso texto a quente, carecemos de tempo.</p>
+<p>Então diz aí, o que vem nesse próximo período?</p>
+<p>Pela perspectiva dos agentes do mercado, a reeleição de Lula significa continuidade de um arranjo fiscal cuja insuficiência o próprio governo já reconhece. A ministra do Planejamento afirmou que, em 2027, “seja quem for o próximo presidente”, não se governa com as regras atuais sem gerar inflação e dívida<strong> [7]</strong>. Também disse que o próximo presidente precisará aprovar uma PEC de contenção de despesas, e que 2026 não seria ano para reformas estruturais<strong> [8]</strong>.</p>
+<p>Se nada mudar, a dívida bruta passaria de 80,1% do PIB para 115% em 2036. Estabilizá-la exigiria superávit primário de 2,1% do PIB ao ano, o que o país não alcança nem em um cenário mais otimista. O Itaú projeta dívida de 86,5% já em 2027 e estima em 2,4% do PIB o superávit necessário<strong> [9]</strong>. Outros falam de crise fiscal aguda e observa que a receita real não poderá mais crescer como em 2023-2026, com PIB em torno de 2%<strong> [10]</strong>. O Ibre/FGV avalia que, mesmo executado, o ajuste previsto no PLDO 2027 (cerca de 1,4 p.p. do PIB em três anos) seria insuficiente, e que não há agente público plenamente comprometido com a sustentabilidade fiscal<strong> [11]</strong>.</p>
+<p>Na atividade e nos juros, o desempenho recente depende em parte de estímulos que se esgotam. As medidas anunciadas movimentarão cerca de R$ 190 bilhões e acrescentarão até 1,4 p.p. ao crescimento de 2026<strong> [12]</strong>. O FMI projeta alta de 2,2% em 2026 e desaceleração em 2027, com desemprego subindo de 6,2% para 6,8%. Atribui isso a condições monetárias restritivas, à retirada do estímulo fiscal e à incerteza global. O economista-chefe do BMG vê o PIB de 2027 mais próximo de 1% do que de 1,5%<strong> [13]</strong>. O boletim Focus aponta crescimento de 1,85% em 2026 e 1,4% em 2027, com inflação de 5,01% e 4,3%, acima da meta de 3%, enquanto a Selic, embora em queda, continua em 13,75%<strong> [14]</strong>. Por fim, o Banco Mundial também cita desafios fiscais como freio à aceleração da atividade.<strong> [15]</strong></p>
+<p>A reação dos mercados indica um forte déficit de credibilidade. No pregão seguinte ao primeiro turno, em que Flávio Bolsonaro apareceu à frente, o dólar caiu 4,12% e o Ibovespa subiu 7,85%, com queda superior a 130 pontos-base nos juros longos<strong> [16]</strong>. Parte desse movimento reflete a expectativa de menor gasto, privatizações e redução de impostos, e não apenas um juízo sobre a política fiscal. Ainda assim, ele sugere que o mercado precifica a continuidade como risco.</p>
+<p>Há também restrições políticas e externas. Segundo a cientista política Lara Mesquita (FGV), a primeira preocupação do presidente será política. Economistas defendem que o ajuste ocorra nos primeiros meses de mandato, antes que a janela política se feche<strong> [17]</strong>. O FMI alerta para um crescimento global “apoiado numa única perna”, a da inteligência artificial, e para o risco de petróleo acima de US$ 130 o barril<strong> [18]</strong>. Como contraponto, André Esteves (BTG) sustenta que não há “terra arrasada”<strong> [19]</strong> e alguns agentes do mercado consideram o arcabouço uma regra moderna, ainda que pressionada por inflação e juros altos.</p>
+<p>Todas essas reclamações, avisos e chamados à razão, assim como muitos outros, mostram as pressões e chantagens que o dito “mercado” e seus agentes fazem sobre o governo reeleito. Não há menção direta, pelo menos por enquanto, a retirada de direitos e benefícios, mas quando (e não se) os cortes começarem, esse pode ser o caminho que irão seguir. Os capitalistas já reclamam que o fim da 6×1 aumentará os custos com força de trabalho, e seguirão pedindo estímulos, benefícios, incentivos e perdão de dívidas e impostos. Nesse cenário, poderão as ruas se contrapor a sanha direitista do congresso e as vacilações do governo?</p>
+<p>Além disso, o bordão de campanha “para o trabalhador, proteção, para o bandido, prisão” indica a vontade de recrudescer ainda mais a repressão no país. Lula quer emplacar o Ministério da Segurança Pública ainda esse ano e aceitou a redução da maioridade penal para crimes hediondos. Que outras medidas poderiam vir para apaziguar as bancadas conservadoras e sua fome de recursos?</p>
+<p>Conseguirá Lula, seu partido e seus aliados, incluindo o exército digital de Janones, canalizar as ruas para um mero enfrentamento ao Congresso? Ou tentarão a desmobilização jogando a carta de confiança no governo e de que agora não é hora para críticas? Poderão as mobilizações se disseminar e radicalizar, ou mesmo se manter? O governo será emparedado entre as ruas e os representantes do mercado e seus aliados no Congresso?</p>
+<p>Veremos como será o proclamado “melhor governo que um presidente já fez”. Como não queremos fazer previsões, deixamos aqui mais perguntas e pistas do que respostas e soluções. Acreditamos na criatividade dos trabalhadores e sabemos que poderão contar com diversos aliados no caminho da radicalização. Mas muito continua em aberto, e a euforia não pode lançar areia nos nossos olhos.</p>
+<p>Uma última coisa, Flávio, como um bom Bolsonaro, não aceitou a derrota, e, ao que tudo indica, já caçou seu rumo para os EUA. Será que seus apoiadores darão o ar da graça nas ruas? Os seus aliados vão defendê-lo ou vão entrar em uma briga pelo posto de líder da oposição?</p>
+<p>Já, do nosso lado, pipocam manifestações de rua pelo mundo (desde nossos amigos gregos, passando pela Espanha, Itália, França, EUA, Sérvia, Polônia, México, Czechia, Indonésia, Polônia, Alemanha, Peru, Síria, Índia, Portugal, Chile, Argentina e Venezuela), e aí, vai virar ou vai para em “mais democracia”?</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/texto2.jpg"/></p>
+<p>Assaltemos os céus, antes que eles nos afoguem em uma chuva de sangue e explosões.</p>
+<p>Mais perguntas para o tempo que vem.</p>
+<h4><strong>Notas </strong></h4>
+
+<strong> [2] </strong><p>Além de poder barrar indicações do governo, essenciais no troca-troca de cargos por apoio. Outro medo do governo é que a pauta de impeachment de ministros do STF trave toda a agenda do próximo ano, impedindo o avanço dos projetos prioritários. Ver PL poderá barrar PECs de Lula no Senado, diz cientista política – </p><a href="https://www.bbc.com/portuguese/articles/c38xzyql4qzpo" rel="noopener noreferrer" target="_blank" title="https://www.bbc.com/portuguese/articles/c38xzyql4qzpo">https://www.bbc.com/portuguese/articles/c38xzyql4qzpo</a>
+<p><strong> [4] </strong>E não nos esquecemos do reajuste fiscal de Dilma em 2015 logo após derrotar Aécio prometendo justamente o contrário. Parece que isso foi há tanto tempo, não?</p>
+<p><strong> [5]</strong> Maria, Maria – Milton Nascimento</p>
+<p><strong> [6]</strong> E suas infelizes falas no último debate antes das eleições. Ter chamado Lula de nove dedos, alcunha comum pela qual manifestantes de direita se referem ao presidente, foi um tiro no pé. Assim como não conseguir responder sobre relações com a milícia e desmandos do pai durante a pandemia. Um espetáculo, mas em tempos de identidades simbólicas, não achamos que tenha sido inócuo.</p>
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/11/160312/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Europa: a geração que se levanta e quebra vitrines - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Europa: a geração que se levanta e quebra vitrines</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Opera</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaopera.operamundi.uol.com.br/2026/11/03/europa-a-geracao-que-se-levanta-e-quebra-vitrines/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaopera.operamundi.uol.com.br/wp-content/uploads/2026/11/europa-paris.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Europa: a geração que se levanta e quebra vitrines
+                            </p>
+                            
+<p>A mídia já produziu quilômetros de frases sobre os jovens nas quais eles são chamados de frágeis, preguiçosos ou consumistas: uma geração absorta em si mesma que se exaure em <i>tiktoks</i>, videogames, compras <i>online</i> e lorazepam. A juventude é apenas uma fase da vida, mas os jovens são culpados pelos distúrbios, pelos crimes ou pelas violações – sejam eles migrantes, vítimas de discriminação racial ou moradores das periferias do planeta ou dos bairros degradados do mundo.</p>
+<p>Não sabemos exatamente o que são os jovens, se é que são alguma coisa, mas o certo é que, em muitos lugares do mundo, eles se levantam em protestos massivos e espetaculares. Temos chamado esse ciclo político de “revoltas da Geração Z”. Se a extrema direita e suas visões de mundo, amplificadas pelos algoritmos, buscam impedir que os jovens se organizem e tentam desviar sua raiva para inimigos designados, essas lutas contam outra história. Mas é preciso saber ouvir.</p>
+<p>O início desse ciclo pode ser datado a partir de 2020 na Ásia e em suas inúmeras manifestações, que hoje se estendem até a Índia com a “revolta das baratas”. Hoje, a Europa parece ocupar<a href="https://ctxt.es/es/20261001/Politica/55527/Guillem-Martinez-Francia-crisis-de-regimen-motines-bienestar-elecciones-extrema-derecha.htm" rel="noopener noreferrer" target="_blank"> o epicentro do descontentamento juvenil</a>, com um nível semelhante ao que ocorreu em consequência da crise de 2008, embora as reivindicações sejam mais variadas. No último fim de semana, os protestos se espalharam da Grécia à Bélgica, passando pela Albânia, França, Portugal e Espanha. Na Sérvia, uma chapa eleitoral formada por estudantes venceu as eleições parlamentares no dia 25 de outubro. Foi o resultado inesperado de quase dois anos de mobilizações que<a href="https://ctxt.es/es/20250301/Politica/48876/protestas-represion-manifestaciones-balcanes-cronica-alberto-mesas-sebia-hungria-bulgaria-macedonia-grecia-rumania.htm" rel="noopener noreferrer" target="_blank"> levaram à renúncia do primeiro-ministro Miloš Vučević</a> no ano passado. Algumas dessas revoltas assumem a forma de distúrbios.</p>
+<p><a href="https://www.revistaopera.com.br/cursos" rel="noopener noreferrer" target="_blank"><img alt="" src="https://controle.revistaopera.operamundi.uol.com.br/wp-content/uploads/2026/07/cursos-1.jpg"/></a></p>
+<p>As imagens mais impactantes chegam da Albânia, onde a guerrilha urbana se desenrola à base de fogos de artifício. Também da França, onde os alunos de ensino médio acenderam a faísca de um protesto já mais generalizado contra Macron. Bloqueios de escolas de ensino médio e, em seguida, de universidades,<a href="https://ctxt.es/es/20261001/Politica/55533/Alba-E-Nivas-manifestanciones-Francia-Paris-derechos-futuro-Macron.htm" rel="noopener noreferrer" target="_blank"> manifestações em massa</a>, prédios em chamas e saques abalam as interpretações da mídia e incitam o pânico diante da desordem e da anomia, tanto entre conservadores quanto entre progressistas. Algumas cidades da Itália, como Milão, parecem ser um reflexo disso, embora com suas próprias razões específicas.</p>
+<p>Na Espanha, os jovens acampam em praças e se manifestam pelo direito à moradia, mas uma parte deles também recorreu à desobediência civil para impedir despejos diários por meio de organizações como o Sindicato das Inquilinas ou a Plataforma de Afetados pela Hipoteca (PAH). Embora a esquerda pareça disputar a representação do protesto, é preciso lembrar que a legitimidade dessa desobediência está por um fio e pode ser contestada com todo o peso da “lei da mordaça” e da repressão policial, sobretudo após as eleições.</p>
+<h1><b>Distúrbios</b></h1>
+<p>Também neste fim de semana, convocatórias nas redes sociais provocaram distúrbios e saques em Barcelona – e em outras cidades catalãs, como Manresa. Foram protestos que se afastaram dos moldes mais habituais e protagonizados por menores de idade – a maioria dos 128 detidos era menor de idade. São manifestações incompreendidas e, por isso, são facilmente atribuídas à guerra híbrida ou à intervenção de Netanyahu, ou tornam-se suspeitas por não terem sido convocadas por organizações conhecidas. No entanto, boa parte das revoltas desta geração foi iniciada em grande medida pelo TikTok e pelo Discord, muitas vezes sem partidos ou instituições de mediação por trás.</p>
+<p>A luta de rua, que nos parece compreensível na Ásia ou nos países árabes – tanto mais compreensível quanto mais distante –, aqui nos parece feia. (Talvez pudéssemos reconhecer que as chamas têm algo de estético, assim como a quebra de vidros e os saques a lojas de luxo, desde que você odeie um pouco este mundo, como acontece com muitos jovens). Para a mídia e os políticos, ou talvez para os vencedores, os distúrbios são repugnantes; por isso, eles os atribuem aos outros. O Vox diz que a culpa é dos “filhotes” de Pedro Sánchez, todos imigrantes – algo semelhante é defendido por Le Pen sobre os distúrbios na França, que ela atribui a Mélenchon e aos jovens das <i>banlieues</i> (subúrbios). Para alguns políticos de esquerda, os distúrbios são fruto de uma conspiração israelense. É que é preciso afastar a possibilidade de que a greve geral convocada na Espanha se transforme em um protesto pouco apresentável como ato de pré-campanha. E como são tranquilizadoras as conspirações, pois não há mais nada em que pensar! E o destino desses jovens fica à mercê da sorte, pois são ferramentas do mal. Diz-se que é fácil criminalizar todos os protestos após esses distúrbios, mas é justamente a deslegitimação prévia dessas formas de revolta que permite persegui-las posteriormente sem restrições.</p>
+<p>Sejam espontâneas ou convocadas por interesses obscuros, nada disso explica por que os jovens saem por aí quebrando coisas. Nem sua raiva – ou sua diversão. Será que está surgindo na política uma nova geração com formas próprias de responder às suas vivências? O que isso tem a ver com as classes sociais?</p>
+<p>O que causa mais confusão é que esses jovens não parecem mencionar nenhum tipo de reivindicação, pelo menos não dentro dos parâmetros aos quais estamos acostumados: um conjunto de demandas concretas e viáveis, mais ou menos coerentes, que possam ou não ser atendidas pelo Estado. Na Espanha aparentemente próspera, onde a economia “vai bem”, não esperamos que os jovens se rebelem saqueando ou quebrando coisas. Não esperamos isso na Barcelona iluminada pelas vitrines do <i>Passeig</i> de Gràcia, onde há turistas passeando com relógios de um milhão de euros no pulso. Por que se rebelariam aqueles que deveriam se mostrar gratos por serem seus bartenders, seus motoristas, seus crupiês, suas camareiras de quarto?</p>
+<p>Não deveríamos nos surpreender, pois o tique-taque já se ouve há algum tempo. Em vez disso, deveríamos nos perguntar de que classe social são esses jovens e quais são suas expectativas de vida. Na Barcelona deslumbrante dos aluguéis exorbitantes, a desigualdade é uma vitrine, um estilo de vida centrado no consumo que funciona como modelo, como ideal, mas, ao mesmo tempo, se mostra inatingível, sobretudo para esses jovens das periferias. Alguns quebram vidros; outros, como os dos bairros populares da região metropolitana de Buenos Aires, votam em Milei.</p>
+<p>Talvez possamos encontrar um precedente para essas manifestações em toda uma série de acontecimentos<a href="https://ctxt.es/es/20261001/Firmas/55540/rebelion-juvenil-europa-le-poing-leve-francia-josefina-l-martinez.htm" rel="noopener noreferrer" target="_blank"> que surgiram na última década</a>. Nos EUA, garotos e garotas muito jovens se reúnem em massa pelas redes sociais para dançar ou assaltar shopping centers em busca de produtos de marca. São chamados de <i>flash robs</i> ou <i>teen takeovers</i> –<a href="https://globalnews.ca/news/9988788/teen-mob-loot-stores-philadelphia/" rel="noopener noreferrer" target="_blank">como os de Filadélfia</a>. Entre o lazer e o protesto, esses episódios carecem, na maioria das vezes, de um discurso político explícito, embora esses jovens, muitos deles pobres e vítimas de discriminação racial, não vejam mal algum em roubar grandes empresas com lucros milionários. Por trás disso, há uma tentativa de escapar do desprezo social por meio do consumo de marcas (com todas as suas ambiguidades). Talvez os distúrbios em Barcelona se assemelhem mais a esses eventos do que aos que acompanharam a revolta francesa, ou talvez não tenham um movimento mais amplo que os amparasse e legitimasse. Mas isso não significa que não haja nenhuma razão por trás disso.</p>
+<h1><b>Possibilidades</b></h1>
+<p>Muitos jovens aspiram à vida que seus pais tiveram. Na praça Sol, há faixas que dizem: “Uma família, uma casa” ou “Na minha idade, meus pais já podiam trabalhar e comprar uma casa”. Nesses slogans, muito distantes dos anseios que poderiam ser expressos nas revoltas de 68 – na verdade, exatamente o oposto –, podemos perceber o desejo de emancipação juvenil. Sair da casa dos pais, ser autônomo. Esses jovens de classe média que, segundo os estudos, saem menos à noite, bebem e usam drogas em menor medida do que as gerações mais velhas, identificam uma vida boa com viver como seus pais. Conseguir um bom emprego, ter estabilidade econômica, progredir profissionalmente – se possível, ser funcionário público ou <i>influencer</i>, ou talvez viver sem trabalhar como investidor. Também poder consumir, formar uma família e alcançar certo reconhecimento social. São os integrados. Não há desesperança em sua posição, mas têm para trás 50 anos de neoliberalismo e à frente uma maior indeterminação.</p>
+<p>Essa posição é a que se expressa em demandas concretas, como as contidas nos decretos sobre aluguel ou as dos estudantes franceses – mais investimento, mais professores, fim do sistema de seleção universitária. Soluções possíveis e concretas. Mas quais poderiam ser as reivindicações daqueles para quem as promessas de mobilidade social não se cumprirão, façam o que fizerem? Para os rapazes e moças das <i>banlieues</i>, os jovens migrantes do Magrebe ou aqueles nascidos aqui, mas que nunca serão tratados como espanhóis, para os moradores dos bairros populares onde as discriminações e as violências cotidianas são a norma? Para eles, mesmo que os aluguéis fiquem mais baratos e a educação melhore, suas vidas permanecerão as mesmas; seus empregos no setor de serviços serão os mais explorados e degradantes, assim como é degradante também viver a experiência do racismo. O que esses jovens querem é não ser como seus pais, não viver como eles, não trabalhar como eles. Eles são uma população excedente.</p>
+<p>É preciso fazer distinções, pois a Espanha não é a França; não existe nada equivalente aos grandes bairros segregados franceses, onde fervilham o ressentimento e o desespero das mal chamadas “segundas gerações” que queimam carros todas as semanas e até mesmo os equipamentos públicos de seus bairros. Que ato maior de niilismo do que incendiar uma biblioteca em um bairro pobre? Mas é preciso estar atento às semelhanças e às correspondências, pois nada indica que fenômenos semelhantes não possam vir a ocorrer na Espanha, mesmo que em escala diferente.</p>
+<p>De qualquer forma, se essas são suas experiências de vida, não podemos pedir que se manifestem pelos canais regulamentados, que tampouco parecem estar funcionando em uma França governada por um macronismo de caráter autoritário e submetida a uma repressão feroz. E na Espanha, quanto tempo levará para que as lutas reduzam radicalmente os preços do mercado imobiliário? Isso chegará a todos? “O estudante que se manifesta para reabrir as portas de seu próprio futuro e o <i>maranza</i> –delinquente– que saqueia para comemorar ‘o melhor aniversário de sua vida’ não compartilham o mesmo horizonte temporal”,<a href="https://zonaestrategia.net/bienvenidos-al-desierto-de-lo-global" rel="noopener noreferrer" target="_blank"> diz Gigi Roggero sobre os distúrbios em Milão</a>. A diferença está no acesso ao futuro: se ele está atrás de algumas barreiras que podem ser removidas ou simplesmente se ele não existirá.</p>
+<p>Nesse mesmo artigo, Roggero destaca que “as formas caóticas de violência e conflito são parte indissociável da história da luta de classes”. No passado, as formas de luta mais organizadas – como as do movimento operário – serviam de ponte com os distúrbios niilistas ou reativos. Elas construíam um sujeito político capaz de dar sentido às revoltas espontâneas e desarticuladas e de integrá-las em seu próprio quadro. Hoje, algo semelhante já não existe e precisamos começar a pensar sobre isso de maneira diferente. De fato, muitos desses protestos têm vida muito curta, tão curta quanto os ciclos midiáticos já completamente acelerados ou as modas instantâneas das redes sociais.</p>
+<p>Um ponto de união entre ambas as formas de luta — dos integrados (ou em vias de integração) e dos excedentes — são os novos desejos que emergem quando alguém se organiza e luta, o que permite vislumbrar uma vida diferente que não será encontrada em empregos regulamentados, na propriedade e na família. Esses conteúdos também estão presentes nos protestos ou são descobertos ao participar deles. Organizar-se, encontrar-se com outras pessoas nas mobilizações, deixar de estar tão sozinho e sair do onipresente “eu” que ocupa tanto espaço nas redes sociais, projetar horizontes coletivos, é a terapia necessária.</p>
+<p>Quando se luta, é possível descobrir, por trás da raiva e da irritação, um desejo de viver além dos limites regulamentados, dos papéis sociais predeterminados. Não ser como seus pais, mas algo diferente que ainda está por ser inventado. “Tornar-se vivo. Recuperar a capacidade de desfrutar, desejar, criar e experimentar a vida além das obrigações econômicas e sociais”,<a href="https://zonaestrategia.net/unirse-a-los-estudiantes-de-los-institutos-devenir-vivo-autonomo-explosivo/" rel="noopener noreferrer" target="_blank"> dizia o Comitê Invisível</a> sobre as revoltas na França. Isso abre caminho para novas lutas que, sem dúvida, virão, quer as compreendamos ou não.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaopera.operamundi.uol.com.br/2026/11/03/europa-a-geracao-que-se-levanta-e-quebra-vitrines/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

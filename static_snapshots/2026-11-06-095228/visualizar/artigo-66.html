@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos os erros do presidente - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Todos os erros do presidente</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Agencia Publica</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://apublica.org/2026/11/donald-trump-todos-os-erros-do-presidente/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://apublica.org/wp-content/uploads/2026/11/Publica_template-Coluna_Green-TWITTER.psd-1.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: todos os erros do presidente
+                            </p>
+                            
+<p>O tsunami democrata que varreu os Estados Unidos no dia 3 de novembro minou completamente o futuro político de Donald Trump, bem como o do movimento MAGA (Torne a América Grande Novamente, em inglês). Os resultados surpreenderam até mesmo os consultores de campanha democratas mais otimistas. A <a href="https://www.nbcnews.com/politics/2026-elections/senate-results" rel="noopener noreferrer" target="_blank">NBC News</a> projeta que os democratas terão uma maioria estimada de 259 cadeiras na Câmara dos Representantes, contra 176 dos republicanos — um ganho de 45 parlamentares. No Senado, os democratas contarão com uma maioria de, pelo menos, cinco cadeiras.</p>
+<p>A derrota eleitoral foi tão contundente e devastadora para o partido de Trump que o presidente não encontrou espaço político para alegar fraude eleitoral ou tentar interferir nos resultados em estados-chave, como muitos observadores previam que faria. Em suma, os eleitores enviaram uma <a href="https://apublica.org/2026/11/eleicoes-nos-eua-derrota-republicana-tem-mais-a-ver-com-economia/" rel="noopener noreferrer" target="_blank">mensagem</a> clara de repúdio às políticas e práticas da Casa Branca durante a administração de Trump.</p>
+<p>Trump cometeu muitos erros de cálculo político na preparação para as eleições. Convencido de que sua popularidade entre sua base levaria os candidatos republicanos à vitória, Trump insistiu em fazer campanha em estados conservadores como Iowa, Mississippi, Ohio, Kansas e Texas, onde venceu a eleição presidencial de 2024 por margens de dois dígitos. A presença de Trump nesses estados provou ser o canário na mina de carvão, um aviso prévio de que os republicanos temiam a derrota que, de fato, ocorreu.</p>
+<p>Nos comícios do presidente, com participação menor do que em 2024, ele implorou aos seus apoiadores mais leais que imaginassem que ele estava na cédula e votassem de acordo com isso. No entanto, candidatos republicanos em disputas acirradas pediram ao presidente que não fosse aos seus estados, temendo que isso influenciasse os eleitores a favor de seus oponentes.</p>
+<p>A estratégia de Trump, em 2025, de insistir que os republicanos redesenhassem os mapas dos distritos eleitorais, conhecida como <a href="https://apublica.org/2025/08/gerrymandering-o-plano-de-trump-para-as-eleicoes-2026/" rel="noopener noreferrer" target="_blank"><em>gerrymandering</em></a>, para diluir o poder de voto dos democratas, dividindo esses eleitores em distritos recém-criados com maioria republicana, também saiu pela culatra. Em parte, os republicanos redesenharam as fronteiras dos distritos com base em uma mudança de voto entre latinos, homens negros e jovens nas eleições presidenciais de 2024, que passaram a apoiar Trump. No entanto, os três grupos <a href="https://www.pbs.org/newshour/show/how-the-latino-shift-to-democrats-helped-turn-texas-blue" rel="noopener noreferrer" target="_blank">retornaram</a> ao Partido Democrata.</p>
+<p>Os latinos, que eram a favor do controle governamental na fronteira sul, se opuseram à forma como o Serviço de Imigração e Alfândega (ICE) realizou prisões e assassinatos em massa em todo o país.</p>
+<p>Decisões da Suprema Corte apoiadas por Trump, que diluíram o poder de voto dos negros, desagradaram eleitores, especialmente no Sul, que retornaram ao campo democrata.</p>
+<p>E os jovens, alarmados com o alto custo de vida e com a sensação de que suas oportunidades futuras eram limitadas, também viraram as costas para Trump.</p>
+<p>Os republicanos do Texas iniciaram essa manobra de redistribuição de distritos, na esperança de ganhar cinco cadeiras adicionais na Câmara. É provável que percam todos os cinco distritos recém-redesenhados. A Califórnia respondeu também redesenhando seus mapas de distritos congressionais e obtendo a aprovação esmagadora da proposta em um referendo. Ao contrário dos republicanos, eles conquistaram todos os cinco novos distritos da Califórnia.</p>
+<p>Esforços semelhantes, porém, mais modestos, de redistribuição de distritos em outros estados também não favoreceram os republicanos. Em resumo, mais um <a href="https://www.cbsnews.com/news/dummymander-republican-redistricting-congress-trump/" rel="noopener noreferrer" target="_blank">erro de cálculo</a> político da Casa Branca.</p>
+<h2><strong>Uma eleição de muitos ‘pela primeira vez na história dos EUA’</strong></h2>
+<p>Embora alguns resultados ainda estejam sendo contabilizados, parece que os democratas também obterão ganhos significativos nas eleições estaduais e locais em todo o país. <a href="https://www.nbcnews.com/politics/2026-election/democrats-gain-full-control-five-state-governments-expand-power-rcna607433" rel="noopener noreferrer" target="_blank">Pela primeira vez</a> em muitos anos, os democratas controlarão as legislaturas estaduais em estados-chave, como New Hampshire, Minnesota, Pensilvânia, Texas e Wisconsin. Isso lhes permitirá, por exemplo, aprovar legislação para enfrentar o alto custo de vida, reduzindo os impostos estaduais e locais sobre gasolina e diesel, a fim de reduzir os preços recordes dos combustíveis, impulsionados pela guerra no Irã.</p>
+<p>Contudo, lideranças democratas já deixaram claro que, se não reduzirem o custo de vida, poderão perder rapidamente, na eleição de 2028, o voto daqueles que romperam com o Partido Republicano para apoiar candidatos da oposição nesta temporada eleitoral.</p>
+<p>É significativo notar que os democratas <a href="https://www.nbcnews.com/politics/2026-elections/senate-results" rel="noopener noreferrer" target="_blank">venceram disputas parlamentares</a> em estados cruciais que, tradicionalmente, apoiavam os republicanos — Geórgia, Iowa, Kansas, Maine, Carolina do Sul e Texas —, redesenhando o mapa político do país. Os democratas também derrotaram candidatos republicanos ao cargo de governador em “estados decisivos” (<em>swing states</em>) — aqueles em que o eleitorado oscila entre os dois partidos a cada eleição —, o que torna mais difícil para Trump manipular o processo eleitoral presidencial de 2028, no qual o candidato que conquista a maioria dos votos em um estado obtém a totalidade dos votos do Colégio Eleitoral.</p>
+<p>Após dois anos de esforços da administração Trump para desmantelar os programas de “<a href="https://www.usatoday.com/story/news/politics/elections/2026/11/05/dei-americans-vote-diversity-inclusion-midterm-elections/92610470007/" rel="noopener noreferrer" target="_blank">diversidade, equidade e inclusão</a>”, a eleição marcou várias “primeiras vezes”, ampliando a composição racial, étnica e religiosa dos funcionários eleitos, tanto federais quanto estaduais. Nas eleições para o Senado, os eleitores escolheram Abdul El Sayed, de Michigan, um muçulmano de esquerda, para servir naquela casa, e Chris Pappas, de New Hampshire, será o primeiro senador abertamente gay. Os eleitores elegeram Gina Hinojosa, do Texas, a primeira latina a se tornar governadora do estado. Keisha Lance-Bottom será a primeira mulher negra a assumir esse cargo na Geórgia, e a nativa americana Deb Haaland, do Novo México, será a primeira mulher indígena nessa posição. Além disso, Xavier Bessera é o primeiro latino a se tornar governador da Califórnia.</p>
+<p>Nos meses que antecederam as eleições, as pesquisas de opinião mostraram que, em média, 65% da população registrava ampla rejeição às políticas de Trump, desde as tarifas até a guerra no Irã. Os resultados eleitorais confirmaram essa avaliação. De acordo com entrevistas da <a href="https://www.ms.now/elections" rel="noopener noreferrer" target="_blank">MSNow</a> com eleitores que saíram das urnas ou votaram por correspondência antes do dia da eleição, 90% dos entrevistados disseram que seus dois principais motivos para votar foram o estado deplorável da economia e a corrupção desenfreada em Washington. A oposição à guerra não ficou muito atrás entre as preocupações dos eleitores.</p>
+<p>Claramente, as <a href="https://www.npr.org/2025/12/11/nx-s1-5639957/trump-affordability-hoax-economy-midterms" rel="noopener noreferrer" target="_blank">insistentes a</a><a href="https://www.npr.org/2025/12/11/nx-s1-5639957/trump-affordability-hoax-economy-midterms" rel="noopener noreferrer" target="_blank">l</a><a href="https://www.npr.org/2025/12/11/nx-s1-5639957/trump-affordability-hoax-economy-midterms" rel="noopener noreferrer" target="_blank">egações</a> de Trump durante a campanha de que a questão da “acessibilidade financeira” (<em>affordability</em>) é uma farsa e que os Estados Unidos têm “a melhor economia de todos os tempos” soaram falsas, mesmo entre muitos apoiadores de Trump que ficaram em casa ou apoiaram candidatos democratas. Ao avaliar os resultados eleitorais, analistas republicanos argumentaram que o problema de seu partido não foi a participação, mas sim o fato de que muitos que apoiaram Trump em três eleições anteriores votaram nos democratas desta vez.</p>
+<p>Até mesmo alguns dos candidatos mais proeminentes que Trump apoiou nas primárias republicanas altamente disputadas não conseguiram vencer a eleição geral. Entre os candidatos notoriamente controversos apoiados pelo presidente que acabaram derrotados, estavam o procurador-geral do Texas, Ken Paxton, que concorria contra James Talarico para o Senado, e o governador Greg Abbott, que cumpriu três mandatos; a candidata da Carolina do Sul, Darlene Graham, irmã do senador Lindsey Graham, apoiador de Trump e falecido recentemente; e candidatos republicanos fracos nas disputas para o Senado na Geórgia e na Carolina do Norte. Eles foram derrotados pelos democratas por margens de 10 pontos percentuais.</p>
+<h2><strong>O que a nova frente no Congresso pode fazer contra Trump</strong></h2>
+<p>Controlar a Câmara dos Representantes e o Senado com margens amplas é a principal arma que os democratas têm à disposição no momento. Embora possuam maioria em ambas as casas para aprovar leis que beneficiem aqueles que acabaram de apoiá-los, Trump ainda detém poder de veto sobre todas as leis aprovadas. O Congresso precisaria de uma maioria de dois terços para derrubar o veto do presidente. Isso exigirá encontrar republicanos que temam perder seus assentos em 2028 e que estejam dispostos a oferecer apoio bipartidário à legislação.</p>
+<p>Entre as primeiras <a href="https://abc7ny.com/live-updates/midterm-elections-2026-live-updates-election-results-key-races-us/20001292/entry/20014359/" rel="noopener noreferrer" target="_blank">prioridades</a> declaradas da nova maioria no Congresso, estará a realização de audiências sobre questões que os republicanos haviam impedido de serem discutidas. Isso provavelmente incluirá novas investigações sobre os “arquivos Epstein”, resoluções que invocam a Lei de Poderes de Guerra (<em>War Powers Act)</em> para forçar Trump a encerrar a guerra no Irã, e apurações sobre a corrupção na família Trump. Os democratas terão o poder de intimar autoridades governamentais e outras testemunhas a depor sob juramento sobre esses assuntos, com consequências graves caso prestem informações falsas às investigações do Congresso.</p>
+<p>Quais seriam, então, os próximos passos políticos de Trump? Dado o seu comportamento errático, é sempre difícil prever o que ele fará a seguir.</p>
+<p>Após o segundo debate presidencial de 2016 entre Donald Trump e Hillary Clinton, o político britânico <a href="https://time.com/4524705/donald-trump-nigel-farage-hillary-clinton-debate-gorilla/" rel="noopener noreferrer" target="_blank">Nigel Farage</a> comentou que Trump — assim como Flávio Bolsonaro no debate da Globo em 2026 — rondava Hillary Clinton enquanto ela falava, agindo como um gorila de dorso prateado. Agora que Trump apresenta sinais cada vez mais claros de deterioração mental — e tendo em mente essa comparação com primatas —, soube recentemente que gorilas-das-costas-prateados, ao envelhecerem, não se tornam passivos ou dóceis; pelo contrário, tornam-se mais agressivos à medida que sua saúde declina.</p>
+<p>Embora Trump tenha admitido a derrota eleitoral, ele, como de costume, está culpando os outros, argumentando que, se estivesse na cédula, os republicanos teriam vencido. Embora ele afirme que precisará buscar entendimento com os democratas para aprovar novas leis, dado o seu comportamento passado, é difícil levar suas palavras a sério. Sua necessidade de denegrir oponentes, defender suas políticas tarifárias irracionais — que continuam a causar estragos na economia — e jamais admitir um erro ou fracasso não deixa margem para acreditar em qualquer possibilidade de mudança na personalidade de Trump.</p>
+<p>Resta saber como isso afetará o Brasil. Com a derrota eleitoral avassaladora de Trump, é provável que os irmãos Bolsonaro sejam deixados em segundo plano por enquanto, para serem trazidos de volta à cena quando a sorte política do presidente estiver mais favorável. Além disso, a insistência de Flávio Bolsonaro em exercer seu direito a voto no Senado, mesmo tendo deixado o Brasil sem autorização do Congresso, torna mais difícil sustentar o mito de que o Brasil vive sob uma ditadura — especialmente quando a oposição detém a maioria no Legislativo.</p>
+<p>O eleitorado americano frustrou os planos de Trump durante seus dois últimos anos de mandato. Trump reconhece que questões econômicas e a guerra no Irã foram fatores determinantes, mas, até o momento, não recuou na defesa de nenhuma dessas políticas. Enquanto isso, os republicanos entraram no “jogo de culpar o outro”. O vice-presidente <a href="https://www.pbs.org/newshour/politics/vance-blames-iran-war-for-gop-midterm-losses" rel="noopener noreferrer" target="_blank">Vance</a> deu o primeiro passo ao atribuir a guerra no Irã à derrota eleitoral. Vance sempre se opôs a “incursões estrangeiras desnecessárias”, embora tenha abandonado essa postura para se tornar o fiel escudeiro de Trump. Agora que a temporada de campanha para a eleição presidencial de 2028 começou, ele parece tentar se distanciar do presidente. O “<a href="https://www.nbcnews.com/politics/2026-election/republicans-begin-grappling-lost-badly-trump-midterms-rcna607359" rel="noopener noreferrer" target="_blank">banho de sangue</a>” parece ter começado.</p>
+<p>E, nas ruas de Nova York, o desempenho surpreendentemente forte dos democratas despertou um sentimento de alívio e euforia — não muito diferente daquele sentido em <a href="https://apublica.org/2026/10/exercito-de-lula-presidente-consegue-virada-inedita/" rel="noopener noreferrer" target="_blank">25 de outubro</a>, quando o presidente Lula venceu o segundo turno das eleições com uma vitória expressiva.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://apublica.org/2026/11/donald-trump-todos-os-erros-do-presidente/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The midterms were a youth revolt - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The midterms were a youth revolt</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/politics/509429/midterm-election-results-gen-z-youth-vote-blue-wave" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2302927389.jpg?quality=90&strip=all&crop=0%2C10.73825149852%2C100%2C78.52349700296&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Gen Z’s blue wave: How the midterms were a youth revolt
+                            </p>
+                            <p>One of the most consequential subplots of the 2026 elections is that young voters swung back toward Democrats — hard.</p><p>Early data shows that 66 percent <a href="https://circle.tufts.edu/2026-election#in-shift-from-2024,-young-men-and-white-youth-vote-democratic" rel="noopener noreferrer" target="_blank">of adults under 30 voted for a Democrat for the House of Representatives, compared to just 31 percent who voted for a Republican</a> — a gap of 35 percentage points — according to an analysis of exit polls from the Center for Information and Research on Civic Learning and Engagement (CIRCLE) at Tufts University.</p><p>That’s a stark shift from 2024, when young voters backed Democratic House candidates by only a 14-point margin (and the Democratic candidate for president, former Vice President Kamala Harris, by 4 points). Prior to that, in 2022, voters under 30 supported them by 28 points, all according to <a href="https://circle.tufts.edu/2026-election#in-shift-from-2024,-young-men-and-white-youth-vote-democratic" rel="noopener noreferrer" target="_blank">CIRCLE</a>.</p><p>The stunning shift back toward Democrats wasn’t necessarily a surprise, given that <a href="https://www.vox.com/politics/508364/gen-z-midterms-elections-culture-war-economic-issues" rel="noopener noreferrer" target="_blank">Gen Z can’t afford the culture war</a> Republicans were running on and are fed up with the rising cost of living, fearful about AI and the job market, horrified by actions taken by ICE agents, and worried about war abroad. But this week’s decisive results blew even those expectations out of the water. The <a href="https://iop.harvard.edu/youth-poll/latest-poll" rel="noopener noreferrer" target="_blank">fall 2026 Harvard IOP youth poll</a> had Democrats outperforming Republicans by 37 points among young voters.</p><p>The results are the latest confirmation that Gen Z is a voting bloc that can be swung, one that neither party will be able to take for granted moving forward, which makes sense for a generation who <a href="https://www.youtube.com/watch?v=yxoHOPOM0Ok" rel="noopener noreferrer" target="_blank">rejects political labels</a> and identifies as <a href="https://www.theupandup.us/p/generation-independent-genz-politics?utm_source=publication-search" rel="noopener noreferrer" target="_blank">56 percent independent</a>, according to <a href="https://news.gallup.com/poll/700499/new-high-identify-political-independents.aspx" rel="noopener noreferrer" target="_blank">Gallup data</a> from earlier this year. In fact, Gen Z is more independent than millennials when they were their age.</p><p>“I don’t look for anything different depending on the party. Lower prices, gas, like I just want a better quality of living and I expect that from both parties,” a 19-year-old man from New York told me in a focus group on Wednesday.</p><p>Zooming out (pun intended), this generation grew up moving at the speed of the internet, and they vote that way too.</p><p>Beyond the overall swing, though, there were a number of notable data points in the early analysis of Gen Z’s enthusiastic role in routing Republicans on Tuesday. Here’s what we learned about what young voters wanted from the midterms and where they might be headed next.</p><p>Much was made — probably too much — of Gen Z’s woke backlash, and the rise of manosphere podcasters and tradwife TikTokers in 2024 as Republicans made major gains with younger voters.</p><p>But the election was also the latest sign that these trends may be exhausted a bit in the Trump era, and that energy is moving toward outsider politicians on the other side, like New York City Mayor Zohran Mamdani.</p><p>Exit polls <a href="https://www.nbcnews.com/politics/2026-elections/exit-polls" rel="noopener noreferrer" target="_blank">found</a> that 9 percent of 18- to 29-year-old voters in Tuesday’s midterm elections identified as “MAGA.” But a whopping 34 percent said they considered themselves a “democratic socialist.” Now that doesn’t mean <a href="https://www.vox.com/politics/504983/gen-z-voters-young-voters-socialism-midterms" rel="noopener noreferrer" target="_blank">they’re signing up for the DSA or memorizing quotes by Marx,</a> but it does signal that they increasingly identify more with the left wing’s more active approach when it comes to addressing issues like health care and housing costs — and willingness to buck the status quo.</p><p>Now, of course, this is just a poll of the voters who showed up — and it’s possible young conservatives were <a href="https://www.nytimes.com/2026/11/02/upshot/poll-young-men-midterms-trump.html" rel="noopener noreferrer" target="_blank">especially reluctant</a> to turn out this election, in part because they’d grown disillusioned with Republicans over issues like the Iran war, which is its own sign of the new mood. Fifty-three percent of voters ages 18–29 in <a href="https://www.nbcnews.com/politics/2026-elections/exit-polls" rel="noopener noreferrer" target="_blank">exit polls</a> said they previously voted for Harris, versus just 25 percent who said they voted for President Donald Trump (this fall’s Harvard IOP youth poll <a href="https://www.theupandup.us/p/gen-z-voters-2026-midterms-talarico-ossoff-el-sayed" rel="noopener noreferrer" target="_blank">signaled</a> that fewer non-MAGA conservative youth planned to vote). And a whopping 82 percent of young voters said they disapproved of Trump’s performance.</p><p><h2><strong>The gender gap isn’t really closing</strong></h2></p><p>Much ado was made about the young men who propelled Trump’s 2024 campaign victory — supporting him by a 1-point margin. They too moved left last night, backing House Democrats by 35 points, according to <a href="https://www.cnn.com/elections/2026/voter-polls/national-results/general/us-house/53" rel="noopener noreferrer" target="_blank">CNN’s voter polls</a>.</p><p>But even after young men’s massive shift toward Democrats, the gender gap isn’t closing — in fact, it’s still 22 points wide. And young women are a huge part of the story, too.</p><p>Gen Z women backed House Dems by 57 points, according to CNN’s 2026 voter polls, which is a 34-point jump from 2024. Time and time again, Gen Z women continue to be some of Democrats’ most loyal supporters, in ways that can create some <a href="https://www.washingtonpost.com/opinions/2025/05/07/republicans-baby-boom-gen-z-natalism/" rel="noopener noreferrer" target="_blank">uncomfortable social and political divides</a> within this age group.</p><p><h2><strong>The candidates matter too</strong></h2></p><p>But it wasn’t just dissatisfaction with the status quo that blue-pilled young people this week. Candidate quality matters too — and there are certain candidates who really outperformed with this voting bloc.</p><p>While the party succeeded across the board, Senate candidates like Jon Ossoff in Georgia and James Talarico in Texas put up huge numbers with young voters. Ossoff won voters under 30 by <a href="https://www.cnn.com/elections/2026/voter-polls/georgia/general/us-senate/0" rel="noopener noreferrer" target="_blank">72 points</a>, and <a href="https://www.cnn.com/elections/2026/voter-polls/texas/general/us-senate/0" rel="noopener noreferrer" target="_blank">Talarico</a> by 60, per CNN voter polls. Both understand how to reach young voters online and in person, and talked about issues Gen Z cares about.</p><p>They’re also both millennials (Talarico is 37 and Ossoff is 39) — two of many in a slate of next-generation candidates generating headlines this week. Across the country, from Rep.-elect Manny Rutinel in Colorado, who’s 31, to Gov.-elect Rob Sand in Iowa, who’s 44, and Sen.-elect Annie Andrews in South Carolina, who’s 46, millennial and Xillennial candidates are having a moment.</p><p>Something pretty fascinating that surfaced in many of my recent Gen Z focus groups is an appetite among young people for candidates with “character.” They’ve only known politics to be hostile, toxic, and violent (they watched Charlie Kirk get assassinated on a college campus and saw Trump get shot a year prior) — and they’re ready to turn the page on that chapter.</p><p>“People are fatigued, especially with this administration’s alienation of certain groups and trying to spew hatred and fear. People are sick and tired of that,” a 22-year-old woman from Nevada told me last month. She pointed to Talarico’s campaign as refreshingly civil.<strong> “</strong>When a candidate like Talarico comes in and has this campaign that’s centered around hope and similarity and unifying, that just seems so new and refreshing in this period.”</p><p>Indeed, a big theme of the midterms in Texas and around the country was that Republican attacks focused on fear, culture war, and bullying — in Talarico’s case, his masculinity was <a href="https://www.vox.com/politics/507005/texas-senate-race-talarico-paxton-masculinity?ueid=23463b99b62a72f26ed677cc556c44e8&amp;utm_source=Sailthru&amp;utm_medium=email&amp;utm_campaign=Caught%20Up%209.11.26" rel="noopener noreferrer" target="_blank">attacked relentlessly</a> — didn’t seem to help at all. And in many cases, these messages were specifically designed to fire up young men.</p><p>There’s plenty of mysticism about Gen Z voters, but my research indicates they’re actually pretty practical. They’re looking for results, and we saw that manifest in how they voted this week. But the biggest mistake Democrats (and Republicans) could make is assuming that just because they shifted back left, they’re now Democrats. It’s just not the case. They are, perhaps, more up for grabs than ever before.</p><p>Above all else, young voters aren’t as complicated as everyone makes them out to be — they’re looking for results. And they moved away from Trump and the Republican Party in 2026 for the same reasons they supported him and his allies in the first place — frustration with the economy, a fear of war, and a rejection of the establishment which the president spent years railing against and now has come to represent.</p><p>This election’s first-time voters were just 8 years old when Trump was elected in 2016. Thirty-seven percent of 18- to 29-year-old voters who showed up to the polls were voting in their <a href="https://www.nbcnews.com/politics/2026-elections/exit-polls" rel="noopener noreferrer" target="_blank">first midterms</a>. They only know a political ecosystem dominated by this one man — and they’re ready for something different.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/politics/509429/midterm-election-results-gen-z-youth-vote-blue-wave" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

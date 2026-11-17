@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>As editoras acabaram com o livro de bolso e culparam os leitores - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">As editoras acabaram com o livro de bolso e culparam os leitores</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/as-editoras-acabaram-com-o-livro-de-bolso-e-culparam-os-leitores/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/396423859724.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: As editoras acabaram com o livro de bolso e culparam os leitores
+                            </p>
+                            
+<p>Parece que toda semana surge um novo artigo sobre o declínio do hábito de leitura nos Estados Unidos. A ideia de que estamos entrando em um apocalipse literário que ameaça desestabilizar nossa democracia talvez seja exagerada, mas ninguém nega que a tendência de pouca leitura seja preocupante. Na <a href="https://nces.ed.gov/pubs2019/2019179/index.asp" rel="noopener noreferrer" target="_blank">avaliação internacional</a> mais recente das habilidades de leitura de adultos, realizada em 2023, 28% dos adultos estadunidenses obtiveram pontuação igual ou inferior ao nível mais baixo de alfabetização — um aumento em relação aos 19% de apenas seis anos antes. Segundo uma estimativa amplamente citada, mais da metade dos adultos estadunidenses lê abaixo do nível da sexta série do ensino fundamental.</p>
+<p>É interessante notar que esses artigos alarmistas e apocalípticos invariavelmente se concentram em questões externas. Poucos de nós duvidamos do que sentimos instintivamente ser verdade — que a leitura de textos longos está sendo prejudicada por tecnologias disruptivas e outros problemas sociais fora do nosso controle (disfunções políticas e um sistema educacional decadente) que afetam a demanda.</p>
+<p>Mas e quanto à oferta? Será que o excessivo foco comercial do setor editorial — com todas as suas consolidações e centralizações — pode ter banalizado o produto a ponto de contribuir para o declínio da demanda do consumidor?</p>
+<p></p>
+<h2>A morte do livro de bolso popular</h2>
+<p>Considere a morte do livro de bolso popular no ano passado. Quando as cinco maiores editoras (Penguin Random House, Macmillan, HarperCollins, Hachette e Simon &amp; Schuster) decidiram encerrar a produção do formato de livro mais acessível dos EUA — conhecido por seu preço modesto e tamanho compacto — em 2025, ele já havia deixado de fazer jus à palavra “popular” em seu nome. Naquele momento, os livros sob essa nomenclatura eram reconhecíveis, mas careciam da vitalidade e do frescor que os haviam impulsionado à atenção nacional no século XX.</p>
+<p>Até a década de 1940, o mercado livreiro era dominado por livros de capa dura — livros encadernados em tecido ou papel, com as páginas presas por lombadas costuradas. <a href="https://www.penguin.co.uk/about/company-articles/celebrating-sir-allen-lanes-life-and-legacy" rel="noopener noreferrer" target="_blank">A Penguin,</a> no Reino Unido, e a Pocket Books, nos Estados Unidos, foram as primeiras a utilizar com sucesso um formato alternativo que rivalizava — e, por muitas décadas, superava em vendas — o livro de capa dura. Esse livro, mais barato de fabricar, tinha capa flexível e encadernação colada (em vez de costurada). O resultado era um volume mais fácil de carregar e <em>muito</em> mais acessível. O novo formato representava tanto oportunismo comercial quanto uma tentativa de democratizar a leitura ou de melhorar a visão de mundo da população em geral. Se você ganhasse dez centavos a cada cem mil livros de bolso vendidos, isso era mais do que ganhar um dólar a cada 2.500 livros de capa dura, que era a <a href="https://archive.org/details/twobitculturepap00davi" rel="noopener noreferrer" target="_blank">média de vendas</a> da época. Melhor ainda, esses livros eram vendidos em toda a porção rural dos EUA — em farmácias, supermercados e postos de gasolina — e não apenas nos pequenos centros metropolitanos.</p>
+<img alt="" src="https://jacobin.com.br/wp-content/uploads/2026/11/611836574905-784x1024.png"/>Um anúncio de livros de bolso populares de 1939 no <em>The New York Times.</em>
+<p>Nos anos que se seguiram à Grande Depressão, as livrarias estadunidenses não eram exatamente onipresentes. Grandes áreas metropolitanas com uma densidade intelectual suficiente podiam ter algumas, mas na década de 1930 havia apenas <a href="https://archive.org/details/twobitculturepap00davi" rel="noopener noreferrer" target="_blank">cerca de quinhentas</a> livrarias em todos os Estados Unidos. Ao mesmo tempo, o nível básico de alfabetização era quase universal — segundo o censo de 1930, cerca de 96% dos estadunidenses com mais de dez anos sabiam ler e escrever —, mas o estadunidense médio só conhecia os livros por meio das escolas (que costumavam comprar muito mais livros do que hoje), das bibliotecas (que costumavam ter muito mais livros do que hoje) e dos catálogos (que costumavam vender muito mais livros do que hoje). A menos que morasse em uma área rica com uma livraria ou perto de uma loja de departamentos ou loja de presentes — que às vezes também tinham pequenas seções de livros —, você simplesmente não tinha contato com eles como um adulto trabalhador.</p>
+<p>Mas quando esses livrinhos baratos, apelidados de “livros de bolso populares”, começaram a aparecer, fizeram sucesso. Os Pocket Books estadunidenses foram lançados em 1939 e venderam 8,5 milhões de exemplares em dois anos. O que é ainda mais notável considerando que eles <a href="https://archive.org/details/twobitculturepap00davi" rel="noopener noreferrer" target="_blank">ainda não eram vendidos</a> “ao norte de Boston, a oeste de Chicago ou ao sul de Washington [DC]”. Os livros vendiam <a href="https://archive.org/details/twobitculturepap00davi" rel="noopener noreferrer" target="_blank">em média</a> quase cem mil unidades cada, com uma população pouco mais de um terço do tamanho dos Estados Unidos atuais. Quando a indústria descontinuou o formato em 2024, o título popular mais vendido — um livro <a href="https://www.publishersweekly.com/pw/by-topic/industry-news/publisher-news/article/97179-book-publishers-plan-for-a-reduced-mass-market-paperback-footprint.html" rel="noopener noreferrer" target="_blank">de Danielle Steel</a> — tinha vendido 53 mil exemplares. Não é de se admirar que os executivos tenham decidido acabar com tudo e culpar o consumidor por isso.</p>
+<p></p>
+<h2>O público realmente parou de ler?</h2>
+<p>Uma das matérias mais importantes dos últimos tempos sobre a suposta nova tendência de antialfabetização foi um <a href="https://www.theatlantic.com/magazine/2026/08/reading-crisis-postliterate-age/687618/" rel="noopener noreferrer" target="_blank">artigo</a> da <em>Atlantic</em> intitulado “O Fim da Leitura Chegou”, típico em sua ênfase nas falhas da sociedade que está se degenerando fora dos muros das cinco maiores editoras. O artigo traça a história das publicações desde a Mesopotâmia até Ptolomeu e Johannes Gutenberg, e destaca a importância que os fundadores da nossa nação e os heróis da Guerra Civil atribuíam à literatura impressa de formato longo.</p>
+<p>Marshall McLuhan, Neil Postman, Walter J. Ong e Alexander Luria são citados. As indústrias da mídia e da educação, ávidas por tecnologia, são criticadas, e o sistema que permite que crianças passem 4,5 horas por dia nas redes sociais é exposto, mas em nenhum momento do extenso artigo há qualquer crítica à indústria editorial, com a qual a revista <em>The Atlantic</em> mantém uma relação próxima há 169 anos, e para a qual o autor do artigo, formado em Yale, provavelmente — como acontece com a maioria dos redatores — pretende vender escritos ao longo de sua carreira.</p>
+<p>Há muitos bons motivos para se manter pessimista. Dizem que 80% dos professores do ensino fundamental relatam que seus alunos, já no jardim de infância, recebem <a href="https://www.nytimes.com/2025/1/12/upshot/teachers-survey-chromebooks-class.html" rel="noopener noreferrer" target="_blank">dispositivos de vídeo pessoais</a> fornecidos pela escola. Mas o artigo da <em>Atlantic</em> não menciona que uma possível razão para o declínio dos livros e da leitura de textos longos — um fator que, teoricamente, contribui para a extinção do mercado de massa e a queda vertiginosa na demanda por livros — envolva o lado da oferta. A questão de se <em>o que</em> a indústria editorial está imprimindo, ou <em>como</em> está precificando, ou <em>onde</em> está distribuindo, pode ter prejudicado o hábito de leitura dos EUA sequer é abordada. O autor não está sozinho ao culpar os agentes externos. Nenhum dos executivos e especialistas do setor editorial que compareceram às cerimônias fúnebres dos livros de bolso no ano passado fez qualquer autocrítica.</p>
+<p>“Seguimos o consumidor”, disse Dennis Abboud, CEO da ReaderLink, a maior distribuidora de livros dos Estados Unidos, ao anunciar o fim do livro de bolso popular. “Parece que o consumidor se manifestou”, disse Steve Zacharius, CEO de uma das maiores editoras desse formato. “Como formato, eu diria que está praticamente acabado”, disse Ivan Held, da Penguin Random House. Todo esse encolher de ombros e lavagem de mãos em relação ao formato de livro que, como um editor arrependido disse eloquentemente, salvou os (ou pelo menos impediu o declínio dos) Estados Unidos. “Acredito que os livros de bolso populares democratizaram os EUA”, disse Esther Margolis, da Newmarket Press. “Por basicamente o equivalente a um ou dois dólares, você podia se instruir. Podia encontrá-los na feira de livros da escola. Podia encontrá-los em um posto de gasolina local… Você não precisava ser elitista.”</p>
+<p>Mas será que as cinco maiores editoras estadunidenses, todas consolidadas em grande escala, poderiam ser responsabilizadas por esse estado de coisas?</p>
+<p>Os cientistas do comportamento do consumidor há muito compreendem que os hábitos populares não são apenas os mais difíceis de quebrar, como também são muito difíceis de criar. Muitas empresas tentam integrar seus produtos a hábitos preexistentes, mas é raro que uma empresa dê início a um hábito completamente novo, muito menos a um na escala do livro de bolso popular. Os 8,5 milhões de livros de bolso vendidos pela Pocket Books entre 1939 e 1941 foram, sem dúvida, a prova de um surgimento de hábito maior e mais instantâneo do que o do <a href="https://prosperion.us/commentary/the-impact-of-iphone-5/" rel="noopener noreferrer" target="_blank">iPhone</a>, que vendeu uma quantidade comparável de seu próprio produto, mas para uma população que havia triplicado de tamanho.</p>
+<p>Mas a febre dos livros de bolso populares nos Estados Unidos, que durou décadas (e atingiu o pico de <a href="https://www.publishersweekly.com/pw/by-topic/industry-news/publisher-news/article/99293-last-call-for-mass-market-paperbacks.html" rel="noopener noreferrer" target="_blank">387 milhões</a> de unidades vendidas em 1979), sugere que nós, como povo, somos capazes — e talvez até propensos — a desenvolver o hábito da leitura. Então, havia algo que as editoras poderiam ter feito para evitar o fim dos livros de bolso populares e o declínio do nosso hábito nacional de leitura?</p>
+<p></p>
+<h2>Como as editoras restringiram os catálogos</h2>
+<p>Em 1939, a televisão não existia, os filmes duravam apenas algumas horas — em contraste com os dias que você podia passar lendo um único livro — e mesmo assim, ficávamos limitados ao que estivesse em cartaz nas salas de cinema comuns. Além disso, havia, no máximo, uma dúzia de estações de rádio para escolher, em vez das opções baratas e fáceis que temos hoje, após a revolução digital.</p>
+<p>O novo cenário obviamente engloba fatores externos que afetam a demanda e que estão além do alcance até mesmo do executivo mais poderoso da indústria editorial. E avaliar se os livros estão mais ou menos atraentes parece algo difícil de mensurar. Avaliar se as editoras melhoraram ou pioraram na criação de capas de livros atraentes, na execução de campanhas de marketing motivadoras e na entrega de escritos convincentes seria, sem dúvida, em grande parte subjetivo.</p>
+<p>“Quando os livros de bolso populares começaram a aparecer em 1939, tornaram-se um sucesso, vendendo 8,5 milhões de exemplares em dois anos.”</p>
+<p>Mas um aspecto do apelo pelo qual é muito mais fácil cobrar das editoras é a variedade. Há uma história maior a ser contada aqui, mas vamos dar uma olhada rápida e considerar os <a href="https://archive.org/details/twobitculturepap00davi" rel="noopener noreferrer" target="_blank">dez primeiros</a> livros de bolso populares que a Pocket Books publicou:</p>
+<img alt="" src="https://jacobin.com.br/wp-content/uploads/2026/11/image-2-1024x1000.png"/>
+<p>Emily Brontë, <em>Bambi</em>, Dorothy Parker, Agatha Christie, Shakespeare, um romance de formação vitoriano e um romance vencedor do Prêmio Pulitzer de Thornton Wilder. É um espectro bastante amplo! Agora, comparemos este minicatálogo com a <a href="https://www.nytimes.com/books/best-sellers/2025/02/23/mass-market-monthly/" rel="noopener noreferrer" target="_blank">lista de best-sellers</a> de mercado de massa do mesmo mês de 2025 em que Dennis Abboud, CEO da ReaderLink — ex-sócio-gerente de uma empresa de private equity — anunciou que o livro de bolso seria descontinuado:</p>
+<img alt="" src="https://jacobin.com.br/wp-content/uploads/2026/11/image-3-887x1024.png"/>
+<p>Comparar os dez primeiros livros de bolso já publicados — que venderam milhões de exemplares em um mundo muito diferente — com os dez últimos não é de todo injusto. Aqueles eram os dez títulos prioritários da indústria em 1939; os últimos são os dez títulos prioritários da indústria oitenta e seis anos depois. Em outras palavras, decisões — curadorias, na verdade — tomadas pelas editoras. Os primeiros são, efetivamente, os dez livros que uma pessoa de 1939 provavelmente encontraria ao fazer compras, e os últimos são os dez livros que uma pessoa provavelmente encontrará ao fazer o mesmo em fevereiro de 2025. Em 1939, temos livros de aventura, peças de teatro, poemas, uma história sobre um cervo, um romance policial, um romance literário premiado e uma edição derivada de filme — todos de autores com idades, se estivessem vivos na época da publicação, variando de trinta e oito a sessenta e nove anos. Em 2025, temos apenas opções de ficção comercial contemporânea, metade das quais são títulos de séries (uma das quais teve impressionantes trinta e cinco volumes anteriores) e de oito autores consagrados, com idade média de setenta e quatro anos, além de dois cujo autor principal é um homem que teria oitenta e seis anos na época da publicação, pelo menos se não tivesse falecido em 2004.</p>
+<p>“O artigo da <em>Atlantic</em> não sugere que uma possível razão para o declínio dos livros e da leitura de textos longos esteja relacionada à oferta.”</p>
+<p>Não há nada de errado em apostar no mais seguro: todos esses autores consagrados e seus leitores fiéis são obviamente confiáveis, pelo menos do ponto de vista dos lucros trimestrais, em contraste com a estratégia pouco científica, sem dados de consumo e guiada pelo instinto — embora extremamente bem-sucedida — da Pocket Books, de 1939. Mas, considerando que a variedade é uma parte importante para atrair consumidores, será possível que as editoras do século XXI tenham diminuído o apelo mais amplo de seus produtos — para leitores e potenciais leitores fora do núcleo confiável de ficção comercial da geração baby boomer — mesmo que apenas um pouco?</p>
+<p></p>
+<h2>Preços abusivos em vez de preços acessíveis</h2>
+<p>Em termos de acessibilidade, 25 centavos (o preço de cada título da Pocket Books) rendiam muito mais em 1939 do que rendem hoje, mas ainda assim era um preço acessível ao consumidor. Era apenas um pouco mais caro do que nossos bisavós pagariam por um galão de gasolina e um pouco mais barato do que pagariam por uma dúzia de ovos. Em 2024, último ano de distribuição nacional completa do formato, um livro de bolso popular novo custaria três vezes mais do que uma dúzia de ovos ou um galão de gasolina.</p>
+<p>Poderíamos suspeitar que os custos de materiais, distribuição ou outros custos específicos dos livros tivessem aumentado ao longo das décadas. Mas como explicar, então, que o irmão mais velho do livro de bolso popular — o livro de capa dura tradicional — não tenha sofrido uma inflação tão drástica? Hoje, um romance de capa dura custa entre US$ 28 e US$ 32. É 40% mais barato do que seria na década de 1940, e isso antes do desconto típico de mais de 20% (e frequentemente até 50%) oferecido por grandes varejistas nacionais para os títulos mais vendidos. Em 1939, era possível comprar dez livros de bolso populares pelo preço de um único livro de capa dura novo. Em 2024, mal se conseguia comprar dois. Isso significa que, sob a liderança das cinco grandes editoras e seus parceiros varejistas nacionais igualmente hegemônicos, o produto principal, preferido pelas livrarias voltadas para a elite em áreas ricas, ficou mais barato, enquanto o formato com comprovado potencial de vendas em massa ficou muitas vezes mais caro.</p>
+<img alt="" src="https://jacobin.com.br/wp-content/uploads/2026/11/212930752273.jpg"/>Um expositor giratório em uma farmácia canadense, julho de 2026 (Cortesia de Ned Rust)
+<p>Por fim, vamos considerar a disponibilidade. Mesmo antes da descontinuação dos livros de bolso populares, os livros já eram vendidos em cada vez menos lugares. Supermercados, farmácias, postos de gasolina, bancas de jornal e lojas de departamento haviam abandonado o ramo. E as grandes livrarias das últimas décadas também estavam em declínio. Em 2024, a Costco, que costumava vender <a href="https://janefriedman.com/costco-pulls-back-on-stocking-books/" rel="noopener noreferrer" target="_blank">milhões</a> de exemplares por ano, <a href="https://www.usatoday.com/story/money/2024/12/01/costco-book-sales/76689057007/" rel="noopener noreferrer" target="_blank">parou</a> de vender livros na maioria de suas lojas. A grande rede nacional de livrarias Borders, com a ajuda do <a href="https://www.theguardian.com/business/2011/jul/01/borders-agrees-sell-itself-najafi" rel="noopener noreferrer" target="_blank">private equity</a>, faliu em 2011. A Barnes &amp; Noble tem se mantido relativamente estável, mas possui apenas cerca de seiscentas lojas em, no máximo, 19% dos condados do país.</p>
+<p>As tendências que as editoras e a mídia citam para justificar essa crise de disponibilidade são reais. Mas eram inevitáveis? E são justificáveis? E talvez também sejam impulsionadas por problemas relacionados aos outros dois As — apelo e acessibilidade — sobre os quais a indústria tem um controle ainda mais direto? Será que a indústria editorial dos EUA poderia e deveria, de fato, explorar soluções abertamente ou lutar publicamente para manter uma distribuição não digital mais significativa de seus títulos? Será que a indústria poderia, e deveria, perceber que os livros de bolso ainda estão à venda no Canadá — onde, na mesma avaliação de 2023, apenas 18% dos adultos atingiram ou ficaram abaixo do nível mais baixo de alfabetização, em comparação com 28% aqui — e a um preço inferior à metade do que atingiram nos Estados Unidos?</p>
+<p>É difícil entender como a indústria corporativa e altamente centralizada sai ilesa do assassinato de um de seus antigos queridinhos — o livro de bolso popular. Claramente, é mais fácil focar em um número menor de leitores de alta renda do que em uma multidão de estadunidenses com quem não se tem nenhuma conexão social. Claramente, decisões foram tomadas — decisões que, sem dúvida, tiveram um grande impacto nos hábitos de leitura dos estadunidenses. E claramente, o establishment midiático altamente interligado não vai questioná-las.</p>
+<p>Mas talvez você devesse.</p>
+<p></p><p></p><p><h5>Ned Rust</h5></p><p>é pesquisador no Centro de Política da Classe Trabalhadora.</p><p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/as-editoras-acabaram-com-o-livro-de-bolso-e-culparam-os-leitores/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

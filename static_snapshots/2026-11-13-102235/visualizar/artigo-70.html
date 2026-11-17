@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huang Out at Nvidia - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Huang Out at Nvidia</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/12/nvidia-jensen-huang-resigns-ai-china-spy-megaspeed-extramarital-affairs/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/TrumpNvidia-GettyImages-2298607332.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Nvidia CEO Jensen Huang Resigns Over Affair With an Alleged Chinese Spy
+                            </p>
+                            
+<p>Welcome back to World Brief, where we’re looking at the resignation of <strong>Nvidia </strong>CEO Jensen Huang, <strong>Europe</strong>’s future involvement in <strong>Russia-Ukraine </strong>peace talks, and mounting political tensions in <strong>Indonesia</strong>.</p>
+
+<h3><strong>Nvidia’s Empty Throne</strong></h3>
+<p>Two extramarital affairs, including one with a <a href="https://foreignpolicy.com/2026/11/10/jensen-huang-nvidia-affair-china-spy-unanswered-questions/" rel="noopener noreferrer" target="_blank">suspected Chinese spy</a>, marked the undoing of Nvidia CEO Jensen Huang, who resigned on Thursday amid <a href="https://foreignpolicy.com/2026/11/09/jensen-huang-spy-scandal-alice-nvidia-trump-china/" rel="noopener noreferrer" target="_blank">growing calls</a> for his departure and a substantial drop in the company’s stock price.</p> 
+
+<p>Welcome back to World Brief, where we’re looking at the resignation of <strong>Nvidia </strong>CEO Jensen Huang, <strong>Europe</strong>’s future involvement in <strong>Russia-Ukraine </strong>peace talks, and mounting political tensions in <strong>Indonesia</strong>.</p>
+<p>
+</p>
+
+<h3><strong>Nvidia’s Empty Throne</strong></h3>
+<p>Two extramarital affairs, including one with a <a href="https://foreignpolicy.com/2026/11/10/jensen-huang-nvidia-affair-china-spy-unanswered-questions/" rel="noopener noreferrer" target="_blank">suspected Chinese spy</a>, marked the undoing of Nvidia CEO Jensen Huang, who resigned on Thursday amid <a href="https://foreignpolicy.com/2026/11/09/jensen-huang-spy-scandal-alice-nvidia-trump-china/" rel="noopener noreferrer" target="_blank">growing calls</a> for his departure and a substantial drop in the company’s stock price.</p>
+<p>Huang has been seen as the face of the global artificial intelligence race. His company is the world’s leading producer of advanced semiconductor chips, making Nvidia a critical part of <a href="https://foreignpolicy.com/2025/05/05/china-artificial-intellligence-ai-technology-us-chip-restrictions-nvidia/" rel="noopener noreferrer" target="_blank">U.S. national security</a> and a sought-after partner of China. Huang himself is among the world’s wealthiest people, with an estimated net worth of around $162 billion prior to his recent scandal.</p>
+<p>Over the past two years, Huang has also become a close friend of U.S. President Donald Trump, whose administration has made <a href="https://foreignpolicy.com/2025/08/12/trump-ai-action-plan-american-stack-contradictions/" rel="noopener noreferrer" target="_blank">advancing AI</a> a cornerstone of its agenda. Notably, Huang successfully <a href="https://foreignpolicy.com/2025/12/12/nvidia-chips-national-security-trump-united-states-china-ai/" rel="noopener noreferrer" target="_blank">petitioned</a> the White House last December to relax some restrictions on Nvidia sales to China in exchange for the U.S. government receiving a 25 percent cut of the profits.</p>
+<p>But in just two weeks, Huang’s public image has collapsed. Late last month, the <a href="https://www.nytimes.com/2026/10/29/us/politics/nvidia-china-jensen-huang-trump.html" rel="noopener noreferrer" target="_blank"><em>New York Times</em></a> reported that a Chinese businesswoman believed to be spying for Beijing was in a “close relationship” with Huang. The alleged spy, Alice Huang, was an executive at a Singapore-based data center company, Megaspeed, which the U.S. Commerce Department began <a href="https://www.bloomberg.com/news/features/2025-12-22/nvidia-partner-megaspeed-draws-china-chip-smuggling-concerns-in-us" rel="noopener noreferrer" target="_blank">suspecting</a> in 2024 of helping China to smuggle in Nvidia’s restricted AI chips.</p>
+<p>Nvidia shares plummeted in the wake of the news, even as Beijing denied involvement. Huang admitted to the affair in an <a href="https://nvidianews.nvidia.com/news/a-message-to-our-company" rel="noopener noreferrer" target="_blank">email</a> to Nvidia’s 42,000-plus employees on Sunday.</p>
+<p>However, the scandal didn’t end there. On Wednesday, the <a href="https://www.nytimes.com/2026/11/11/technology/jensen-huang-nvidia-affair.html" rel="noopener noreferrer" target="_blank"><em>Times</em></a> reported that Huang had had a separate affair with Kimberly Powell, the company’s vice president of healthcare. That relationship may have violated the company’s <a href="https://images.nvidia.com/aem-dam/en-zz/Solutions/about-us/NVIDIA-Code-of-Conduct-External.pdf" rel="noopener noreferrer" target="_blank">code of conduct</a>. Huang has not publicly acknowledged the second affair.</p>
+<p>The dual allegations appear to have been enough to force Huang to step down. Huang has reportedly agreed to <a href="https://www.cnbc.com/2026/11/12/nvidia-jensen-huang-ceo-live-updates.html" rel="noopener noreferrer" target="_blank">testify before Congress</a> ahead of the U.S. holiday of Thanksgiving over the espionage scandal. And Nvidia finance chief Colette Kress has agreed to serve as interim CEO until a replacement is named.</p>
+<p>Nvidia’s change in leadership, though, has yet to assuage global markets. Company shares <a href="https://www.nytimes.com/2026/11/12/business/nvidia-stock-price-jensen-huang-ceo-affair.html" rel="noopener noreferrer" target="_blank">plunged</a> as much as 14 percent when trading opened on Thursday, extending a crisis that has already wiped out more than $1 trillion from Nvidia’s market value. Some initial gains were made later in the day but not enough to reverse the damage.</p>
+<p>Nvidia’s board has <a href="https://nvidianews.nvidia.com/news/statement-from-nvidia-board-of-directors" rel="noopener noreferrer" target="_blank">said</a> there is “no reason to believe” that Huang’s actions compromised U.S. national security or company secrets, but it has launched an independent investigation. And on Thursday, Megaspeed CEO <a href="https://www.pbs.org/newshour/economy/nvidia-ceo-jensen-huang-resigns-after-his-affair-raises-national-security-concerns" rel="noopener noreferrer" target="_blank">Tan Yong Pong</a> issued a statement saying that the company takes its obligation to comply with U.S. export control laws “extremely seriously” and will work “constructively and transparently with the U.S. government.”</p>
+<p>Trump, meanwhile, praised Huang on Thursday, <a href="https://truthsocial.com/@realDonaldTrump/posts/117604177898784579" rel="noopener noreferrer" target="_blank">writing</a> on Truth Social that he had done a “fantastic job” with Nvidia.</p>
+
+<h3><strong>Today’s Most Read</strong></h3>
+
+<h3><strong>What We’re Following</strong></h3>
+<p><strong>A seat at the table. </strong>Russian President Vladimir Putin <a href="https://www.reuters.com/world/europe/us-envoys-arrive-moscow-latest-round-ukrainian-peace-talks-with-putin-2026-11-12/" rel="noopener noreferrer" target="_blank">agreed</a> on Thursday to allow European representatives to join the next round of direct Ukraine peace talks. Giving Europe a seat at the table marks a big win for Kyiv and Washington, which have both pushed for greater European involvement in negotiations. However, the concession could also spell trouble for future talks, as Moscow remains <a href="https://foreignpolicy.com/2026/08/26/russia-ukraine-war-putin-europe-attacks-drones-sabotage-nato-hybrid-gray-zone-warfare/" rel="noopener noreferrer" target="_blank">largely at odds</a> with its European counterparts.</p>
+<p>“We would very much like you, gentlemen, and the U.S. administration as a whole to work with your European allies so that they can finally make up their minds as to what they want: peace or war in Ukraine,” Putin told U.S. special envoys Steve Witkoff and Jared Kushner in Moscow on Thursday. At the same time, the Russian leader warned that any push for the deployment of <a href="https://foreignpolicy.com/2026/06/29/europe-nato-war-russia-ukraine-security-defense-trump-alliance-deterrence/" rel="noopener noreferrer" target="_blank">European troops to Ukraine</a> after a peace deal is inked would trigger renewed fighting.</p>
+<p>Witkoff and Kushner will now head to Dublin for similar talks with Ukrainian President Volodymyr Zelensky. The potential of European involvement in the peace process will almost certainly be on the agenda, but Zelensky is also likely to bring up new reports of <a href="https://foreignpolicy.com/2026/10/14/starlink-cuts-ukraine-defense-russia-elon-musk-trump-zelensky/" rel="noopener noreferrer" target="_blank">Starlink disruptions</a> in Ukraine.</p>
+<p>Zelensky on Thursday <a href="https://x.com/ZelenskyyUa/status/2120884201264144659" rel="noopener noreferrer" target="_blank">accused</a> the U.S.-based company of placing speed restrictions on its Starshield military-grade services, affecting how its drone interceptors operate. The last time that such limits were detected, Zelensky <a href="https://foreignpolicy.com/2026/10/15/ukraine-strikes-russia-oil-refineries-zelensky-trump-starlink-energy-cease-fire/" rel="noopener noreferrer" target="_blank">resumed</a> Ukrainian strikes on Russian oil refineries in direct opposition to Trump’s wishes. Kyiv and SpaceX CEO Elon Musk had both <a href="https://x.com/elonmusk/status/2110445577184133456?s=20" rel="noopener noreferrer" target="_blank">accused</a> the Trump administration of orchestrating that incident, which the White House <a href="https://www.cnbc.com/2026/10/16/trump-denies-musk-claim-he-ordered-starlink-restrictions-in-ukraine.html" rel="noopener noreferrer" target="_blank">denied</a>.</p>
+<p><strong>Academic scandal. </strong>Indonesian Vice President Gibran Rakabuming Raka <a href="https://www.nytimes.com/2026/11/12/world/asia/indonesia-gibran-vice-president-resign.html?campaign_id=9&amp;emc=edit_nn_20261112&amp;instance_id=185069&amp;nl=the-morning&amp;regi_id=159637444&amp;segment_id=229613&amp;user_id=3a92aa035d8e7d51a6ba63375b87c152" rel="noopener noreferrer" target="_blank">submitted</a> his resignation to parliament on Thursday in the wake of a scandal over his academic credentials. It is unclear when his departure will take effect; however, experts expect the incident to deliver another blow to the tenuous alliance between former President Joko “Jokowi” Widodo and current President Prabowo Subianto.</p>
+<p>Calls for Gibran’s impeachment first intensified last month, when the country’s Constitutional Court found that the vice president did not possess the <a href="https://apnews.com/article/indonesia-gibran-rakabuming-raka-resigns-abfe5e288fad3b8b26719eae634f2ee0" rel="noopener noreferrer" target="_blank">necessary credentials</a> to hold power. In Indonesia, lawmakers must have a high school diploma to run for office. Gibran claimed to have finished grade 12 at a school in Australia, but the court ruled that the degree was not equivalent to an Indonesian senior high school certificate. Two weeks later, the country’s Supreme Court backed that ruling by revoking Gibran’s equivalency document.</p>
+<p>Gibran was elected in 2024 largely as a symbol of the precarious truce between his father, Jokowi, and Prabowo. His removal could therefore further fracture that fragile alliance. Just last week, Indonesian authorities detained three senior police officials suspected of <a href="https://foreignpolicy.com/2026/11/11/indonesia-wiretap-prabowo-police-chief/" rel="noopener noreferrer" target="_blank">wiretapping</a> the president and dozens of other prominent figures. Among those <a href="https://www.reuters.com/world/asia-pacific/indonesia-arrests-chief-staff-top-policemen-alleged-wiretapping-president-2026-11-04/" rel="noopener noreferrer" target="_blank">arrested</a> was Listyo Sigit Prabowo, who was a known loyalist of Jokowi.</p>
+<p><strong>Gaza hospital attack. </strong>An Israeli airstrike <a href="https://www.reuters.com/world/middle-east/israeli-strike-southern-gaza-hospital-kills-four-gaza-civil-defence-says-2026-11-11/?utm_source=Sailthru&amp;utm_medium=Newsletter&amp;utm_campaign=Daily-Briefing&amp;utm_term=111226&amp;utm_content=111226&amp;lctg=607f1056abd4f461f466319b&amp;user_email=6b04284e4d00370f16d3dac0a626e01bf24d86e4d6995646867da6aa680488d0" rel="noopener noreferrer" target="_blank">targeted</a> the main hospital in the southern Gaza city of Khan Younis overnight on Thursday, killing at least six people, including a teenager, and injuring at least 20 others. Locals reported two missiles damaging a building containing surgical wards at Nasser Hospital. The attack marked the latest violation of the region’s precarious <a href="https://foreignpolicy.com/2025/10/10/israel-hamas-cease-fire-deal-gaza-hostages-palestinian-prisoners-aid-trump/" rel="noopener noreferrer" target="_blank">Gaza cease-fire</a>, which took effect in October 2025.</p>
+<p>According to Israel’s military, the hospital strike was part of an operation targeting Muhammad Abu Ismail, whom Israeli forces described as the “commander of Hamas’s Khan Younis Brigade.” Israel claimed that Abu Ismail had turned Nasser Hospital into his headquarters and was using the facility as a base of operations. Israel has <a href="https://foreignpolicy.com/2025/08/25/israel-gaza-nasser-hospital-strike-journalists-famine/" rel="noopener noreferrer" target="_blank">repeatedly accused</a> Hamas of using civilian infrastructure as human shields. The militant group has denied doing so.</p>
+<p>Since the Israel-Hamas war began in October 2023, Israeli troops have <a href="https://foreignpolicy.com/2024/02/15/israel-raid-nasser-hospital-hostages-gaza-rafah-evacuation/" rel="noopener noreferrer" target="_blank">attacked</a> Nasser Hospital at least seven times, according to hospital officials. The use of medical centers for military purposes and the targeting of such sites are both considered violations of <a href="https://foreignpolicy.com/2024/02/09/israel-gaza-health-care-hospitals-genocide-icj/" rel="noopener noreferrer" target="_blank">international law</a>. “Gaza’s health facilities are lifelines for its ​people,” World Health Organization chief Tedros Adhanom Ghebreyesus <a href="https://x.com/DrTedros/status/2120871319868743886" rel="noopener noreferrer" target="_blank">wrote</a> on X on Thursday. “They must be protected. They must never be militarized or attacked.”</p>
+
+<h3><strong>Odds and Ends</strong></h3>
+<p>The Finnish Embassy in Canberra temporarily closed its doors on Tuesday for a one-day internal planning and staff sauna event. However, what was meant to be a routine disruption instead appeared to <a href="https://www.politico.com/news/2026/11/11/finlands-embassy-in-canberra-is-going-viral-and-no-one-knows-why-01160628" rel="noopener noreferrer" target="_blank">upend the internet</a>, with a deluge of memes jokingly bemoaning the closure. Local swimming pools offered their services for those suffering, a Dutch esports league <a href="https://www.instagram.com/p/Dfj0YcDNE8S/" rel="noopener noreferrer" target="_blank">complained</a> about the lockout, and even American Airlines <a href="https://www.instagram.com/p/DflFI6zpDSP/" rel="noopener noreferrer" target="_blank">unveiled</a> a snap sale on flights to Europe for emotional support.</p>
+<p>The embassy, meanwhile, took the public’s outcry in stride. “After 24 harrowing hours, international expressions of grief and an unprecedented outpouring of solidarity, the Embassy of Finland in Canberra has officially reopened,” the facility <a href="https://www.instagram.com/p/Dflf28TR6tm/" rel="noopener noreferrer" target="_blank">posted</a> on social media on Wednesday, marking the event with a ribbon-cutting ceremony.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/12/nvidia-jensen-huang-resigns-ai-china-spy-megaspeed-extramarital-affairs/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

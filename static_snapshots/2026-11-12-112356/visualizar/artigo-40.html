@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Philly fixed a melted interstate in 12 days. Why does everything else take so long? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Philly fixed a melted interstate in 12 days. Why does everything else take so long?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/future-perfect/510138/philadelphia-i-95-collapse-repair-12-days" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/LucyJones_I95.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: How Philadelphia reopened I-95 just 12 days after its collapse
+                            </p>
+                            <p>On an early Sunday morning in June 2023, a tanker truck filled with gasoline skidded on an exit ramp, tumbled over, and burst into flames just below one of the nation’s busiest interstates. The inferno that followed immediately severed miles of the East Coast’s most important artery, choking off a route used by countless cars and trucks.</p><p>The fires were still burning on I-95 when Mike Carroll, Pennsylvania’s transportation secretary, told Gov. Josh Shapiro that, under the very best circumstances, he’d reopen the roadway in six weeks. Publicly, Shapiro and many experts posited that rebuilding would likely take <a href="https://transcripts.cnn.com/show/cnr/date/2023-06-11/segment/04" rel="noopener noreferrer" target="_blank">much</a> <a href="https://www.udel.edu/udaily/2023/june/interstate-95-bridge-collapse-philadelphia-civil-engineering-tripp-shenton-michael-chajes0/" rel="noopener noreferrer" target="_blank">longer</a>, turning a Philadelphia corridor traversed by 160,000 cars each day into a sluggish limbo, as they found other paths to and from work.</p><p>A stretch of I-95 in the hours after the collapse in 2023. City of Philadelphia/Getty Images</p><p>The feats that followed have since been memorialized as a legendary if unlikely triumph of American infrastructural prowess. On day two, Shapiro issued a <a href="https://penncapital-star.com/government-politics/pa-gov-shapiro-signs-disaster-declaration-for-i-95-collapse-in-philadelphia/" rel="noopener noreferrer" target="_blank">disaster proclamation</a>, unlocking millions of dollars in funds and waiving normal bidding and contracting processes. By day six, demolition was completed and sports bars around Philly had begun showing a <a href="https://www.cbsnews.com/philadelphia/news/local-bars-broadcasting-i-95-philadelphia-collapse-construction-livestream/" rel="noopener noreferrer" target="_blank">24/7 livestream of the construction site</a>. At first, officials thought “the fix would be measured in months,” Carroll told me. But he and his department soon lowered that time table to the point where it was “measured in weeks, and then when it came into even more focus, we said measured in days.”</p><p>On the 12th day, against all odds and with a <a href="https://www.autoweek.com/racing/nascar/a44315047/how-nascar-jet-dryer-helped-open-i-95-in-philadelphia/" rel="noopener noreferrer" target="_blank">NASCAR jet dryer</a> — the kind used to blast rain off racetracks — on standby, crews smoothed the final layer of asphalt, paving the way for I-95 to reopen to traffic less than two weeks after its catastrophic collapse.</p><p>The rapid reopening of I-95 has been held up as a paragon of efficiency, blistering proof of what’s possible when policymakers choose to move fast and unbreak things, or at the very least, get out of their own way. If Philadelphia could reconstruct a melted highway in a matter of days, then why, three years later, does it still often take <a href="https://blackprelaw.studentgroups.columbia.edu/news/congestion-pricing-new-york-city-long-history-and-uncertain-future" rel="noopener noreferrer" target="_blank">months</a>, <a href="https://www.nytimes.com/2021/11/28/us/infrastructure-megaprojects.html" rel="noopener noreferrer" target="_blank">years</a>, or <a href="https://www.bostonglobe.com/magazine/2015/12/29/years-later-did-big-dig-deliver/tSb8PIMS4QJUETsMpA7SpI/story.html" rel="noopener noreferrer" target="_blank">even decades</a> to complete projects that seem far simpler?</p><p>Why can’t America <em>always</em> build with such precise, even delightful, speed?</p><p>For one thing, not everything is an emergency. Not all projects can or should get done in 12 days even if it would be technically feasible to do so. And there is no silver bullet for building everything as fast as I-95 was rebuilt, which after all, required a disaster declaration, a blank check of a budget, and crew working night and day.</p><p>“There’s only so much capacity,” Carroll told me, and rebuilding I-95 as fast as he did required siphoning funds and workers away from other projects and paying the crews to manage 84-hour weeks. “You can’t ask people to do that on every single project.”</p><p>In fact, the real reason I-95 was rebuilt so quickly was largely because it was allowed to break all the rules, the very rules that keep so many other projects like it mired in a morass of red tape. If the US wants to fix more highways, build more train lines, or paint more bike lanes more quickly, it will need to get better at knowing when to break these rules more often, and not only when there’s an emergency. It may be time to rewrite some of them altogether.</p><p><h2>How to build a highway in 12 days</h2></p><p>The collapse of Philadelphia’s stretch of I-95 was exceptionally disruptive. For every day it remained shuttered, <a href="https://www.cbsnews.com/philadelphia/news/not-trucker-friendly-truckers-try-to-navigate-detours-after-i-95-collapse/" rel="noopener noreferrer" target="_blank">thousands of 18-wheeler trucks</a> were forced to divert through quiet neighborhoods, disrupting <a href="https://kogod.american.edu/news/i-95-bridge-collapse" rel="noopener noreferrer" target="_blank">billion-dollar supply chains</a>, while hundreds of thousands of area drivers faced a commute from hell.</p><p>“We knew we didn’t have the ability to take our time in terms of thinking about next steps,” said Carroll, who grew up in a small town outside Scranton, where he still lives today. In the moment, he looked to Georgia, where in 2017, a fire had led to the similarly catastrophic collapse of I-85. Remarkably, officials there had managed to get things back up and running in <a href="https://www.wsbtv.com/news/local/atlanta/those-who-helped-rebuild-i-85-after-collapse-look-back-on-lessons-learned-1-year-later/724422151/" rel="noopener noreferrer" target="_blank">just 44 days</a>, a month ahead of their initial schedule. Taking that as a challenge, Carroll brought the possibility to Shapiro: “I recall saying to the governor, ‘How about 43 and a half?’ And he said, ‘I’ll take it.’”</p><p>Within a day, Shapiro issued a state of emergency that immediately unlocked a trove of funding. It also gave the state broad authority to offer what amounted to blank checks to the contractors of its choice, a procurement process that normally takes months if not years — and hundreds of pages of paperwork — to complete before even demolition takes place during non-emergency builds.</p><p>Shapiro’s emergency order “waived everything, literally everything,” said Stephanie Pollack, a leading expert on transportation policy and an adjunct lecturer at the Harvard Kennedy School. Suddenly, with that order in hand, she said, officials like Carroll knew: “I can buy things I couldn’t buy. I can contract in ways I couldn’t contract. I don’t have to worry about permits. I don’t have to worry about work hours,” she said. “And that, to me, is the lesson of I-95. It’s not that emergencies make things happen; it’s that throwing everything out makes things happen.”</p><p>Carroll was able to <a href="https://www.enr.com/articles/56671-how-philadelphia-i-95-span-destroyed-by-fire-reopened-in-just-12-days" rel="noopener noreferrer" target="_blank">hire a demolition firm</a> within hours of the fire breaking out. In days, he contracted <a href="https://6abc.com/post/i-95-philadelphia-repairs-when-will-95-reopen-collapse-collaped/13380443/" rel="noopener noreferrer" target="_blank">a local construction firm</a> to begin repairs. In the meantime, Shapiro ordered a police escort to <a href="https://www.bloomberg.com/news/articles/2023-06-28/resurrection-of-i-95-in-just-two-weeks-is-dubbed-small-miracle" rel="noopener noreferrer" target="_blank">rush hundreds of trucks</a> carrying foamed recycled glass, a kind of locally sourced backfill, to create a temporary fix for I-95. And when a design decision needed sign-off — which ordinarily might involve a permitting process that, like procurement, can take months or years on end — for I-95, workers could go straight to Carroll himself, who spent nearly all 12 days of construction holed up in a trailer on-site.</p><p>Crews were at work around the clock, alternating between 12-hour shifts and pausing only once in a dozen days: for a few hours to let a thunderstorm pass. After Shapiro installed the 24-7 livestream on-site, the workers became heroes, their efforts broadcast on the Jumbotron of a Phillies game and updates of their progress going viral on <a href="https://abc7chicago.com/post/i-95-collapse-bridge-reopens-social-media/13421948/" rel="noopener noreferrer" target="_blank">TikTok</a>. Locals visited the site offering cookies and donuts, and then-President Joe Biden toured overhead by helicopter, <a href="https://6abc.com/post/when-will-i-95-reopen-gov-josh-shapiro-interstate-95-collapse-rebuild-project/13394782/" rel="noopener noreferrer" target="_blank">insisting</a>, “There is no more important project.” All the attention contributed to an intoxicating sense of what Carroll called “collective adrenaline,” one that helped, in turn, inspire workers on site to work even harder and faster, he said.</p><p>“There was so much momentum once it became clear to everybody that, ‘My God, they’re building this thing! And it’s going to open fast,’” he said. “They didn’t want to be the one to slow down progress,” he said of the on-site crew, almost as if “everybody felt like they were part of a play, and wanted to make sure they played their part well.”</p><p><h2><strong>Why don’t we build everything like this?</strong></h2></p><p>The fix that Carroll’s crews completed in 12 days was always meant to be temporary, which is part of why it came together so quickly. The goal of the project was just to allow traffic to continue moving while crews worked on a more <a href="https://www.nbcphiladelphia.com/news/transportation-and-transit/full-restoration-i-95-philadelphia/3866618/" rel="noopener noreferrer" target="_blank">permanent fix for the site</a>, which opened still in good time: less than a year later.</p><p>According to Carroll, Pennsylvania’s transportation department and other agencies now regularly go into super-fast emergency mode. When, for example, a pickup truck <a href="https://www.paturnpike.com/media-center/news-and-media/details/2026/10/09/pennsylvania-turnpike-commission-releases-after-action-review-for-allegheny-tunnel-vehicle-fire" rel="noopener noreferrer" target="_blank">started an inferno</a> inside a tunnel over the summer, the Pennsylvania Turnpike Commission made emergency repairs and reopened in a day. And when floodwaters <a href="https://www.yahoo.com/news/articles/boynton-bridge-damage-illustrates-completed-035900319.html" rel="noopener noreferrer" target="_blank">destroyed a 102-year-old bridge</a> on a major roadway last year, they built a temporary fix in 10 days.</p><p>But other parts of I-95, which stretches from Miami to Maine’s border with Canada, are also in dire need of repairs — albeit less immediately cataclysmic ones. And they sometimes come years or even decades too late.</p><p>If you head about 100 miles north from Philadelphia on I-95, you’ll reach the Trans-Manhattan Expressway, a portion of the interstate, opened in 1962, whose compounding structural flaws went <a href="https://gothamist.com/news/port-authority-eyes-117m-fix-to-manhattan-roadway-where-falling-debris-smashed-cars" rel="noopener noreferrer" target="_blank">utterly neglected</a> for its first half-century of life. In 2015, the Port Authority of New York and New Jersey <a href="https://newyorkyimby.com/2017/02/a-look-at-the-timeline-for-restoring-the-george-washington-bridge.html" rel="noopener noreferrer" target="_blank">laid out plans</a> to begin upgrading its six overpasses within a few years. But even that timeline proved optimistic, delayed again and again amid overlapping red tape and funding constraints until May of this year, when giant chunks of concrete began falling atop passing motorists. Finally, authorities made patchwork fixes to the blighted roadway, with a long-term plan slated to begin construction next summer.</p><p>Once again, it took at least minor disaster to garner the political will needed to finally propel a project forward, however slowly. But it shouldn’t always need to.</p><p>In the case of I-95, Shapiro “applied a standard of treating this like an emergency rather than normal business,” said Don Moynihan, professor of public policy at the University of Michigan, “and things went well enough that a lot of people said, ‘Well, why don’t we treat everything with the same degree of urgency?’”</p><p>Permitting rules and bidding processes usually exist for good reasons, of course. President Donald Trump is a case in point, having relied on emergency orders to <a href="https://www.vox.com/politics/492928/trump-reflecting-pool-mall-algae-arrests" rel="noopener noreferrer" target="_blank">issue the no-bid contract</a> that coated the Lincoln Memorial Reflecting Pool in blue before almost immediately turning it <a href="https://www.vox.com/climate/492909/why-trump-is-losing-his-war-against-algae" rel="noopener noreferrer" target="_blank">swampy green</a>.</p><p>And faster is not always better when it comes to complex engineering tasks or finding the right contractor for the job. “Every project is unique, and not everything is a crisis,” Carroll said. “You can never streamline it so much that the contractors and others would feel like some people are going to be favored over others — there has to be fairness.”</p><p>But there’s no doubt that many of our bureaucratic processes could work much more quickly or efficiently than they do today. They could use a dose of what Jennifer Pahlka, author of <em><a href="https://www.recodingamerica.us/" rel="noopener noreferrer" target="_blank">Recoding America</a> </em>and a leading voice on the need to make government more capable and efficient, has called an “<a href="https://www.eatingpolicy.com/p/the-public-wants-i-95-ness" rel="noopener noreferrer" target="_blank">I-95-ness</a>” in how America goes about building things big and small.</p><p>New York City, for example, took an absurdly <a href="https://worksinprogress.co/issue/new-yorks-long-road-to-congestion-pricing/" rel="noopener noreferrer" target="_blank">long time to put congestion pricing</a> into effect. The policy was delayed by a <a href="https://enotrans.org/article/congestion-pricing-in-new-york-beware-the-even-years/" rel="noopener noreferrer" target="_blank">yearslong environmental review</a>, resulting in <a href="https://www.mta.info/document/111101" rel="noopener noreferrer" target="_blank">thousands of pages</a> of analysis and appendixes, which came to a rather obvious conclusion: No, a policy disincentivizing cars from the road will not harm the local environment. Making projects work more like I-95 did would require stripping away some of those onerous norms, and replacing them with better policy mechanisms rather than endless paperwork.</p><p>On the federal level, Pollack believes that the <a href="https://www.vox.com/future-perfect/505064/bipartisan-permitting-senate-baaja" rel="noopener noreferrer" target="_blank">Bipartisan American Affordability and Jobs Act</a> (BAAJA) — which held its first procedural vote this week — would make endless and at times frivolous permitting processes, like the one that held up congestion pricing, a lot less common for simple transportation projects, which could make the bill a step in the right direction. The American Public Transportation Association <a href="https://www.apta.com/press-release/apta-endorses-bipartisan-senate-permitting-reform-bill/" rel="noopener noreferrer" target="_blank">endorsed the BAAJA</a> earlier this month for similar reasons.</p><p>Leaders like <a href="https://donmoynihan.substack.com/p/permitting-reform-in-pennsylvania" rel="noopener noreferrer" target="_blank">Shapiro</a> and New York City Mayor <a href="https://www.vox.com/future-perfect/500652/zohran-mamdani-pothole-politics" rel="noopener noreferrer" target="_blank">Zohran Mamdani</a> have also embarked on their own state or local permitting reform quests, which in the aftermath of last week’s seismic blue wave, could foretell a new direction for an empowered party. “I do think Democrats have an opportunity to frame themselves as the party of competence,” Moynihan said, “the party who believes in making the public sector work.”</p><p>But getting America better at building things will mean recognizing that not all emergencies look like a tanker catching fire or when a <a href="https://www.wbaltv.com/article/baltimore-bridge-collapse-state-of-emergency/60304565" rel="noopener noreferrer" target="_blank">cargo ship strikes a bridge</a>. They’re also found in the hidden crises that keep an affordable home or a high-speed rail line out of reach — and just as importantly, keep Americans from believing that their government knows how to <a href="https://www.usnews.com/news/national-news/articles/2026-10-21/americans-think-the-government-is-powerful-but-ineffective-poll-says" rel="noopener noreferrer" target="_blank">get anything done at all</a>.</p><p>And as Philly proved, getting things done — when you get a taste of it — can become contagious. “The prize that I get for delivering that reopening in 12 days is that when something else happens in Pennsylvania, you hear something like this” from others across the state, Carroll told me: “You did Philly in 12 days. How about us?”</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/future-perfect/510138/philadelphia-i-95-collapse-repair-12-days" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

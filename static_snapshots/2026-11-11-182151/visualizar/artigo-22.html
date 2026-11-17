@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jornalismo não nasce em árvore e nem vive de vento - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Jornalismo não nasce em árvore e nem vive de vento</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Brasil de Fato</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.brasildefato.com.br/colunista/ivan-moraes/2026/11/11/jornalismo-nao-nasce-em-arvore-e-nem-vive-de-vento/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.brasildefato.com.br/wp-content/uploads/2026/11/whatsapp-image-2026-11-11-at-172700-6cc87474.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Jornalismo não nasce em árvore e nem vive de vento
+                            </p>
+                            <p>Passei o último final de semana em Fortaleza (CE), participando do curso “Contra-atacar: para entender e vencer a batalha cultural”, promovido pelo DiraCom, organização que atua na defesa do direito humano à comunicação e que me orgulho de integrar. Foram três dias de conversas sobre a disputa de ideias na sociedade, a força das plataformas digitais e os desafios de quem acredita que a democracia merece ser defendida também fora das urnas.</p><p>Tive a alegria de mediar uma mesa sobre o papel do jornalismo e da comunicação popular com quatro feras: Luan Tremembé, da Articulação Brasileira de Indígenas Jornalistas; Samira Castro, presidenta da Federação Nacional dos Jornalistas; Kamila Fernandes, do podcast As Cunhãs; e Aline Oliveira, comunicadora do MST e jornalista do Brasil de Fato Ceará.</p><p>Saí de lá com uma convicção ainda maior: talvez nunca tenhamos precisado tanto de jornalismo quanto agora. E talvez nunca o jornalismo comercial tradicional tenha atravessado uma crise tão medonha.</p><p>Veja o caso da eleição que acabamos de viver. Uma das reportagens mais importantes do segundo turno não saiu de nenhum dos grandes conglomerados de comunicação do país. Foi a revista Piauí que revelou que Flávio Bolsonaro participou, durante a pandemia, de um passeio de lancha com lobistas interessados em vender vacinas ao governo de seu pai. Segundo a reportagem, havia garotas de programa, um relógio Rolex de presente e interesses milionários circulando enquanto o Brasil contava seus mortos aos milhares.</p><p>Imagine, por um instante, se o personagem daquela história fosse um filho de Lula. Consegue imaginar a duração da matéria no Jornal Nacional? A quantidade de comentaristas indignados? Os infográficos da lancha? Pois é.</p><p>E olha que não faltam motivos para desconfiar das relações entre os grandes meios de comunicação e o poder econômico. As revelações recentes sobre o banqueiro Daniel Vorcaro expuseram relações bastante impróprias com dirigentes de importantes empresas jornalísticas. Em um caso, um executivo acabou demitido. Em outro, mensagens apreendidas pela Polícia Federal indicaram que o banqueiro chegou a revisar reportagens antes de sua publicação. Não é pouca coisa.</p><p>Enquanto isso, um ecossistema extraordinário de veículos independentes, populares, comunitários, indígenas, negros, feministas, sindicais e periféricos vai fazendo jornalismo com muito menos dinheiro e, frequentemente, muito mais coragem.</p><p>Não se trata apenas de ter opinião. Opinião, todo mundo tem. Aliás, hoje todo mundo tem opinião sobre tudo, o tempo inteiro, mesmo quando não faz a menor ideia do assunto. Jornalismo é outra coisa. É uma atividade que exige método, técnica, apuração, checagem, cuidado, esmero e compromisso com a verdade factual. Não basta gravar um vídeo, escrever qualquer coisa ou reproduzir uma declaração. É preciso investigar, confrontar informações, ouvir fontes, conferir documentos, contextualizar e publicar aquilo que foi possível demonstrar.</p><p>E não me venham com aquela história de que jornalismo bom é jornalismo neutro. Neutro é detergente. E nem por isso é de beber. A própria escolha do que merece ou não virar notícia já revela um ponto de vista. Por que determinado acontecimento ganha manchete e outro, igualmente importante, não merece sequer uma nota? Por que algumas fontes são ouvidas o tempo inteiro e outras quase nunca aparecem? Não existe jornalismo feito a partir de lugar nenhum. O compromisso indispensável não é com uma suposta ausência de posição política, mas com os fatos.</p><p>O que também não significa dar o mesmo peso a uma mentira e a uma verdade em nome de um falso equilíbrio. Se alguém diz que está chovendo e outra pessoa diz que não está, não adianta publicar duas declarações e considerar o serviço encerrado. Abra a janela, criatura! Vá conferir se está chovendo!</p><p>O jornalismo declaratório, que se limita a reproduzir o que dizem autoridades e personagens poderosos, pode até render muita notícia. Mas nem sempre ajuda as pessoas a entender o que está acontecendo.</p><p>Luan Tremembé contou como jornalistas indígenas precisaram construir suas próprias redes para deixar de ser personagens de histórias contadas por outros. Aline falou das rádios comunitárias do MST, construídas a partir da escuta dos próprios assentamentos. Kamila mostrou como o podcast As Cunhãs, que começou praticamente do zero, construiu uma comunidade de ouvintes que se reconhecem, conversam sobre política e ajudam a sustentar o projeto. Samira lembrou que tudo isso custa dinheiro. E aí chegamos ao ponto.</p><p>Jornalismo independente não nasce em árvore. Nem vive de vento. Precisa pagar profissionais, equipamentos, deslocamentos, internet, energia, hospedagem, edição, investigação. Precisa de tempo para apurar. E tempo de trabalho também custa dinheiro.</p><img alt="O Redes do Beberibe é um coletivo de comunicação baseado no Recife (PE)." src="https://www.brasildefato.com.br/wp-content/uploads/2026/11/whatsapp-image-2026-11-11-at-172700-1-b86b0ff2-1024x801.webp"/>O Redes do Beberibe é um coletivo de comunicação baseado no Recife (PE). | Crédito: Redes do Beberibe / Reprodução<p>A publicidade oficial movimenta bilhões de reais anualmente no Brasil. Para termos uma ideia, um levantamento do Tribunal de Contas da União (TCU) identificou R$ 1,4 bilhão destinado a contratos de publicidade em 2025, considerando apenas a Secretaria de Comunicação Social da Presidência, o Banco do Brasil, a Caixa Econômica Federal e os Correios. Isso sem contar os gastos dos governos estaduais, das prefeituras e de tantos outros órgãos públicos.</p><p>Em Pernambuco, por exemplo, o governo estadual pagou R$ 129,1 milhões por serviços de publicidade em 2024. É dinheiro que não acaba mais. E boa parte desses recursos continua circulando entre grandes grupos de comunicação e plataformas digitais.</p><p>Não estou dizendo que governos devam deixar de anunciar campanhas de vacinação, serviços públicos ou políticas sociais nos veículos de grande audiência. Evidentemente, precisam alcançar o maior número possível de pessoas. Mas publicidade governamental e financiamento do jornalismo são coisas diferentes. E é justamente essa diferença que precisamos começar a levar a sério.</p><p>Se o Estado compreende a cultura como um direito, cria editais, fundos, mecanismos de incentivo e políticas de fomento. Se entende a importância da produção audiovisual, desenvolve instrumentos para financiar o setor. Por que não fazer o mesmo com o jornalismo?</p><p>Precisamos de editais públicos, transparentes, democráticos, com critérios objetivos, participação social e prestação de contas. Recursos que possam financiar reportagens, investigações, formação profissional, veículos locais, iniciativas comunitárias e experiências inovadoras.</p><p>Isso sem exigir fidelidade a governos, sem comprar linha editorial e sem transformar jornalismo em assessoria de imprensa. Pelo contrário: garantindo condições para que os veículos possam investigar inclusive quem lhes assegura o financiamento. Afinal, dinheiro público não é dinheiro de governante. E apoiar o jornalismo não pode significar escolher quem tem direito de investigar o poder.</p><p>Samira Castro apresentou uma proposta defendida pela Fenaj que merece atenção: a criação de uma Contribuição de Intervenção no Domínio Econômico (Cide) incidente sobre o faturamento das grandes plataformas digitais, destinada a abastecer um Fundo Nacional de Apoio e Fomento ao Jornalismo. Um mecanismo com gestão participativa, transparência e critérios públicos para fortalecer a pluralidade, a regionalidade e a produção independente.</p><p>Se as plataformas faturam com a circulação de conteúdos e informações, é razoável que também contribuam para sustentar quem produz jornalismo.</p><p>E a sociedade também tem sua parte nessa história. Assinar um veículo independente, contribuir com uma campanha de financiamento coletivo, compartilhar uma reportagem bem apurada, recomendar um podcast ou apoiar uma rádio comunitária são formas concretas de fortalecer esse ecossistema. Não dá para exigir jornalismo de qualidade e imaginar que ele será produzido eternamente por profissionais trabalhando de graça.</p><p>O Atlas da Notícia identificou em 2025 mais de 2,5 mil municípios brasileiros sem veículos locais de jornalismo. São mais de 20 milhões de pessoas vivendo em lugares onde falta quem acompanhe a prefeitura, investigue contratos, fiscalize políticas públicas ou conte as histórias da própria comunidade. Isso deveria ser tratado como um problema democrático de primeira grandeza.</p><p>Tem uma definição de democracia de que gosto muito: um sistema em que pessoas bem informadas tomam decisões que afetam suas próprias vidas. Para que isso aconteça, não basta garantir que todo mundo tenha direito a uma opinião. É preciso assegurar que as pessoas tenham acesso aos fatos que lhes permitam formar suas opiniões.</p><p>O ex-senador estadunidense Daniel Patrick Moynihan popularizou uma frase que resume muito bem essa questão: todo mundo tem direito às próprias opiniões, mas ninguém tem direito aos próprios fatos. Foi com essa ideia que encerrei a mesa em Fortaleza. Ninguém é obrigado a concordar com o que eu penso, mas todos nós temos o direito de saber o que realmente aconteceu.</p><p>Financiar jornalismo de qualidade, plural e independente é tão importante para a democracia quanto financiar outros serviços públicos essenciais. Informação confiável não é luxo, não é favor e não pode ser privilégio de quem pode pagar por ela.</p><p>Afinal, se a gente quer uma sociedade capaz de decidir seu próprio destino, precisa garantir que ela saiba o que está acontecendo. De preferência, antes que alguém apareça dizendo que está chovendo dentro de casa enquanto a televisão garante que faz um sol danado.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.brasildefato.com.br/colunista/ivan-moraes/2026/11/11/jornalismo-nao-nasce-em-arvore-e-nem-vive-de-vento/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A produção do conhecimento na era da Inteligência Artificial - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A produção do conhecimento na era da Inteligência Artificial</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/leia-tambem/a-producao-do-conhecimento-na-era-da-inteligencia-artificial/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2024/12/opzinho.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A produÃ§Ã£o do conhecimento na era da InteligÃªncia Artificial
+                            </p>
+                            
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>O uso da inteligÃªncia generativa parece ter se normalizado nos espaÃ§os de produÃ§Ã£o e difusÃ£o do conhecimento. NÃ£o Ã© incomum que se encontre artigos, livros e outras produÃ§Ãµes que fazem uso da IA para a redaÃ§Ã£o, revisÃ£o, leitura crÃ­tica, traduÃ§Ã£o ou outras aÃ§Ãµes relacionadas Ã  escrita acadÃªmica. Por certo que nÃ£o se deve assumir uma postura de negaÃ§Ã£o total diante disso, na medida em que se pode estar diante de uma importante ferramenta na produÃ§Ã£o e difusÃ£o do conhecimento. Contudo, isso nÃ£o significa que se trate de um processo isento de contradiÃ§Ãµes, que colocam em cena dilemas e preocupaÃ§Ãµes para as pessoas.</p>
+<p>O impacto sobre os trabalhadores pode se dar em duas frentes principais, a do emprego e a da produtividade. Pode-se entender a aplicaÃ§Ã£o da IA como a forma mais recente no desenvolvimento de automaÃ§Ã£o das forÃ§as produtivas, como expressÃ£o de um processo que vem ocorrendo nos Ãºltimos quatro ou cinco sÃ©culos. Esse desenvolvimento pode ser assim descrito:</p>
+<p>âAssimilado ao processo de produÃ§Ã£o do capital, o meio de trabalho passa por diversas metamorfoses, das quais a Ãºltima Ã© a <em>mÃ¡quina</em>, ou, melhor dizendo, um <em>sistema automÃ¡tico de maquinaria</em> (sistema de maquinaria; o <em>automÃ¡tico</em> Ã© apenas a sua forma mais adequada, mais aperfeiÃ§oada, e somente o que transforma a prÃ³pria maquinaria em um sistema) posto em movimento por um autÃ´mato, por uma forÃ§a motriz que se movimenta por si mesma; tal autÃ´mato consistindo em numerosos Ã³rgÃ£os mecÃ¢nicos e intelectuais, de modo que os prÃ³prios trabalhadores sÃ£o definidos somente com membros conscientes dele. Na mÃ¡quina e mais ainda na maquinaria como um sistema automÃ¡tico, o meio de trabalho Ã© transformado quanto ao seu valor de uso, <em>i.e.</em>, quanto Ã  sua existÃªncia material, em uma existÃªncia adequada ao capital fixo e o capital como um todo, e a forma em que foi assimilado como meio de trabalho imediato ao processo de produÃ§Ã£o do capital foi abolida em uma forma posta pelo prÃ³prio capital e a ele correspondente. Em nenhum sentido a mÃ¡quina aparece como meio de trabalho do trabalhador individualâ.</p>
+<p>Entre as consequÃªncias desse processo, estÃ¡ o aumento na produtividade. Marx afirmava que âo resultado imediato da maquinaria Ã© aumentar o mais-valor e, ao mesmo tempo, a massa de produtos em que ele se representaâ. Portanto, trata-se de um processo em que a produÃ§Ã£o pode ser mantida ou ampliada e os custos permanecem os mesmos ou sÃ£o reduzidos. Marx assim afirma:</p>
+<p>âQuanto mais cresce a forÃ§a produtiva do trabalho, tanto mais vocÃª pode reduzir a jornada de trabalho, e, quanto mais reduz as jornadas de trabalho, tanto mais pode crescer a intensidade do trabalho. Considerada socialmente, a produtividade do trabalho cresce tambÃ©m com sua economia. Esta implica nÃ£o apenas que se economizem os meios de produÃ§Ã£o, mas tambÃ©m que se evite todo o trabalho inÃºtil. Ao mesmo tempo que o modo de produÃ§Ã£o capitalista impÃµem a economia em cada empresa individual, seu sistema anÃ¡rquico de concorrÃªncia gera o desperdÃ­cio mais desenfreado dos meios de produÃ§Ã£o e das forÃ§as de trabalho sociais, alÃ©m de inÃºmeras funÃ§Ãµes atualmente indispensÃ¡veis, mas em si mesmas supÃ©rfluasâ.</p>
+<p>Em sÃ­ntese, a incorporaÃ§Ã£o da IA busca elevar a produtividade, embora a magnitude efetiva desses ganhos ainda seja objeto de debate, e se tenha a perspectiva de reduzir paulatinamente a quantidade de trabalho humano necessÃ¡ria ao processo produtivo. Como consequÃªncia, esse processo leva a uma reorganizaÃ§Ã£o do processo de trabalho, redundando ou na reduÃ§Ã£o de empregados ou em sua realocaÃ§Ã£o dentro do processo produtivo. Entende-se que</p>
+<p>â[…] mesmo quando novas tecnologias foram introduzidas, a maioria dos empregos persistiu, ainda que em formas alteradas. Os estudos sobre o impacto da digitalizaÃ§Ã£o no trabalho mostram, de forma consistente, que o ajuste ocorreu principalmente por meio de mudanÃ§as em grande escala entre as ocupaÃ§Ãµesâ.</p>
+<p>Portanto, ainda que a automaÃ§Ã£o nem sempre elimine ocupaÃ§Ãµes inteiras, tende a reorganizar funÃ§Ãµes e reduzir a quantidade de trabalho necessÃ¡ria em determinadas etapas do processo produtivo. No que se refere Ã  produÃ§Ã£o e difusÃ£o do conhecimento, isso pode ter diversas consequÃªncias. Em primeiro lugar, a mais Ã³bvia, passa pela escrita dos textos. Parece haver a crenÃ§a de que a IA tem condiÃ§Ãµes de realizar pesquisas e escrever trabalhos cientÃ­ficos. Essa impressÃ£o parece se dar por conta de sua capacidade de sistematizar textos e produzir algo a partir dessa leitura. Contudo, qualquer IA precisa de algo criado por um humano para poder ler, sistematizar e organizar em um texto. Em comparaÃ§Ã£o, observa-se que,</p>
+<p>â[…] ao contrÃ¡rio dos cÃ©rebros orgÃ¢nicos, que vÃªm equipados com estruturas internas ricas, objetivos inatos e estruturas de representaÃ§Ã£o, as redes artificiais sÃ£o, em grande parte, desestruturadas e dependem da associaÃ§Ã£o estatÃ­stica bruta. A mente humana pode compreender um novo conceito a partir de alguns exemplos; os modelos de aprendizado de mÃ¡quinas geralmente exigem milhÃµesâ.</p>
+<p>Em segundo lugar, e o mais importante, a IA nÃ£o demonstra criatividade autÃ´noma nos mesmos termos em que ela Ã© atribuÃ­da aos seres humanos. Entende-se que</p>
+<p>â[…] toda atividade do homem que tem como resultado a criaÃ§Ã£o de novas imagens ou aÃ§Ãµes, e nÃ£o a reproduÃ§Ã£o de impressÃµes ou aÃ§Ãµes anteriores da sua experiÃªncia, pertence a esse segundo gÃªnero de comportamento criador ou combinatÃ³rio. O cÃ©rebro nÃ£o Ã© apenas o Ã³rgÃ£o que conserva e reproduz nossa experiÃªncia anterior, mas tambÃ©m o que combina e reelabora, de forma criadora, elementos da experiÃªncia anterior, erigindo novas situaÃ§Ãµes e novo comportamentoâ.</p>
+<p>No final das contas, o que diferencia o ser humano da IA nÃ£o Ã© simplesmente a produÃ§Ã£o de novos arranjos de informaÃ§Ã£o, mas a capacidade de atribuir sentido consciente, intencionalidade e experiÃªncia histÃ³rica ao ato criador. O ser humano tem essa capacidade. Quanto Ã  IA, ela opera a partir de padrÃµes extraÃ­dos de grandes volumes de dados, produzindo novas combinaÃ§Ãµes sem compreensÃ£o consciente do conteÃºdo. Dessa forma, pode-se afirmar que a IA generativa</p>
+<p>â[…] tÃªm dificuldades para generalizar alÃ©m dos seus dados de treinamento, falham em tarefas bÃ¡sicas de raciocÃ­nio e nÃ£o sÃ£o confiÃ¡veis para aplicaÃ§Ãµes que exigem consistÃªncia ou precisÃ£o. Apesar de absorver enormes quantidades de informaÃ§Ãµes digitais, esses modelos enfrentam limites rÃ­gidos em sua capacidade de aprender ou de adaptarâ.</p>
+<p>Mesmo esses limites da IA nÃ£o garantem a manutenÃ§Ã£o dos empregos para os diversos profissionais, que precisam se relocalizar no processo produtivo. Devido Ã  sua grande capacidade de sÃ­ntese, criou-se uma dinÃ¢mica em que textos sÃ£o gerados por IA e, posteriormente, refinados por seres humanos. Essa dinÃ¢mica permite, por um lado, a diminuiÃ§Ã£o de profissionais envolvidos diretamente no processo de criaÃ§Ã£o, levando a uma considerÃ¡vel reduÃ§Ã£o dos custos. Por outro, permite que seja produzido maior quantidade de material em menor tempo, aumentando a produtividade. Como parte da dinÃ¢mica prÃ³pria do capitalismo,</p>
+<p>â[…] a atividade do trabalhador, limitada a uma mera abstraÃ§Ã£o da atividade, Ã© determinada e regulada em todos os aspectos pelo movimento da maquinaria, e nÃ£o o inverso. A ciÃªncia, que forÃ§a os membros inanimados da maquinaria a agirem adequadamente como autÃ´matos por sua construÃ§Ã£o, nÃ£o existe na consciÃªncia do trabalhador, mas atua sobre ele por meio da mÃ¡quina como poder estranho, como poder da prÃ³pria mÃ¡quina. Na produÃ§Ã£o baseada na maquinaria, a apropriaÃ§Ã£o do trabalho vivo pelo trabalho objetivado â da forÃ§a ou atividade valorizada pelo valor existente por si, inerente ao conceito do capital â Ã© posta como carÃ¡ter do prÃ³prio processo de produÃ§Ã£o, inclusive de acordo com os seus elementos materiais e seu movimento material. O processo de produÃ§Ã£o deixou de ser o processo de trabalho no sentido de processo dominado pelo trabalho como unidade que o governa. Ao contrÃ¡rio, o trabalho aparece unicamente como Ã³rgÃ£o consciente, disperso em muitos pontos do sistema mecÃ¢nico em forma de trabalhadores vivos individuais, subsumido ao processo total da prÃ³pria maquinaria, ele prÃ³prio sÃ³ um membro do sistema, cuja unidade nÃ£o existe nos trabalhadores vivos, mas na maquinaria viva (ativa), que, diante da atividade isolada, insignificante do trabalhador, parece com organismo poderosoâ.</p>
+<p>Portanto, alÃ©m da reduÃ§Ã£o de trabalhadores, o que se coloca Ã© a situaÃ§Ã£o em que o produtor desses textos pode passar a se enxergar menos como autor e mais como curador ou revisor, na medida em que fatores como a pesquisa e a realizaÃ§Ã£o das primeiras sistematizaÃ§Ãµes foram realizadas pela mÃ¡quina. No limite, a criaÃ§Ã£o autoral Ã© substituÃ­da, em certa medida, pela reelaboraÃ§Ã£o de conteÃºdos anteriormente produzidos por outros seres humanos. Pensando na autoria desses textos, pode-se entender que, diante dessa reprodutibilidade desenfreada, estÃ¡ ausente o âaqui e agora do originalâ, que âconstitui o conteÃºdo da sua autenticidadeâ.</p>
+<p>Em outras dimensÃµes da produÃ§Ã£o cientÃ­fica tambÃ©m vem crescendo essa mecanizaÃ§Ã£o do pensar e do criar. NÃ£o Ã© raro encontrar trabalhos de revisÃ£o, traduÃ§Ã£o e atÃ© mesmo avaliaÃ§Ã£o de textos realizados por IA. Portanto, se antes uma revista precisava de uma equipe para poder preparar uma ediÃ§Ã£o, atualmente um editor consegue concentrar muitas tarefas que antes exigiam uma equipe maior, utilizando sistemas de IA. Contudo, mesmo que tenha Ã  disposiÃ§Ã£o os melhores sistemas disponÃ­veis, certamente a traduÃ§Ã£o nÃ£o entenderÃ¡ todas as nuances da linguagem, a revisÃ£o serÃ¡ formalista e sem identidade no que se refere Ã s particularidades da escrita autoral e, na avaliaÃ§Ã£o, se terÃ¡ um processo totalmente mecanizado, com sÃ©rias limitaÃ§Ãµes para avaliar particularidades, originalidade e dimensÃµes contextuais da pesquisa. Portanto, continuarÃ¡ sendo necessÃ¡rio o trabalho de profissionais capazes de revisar criticamente o material produzido pela IA.</p>
+<p>Como parte do processo de automatizaÃ§Ã£o do trabalho, vÃ£o se entregando para as mÃ¡quinas nÃ£o apenas as rotinas e processos mecÃ¢nicos, mas atÃ© mesmo o que distingue nossa produÃ§Ã£o como humana. O capitalismo exige maior produtividade, em menor tempo, com menos custo, mostrando como a reprodutibilidade tÃ©cnica vai dominando os mais diversos Ã¢mbitos da vida. Com isso, vamos nos embrenhando numa floresta em que se vai perdendo a aura daquilo que produzimos.</p>
+
+<p><strong>Notas</strong></p>
+<p> Karl Marx. Grundrisse: manuscritos econÃ´micos de 1857-1858: esboÃ§o da crÃ­tica da economia polÃ­tica. SÃ£o Paulo: Boitempo; Rio de Janeiro: UFRJ, 2011, p. 580.</p>
+<p> Karl Marx. O capital: crÃ­tica da economia polÃ­tica. SÃ£o Paulo: Boitempo, 2013, Livro I, p. 517.</p>
+<p> Karl Marx. O capital: crÃ­tica da economia polÃ­tica. SÃ£o Paulo: Boitempo, 2013, Livro I, p. 597.</p>
+<p> Aaron Benanav. AutomaÃ§Ã£o e o futuro do trabalho. SÃ£o Paulo: Boitempo, 2025, p. 20.</p>
+<p> Aaron Benanav. AutomaÃ§Ã£o e o futuro do trabalho. SÃ£o Paulo: Boitempo, 2025, p. 22.</p>
+<p> Lev Semionovitch Vigotski. ImaginaÃ§Ã£o e criaÃ§Ã£o na infÃ¢ncia. SÃ£o Paulo: ExpressÃ£o Popular, 2018, p. 15.</p>
+<p> Aaron Benanav. AutomaÃ§Ã£o e o futuro do trabalho. SÃ£o Paulo: Boitempo, 2025, p. 21-2.</p>
+<p> Karl Marx. Grundrisse: manuscritos econÃ´micos de 1857-1858: esboÃ§o da crÃ­tica da economia polÃ­tica. SÃ£o Paulo: Boitempo; Rio de Janeiro: UFRJ, 2011, p. 581.</p>
+<p> Walter Benjamin. A obra de arte na era de sua reprodutibilidade tÃ©cnica. In: Magia e tÃ©cnica, arte e polÃ­tica: ensaios sobre literatura e histÃ³ria da cultura. 8Âª ed. SÃ£o Paulo: Brasiliense, 2012, p. 181.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/leia-tambem/a-producao-do-conhecimento-na-era-da-inteligencia-artificial/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

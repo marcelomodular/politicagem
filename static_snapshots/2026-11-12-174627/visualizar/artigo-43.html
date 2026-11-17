@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma agenda para 2027 a partir do “chão de cidade” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Uma agenda para 2027 a partir do “chão de cidade”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/outras-cidades/uma-agenda-para-2027-a-partir-do-chao-de-cidade/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5165670889503264053_x.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Uma agenda para 2027 a partir do “chão de cidade”
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5165670889503264053_x.jpg"/>Foto: Pixabay
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Lula venceu o segundo turno com 51,79% dos votos válidos, contra 48,21% do seu opositor. É uma vitória expressiva, mas, apesar do clima de festa, ela não quita as dívidas do governo com a sociedade e poderia esconder o avanço orgânico da extrema direita que teve, no legislativo, uma vitória maior.</p>
+<p>A urna decidiu quem governará, mas não declarou superadas as razões de descontentamento que atravessaram a campanha, precisam ser enfrentadas e que poderiam, no pior cenário, recriar em quatro anos novas ameaças à democracia.</p>
+<p>As pesquisas ajudam a perceber esse paradoxo. Em meados de outubro, a Quaest registrava mais desaprovação do que aprovação. Em setembro uma sondagem apontou a violência como a principal preocupação espontânea de 29% dos entrevistados, seguida pela corrupção para 21% e pela economia para 19%.</p>
+<p>A vitória foi além dos níveis de aprovação do governo e reuniu, contra esse gradiente, forças que se mobilizaram não exclusivamente em favor de Lula, mas também em defesa da democracia.</p>
+<p>Gerir um país como o Brasil não é fácil, sobretudo porque as questões estratégicas como o Complexo Industrial da Saúde, a malha de infraestrutura energética e logística, a política nacional de defesa, dentre outros, se impõem, e são em grande medida coisas a fazer e enfrentam o entreguismo estrutural que temos.</p>
+<p>Mas Lula terá, nesse contexto pós-eleitoral, como prioridade inadiável que ouvir: (a) a insatisfação difusa com o governo que precedeu e acompanhou a campanha e (b) as aspirações legítimas dos grupos que se mobilizaram em defesa da democracia e do bem-estar social. A resposta a essas duas prioridades é que devolverá ao governo iniciativa no jogo e capacidade de governar para dar cumprimento à agenda estratégica.</p>
+<p>O presente artigo pretende apresentar um esboço operacional integrado do que poderia ser feito para a recuperação da popularidade do governo e o reconhecimento dos apoiadores mais relevantes num formato orgânico, por meio de uma matriz de causa e efeito, ferramenta utilizada no Sistema Único de Saúde para eleger ações prioritárias para o enfrentamento dos problemas complexos e multicausais frequentes no âmbito da Saúde Pública.</p>
+<p><strong>Renda</strong>: <strong>A falta de uma política para o crescimento do poder de compra do Salário-Mínimo</strong></p>
+<p>Em 2026 o salário-mínimo chegou a R$ 1.621, com reajuste nominal de 6,79%. A regra para o reajuste considera a inflação e admite, matematicamente, um ganho real, mas o pacote fiscal defendido por Fernando Haddad passou a limitar o ganho real a uma faixa situada entre 0,6% a 2,5% ao ano.</p>
+<p>A mudança aprovada em fins de 2024 reduziu a valorização potencial que resultaria da regra anterior que previa a incorporação total do crescimento do PIB ao salário.</p>
+<p>O fim da escala 6×1, medida ainda por ser consolidada, produz matematicamente um aumento de 10% da hora trabalhada e dá tempo de vida ao trabalhador, mas não é um aumento de renda líquida no bolso da classe trabalhadora.</p>
+<p>Ao longo da campanha o governo teve que repetir continuamente que o salário tinha subido em termos reais, pois a experiência cotidiana dos trabalhadores mostrava o contrário. Por que? De fato, como veremos no gráfico abaixo, esse aumento não alterou a distância entre o <em>Salário-Mínimo Nominal</em> e o que ele deveria poder comprar segundo o Departamento Intersindical de Estatística e Estudos Socioeconômicos (DIEESE), que se exprime pelo que o órgão denomina de <em>Salário-Mínimo Necessário</em>.</p>
+<p>Com um instrumento de medida ainda mais eficiente que os índices de inflação, o cinto no último furo, 66% dos entrevistados diziam ter percebido o aumento dos preços e somente 10% avaliavam que a sua renda havia crescido mais do que o custo de vida.[1] Em setembro de 2026, o DIEESE estimou em R$ 7.750,01 o <em>Salário-Mínimo Necessário</em> para uma família de referência de quatro pessoas. <strong>O </strong><em><strong>Salário-Mínimo Nominal</strong></em><strong> correspondeu, naquele mês, a 20,92% do valor necessário — pouco mais de um quinto do que deveria ser</strong>.[3] [4]</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-18-1500x893.png"/>
+<p><em>Gráfico 1 — Índice calculado como salário mínimo nominal dividido pelo salário mínimo necessário do DIEESE. A estimativa necessária se refere a uma família-modelo, não ao salário efetivamente recebido por um trabalhador. A expansão da pesquisa para 27 capitais em 2025 está assinalada no gráfico.</em></p>
+<p>O gráfico acima compara os governos (desde o Lula 1, o quadro mais à esquerda em linha azul escura) e torna visível o ponto central: se sob o governo Bolsonaro (o penúltimo espaço à direita, com linha de cor laranja) o índice de suficiência do <em>Salário-Mínimo Nominal</em> caiu, sob o Lula 3 (o último espaço à direita, com resultados até setembro de 2026), mesmo com os reajustes anuais para além da inflação oficial (e dando razão ao povo), a suficiência do Salário-Mínimo Nominal “andou de lado” e não cresceu, como ocorreu nos governos Lula 1 e 2.</p>
+<p>Isso nos leva a concluir que algo como o <em>Salário-Mínimo Necessário</em> do DIEESE deveria ser a referência para, numa política bem desenhada de valorização do Salário-Mínimo, recompor o seu poder de compra, sustentar ganhos reais e aproximar programaticamente o <em>Salário-Mínimo Nominal</em> do <em>Salário-Mínimo Necessário</em> em lugar da política atual de aumento errático do salário-mínimo com base numa inflação geral que não mede o poder de compra do trabalhador em relação às suas necessidades, nem está atenta ao que o Salário-Mínimo <strong>deve poder comprar</strong> como propõe o DIEESE.</p>
+<p><strong>Renda e Seguridade Social</strong></p>
+<p>A insatisfação com a renda de sobrevivência por parte do povo também se fortalece quando a seguridade social existe como expectativa legal, mas é difícil de acessar.</p>
+<p>O pente-fino do BPC — a dita “caça ao BPC” — ampliou cruzamentos cadastrais, convocações e exigências de atualização, não para tornar o cadastro hígido, o que seria uma obrigação de qualquer gestor público honesto, mas ostensiva e publicamente para economizar gastos.</p>
+<p>O INSS anunciou, em 2024, uma primeira convocação de mais de 500 mil beneficiários para regularizar o CadÚnico. A Defensoria Pública da União registrou atrasos e barreiras de comunicação, de deslocamento e acesso digital como problemas para essa atualização para inúmeros usuários que, no entanto, faziam jus ao benefício.</p>
+<p>A prova de vulnerabilidade foi convertida numa corrida burocrática fazendo o custo recair justamente sobre quem mais dependia da proteção, fator que tornou muitas vezes esse beneficiário juridicamente frágil, incapaz de responder satisfatoriamente às demandas da burocracia estatal no tempo definido.[5] [6] Em que percentual isso alimentou a insatisfação com o governo?</p>
+<p>Piorando o quadro, a inclusão do Bolsa Família no cálculo do BPC tornou essa porta ainda mais estreita para inúmeras famílias.</p>
+<p>Se considerarmos uma família de quatro pessoas — pai, mãe e dois filhos, um dos quais com deficiência — e um salário-mínimo de renda antes mesmo de contar o bolsa família, a renda por pessoa já se situava exatamente em um quarto do mínimo, teto limite para a concessão do BPC.</p>
+<p>Ao incluir o Bolsa Família, a renda daquela família passou a ultrapassar esse limite. O próprio Ministério do Desenvolvimento Social reconheceu que a soma podia excluir famílias do critério de recebimento; o procedimento atual permite manter o Bolsa Família durante a análise, mas não apaga o conflito entre as duas regras.[7]</p>
+<p>Ora, é injusto obrigar uma família pobre a ter um programa de renda como obstáculo para alcançar outro direito. Esse argumento, aliás, que tem se consolidado juridicamente.</p>
+<p>Rever a inclusão do Bolsa Família no cálculo de concessão do BPC e evitar buscar economia em cima de direitos sociais teria papel relevante na reconstrução de uma margem mais folgada de satisfação popular com o governo.</p>
+<p>Vale sempre a pena lembrar que as renúncias fiscais do governo para favorecer empresas do setor privado, alcança cifras bilionárias e são convertidas, por óbvio, em margem de lucro.</p>
+<p><strong>Bets e endividamento</strong></p>
+<p>A aposta on-line tornou-se outro elemento a compor o aperto financeiro. O DataSenado ouviu pessoas que apostaram e entre elas, 42% declararam ter dívidas em atraso há mais de 90 dias.[8] Ora, o governo inicialmente não se opôs à regulamentação do mercado de apostas, embora, em 2026, tenha acertadamente, editado medida provisória para proibi-lo. [9] [10] A mudança tardia, pois tudo tem preço, também acumulou insatisfação contra o governo.</p>
+<p>Segundo o Serasa, 84,2 milhões de brasileiros estavam em setembro de 2026, inadimplentes, embora não forçosamente por força das Bets, demonstrando, mesmo assim, uma renda insuficiente para fazer frente às despesas cotidianas que o jogo a dinheiro esgarçou ainda mais.</p>
+<p>Depois da restrição às Bets, a Associação Brasileira de Supermercados (Abras) atribuiu ao dinheiro não gasto com elas parte do aumento de 6,5% nas vendas de alimentos na semana de 5 a 11 de outubro e de 6,3% na semana seguinte, comparadas às mesmas semanas de 2025.[11] O registro da Abras dá dimensão econômica ao problema: quando o dinheiro deixa de sair para as apostas, volta a circular na compra de alimentos, no pagamento de contas e na recomposição do orçamento familiar.</p>
+<p>Embora a medida de proibir já tenha sido tomada pelo governo, a atitude permissiva com as Bets corroeu a sua credibilidade e acentuou o sentimento de pobreza decorrente da recomposição insuficiente do <em>Salário-Mínimo Nominal</em>, como visto no gráfico acima.</p>
+<p><strong>Renda precária e escândalos de corrupção</strong></p>
+<p>No contexto da produção dessa insatisfação Lula pagou, sem culpa, parte de sua fatura no primeiro turno.</p>
+<p>As relações promíscuas entre ministros do STF e o Banco Master, tiveram potencial explosivo para a credibilidade institucional o que posicionou o governo na alça de mira.</p>
+<p>De fato, quando o trabalhador vê o seu salário render pouco, a proteção social ficar distante e o endividamento crescer, escândalos e suspeitas envolvendo instituições públicas deixam de parecer um problema abstrato.</p>
+<p>O caso Banco Master e suas repercussões no Supremo Tribunal Federal aprofundaram a crise de confiança nas instituições como um todo. Embora nada disso tenha envolvido Lula, o fez pagar, mesmo assim, por uma crise institucional agudizada pela crise de renda para os mais pobres que eclodiu às vésperas do primeiro turno.</p>
+<p><strong>Medidas urgentes em renda para recuperar a popularidade</strong></p>
+<ol>
+<li>Desenhar uma política de ganho progressivo do Salário-Mínimo rumo ao horizonte da suficiência salarial com base em parâmetros de suficiência salarial final como calcula o DIEESE. O parâmetro do que o Salário-Mínimo deve poder comprar permitiria uma política de valorização do poder de compra do trabalhador baseada não somente em aumento da renda nominal, mas também em medidas não salariais de facilitação do acesso à cesta calculada pelo DIEESE. Medidas como a gratuidade do transporte coletivo ou a redução dos impostos sobre os alimentos são exemplos do que poderia ser feito para ampliar a renda dos trabalhadores noutros itens incluídos na cesta do DIEESE.</li>
+<li>Estabelecer um controle do BPC que vise a identificação dos casos irregulares cuidando de produzir prejuízo mínimo ao usuário legítimo;</li>
+<li>Retirar em definitivo o Bolsa-Família do cálculo do BPC</li>
+</ol>
+<p><strong>Segurança Púbica e injustiça socioterritorial</strong></p>
+<p><strong>A violência é “apenas” a ameaça mais grave de uma injustiça territorial difusa</strong></p>
+<p>A violência liderou as preocupações em diversas pesquisas eleitorais. Entretanto, os seus efeitos não se distribuem de maneira igual na sociedade.</p>
+<p>O Anuário Brasileiro de Segurança Pública registrou 6.243 mortes decorrentes de intervenção policial em 2024; pessoas negras eram 82% das vítimas.[12] Segurança pública é uma preocupação nacional, mas a ameaça à vida, a letalidade policial e o medo cotidiano pesam de modo especialmente duro sobre populações negras e territórios pobres.</p>
+<p>A Segurança Pública é, assim, a parte mais grave e visível de um iceberg que esconde uma injustiça socioterritorial mais ampla. Essa injustiça socioterritorial produz o incremento diário da população em situação de rua, uma mobilidade que não dialoga com a moradia e uma insuficiência crônica em saneamento, serviços públicos e equipamentos comunitários para a cultura, o esporte, o lazer e a assistência social…</p>
+<p>A PEC da Segurança Pública recém-aprovada por unanimidade do Senado Federal, embora um avanço, foi criticada Procuradoria Federal dos Direitos do Cidadão (PFDC), em nota técnica divulgada em 2 de setembro de 2026, considerando-a excessivamente marcada pelo componente repressivo. [13]</p>
+<p>O direito à cidade, nunca adotado como objeto de uma política pública nacional integrada deveria ser a grande chave de leitura para o enfrentamento da injustiça socioterritorial no seio da qual está instalada a crise da Segurança Pública.</p>
+<p>Se o governo Lula 4 não buscar construir suficiência territorial para a vida digna do nosso povo onde ela é mais necessária, (nas favelas e comunidades) talvez até consiga melhorar os indicadores de segurança pública sem melhorar os índices de popularidade do governo pelo risco da insatisfação apenas migrar para a precariedade seguinte de uma vida amplamente marcada pela exclusão social o que seria uma vitória de Pirro.</p>
+<p>De fato, os desafios postos pela Segurança Pública são “apenas” o capítulo mais doloroso de uma Exclusão Social territorial que precisa ser enfrentada de forma integrada.</p>
+<p><strong>Medidas urgentes em justiça socioterritorial</strong></p>
+<ol>
+<li>Fazer chegar as políticas de Segurança Pública às periferias e comunidades, onde é uma questão de sobrevivência, acompanhadas de medidas preventivas maciças de inclusão social e cidadania;</li>
+<li>Definir um Novo Pacto com as Periferias e Comunidades para enfrentar a exclusão social e assegurar de forma territorial, universal e programática (ou seja ao longo do tempo) o acesso à contemporaneidade e ao direito à cidade [14];</li>
+<li>Desenhar política nacional efetiva para ter resolvido no horizonte de quatro anos, em parceira com estados e municípios a problemática gravíssima da população em situação de rua.</li>
+</ol>
+<p><strong>Grupos apoiadores e aspirações</strong></p>
+<p>A campanha do segundo turno não foi obra de um único grupo. Jovens organizaram atos e foram a alma das campanhas de rua ou da mobilização casa a casa para o vira-voto. Outro protagonista maior da virada foi o eleitor idoso, ícone da defesa da democracia.</p>
+<p>Setores religiosos também entraram na disputa. Um grupo expressivo de bispos católicos publicou uma carta pelo <em>voto consciente</em> à luz da Doutrina Social da Igreja (DSI) e em defesa dos mais pobres, da democracia e da soberania nacional.[15] A própria CNBB, como instituição, defendeu esse <em>voto consciente</em> e a democracia sem ter a necessidade de apontar o candidato óbvio.[16] Entre evangélicos, pastores e redes cristãs progressistas também fizeram campanha.</p>
+<p>Do centro para a direita, a articulação de Geraldo Alckmin aproximou esses setores e o movimento alcançou antigos adversários do PT. Miguel Reale Júnior — autor do pedido de impeachment de Dilma — aderiu à mobilização em favor de Lula. A apresentadora Angélica também declarou voto em favor de Lula, na mesma linha da defesa da democracia.</p>
+<p>Vamos considerar que os setores de centro e direita apoiaram Lula pelo fato de que sabiam, como sempre acontece no fascismo, que a catástrofe social atingiria a todos e também a eles, já os partidos que representam esses setores estarão na composição do governo do Lula 4 e poderíamos considerar que terão, institucionalmente falando, contrapartida ao apoio.</p>
+<p>No entanto, a juventude, os idosos e os que se mobilizaram em torno da DSI e do humanismo cristão têm aspirações e uma agenda a apresentar ao governo, mas ainda não têm garantias de que suas bandeiras venham a ser atendidas com o mesmo grau de prioridade.</p>
+<p>Vale lembrar, e esse é um tema para outro artigo, que o apoio oriundo desses grupos talvez tivesse sido insuficiente se a campanha de Lula não tivesse se encontrado com o general André Janones, fundador do Exército do Lula.</p>
+<p><strong>Medidas urgentes de resposta aos apoiadores</strong></p>
+<ol>
+<li>Juventude: assegurar, inspirado na territorialização do SUS que mira a universalidade do acesso a bens e serviços de saúde nos territórios, oportunidades reais para a juventude por meio da educação, formação profissional, cultura, esporte e participação social nas decisões tocantes às políticas territoriais (direito à cidade) onde vive;</li>
+<li>Idosos: transformar a prioridade já anunciada para as pessoas idosas no Plano de Governo em cuidado territorial e universal, inspirado no SUS, aproximando saúde, assistência, mobilidade e convivência para garantir acesso às políticas onde quer que vivam [17];</li>
+<li>Movimentos religiosos católicos (DSI) e humanismo cristão em geral: traduzir os princípios da DSI e do humanismo cristão — dignidade humana, bem comum, subsidiariedade, solidariedade e destinação universal dos bens — em políticas de justiça socioterritorial, com participação efetiva das comunidades e prioridade aos mais pobres</li>
+</ol>
+<p>Sem o propósito, obviamente, de ser terminativo na definição da totalidade do que deve ser feito, a matriz abaixo oferece o panorama de uma metodologia que cruza ações públicas e resultados esperados, (como fazemos no SUS) mostrando que algumas respostas podem alcançar várias dimensões ao mesmo tempo o que é metodologicamente importante para as políticas públicas e evita a fragmentação e permite resultados sistêmicos.</p>
+<p>Atribuímos notas exploratórias de 0 a 3 conforme o alcance potencial e a intensidade com que cada ação poderia contribuir para cada resultado — de nenhum efeito direto (0) a uma contribuição direta e forte (3).</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-17-1186x1500.png"/>
+<p><em>Gráfico 2 — Matriz exploratória: as linhas são ações públicas e as colunas, resultados esperados. As notas de 0 a 3 expressam a intensidade de contribuição considerada no planejamento.</em></p>
+<p><strong>Da vitória a uma agenda coerente para a governabilidade</strong></p>
+<p>A resposta do governo precisa, absolutamente, ser sistêmica. Na matriz, a ação que mais pontuou foi justamente a que tocou à Justiça Socioterritorial Universal com 19 pontos.</p>
+<p>Em renda, uma política salarial deve, obviamente, corrigir a inflação, mas deve estabelecer incremento progressivo rumo à <strong>suficiência salarial como proposto pelo DIEESE</strong>. Considerar <strong>o que</strong> o Salário-Mínimo deve poder comprar também permite ações sobre o acesso aos bens previstos na cesta que possam torná-los acessíveis a essa faixa de renda resultando em maior poder de compra.</p>
+<p>Na seguridade, é preciso simplificar o acesso à atualização do Cadúnico para o BPC para os usuários presumivelmente legítimos e impedir que o Bolsa Família seja contado de forma a afastar famílias vulneráveis dos benefícios sociais.</p>
+<p>Na segurança pública, proteger a vida requer prevenção, investigação e controle democrático da força. E, no território, justiça significa articular moradia e equipamentos comunitários a transporte, saúde, educação, cultura, esporte e lazer e equacionar o gravíssimo problema da população em situação de rua.</p>
+<p>Essa agenda dialoga com as aspirações dos apoiadores sem fragmentá-las nem convertê-las em privilégio de tal ou qual território ou grupo. O plano de governo registrado por Lula no TSE já inclui atenção domiciliar, envelhecimento ativo, Centros-Dia e expansão do Programa de Atenção Domiciliar à Pessoa Idosa (PADI) Brasil; a tarefa, no entanto, será a de dar escala territorial a essa prioridade com o propósito de assegurar a universalidade do acesso, ainda que ao longo do tempo, às iniciativas que estarão em andamento e não fazer uma melhoria aqui e outra ali.</p>
+<p>Será preciso definir, como o SUS faz com os seus dispositivos, quantas Instituição de Longa Permanência para Idosos (ILPI), Centros-Dia etc. serão necessárias por território com base na população total de idosos existentes no território sob pena de fazer pouco e produzir mais insatisfeitos do que satisfeitos, o que obrigará mais uma vez a ter que compensar na propaganda como ilustra as inacreditavelmente poucas 17 (dezessete) lavanderias públicas previstas para todo o Brasil (<a href="https://abet-trabalho.org.br/lavanderias-publicas-reduzem-a-sobrecarga-e-ampliam-autonomia-das-mulheres/" rel="noopener noreferrer" target="_blank">clique aqui</a> para ver) pelo Ministério das Mulheres para aliviar o trabalho doméstico das mulheres… </p>
+<p>Para as juventudes, oportunidades de educação, formação profissional, cultura, esporte e participação precisam também existir onde elas vivem.</p>
+<p>A Doutrina Social da Igreja e o humanismo cristão oferecem uma bússola ética — dignidade humana, bem comum, solidariedade e opção pelos pobres — coerente com a construção de justiça territorial, cujo respeito consolidará o apoio desses grupos que foram cruciais para vitória do campo democrático.</p>
+<p>O PROEDIC (<a href="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/05/ICV_PROEDIC_A4_digital_11.pdf" rel="noopener noreferrer" target="_blank"><strong>clique aqui</strong></a> para conhecer), proposta potiguar de direito à cidade, moradia digna e equipamentos comunitários, oferece uma referência concreta para a distribuição territorial desses avanços de forma sustentável.</p>
+<p>Integridade, transparência e participação devem atravessar todas as políticas, porque a confiança não se recupera com slogans: recupera-se quando recursos, benefícios e serviços chegam às pessoas com critérios claros e proximidade.</p>
+<p>Lula venceu.</p>
+<p>Agora, para fazer jus à mobilização democrática que o reelegeu, o governo precisa ouvir o que não se resolveu: a renda curta, a proteção social difícil, a insegurança e a injustiça que atravessa as instituições e os territórios.</p>
+<p>Uma resposta organizada a essa rede de insatisfações e aspirações pode transformar a vitória sofrida em democracia consolidada e no enfraquecimento estratégico do fascismo eterno.</p>
+
+<p><strong>Referências</strong></p>
+<ol>
+<li><a href="https://g1.globo.com/politica/eleicoes/2026/pesquisa-eleitoral/noticia/2026/09/21/quaest-aprova-desaprova-governo-21-setembro.ghtml" rel="noopener noreferrer" target="_blank">Quaest: desaprovação do governo, renda, custo de vida e prioridades em setembro</a></li>
+<li><a href="https://www2.camara.leg.br/legin/fed/lei/2024/lei-15077-27-dezembro-2024-796833-publicacaooriginal-173969-pl.html" rel="noopener noreferrer" target="_blank">Lei nº 15.077/2024 e limites de valorização real do mínimo</a> (Art. 4 remete à política de valorização da Lei nº 14.663/2023 e aos limites do arcabouço fiscal da Lei Complementar nº 200/2023)</li>
+<li><a href="https://www.dieese.org.br/analisecestabasica/salarioMinimo.html" rel="noopener noreferrer" target="_blank">DIEESE: salário mínimo nominal e necessário</a></li>
+<li><a href="https://www.dieese.org.br/metodologia/metodologiaCestaBasica2025.pdf" rel="noopener noreferrer" target="_blank">DIEESE: metodologia da pesquisa da cesta básica</a></li>
+<li><a href="https://www.gov.br/inss/pt-br/noticias/consulta-de-bpc-que-passara-por-revisao-ja-esta-disponivel-no-meu-inss" rel="noopener noreferrer" target="_blank">INSS anuncia revisão e atualização cadastral do BPC</a></li>
+<li><a href="https://direitoshumanos.dpu.def.br/wp-content/uploads/2025/11/cartilha_revisao_bpc_v3.pdf" rel="noopener noreferrer" target="_blank">DPU: cartilha sobre revisão do BPC</a></li>
+<li><a href="https://www.gov.br/mds/pt-br/noticias/beneficiarios-do-bolsa-familia-podem-solicitar-o-bpc-sem-cancelar-o-programa" rel="noopener noreferrer" target="_blank">MDS explica cálculo de renda e pedido de BPC por beneficiários do PBF</a></li>
+<li><a href="https://www.senado.leg.br/institucional/datasenado/relatorio_online/pesquisa_aposta_esportiva/2024/interativo.html" rel="noopener noreferrer" target="_blank">DataSenado: apostas esportivas e endividamento</a></li>
+<li><a href="https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/apostas-de-quota-fixa/legislacao" rel="noopener noreferrer" target="_blank">Ministério da Fazenda: legislação de regulamentação das apostas de quota fixa</a></li>
+<li><a href="https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/medida-provisoria-ndeg-1-394-2026-entenda-as-novas-regras-para-as-apostas-de-quota-fixa" rel="noopener noreferrer" target="_blank">Ministério da Fazenda: MP nº 1.394/2026 e proibição das apostas de quota fixa</a></li>
+</ol>
+<ol>
+<li><a href="https://www1.folha.uol.com.br/mercado/2026/10/varejo-de-alimentos-sobe-65-e-associacao-de-supermercados-ve-impacto-da-proibicao-das-bets.shtml" rel="noopener noreferrer" target="_blank">Abras atribui alta do varejo alimentar à restrição das bets</a></li>
+<li><a href="https://forumseguranca.org.br/wp-content/uploads/2025/07/anuario-2025.pdf" rel="noopener noreferrer" target="_blank">Fórum Brasileiro de Segurança Pública: Anuário 2025</a></li>
+<li><a href="https://www.mpf.mp.br/o-mpf/unidades/procuradoria-geral-da-republica-pgr/noticias/nota-tecnica-do-mpf-sobre-a-pec-da-seguranca-publica-aponta-omissoes-e-alerta-para-riscos-a-direitos-fundamentais" rel="noopener noreferrer" target="_blank">Nota técnica do MPF sobre a PEC da Segurança Pública aponta omissões e alerta para riscos a direitos fundamentais</a></li>
+<li><a href="https://outraspalavras.net/outras-cidades/lula-e-a-necessaria-aposta-nas-periferias/" rel="noopener noreferrer" target="_blank">Lula e a necessária aposta nas periferias</a></li>
+<li><a href="https://cptnacional.org.br/2026/10/23/carta-bispos-catolicos-povo-deus/" rel="noopener noreferrer" target="_blank">Carta de bispos católicos ao povo de Deus</a></li>
+<li><a href="https://www.cnbb.org.br/cnbb-divulga-mensagem-ao-povo-brasileiro-por-ocasiao-das-eleicoes-de-2026/" rel="noopener noreferrer" target="_blank">CNBB: mensagem ao povo brasileiro para as eleições</a></li>
+<li><a href="https://www.tse.jus.br/eleicoes/eleicoes-2026-content/propostas-de-governo-dos-candidatos-ao-cargo-de-presidente-da-republica-eleicoes-2026/lula-propostas-de-governo" rel="noopener noreferrer" target="_blank">TSE: plano de governo de Lula, atenção domiciliar e envelhecimento ativo</a></li>
+</ol>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleça o jornalismo crítico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/outras-cidades/uma-agenda-para-2027-a-partir-do-chao-de-cidade/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

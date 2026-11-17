@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memórias do Jornalismo: Rede Povo, crítica política e humor - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Memórias do Jornalismo: Rede Povo, crítica política e humor</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-rede-povo-critica-politica-e-humor/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5167922689316949411.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: MemÃ³rias do Jornalismo: Rede Povo, crÃ­tica polÃ­tica e humor
+                            </p>
+                            
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Em 1989, sob a influÃªncia da nova ConstituiÃ§Ã£o, o paÃ­s vivenciava avanÃ§o da polÃ­tica em ambiente de liberdade de expressÃ£o. O calendÃ¡rio eleitoral determinava a realizaÃ§Ã£o de uma eleiÃ§Ã£o presidencial. NÃ£o era algo trivial. A Ãºltima eleiÃ§Ã£o direta para presidente da RepÃºblica se dera em 1960, 29 anos antes, quando JÃ¢nio Quadros havia sido eleito. AtÃ© entÃ£o, a Ãºnica vez que eu havia votado para presidente. A partir da renÃºncia de JÃ¢nio, em 25 de agosto de 1961, o paÃ­s mergulhara numa sucessÃ£o de crises que culminou no golpe militar-empresarial de 1964. Que resultou em uma ditadura que se manteve por nada menos que 21 anos, como atÃ© as pedras sabem.</p>
+<p>Aqueles momentos logo apÃ³s a conquista da nova ConstituiÃ§Ã£o estavam sendo os mais democrÃ¡ticos da nossa HistÃ³ria. Pareciam novos tempos, embora sob a superfÃ­cie se mantivessem o autoritarismo e a desigualdade tradicionais. Havia novidades. Seria uma eleiÃ§Ã£o diferenciada. Uma eleiÃ§Ã£o âsolteiraâ, quer dizer, apenas para candidatos Ã  presidÃªncia. Todas as tendÃªncias polÃ­ticas se apresentaram para participar da campanha, representadas por nada menos que 22 candidatos. Uma generosa JustiÃ§a Eleitoral determinou que haveria um espaÃ§o de duas horas por dia para os candidatos se apresentarem na TV e no rÃ¡dio. No total, uma hora pela tarde e uma hora Ã  noite, no horÃ¡rio nobre. Com liberdade de manifestaÃ§Ã£o.</p>
+<p>O tempo de cada candidato seria definido de acordo com a representaÃ§Ã£o parlamentar do seu partido. Assim, ao PMDB, que tinha a maior bancada de deputados, couberam nada menos que 22 minutos. Ã candidatura de Lula couberam 10 minutos diÃ¡rios, 5 minutos Ã  tarde e outros 5 Ã  noite. Parecia pouco, mas para quem conhece os tempos da TV, era um tempo significativo. Podia ser um instrumento respeitÃ¡vel de propaganda polÃ­tica.</p>
+<p>Nos meses anteriores, haviam sido estabelecidos programas de TV de uma hora de duraÃ§Ã£o para cada partido apresentar seus programas e propostas. O candidato Fernando Collor de Mello, bafejado pelo dinheiro dos poderosos, se apresentou em trÃªs programas de uma hora de partidos de aluguel, ricamente editados, que o apresentavam como âcaÃ§ador de marajÃ¡sâ. Tratava-se de um membro da oligarquia e era apresentado como alguÃ©m que ia combater os privilÃ©gios e as desigualdades. ExposiÃ§Ã£o maciÃ§a na TV. Anunciado pela TV Globo e o restante da imprensa comercial como uma novidade na polÃ­tica, criou-se um clima de favoritismo, conforme as pesquisas comeÃ§aram a mostrar.</p>
+<p>O PCdoB me convidou para roteirizar e dirigir o seu programa de uma hora. Para realizar essa produÃ§Ã£o, por volta de marÃ§o eu entrei em contato com Gilca Geribelo (Lica), dona da produtora de TV <em>Video Noir</em>, com cujo equipamento eu dirigira em 1988 a campanha a prefeito em Bauru.</p>
+<p>O programa de uma hora que produzi para o PCdoB com ediÃ§Ã£o de GastÃ£o Campos foi ao ar em fins de marÃ§o e, bem avaliado, repercutiu no meio polÃ­tico. Mostramos as realidades do paÃ­s, apresentamos propostas como a da reforma agrÃ¡ria, a defesa da AmazÃ´nia, denunciamos a pobreza e os salÃ¡rios de fome etc. E vÃ¡rios dirigentes do partido fizeram intervenÃ§Ãµes defendendo uma candidatura de frente popular para a campanha presidencial. </p>
+<p>Recentemente, em 2025, o publicitÃ¡rio Paulo de Tarso Santos publicou o livro <em>Lula lÃ¡ e outras histÃ³rias,</em> editado com seu parceiro, o jornalista Gabriel Prioli. Nessa obra, ele traÃ§a o retrato da campanha dessa frente que ficou conhecida como <em>Rede Povo.</em></p>
+<p>O livro de Tarso e Prioli apresenta um panorama geral da campanha. Meu depoimento Ã© mais modesto. Trata de como eu vi e como participei daqueles acontecimentos.</p>
+<p>Conheci o publicitÃ¡rio Paulo de Tarso superficialmente, em cinco minutos de conversa, na campanha de Fernando Henrique Cardoso para prefeito em 1985, da qual ele tambÃ©m participara trabalhando num estÃºdio situado no Ibirapuera. Uma tarde, Paulo havia ido Ã  produtora Videoimagem na qual eu editava vinhetas, jingles e a parte das reportagens externas do programa de FHC. O programa era completado com as falas do candidato gravadas e editadas nas instalaÃ§Ãµes da TV Gazeta, na Avenida Paulista. Nunca mais havÃ­amos nos visto.</p>
+<p>Em seu livro, Tarso escreveu que, por volta dejunho de 1989, a dona da produtora, Gilca Geribelo, convidou-o para me conhecer, jÃ¡ que ele estava procurando profissionais para a futura campanha de Lula. <em>Lica</em> havia acompanhado a campanha de Bauru e achava que eu mostrara ser um bom jornalista/propagandista polÃ­tico. Paulo foi Ã  produtora e me reconheceu. ComeÃ§aram aÃ­ tratativas para minha participaÃ§Ã£o na campanha de Lula. Mas nÃ£o seria uma decisÃ£o fÃ¡cil para mim.</p>
+<p>No momento do convite, eu estava ocupando, produzindo para a Editora <em>PolÃ­tica</em>, de Raimundo Pereira, uma continuaÃ§Ã£o do livro <em>Do Tear ao Computador,</em> sobre a industrializaÃ§Ã£o dependente do Brasil.</p>
+<p>AlÃ©m disso, como eu havia sido militante do PCdoB e me formara na clandestinidade, numa vida espartana, de estudo do marxismo e disciplina determinada pelo centralismo democrÃ¡tico, e de rigor na seguranÃ§a para evitar os golpes da repressÃ£o, tinha uma certa implicÃ¢ncia com o PT. </p>
+<p>Eu reconhecia que o PT era uma novidade na polÃ­tica e o entusiasmo que provocava entre as massas. Mas criticava seu personalismo, a postura arrogante de que antes dele nÃ£o havia acontecido nada na polÃ­tica. Achava o partido superficial, sua militÃ¢ncia com uma formaÃ§Ã£o polÃ­tica ideologicamente frouxa, sem estudos. âSem tutanoâ, eu dizia.</p>
+<p>Mais adiante, eu nÃ£o cansaria de dizer isso ao Paulo de Tarso. Tinha razÃ£o em parte. PorÃ©m, aferrado ao meu modelo de partido de esquerda, nÃ£o entendia que o PT era um partido diferente, de cunho social-democrata, que nÃ£o adotava o marxismo-leninismo como guia programÃ¡tico, constituÃ­do por vÃ¡rias alas e tendÃªncias, como trotsquistas, catÃ³licos de esquerda, leninistas, sindicalistas do ABC etc. No PT, se o militante nÃ£o concordasse com uma decisÃ£o partidÃ¡ria, podia se abster de cumprir.</p>
+<p>Desde fevereiro, Tarso havia sido autorizado por meu antigo companheiro de partido, Vladimir Pomar, que havia deixado o PCdoB e se tornara dirigente de ComunicaÃ§Ã£o do PT, a trabalhar na formulaÃ§Ã£o da campanha. Empenhou-se nisso. JÃ¡ em abril, contatou o mÃºsico Hilton Acioli, encomendando um <em>jingle </em>e dando-lhe um mote:  <em>Lula LÃ¡! </em>Acioli conta que, no inÃ­cio, nÃ£o se sentiu motivado pelo mote. ApÃ³s algumas tentativas recusadas por Tarso, encaixou aquele que iria se tornar um hino do PT: â<em>Nasce uma estrela… Lula LÃ¡!â</em></p>
+<p>Em meados do ano, Paulo de Tarso me convidou para fazer parte da equipe que ia fazer o programa de TV da Frente Brasil Popular. Insistia, eu nÃ£o dizia sim nem nÃ£o. Me vi numa confusÃ£o de sentimentos, reticente. Fui me aconselhar com o amigo RogÃ©rio Lustosa, dirigente do PCdoB. Me levou para conversar com o chefÃ£o do partido, JoÃ£o Amazonas. Ambos achavam que eu devia aceitar. A candidatura de Lula era a Ãºnica autenticamente popular e era preciso apoiÃ¡-la com toda forÃ§a, diziam. Eu concordava, mas continuava de pÃ© atrÃ¡s com o PT.</p>
+<p>Ainda reticente, comecei a participar de reuniÃµes de preparaÃ§Ã£o da campanha, junto a Paulo de Tarso, Toni Cotrim, Roberto NuÃ±es Lima (S<em>hoper), </em>Oswaldo de Mello, JosÃ© AmÃ©rico Dias, Luis Fernando Santoro (TVT). Participavam tambÃ©m RogÃ©rio Lustosa e Pedro Oliveira, representando o PCdoB, e James Lewis, o PSB.</p>
+<p>As reuniÃµes aconteciam numa sala alugada na rua Aurora, a chamada âBoca do Lixoâ, no centro de SÃ£o Paulo.</p>
+<p>DivergÃ­amos. Confesso que minhas prevenÃ§Ãµes quanto aos petistas dificultavam minha participaÃ§Ã£o. Eles me viam como sectÃ¡rio, antipÃ¡tico, arrogante, e eu os via como despolitizados. Eu dizia que as propostas deles eram brincadeiras sem conteÃºdo polÃ­tico e nÃ£o levariam uma mensagem correta do significado da candidatura de Lula.</p>
+<p>Mas a cordialidade avanÃ§ava entre mim e Paulo de Tarso. Depois das reuniÃµes, Ã­amos tomar uma cervejinha no bar da esquina. Conversando ali, ele me disse que nÃ£o estava vendo viabilidade na candidatura de Lula. Eu opinava que, por ser o Ãºnico candidato popular, Lula tinha chance de obter boa votaÃ§Ã£o.</p>
+<p>Fico nessa campanha ou nÃ£o? me perguntava. Recebi de meu amigo Woile GuimarÃ£es um convite para ir a BrasÃ­lia, onde ele estava dirigindo a campanha de MÃ¡rio Covas (PSDB). Queria me contratar e ofereceu um bom salÃ¡rio. Fiquei de dar uma resposta.</p>
+<p>Voltei a SÃ£o Paulo. JosÃ© AmÃ©rico e eu fomos almoÃ§ar num restaurante alemÃ£o na avenida SumarÃ©. Faltavam poucos dias para comeÃ§ar o programa de TV. NÃ£o havia nada produzido ainda. Eu, indeciso. Perguntou: âE aÃ­? Vem ou nÃ£o vem?â Me ofereceu um salÃ¡rio um pouco abaixo do que Woile oferecera. Mas nesse instante percebi que era mais do meu jeito fazer a campanha do PT, PCdoB e PSB. Topei. Agradeci ao Woile e fiquei em SÃ£o Paulo.</p>
+<p>Eu nÃ£o sabia que meses antes os jornalistas Gabriel Prioli, Florestan Fernandes Jr., Paulo de Tarso e outros publicitÃ¡rios jÃ¡ vinham se reunindo, buscando uma linha para a campanha de TV de acordo com a tradiÃ§Ã£o de propaganda polÃ­tica do PT desenvolvida em campanhas anteriores. Na essÃªncia, era a captura da forma e a linguagem do cotidiano da televisÃ£o comercial, Ã s quais o pÃºblico estava habituado, para usar nos seus programas de campanha na forma de parÃ³dia.    </p>
+<p>Os publicitÃ¡rios falavam em metalinguagem e eu defendia que devÃ­amos pÃ´r o povo na TV, como fizera em Bauru. Apresentei uma proposta por escrito que nÃ£o foi aceita. Tanto eu usava a palavra âpovoâ que fui contestado por Shoper. Ele disse: âNo PT nÃ£o usamos a palavra povo, mas trabalhadoresâ. Eu respondi que povo tinha significado mais amplo, incluÃ­a outros setores da sociedade alÃ©m da classe operÃ¡ria.</p>
+<p>Por uma engraÃ§ada ironia, Shoper, que nÃ£o gostava da palavra povo, comeÃ§ou a trabalhar a ideia de TV Povo, TV Povo, TV Povo, atÃ© que num estalo de criatividade gritou: âRede Povooo!â como quem fala Rede Globooo! NÃ£o faltaria nem o plim plim.</p>
+<p>Logo depois, Paulo de Tarso apresentou as peÃ§as que seu grupo de publicitÃ¡rios havia produzido em uma produtora de amigos dele. Era uma parÃ³dia. A vinheta de abertura totalmente copiada da vinheta de abertura da Globo. No final, em vez de Rede Globo, âRede Povooooâ Plim plim! Em vez de Globo de Ouro, Povo de Ouro; em vez de Globo RepÃ³rter, Povo RepÃ³rter, com vinheta de imagem.</p>
+<p>NÃ£o fui informado sobre essas peÃ§as publicitÃ¡rias. Numa reuniÃ£o com a cÃºpula da campanha, e a presenÃ§a de Lula, essa proposta foi apresentada. Eu estava presente e percebi o silÃªncio espantado do pessoal: âSerÃ¡ que isso dÃ¡ certo?â AtÃ© que Aloisio Mercadante tomou a palavra e fez uma defesa entusiasmada, e a ideia de parÃ³dia foi aceita em seguida. Mais tarde, me perguntaram o que eu achava. Respondi: âCriativo. Mas nÃ£o pode ser brincadeira. Tem que ter conteÃºdo polÃ­tico!â</p>
+<p>Era a roupagem que iria vestir a campanha. Uma imitaÃ§Ã£o da Rede Globo. Mas qual seria o recheio? <em>Povo d</em>e Ouro estava resolvido. Seria preenchido pelo jingle criado por Acioli e algumas outras mÃºsicas. Mas e o restante? Paulo e seus companheiros eram publicitÃ¡rios criativos, tiveram a ideia, mas nÃ£o a experiÃªncia de transformar a ideia em matÃ©ria concreta, assuntos para a televisÃ£o, assunto para jornalista.</p>
+<p>Eu tinha a soluÃ§Ã£o: <strong>pÃ´r o povo na TV!</strong> </p>
+<p>Eu nÃ£o tinha a moldura. Paulo e os outros publicitÃ¡rios a criaram. Eu tinha o conteÃºdo para preencher a moldura e dar sentido polÃ­tico a ela.</p>
+<p>Montei o que em TV chamamos de âespelhoâ do programa. Nosso tempo: 5 minutos.</p>
+<p>1. Abertura com a vinheta e a fala <em>Rede Povoo!.</em> Plim plim! Enquanto a imagem rodava, nosso locutor de voz limpa manchetava meu texto:  AGORA Ã A VEZ DO POVO! Dizia isso porque nosso programa vinha sempre apÃ³s ou antes do programa de outro candidato. E seguia: AQUI VOCÃ VAI VER O QUE NÃO VÃ NAS OUTRAS TVs! 10 segundos.</p>
+<p>2. Vinheta <em>Povo RepÃ³rter.</em> Reportagem crÃ­tica sobre a realidade econÃ´mica e polÃ­tica. Jornalismo, aproveitando os assuntos econÃ´micos e polÃ­ticos do momento. 1 minuto e meio. Um tempo enorme em linguagem de TV.</p>
+<p>3. Vinheta de <em>Povo de Ouro: </em>mÃºsica <em>Sem medo de ser feliz! Lula LÃ¡!</em>. Corte de duraÃ§Ã£o variÃ¡vel, conforme a necessidade de espaÃ§o, perto de 30 segundos.</p>
+<p>4. Corte de fala de Lula no estÃºdio, apresentando propostas e fazendo crÃ­tica ao governo Sarney e Ã  situaÃ§Ã£o do paÃ­s. Ou trechos de seus inflamados discursos em comÃ­cios â de 2 e meio a 3 minutos.</p>
+<p>5. PeÃ§a em estilo de comercial, tipo o ator Sergio Mamberti sentado num banco de praÃ§a, imitando uma propaganda da Caixa EconÃ´mica (âVem pra Caixa vocÃª tambÃ©m!â). Ele diz: âVem pra Frente vocÃª tambÃ©m! Vem!â. 15 segundos.</p>
+<p>6. Vinheta de saÃ­da com fala de artista como Paulo Betti, IonÃ¡ MagalhÃ£es, Beth Faria e outros. 5 segundos.</p>
+<p>Revendo em 2026 esses programas, acho que eram movimentados, vigorosos, alegres e politicamente precisos.</p>
+<p>Como havia feito em Bauru, selecionava os melhores momentos do discurso de Lula em comÃ­cios e os entrelaÃ§ava com imagens da plateia. Orientei as duas equipes de externa que tÃ­nhamos para cobrir com detalhes as reaÃ§Ãµes do pÃºblico que participava dos comÃ­cios de Lula, com seus cantos e bandeiras se agitando diante do palanque. Os militantes do PCdoB logo se deram conta e agitavam bandeiras vermelhas com a foice e o martelo. Eu punha no ar. Os petistas reclamaram e eu respondi: precisamos de imagens de entusiasmo. Apresentem suas bandeiras que elas tambÃ©m irÃ£o ao ar. E foram.</p>
+<p>Aproveitando a vinheta, <em>Povo RepÃ³rter</em> pautava reportagens seguindo o programa de 13 pontos formulado em conjunto pelos partidos da Frente Brasil Popular. Cada dia apresentava um tema, fazendo uma reportagem sobre o assunto. Se, por exemplo, o tema era reforma agrÃ¡ria, usava imagens de arquivo e o locutor apresentava os nÃºmeros sobre a concentraÃ§Ã£o da propriedade da terra, alÃ©m de eventuais fatos recentes como o assassinato de um trabalhador rural sem-terra pela PM de Santa Catarina. Sugeria que Lula abordasse o mesmo tema em sua fala no estÃºdio, o que podia acontecer ou nÃ£o porque ele Ã© quem decidia o que falar.</p>
+<p>AliÃ¡s, eu quase nÃ£o entrava no estÃºdio. Ali era o reduto de Paulo de Tarso, Aloisio Mercadante, LuÃ­z Gushiken e JosÃ© AmÃ©rico, Hamilton Pereira, (poeta Pedro Tierra), que discutiam os temas com Lula, escutavam seus palavrÃµes (parte de seu âesquentamentoâ), faziam ensaios de fala atÃ© ele encontrar a embocadura. Recusava o teleprompter. E falava Ã  vontade sobre o tema proposto. Depois, junto com o editor de imagens GastÃ£o Campos e, por vezes, Paulo de Tarso, eu selecionava o que chamava de um âbifeâ de 2 a 3 minutos com os melhores momentos. Se Lula gostava ou nÃ£o, nÃ£o sei, mas ele nunca interferiu.  </p>
+<p>Cinco minutos a partir das 20 horas, no horÃ¡rio nobre. Cinco minutos repetidos a partir das 13 horas no dia seguinte. Com liberdade de expressÃ£o nas peÃ§as de estÃºdio e, sobretudo, liberdade para as reportagens com imagens externas, captadas nas ruas em contato com o povo. </p>
+<p>Imagine esse pequeno programa cercado pelos programas dos outros 21 candidatos no espaÃ§o de uma hora de tarde e mais uma hora Ã s 20 horas. Seria preciso muita criatividade para ser percebido em confronto com medalhÃµes como Ulisses GuimarÃ£es, Mario Covas, Paulo Maluf, Leonel Brizola, e principalmente a suntuosa campanha de Fernando Collor, alÃ©m de ânanicosâ como âMeu nome Ã© EnÃ©as!â que ocupavam os outros 55 minutos.</p>
+<p>De acordo com Mario Sergio Conti em seu livro <em>NotÃ­cias do Planalto,</em> a campanha de Collor contava com equipamentos de TV avaliados em 4 milhÃµes de dÃ³lares. Tinha mais de dez equipes de reportagens externas, 400 fitas para cem horas de gravaÃ§Ã£o e muita imagem de arquivo. E um estÃºdio em Belo Horizonte com 6 mil mÂ². Para deslocamentos, vÃ¡rios jatinhos Ã  disposiÃ§Ã£o. A vinheta de abertura do seu programa, que simulava uma aÃ§Ã£o rasante atravessando a tela, foi produzida nos Estados Unidos. O dinheiro do empresariado jorrava, estimulado pela intermediaÃ§Ã£o cheia de promessas do tesoureiro Paulo Cesar de Farias, o PC Farias.</p>
+<p>No seu livro, Conti relata que no fim da campanha sobraram 60 milhÃµes de cruzeiros que foram divididos: 70% para Collor e 30% para PC Farias. Essa proporÃ§Ã£o continuaria para os achaques ocorridos durante todo o governo que, Ã© bom lembrar, acabou na metade da gestÃ£o por comprovada corrupÃ§Ã£o.</p>
+<p>Nossa campanha era muito mais pobre. Segundo Conti, no primeiro turno contou com apenas 400 mil dÃ³lares. Convivi diariamente com essa falta de recursos. Como editor-chefe, eu recebia o maior salÃ¡rio. Durante os quatro meses de campanha, de setembro ao final de dezembro, recebi algo como 20 mil dÃ³lares (seriam uns 100 mil reais em 2026). Contava-se, nÃ£o sei se era verdade, que a jornalista Belisa Ribeiro, a diretora do programa de Collor, recebia algo como 50 mil dÃ³lares por mÃªs.</p>
+<p>Era uma dureza. Frequentemente procurava falar com o tesoureiro da campanha, Paulo Okamoto. SalÃ¡rios atrasados, verba de produÃ§Ã£o faltando. Okamoto Ã© um sujeito legal, divertido. Ele comeÃ§ava perguntando: âQual Ã© o problema?â Eu respondia direto: âDinheiroâ. Ele: âDinheiro nÃ£o Ã© problema, dinheiro Ã© soluÃ§Ã£o!â  Eu dizia: âPrecisamos pagar os editores, os cinegrafistas, os repÃ³rteresâ. Ele anotava. Aos poucos, o dinheiro ia pingando e amansando a bronca da equipe.</p>
+<p>INSTALAÃÃES E EQUIPE</p>
+<p>EstÃ¡vamos abrigados nas instalaÃ§Ãµes da TVT, na rua Correia Dias, ao lado do MetrÃ´ ParaÃ­so. Era uma acomodaÃ§Ã£o modesta, um pequeno prÃ©dio de trÃªs andares, onde ficamos eu e o pessoal de produÃ§Ã£o e administraÃ§Ã£o. Em frente havia uma Ã¡rea calÃ§ada e uma sala onde se instalaria a ilha de ediÃ§Ã£o principal. No fundo, um barracÃ£o de teto alto, com isolamento sonoro, preparado para ser o estÃºdio.</p>
+<p>A direÃ§Ã£o e a equipe da TVT â TV dos Trabalhadores â ligada ao Sindicato dos MetalÃºrgicos de SÃ£o Bernardo do Campo, haviam se candidatado a produzir o programa de Lula. Mas impunham condiÃ§Ãµes de controle do conteÃºdo do que seria produzido, que Paulo de Tarso nÃ£o aceitou. Romperam. Os dirigentes da TVT nÃ£o esperavam que tivÃ©ssemos uma equipe pronta para substituÃ­-los. TÃ­nhamos, minha equipe <em>brancaleone.</em> Mas nÃ£o tÃ­nhamos equipamentos.  </p>
+<p>Pelo contrato minucioso feito pela Frente Brasil Popular com a TVT, ela iria oferecer o equipamento. CÃ¢meras, aparelhos de luz e som, ilhas de ediÃ§Ã£o e as fitas de vÃ­deo U-matic. Entretanto, a TVT estava se sentindo alijada, ficara ressentida por nÃ£o ser a produtora do programa. Lamento dizer que no primeiro turno tivemos dificuldades para produzir. Minha equipe chegou a sair sem equipamento de luz externa, o<em> sun gun. </em>O repÃ³rter Jorge Licurci precisou receber ajuda de outras equipes de TV presentes numa entrevista. </p>
+<p>Aproximava-se o momento de o programa de TV ir ao ar. A TVT nÃ£o estava pronta a nos oferecer condiÃ§Ãµes de trabalho. O equipamento importado, a ilha de ediÃ§Ã£o, nÃ£o chegara, estava atrasada. E, quando chegou, estava incompleta. DizÃ­amos que era um Boeing sem pneus. Mais adiante, sua complementaÃ§Ã£o chegou e se tornou importante para o trabalho de ediÃ§Ã£o. Era um equipamento de Ãºltima geraÃ§Ã£o. </p>
+<p>Montei a equipe de externa com meus parceiros, dois repÃ³rteres, dois cinegrafistas e seus auxiliares de luz e som. Afora Pio Redondo, era o pessoal que trabalhara comigo em Bauru. SalÃ¡rios baixos. O PT nÃ£o ofereceu alternativa para hospedagem. Pessoas humildes aceitaram se hospedar num casarÃ£o que o PCdoB usava para receber seus militantes em viagem. O PCdoB sempre pronto para ajudar. A alimentaÃ§Ã£o, nÃ£o lembro como era fornecida.</p>
+<p>AlÃ©m daqueles, contratei os editores que havia conhecido no ano anterior na campanha de Campinas. GastÃ£o Campos e sua companheira Aparecida Garcia, a gentil Cida. Tinham melhores condiÃ§Ãµes financeiras, estavam morando em SÃ£o Paulo, em um apartamento por conta deles. A equipe tÃ©cnica de estÃºdio, assim como o pessoal de produÃ§Ã£o, foi contratada pela TVT.</p>
+<p>Eu nÃ£o queria um locutor de vozeirÃ£o rouco, de fumante. Contratei um locutor de tom de voz neutra que trabalhara comigo na TV Cultura, Guilherme Maciel.</p>
+<p>ROTINA</p>
+<p>Minha rotina de trabalho comeÃ§ava Ã s 8 horas da manhÃ£, com uma reuniÃ£o com JosÃ© AmÃ©rico, que era o dirigente oficial do programa. Eu lhe apresentava uma sugestÃ£o de âespelhoâ com as pautas para o programa do dia. Ele, em geral, aceitava, mas era dele a Ãºltima palavra. NÃ£o me lembro de nenhuma grande divergÃªncia. JosÃ© AmÃ©rico apenas adiou por 13 programas uma matÃ©ria de apresentaÃ§Ã£o dos trÃªs partidos da Frente Brasil Popular. Queria antes destacar o papel do PT.</p>
+<p>A <em>Rede Povo </em>era diferente dos programas de todos os outros candidatos, que se pareciam pela discurseira, chamou atenÃ§Ã£o do pÃºblico e atÃ© da imprensa. Havia um candidato cujas falas transpareciam verdade, sinceridade, e tocavam nos problemas da naÃ§Ã£o com propostas radicais para soluÃ§Ã£o. Radicalizar era o caminho para fazer a diferenÃ§a.</p>
+<p>No quarto programa, uma matÃ©ria que ficou famosa. Tempos depois, algumas de suas imagens foram usadas num documentÃ¡rio, uma produÃ§Ã£o brasileiro-estadunidense, acho que se chamou algo como <em>AlÃ©m do CidadÃ£o Kane.</em></p>
+<p>O tema da minha pauta era a desigualdade. Abria com um Boeing decolando e meu texto dizia: âO Brasil nÃ£o Ã© um paÃ­s rico. Ã um paÃ­s de ricosâ. Cortava para um homem tomando um âpingadoâ (mÃ©dia de cafÃ© com leite) e comendo um pÃ£ozinho. Pautado por mim para mostrar a desigualdade, o repÃ³rter Jorge Licurci pergunta o que mais ele vai comer. Responde: âSÃ³ isso, atÃ© de noite!â</p>
+<p>Jorge encontra um trabalhador descarregando um quarto de boi de um caminhÃ£o frigorÃ­fico e pergunta: âVocÃª come? Ele responde: âNÃ£o como! SÃ³ carrego!â</p>
+<p>A matÃ©ria prossegue: Licurci vai para o Parque Ibirapuera e entrevista uma moÃ§a que passeia seu cachorrinho. Pergunta: âO que ele come?â Ela responde: âCome frango, legumes, duas vezes por dia!â Entrevista uma moÃ§a dirigindo seu carro, parado no farol: âVocÃª sabe a quanto estÃ¡ a inflaÃ§Ã£o?â Ela sorri, faz ar de que nÃ£o entende. O farol abre, ela arranca sem responder.</p>
+<p>Entram em cena grÃ¡ficos com desenhos e nÃºmeros produzidos por Bernardo Joffily, militante do PCdoB que colaborava gratuitamente com a campanha, iam mostrando os grandes nÃºmeros, a concentraÃ§Ã£o da riqueza, o tamanho da pobreza, o desemprego, a inflaÃ§Ã£o, a enorme evoluÃ§Ã£o da dÃ­vida externa.</p>
+<p>HÃ¡ uma reuniÃ£o de banqueiros e grandes homens de negÃ³cios acontecendo na Fiesp, em ambiente de luxo. Jorge vai lÃ¡. (EstÃ¡ sem equipamento de luz, outras equipes emprestam a luz) Pergunta a Olacyr de Moraes, banqueiro e grande latifundiÃ¡rio: âO que vocÃªs fazem com seus lucros?â. Resposta: âSobras de caixa investimos no <em>Over Night</em>â. Era uma aplicaÃ§Ã£o que rendia diariamente, anulando a corrida da inflaÃ§Ã£o.</p>
+<p>Juntando todas essas peÃ§as numa mesma matÃ©ria, se evidenciava a enorme desigualdade na nossa sociedade. Grande repercussÃ£o.</p>
+<p>O prestigiado publicitÃ¡rio da DPZ, Neil Ferreira (que havia sido jornalista e estivera junto comigo 28 anos antes na âSemana da Legalidade” em Porto Alegre) telefonou para a produtora. Queria uma cÃ³pia da matÃ©ria. Provavelmente pretendia sugerir um antÃ­doto para nossa matÃ©ria, talvez para a campanha de Covas. Passam o telefone para mim. Ele diz: âAzevedo? Ã um jovem ou o velho Azevedo? Respondo: âÃ o velho.â (estava para completar 50 anos). Mandei uma cÃ³pia para ele. No final da campanha eleitoral, com a vitÃ³ria de Collor, escreveu na <em>Folha de SÃ£o Paulo</em> algo assim<em>:</em> âO melhor marketing polÃ­tico foi o da candidatura mais atrasadaâ, que, para ele, era a nossa. Um elogio enviesado. Brilhante publicitÃ¡rio, Neil nÃ£o era um bom analista polÃ­tico.</p>
+<p>ApÃ³s algumas semanas do horÃ¡rio polÃ­tico, percebemos que outros candidatos, mesmo os de direita como Paulo Maluf, Afif Domingos, estavam âesquerdizandoâ em seus programas. Falavam de temas sociais, da dÃ­vida externa, da corrupÃ§Ã£o do governo Sarney, atÃ© de reforma agrÃ¡ria, copiando o que estÃ¡vamos mostrando. Lula foi para cima deles, fez uma fala enÃ©rgica de estÃºdio registrando isso. Eram progressistas de Ãºltima hora, dizia. E perguntava: âOnde estavam em 1982, 1985, 1988?â</p>
+<p>O repÃ³rter Pio Redondo havia trabalhado comigo na TV Cultura em 1986, quando fui chefe de redaÃ§Ã£o do jornalismo. Nem eu nem Pio Redondo estamos lembrados de como ele veio participar da <em>Rede Povo. </em>Mas lÃ¡ estava ele, sempre investigativo. Quando Collor fez uma fala demagÃ³gica sobre um grande monte de arroz comprado pelo governo e que estava se estragando ao ar livre no interior de GoiÃ¡s, descobriu que fora um espetÃ¡culo combinado com seu chefe de campanha em GoiÃ¡s, ex-senador LÃ¡zaro Barbosa.</p>
+<p>AtÃ© um pouco antes, Barbosa havia sido encarregado de armazenagem do MinistÃ©rio da Agricultura, portanto, responsÃ¡vel por aquele desperdÃ­cio. Pio entrevistou-o e o desmascarou. Sugeriu, e Lula foi mostrar as milhares de toneladas que estavam apodrecendo, o que ele fez, subindo na montanha de arroz. Em BrasÃ­lia, o deputado Luis Gushiken investigou e descobriu uma trama que mantinha os armazÃ©ns do governo vazios enquanto os produtos da safra ficavam abandonados, ou entÃ£o eram depositados em armazÃ©ns da iniciativa privada, alugados por altos preÃ§os.</p>
+<p>Pio Redondo tambÃ©m descobriu que o governo federal mantinha toneladas de leite em pÃ³ importado que, abandonadas em um armazÃ©m em SÃ£o Paulo, ficaram inservÃ­veis para consumo humano. Levou Lula atÃ© o local. E ele, em pÃ©, em cima da sacaria, fez a denÃºncia do crime contra a economia popular. Era assim a <em>Rede Povo. </em>Fazia propaganda de campanha mostrando a realidade.</p>
+<p>Lula corria o paÃ­s. A equipe de externa comandada por Jorge Licurci fazia das tripas coraÃ§Ã£o para acompanhÃ¡-lo, viajando pelas linhas aÃ©reas comerciais. E quase sempre conseguia. Como na noite de 23 de setembro, num animado comÃ­cio na PraÃ§a do RelÃ³gio, em BelÃ©m do ParÃ¡. Lula, filmado em Ã¢ngulos favorÃ¡veis pelo cinegrafista Adauto Nascimento, emocionou o pÃºblico quando falou: âEu sonho como uma sociedade fraterna. Sonho com uma sociedade justaâ. E foi Ã  frente: âSonho com uma sociedade socialista!â O pÃºblico respondeu com vivos aplausos.</p>
+<p>Destaco que a oratÃ³ria de Lula estava afinada, debatendo com consistÃªncia todos os assuntos importantes para o paÃ­s e o povo. Ele havia ampliado o conteÃºdo do seu discurso em sua participaÃ§Ã£o na Assembleia Constituinte, quando o Brasil foi passado a limpo com intensa participaÃ§Ã£o das forÃ§as populares. Durante quase dois anos constituintes e populares repassaram os grandes temas do paÃ­s. E ele estava lÃ¡, aprendendo, debatendo, votando. Foi seu curso universitÃ¡rio, eu acho.</p>
+<p>58 PROGRAMAS EM DOIS MESES</p>
+<p>Como os equipamentos de ediÃ§Ã£o da TVT nÃ£o haviam chegado, para os primeiros trÃªs programas tivemos de alugar uma outra produtora, do filho do fotÃ³grafo Jean Manzon, localizada na Bela Vista, o <em>Bixiga.</em> Usamos seus equipamentos. Essa produtora era antiquada, suas fitas de vÃ­deo, enormes carretÃ©is que eram rodados com certa lentidÃ£o. Tudo bem.</p>
+<p>A fala de Lula para o primeiro programa foi acidentada. Paulo de Tarso rejeitou o cenÃ¡rio oferecido pelo cenÃ³grafo da produtora. Lula jÃ¡ estava por ali. O que fazer? Assisti Paulo em um momento de criatividade ao improvisar um cenÃ¡rio com alguns fios grossos formando uma figura geomÃ©trica atrÃ¡s de Lula. Ele falou bem, se apresentando e apresentando a campanha. Mas a ideia de gravar com duas cÃ¢meras para as quais ele tinha de se virar segundo sinais que recebia, ficou mal resolvida. Foi ao ar assim mesmo, com toscos cortes de cÃ¢mera. E o cenÃ¡rio que Paulo inventou chegou a ser elogiado por algum jornalista animado.</p>
+<p>Antes de fazer a ediÃ§Ã£o, montar o programa nÃºmero um, fomos comer na pizzaria <em>Zi Tereza</em>, vizinha da produtora Jean Manzon. Ãramos Paulo de Tarso, Toni Cotrim, Shoper, GastÃ£o Campos e eu. Para grande surpresa minha e de GastÃ£o, ao deixar a pizzaria, os trÃªs se despediram. Como? Eles nÃ£o iam participar da ediÃ§Ã£o? NÃ£o participaram. Assumi o comando, improvisei. Editei com toda liberdade, excluÃ­ peÃ§as que considerei inadequadas, enfim, fiz o meu programa. </p>
+<p>Havia uma peÃ§a produzida pelos publicitÃ¡rios que me parecera sem significado polÃ­tico. Chamava-se <em>Mumenchans</em> e atÃ© hoje nÃ£o sei o que queria dizer. Algumas pessoas cujas cabeÃ§as eram telas de TV. No segundo dia, perguntei a Paulo de Tarso o que significavam. Disse que nas telas iam ser feitas crÃ­ticas aos adversÃ¡rios. Conversamos e acabamos concluindo que nÃ£o ia funcionar. De comum acordo, decidimos dispensÃ¡-las.</p>
+<p>Produzimos trÃªs programas naquela produtora. Mas quando saÃ­mos, o PT, que era o encarregado da verba de produÃ§Ã£o, estava atrasando o pagamento. E o dono da produtora se aborreceu, disse que se nÃ£o recebesse ia divulgar imagens de Lula no estÃºdio falando palavrÃµes! Paulo Okamoto, que era o responsÃ¡vel pelo dinheiro, acabou se entendendo com o filho do Jean Manzon.</p>
+<p>Como Paulo de Tarso estava recebendo da campanha apenas uma pequena ajuda de custo, continuava trabalhando meio perÃ­odo na Denison Propaganda para se sustentar. Chegava na produtora pela hora do almoÃ§o. E ficava contrariado porque nÃ£o participava da montagem do programa. Mas nisso ele nÃ£o tinha razÃ£o. Porque eu tinha que comeÃ§ar Ã s 8 horas da manhÃ£ quando estÃ¡vamos lÃ¡ sÃ³ JosÃ© AmÃ©rico e eu. </p>
+<p>Eu apresentava uma sugestÃ£o de âespelhoâ a ele, que podia modificar segundo sua opiniÃ£o, porque era ele quem dava a palavra final. Essa decisÃ£o nÃ£o podia acontecer depois porque o tempo era curto para a produÃ§Ã£o, a ediÃ§Ã£o e o envio da fita de vÃ­deo com o programa para BrasÃ­lia. Compreendia a frustraÃ§Ã£o de Paulo, mas nÃ£o poderia fazer diferente porque o tempo me obrigava a comeÃ§ar cedo. JosÃ© AmÃ©rico nunca discordou de minhas sugestÃµes de pauta. Como ele estÃ¡ vivo e forte, pode ser consultado.</p>
+<p>Paulo de Tarso nÃ£o participava do processo de ediÃ§Ã£o, mas dava sugestÃµes. GastÃ£o e eu tÃ­nhamos liberdade para trabalhar. AtÃ© que comeÃ§aram algumas reclamaÃ§Ãµes. Paulo reclamou comigo por nÃ£o incluir no programa peÃ§as produzidas por ele e seus companheiros publicitÃ¡rios. Eram peÃ§as em forma de anÃºncios, de 15 a 30 segundos de crÃ­ticas aos adversÃ¡rios, como uma mostrando fotos de vÃ¡rios polÃ­ticos como Sarney, Maluf, Collor etc. dizendo que eram todos filhos da ditadura, âfarinha do mesmo sacoâ etc.</p>
+<p>Era boa propaganda, mas Ã s vezes eu derrubava para apresentar uma reportagem. Ele tinha razÃ£o, entretanto era um tempo precioso e eu dava preferÃªncia a outros temas que considerava mais urgentes. Foi ficando um certo clima de insatisfaÃ§Ã£o. E havia outros membros do PT que estavam reclamando porque, eles diziam, eu favorecia imagens do PCdoB nos comÃ­cios.</p>
+<p> A luta interna Ã© sempre viva no PT. CrÃ­ticas foram se avolumando. JÃ¡ havia quem propusesse a minha retirada da campanha. Sabendo, eu dizia: âFui difÃ­cil de aceitar entrar, mas sou muito fÃ¡cil para sair!â Fui ficando. Naquela situaÃ§Ã£o, com o controle que tinha da equipe e da produÃ§Ã£o, a campanha teria dificuldade para continuar sem mim.</p>
+<p>As reclamaÃ§Ãµes cresciam. Dizia-se que, de noite, eu fazia modificaÃ§Ãµes nas fitas para beneficiar o PCdoB. JosÃ© Dirceu chegou a ir ver a fita no meio da noite, depois que eu havia ido para casa. Aparentemente, nÃ£o encontrou nada porque nÃ£o havia nada. Ele nÃ£o reclamou comigo. Veio me ver trabalhando e fez um comentÃ¡rio que interpretei como uma crÃ­tica ou elogio. Disse: âCompanheiro Azevedo, bolchevique!â, querendo dizer que eu era durÃ£o. Quem sabe quis dizer estalinista?</p>
+<p>A fita de vÃ­deo com o programa poderia ser enviada pela Embratel, que a copiava e enviava para sua sede em BrasÃ­lia. Mas nÃ³s nÃ£o confiÃ¡vamos, a fita poderia ser adulterada, sabotada, desencaminhada, tal era o grau de desconfianÃ§a que tÃ­nhamos do âsistemaâ. Assim, desde o primeiro programa, a fita era levada, por aviÃ£o, atÃ© a sede da Embratel em BrasÃ­lia. Diariamente, um rapaz de minha confianÃ§a, Aguinaldo Pedro, pegava um aviÃ£o e ia entregar a fita lÃ¡. Cansou de viajar.</p>
+<p>Lula se apresentava muito bem. Seja no estÃºdio ou nos comÃ­cios, tinha uma presenÃ§a positiva, forte, falava com facilidade sobre os temas escolhidos. Mas estÃ¡vamos trabalhando em condiÃ§Ãµes precÃ¡rias, sujeitos a imprevistos que poderiam ter resultados desastrosos.</p>
+<p>Havia situaÃ§Ãµes em que eu me estressava: as fitas de tal matÃ©ria importante nÃ£o iam chegar a tempo, o aviÃ£o atrasou, coisas assim. Mas afinal chegavam. Foi ali que comecei a pensar e a dizer que Lula era bafejado pela sorte, porque, apesar das nossas debilidades, tudo acabava bem. Hoje se tornou lugar comum, todo mundo diz que Lula Ã© sortudo. E ele Ã©, alÃ©m de contar com visÃ£o privilegiada e praticar trabalho duro. Como dizia o jogador Zico: âQuanto mais treino, mais tenho sorte!â</p>
+<p>Sempre de acordo com JosÃ© AmÃ©rico, eu havia tomado conta das pautas, da produÃ§Ã£o de matÃ©rias. Ia ao detalhe de dirigir a inflexÃ£o dos textos narrados pelo locutor e dirigia a ediÃ§Ã£o das imagens que fechava na ilha junto com GastÃ£o Campos.</p>
+<p>O horÃ¡rio polÃ­tico na TV estava atraindo um pÃºblico tÃ£o grande quanto o das novelas e do Jornal Nacional. Quem nÃ£o podia ver de dia, via de noite. Como estÃ¡vamos fazendo propaganda e nÃ£o jornalismo, repetÃ­amos vÃ¡rias vezes os materiais de maior repercussÃ£o. Nosso programa continuava repercutindo. O candidato Afif Domingos, com uma conversinha doce sobre microempresas e empreendedorismo, comeÃ§ou a crescer nas pesquisas. O <em>Povo RepÃ³rter</em> mostrou que na Constituinte ele havia votado sempre contra os interesses dos trabalhadores. No dia seguinte, sua popularidade estava no brejo.</p>
+<p>A <em>Rede Povo </em>centrava suas crÃ­ticas no presidente JosÃ© Sarney. Uma sÃ©rie de reportagens do <em>Povo RepÃ³rter </em>conseguiu influir atÃ© em decisÃµes do governo. Sarney caiu na besteira de decidir privatizar, no perÃ­odo de campanha, uma fÃ¡brica estatal de produÃ§Ã£o de vagÃµes e outros materiais ferroviÃ¡rios, a<em> Mafersa</em>. O <em>Povo RepÃ³rter </em>fez algumas reportagens denunciando a privatizaÃ§Ã£o porque era uma estatal produtiva, inclusive fazia exportaÃ§Ãµes, dava lucro e beneficiava a populaÃ§Ã£o. Entrevistou trabalhadores da empresa que se mostraram contrÃ¡rios Ã  privatizaÃ§Ã£o. A opiniÃ£o pÃºblica veio junto e se manifestou fortemente. TÃ£o forte que o governo recuou e desistiu da privatizaÃ§Ã£o da Mafersa. </p>
+<p>O primeiro turno transcorreu nesse diapasÃ£o. As pesquisas de intenÃ§Ã£o de voto foram indicando que a candidatura de Lula, que comeÃ§ara com 4%, jÃ¡ avanÃ§ava. E chegaria a 11% na votaÃ§Ã£o de primeiro turno. Com uma Ã­nfima vantagem sobre Leonel Brizola. Como irÃ­amos saber depois, Lula foi para o segundo turno. Collor chegara a 20%.</p>
+<p>Toda a equipe estava exausta. Trabalhamos dois meses sem folga (de inÃ­cio de setembro atÃ© 14 de novembro), sem domingo nem feriado, de 10 a 14 horas por dia. Nesse perÃ­odo, produzimos 58 programas de 5 minutos, todos os dias, sem nenhum erro grave. Era uma faÃ§anha! Sem saber o resultado, viajei com a famÃ­lia, que quase nÃ£o havia visto desde agosto, para meu refÃºgio em Santa Catarina, uma vila de pescadores em ArmaÃ§Ã£o do municÃ­pio de Penha.</p>
+<p>O que acontece ao final de um esforÃ§o desse tipo Ã© uma espÃ©cie de despressurizaÃ§Ã£o, tal o impacto. VocÃª vem num ritmo insano e, de repente, pÃ¡ra tudo. Passo a ter todo o tempo, mas durmo mal, nÃ£o sinto fome, fico como que suspenso no ar, pareÃ§o um zumbi. Mal falo com a companheira Maria Lucia. A praia estÃ¡ ali, mas eu nÃ£o quero ir. NÃ£o quero andar, tambÃ©m nÃ£o quero descansar. Tenho a sensaÃ§Ã£o de que estou inchado. Tomo um uÃ­sque para relaxar e nÃ£o relaxo.</p>
+<p>Passa-se uma semana e vou melhorando. Estou quase bom. Maria Lucia e meus filhos Luciano e Ana estÃ£o comigo, bonitos, alegres e bronzeados pelo sol. Volto a correr pela praia e caio no mar brincando com Ana. Comemos bem, peixe, camarÃ£o e marisco. Mas aÃ­ alguÃ©m telefona para o hotel: âFomos para o segundo turno! Volta para a gente se preparar!â</p>
+<p>Uma pancada no estÃ´mago. Mas uma animaÃ§Ã£o comeÃ§a a tomar conta. A luta continua! </p>
+<p><em>Sem publicidade ou patrocÃ­nio, dependemos de vocÃª. FaÃ§a parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-rede-povo-critica-politica-e-humor/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

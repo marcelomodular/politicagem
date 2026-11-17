@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E agora, que fazer nos próximos quatro anos? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">E agora, que fazer nos próximos quatro anos?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/crise-brasileira/e-agora-que-fazer-nos-proximos-quatro-anos/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5145908757131890278_x-e1793911313182.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: E agora, que fazer nos prÃ³ximos quatro anos?
+                            </p>
+                            
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5145908757131890278_x-e1793911313182.jpg"/>Imagem: ReproduÃ§Ã£o/ONU
+
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Fui dormir no domingo como 63 milhÃµes de brasileiros. Feliz com o desfecho deste segundo turno, que comeÃ§ou altamente depressivo no dia 5 de Outubro.</p>
+<p>Acho que falo pela minha geraÃ§Ã£o de militantes polÃ­ticos, a GeraÃ§Ã£o 68, ao afirmar que o nosso horror com a possibilidade da eleiÃ§Ã£o do filhote do energÃºmeno era ainda maior do que o dos nossos filhos e netos.</p>
+<p>Naquela outra segunda feira, fiquei pensando se estaria vivo para ver a queda da dinastia fascista e como seria terrÃ­vel viver meus Ãºltimos anos no clima sombrio que se abateria sobre nÃ³s. Sim, pensei, a luta continua e o povo vencerÃ¡, mas o preÃ§o a pagar seria incalculÃ¡vel, sobretudo porque a crise ambiental seria acelerada e alimentada pelo âexterminador do futuroâ e seus parceiros mundo a fora (Trump, Modi, Putin, a cambada de fascistinhas no poder na AmÃ©rica Latina e os que ameaÃ§am alcanÃ§Ã¡-lo na UniÃ£o Europeia).</p>
+<p>Nasci em 1946, um dos chamados baby boomers, logo apÃ³s o fim de uma ditadura e me criei naquilo que avaliÃ¡vamos como plena democracia, atÃ© o golpe de 1964. Foram 21 anos de luta atÃ© que a milicada se recolheu aos quartÃ©is e a democracia foi restaurada, atÃ© hoje nÃ£o muito plena, mas a do perÃ­odo 46/64 o era menos ainda.</p>
+<p>NÃ£o imaginei, depois de anos de governos presididos por um extraordinÃ¡rio lÃ­der operÃ¡rio e uma ex-militante da esquerda armada, verÃ­amos o ressurgimento de uma extrema direita adoradora da ditadura militar e, menos ainda, que ela chegaria ao poder em meros 5 anos do cataclisma de 2013, passando por um novo tipo de golpe, o parlamentar.</p>
+<p>A volta de Lula, em 2022, foi por um focinho no fotochart da contagem das urnas, mas o fracasso dos dois golpes tentados pelos bolsonaristas, com e sem Bolsonaro no poder e a condenaÃ§Ã£o do energÃºmeno e seus cÃºmplices civis e militares, me deu esperanÃ§a de que o risco da extrema direita estava afastado.</p>
+<p>Ledo engano. A resiliÃªncia da extrema direita bolsonarista produziu uma vitÃ³ria arrasadora nas eleiÃ§Ãµes parlamentares e para governadores e chegou perto de levar a cereja do bolo com a eleiÃ§Ã£o presidencial.</p>
+<p>Que aconteceu, para alÃ©m das explicaÃ§Ãµes circunstanciais do tipo erros de comunicaÃ§Ã£o da campanha e/ou do nosso candidato? Ou da intervenÃ§Ã£o da Meta, da desmoralizaÃ§Ã£o do STF e da colaboraÃ§Ã£o do TSE com o candidato da direita? Ou da LavaJato dois, do caso Vorcaro ou do INSS? Ou ainda da manipulaÃ§Ã£o do sentimento religioso da populaÃ§Ã£o mais pobre pelos pastores neopentecostais?</p>
+<p>Temos que reconhecer que estamos diante do fim de um ciclo da nossa histÃ³ria pÃ³s retorno da democracia. Apesar do peso residual de um sentimento conservador e direitoso do eleitorado que nunca desapareceu (lembrem-se de Collor), mesmo depois do fim da ditadura e da retomada dos movimentos sociais, os governos de Fernando Henrique e os de Lula e de Dilma conseguiram conciliar a orientaÃ§Ã£o da economia de tipo neoliberal com avanÃ§os importantes nos direitos sociais. Esta conciliaÃ§Ã£o foi bem recebida pelas elites no governo FHC e tolerada no de Lula, mas Dilma, apesar de todas as concessÃµes feitas para o rentismo e para o agronegÃ³cio, teve que conviver com uma crise econÃ´mica internacional que acirrou as contradiÃ§Ãµes e levou Ã  sua queda.</p>
+<p>Para resumir, o que assistimos foi o fim da tentativa de criar um Estado de bem-estar social com redistribuiÃ§Ã£o de renda sob a Ã©gide de um modelo de desenvolvimento de tipo neoliberal.</p>
+<p>NÃ£o havia mais espaÃ§o para agradar a gregos (a Faria Lima e o agronegÃ³cio) e troianos (os setores populares). E, no pior dos mundos, o fato de que o PT e a esquerda de governo viraram gestores do nosso capitalismo desarmou e esvaziou os movimentos sociais, que ficaram passivos assistindo o nosso mundo mudar.</p>
+<p>A vitÃ³ria de Lula, em 2022, foi difÃ­cil e sÃ³ ocorreu pela percepÃ§Ã£o de uma estreita maioria do eleitorado de que havia uma ameaÃ§a para a nossa democracia que tinha que ser evitada. Infelizmente, nem ele nem a esquerda entenderam que tinham que dar um outro rumo para o projeto do novo governo e apenas retomaram as polÃ­ticas que tinham âdado certoâ, entre 2003 e 2010. Mas o Brasil de 2023 era outro e o contexto econÃ´mico mundial tambÃ©m.</p>
+<p>A base social do lulismo e do petismo tinha se esvaziado com uma forte reduÃ§Ã£o da produÃ§Ã£o industrial e do operariado e o desmantelamento do movimento sindical. Cresceu no perÃ­odo uma economia informal de serviÃ§os, que absorveu diretamente uma base importante de trabalhadores chamados de empreendedores, para os quais a esquerda nÃ£o tinha qualquer proposta.</p>
+<p>Cresceram tambÃ©m os movimentos chamados de identitÃ¡rios e inÃºmeros movimentos associativos, buscando resolver problemas locais em favelas e bairros perifÃ©ricos. Estes movimentos identitÃ¡rios geraram reaÃ§Ãµes ideolÃ³gicas negativas com profunda penetraÃ§Ã£o na nossa cultura de massas conservadora. Por outro lado, os movimentos associativos nÃ£o lograram construir forÃ§as que superassem seus espaÃ§os locais para criar um movimento contra hegemÃ´nico.</p>
+<p>Nestes quatro anos, Lula entregou o que prometeu, que pode ser resumido em âmais do mesmoâ e, nem Lula, nem o seu governo e nem a esquerda percebeu que as dÃ¡divas entregues pelo poder pÃºblico eram minadas pela perda do poder aquisitivo dos beneficiÃ¡rios e pelo brutal endividamento de 80% das famÃ­lias, estimuladas a consumir para fazer girar a economia. A frase do filho do energÃºmeno no debate da Globo (âentrega com uma mÃ£o e tira com nove dedosâ) foi um acinte execrÃ¡vel, mas apesar disso correspondeu ao que o eleitorado estava vivendo e percebendo.</p>
+<p>A vitÃ³ria de Lula foi a resultante de um movimento espontÃ¢neo que galvanizou amplos setores e carregou a reboque a esquerda, o governo e Lula. Sem as inÃºmeras iniciativas de lideranÃ§as desconhecidas e personalidades conhecidas sem papel polÃ­tico partidÃ¡rio, o filhote do energÃºmeno teria ganho o segundo turno. A erupÃ§Ã£o vulcÃ¢nica das massas nas ruas gerou o impulso que encurralou o bolsonarismo, acuado ainda em seu espaÃ§o de expressÃ£o privilegiado, as redes sociais, com o extraordinÃ¡rio movimento dos 10 milhÃµes de combatentes virtuais do âexÃ©rcito de Lulaâ, sob o comando de Janones.</p>
+<p>E o que foi que mobilizou tanta gente? Por um lado, a ameaÃ§a Ã  democracia e, por outro, a ameaÃ§a aos ganhos sociais entregues pelo governo Lula, desde as benesses mais recentes atÃ© as aposentadorias conquistadas hÃ¡ mais tempo. Foi um repeteco de 2022, mas com mais empenho da sociedade e mais presenÃ§a nas redes sociais.</p>
+<p>Ã preciso compreender que, embora a vitÃ³ria tenha sido espetacular, ela se deu por um movimento muito mais defensivo de provocar o medo da mudanÃ§a prometida pelo filhote do energÃºmeno, do que pela esperanÃ§a de dias melhores. Lula nÃ£o tinha agora a aura de 2002, quando a sua campanha prometia mudanÃ§as e quem estava na defensiva era o PSDB, prometendo mais do mesmo. Agora, quem prometeu mudanÃ§as foi o filhote do energÃºmeno: menos impostos, maior poder de compra, menos juros e âtirar o Estado das costas do povoâ. Promessas fajutas frente a outra promessa (esta para valer) de dar um tesouraÃ§o a la Milei que nÃ£o poderia deixar de cortar os ganhos econÃ´micos dos governos populares e atÃ© os recursos constitucionais dirigidos para saÃºde e educaÃ§Ã£o.</p>
+<p>O novo governo Lula IV nÃ£o pode cair no mesmo erro de 2023, quando esqueceu o tamanho do bolsonarismo (e a pequenez da esquerda) e governou achando que a vitÃ³ria tinha sido dele e do PT. Naquelas eleiÃ§Ãµes o voto para o Congresso resultou em uma vitÃ³ria da direita e do centrÃ£o, com a esquerda alcanÃ§ando meros 24% dos votos e uma base parlamentar longe do mÃ­nimo para governar. E a apertada vitÃ³ria no pleito presidencial se deveu, como agora, ao voto anti Bolsonaro, incluindo setores da direita nÃ£o bolsonarista.</p>
+<p>Na verdade, este quadro nÃ£o era novo para Lula, que governou sem maioria parlamentar nas duas casas de 2003 a 2010. Mas os tempos eram outros e as formas de arrebanhar maiorias, mais ou menos estÃ¡veis, era comprar partidos no atacado ou deputados e senadores no varejo, algo que FHC tambÃ©m fez, mas em menor escala por ter acordos confortÃ¡veis com partidos do CentrÃ£o.</p>
+<p>Neste primeiro turno destas eleiÃ§Ãµes, a grande derrota nÃ£o foi da esquerda (PT, PCdoB, PV, PSOL, Rede), que ficou ligeiramente maior do que na anterior legislatura. Quem perdeu foi o centro-esquerda (PSB, PDT). Somando os dois grupos, o tamanho da bancada ficou em 124 deputados, 4 a menos que na legislatura anterior, todos perdidos pelo PDT. No Senado, o quadro piorou com menos eleitos de esquerda ou centro esquerda e forte avanÃ§o do PL e legendas da direita.</p>
+<p>Quem perde mais para o avanÃ§o acachapante da extrema direita (PL, Novo) sÃ£o alguns partidos do CentrÃ£o (UniÃ£o Brasil, PSDB/Cidadania, MDB, Avante, PRD/Solidariedade), enquanto outros ficam estÃ¡veis (Republicanos, PSD) e um ganha 7 deputados (Podemos). O CentrÃ£o entregou 28 deputados para a extrema direita, fagocitado pelo bolsonarismo.</p>
+<p>Para resumir, temos um quadro muito ruim para uma relaÃ§Ã£o positiva com o Congresso, sem esquecer que, independentemente de definiÃ§Ãµes polÃ­ticas e ideolÃ³gicas, todo deputado e senador defende as emendas parlamentares impositivas, um tremendo problema para qualquer presidente.</p>
+<p>Na gestÃ£o Lula III, a estratÃ©gia do governo foi a de negociar todas as suas propostas, entregando cargos de ministro e outros para partidos do CentrÃ£o. NÃ£o deu certo. As propostas do governo foram repelidas ou distorcidas pelos deputados e senadores, com a âbase do governoâ se limitando Ã  esquerda e parte da centro esquerda e eventualmente alguns votos dos partidos do CentrÃ£o com cargos no governo.</p>
+<p>Para sobreviver nesta relaÃ§Ã£o de forÃ§as extremamente negativa, o governo negociou o conteÃºdo de suas propostas com o CentrÃ£o, que fez uma inteligente chantagem com o PT, aceitando colocar alguns dos pontos defendidos pelo governo se a base governista votasse em bloco os projetos. Sem o voto em bloco com a direita os projetos seriam ainda mais distantes da proposta do governo, argumentaram deputados e senadores do PT para justificar os acordos.</p>
+<p>Esta jogada neutralizou os partidos do governo ao longo do quatriÃªnio, jÃ¡ que âpara ganhar o possÃ­velâ votaram projetos muito ruins junto com a direita e o centrÃ£o. Ficaram indistinguÃ­veis, para o eleitorado, da geleia geral do Congresso e pagaram o preÃ§o na hora de pedir voto, apenas levemente ampliando a sua bancada. Como atacar o âCongresso inimigo do povoâ quando os partidos de esquerda nÃ£o se demarcaram dos outros?</p>
+<p>A extrema direita pretende dominar as duas casas, embora o CentrÃ£o ainda tenha mais cadeiras em ambas. A questÃ£o em aberto Ã© se o CentrÃ£o vai buscar uma composiÃ§Ã£o com Lula para enfrentar o risco de ser esvaziada pelo bolsonarismo ou se vai sucumbir ao discurso e agenda da extrema direita e isolar o governo e o STF. E pode haver um ou mais rachas neste conglomerado tÃ£o heterogÃªneo.</p>
+<p>Tudo vai depender da agenda do governo e da aderÃªncia do eleitorado a ela. O ponto de partida do governo Ã© a extraordinÃ¡ria mobilizaÃ§Ã£o, nas ruas e nas redes que resultou em uma vitÃ³ria nas urnas que nÃ£o deixa margem a dÃºvidas golpistas e desarma, em parte, este tipo de aventura.</p>
+<p>Mas este ponto de partida Ã© insuficiente para o enfrentamento com o Congresso, vai ser preciso buscar amplas maiorias do eleitorado para poder dobrar o oportunismo e comprometimento de senadores e deputados com os mais variados lobbies (Boi, Bala, BÃ­blia, entre outros). JÃ¡ se viu que o Congresso se dobra quando enfrentado com mobilizaÃ§Ãµes ou atÃ© meras pesquisas de opiniÃ£o com amplo apoio a uma proposta, como o PL do 5×2.</p>
+<p>Esta Ã© uma luta polÃ­tica diferente da travada no segundo turno destas eleiÃ§Ãµes, quando o que decidiu o voto foi a negaÃ§Ã£o das ameaÃ§as inerentes Ã  vitÃ³ria de um candidato, muito mais do que a defesa de polÃ­ticas para o futuro do outro. Agora precisamos ganhar um apoio muito mais amplo do que o do exÃ©rcito do Lula (digo, do Janones) defendendo propostas com grande impacto sobre o presente e o futuro do povo, da naÃ§Ã£o e do planeta. Mais amplo do que os quase 52% das urnas. Para isso precisamos trabalhar para alÃ©m da nossa bolha e conquistar para as propostas (mais do que para o PT ou o PSOL) um pÃºblico que se absteve, votou nulo ou branco e atÃ© que votou no filhote do energÃºmeno.</p>
+<p>E qual deve ser este programa para os quatro anos?</p>
+<p>Desde logo, nÃ£o pode ser âmais do mesmoâ. NÃ£o funcionou neste governo e seria ainda mais desastroso nos prÃ³ximos quatro anos. Como jÃ¡ escrevi antes, o ciclo de crescimento neoliberal da economia se esgotou e nÃ£o hÃ¡ espaÃ§o para distribuir recursos para os mais pobres e sustentar os lucros dos mais ricos.</p>
+<p>NÃ£o tenho ideia do que Lula e o PT ou a esquerda acham que deveria ser feito neste governo. O critÃ©rio que norteia a decisÃ£o do que fazer tem sido, jÃ¡ hÃ¡ algum tempo, escolher o melhor caminho para ganhar as prÃ³ximas eleiÃ§Ãµes. O que me orienta Ã© o que eu considero prioritÃ¡rio e estratÃ©gico para o povo brasileiro e para a sobrevivÃªncia do planeta.</p>
+<p><strong>A prioridade nÃºmero um Ã© enfrentar o processo de</strong> <strong>aquecimento</strong> <strong>global</strong> e isto implica em dois movimentos de difÃ­cil aceitaÃ§Ã£o pelo prÃ³prio Lula, pelo PT e por grande parte da esquerda, para nÃ£o falar na direita, na Faria Lima e no agronegÃ³cio.</p>
+<p>O primeiro Ã© a <strong>reduÃ§Ã£o de emissÃµes de gases de efeito estufa</strong> que, no Brasil, provÃ©m, sobretudo (70%), do desmatamento e queimadas, provocadas pelo agronegÃ³cio e secundariamente das emissÃµes deste mesmo setor, sobretudo pelo rebanho bovino. HÃ¡ tambÃ©m emissÃµes em menor porte por veÃ­culos, por lixo orgÃ¢nico, por geraÃ§Ã£o de energia elÃ©trica e outras fontes. Temos que definir polÃ­ticas para eliminar todas estas emissÃµes o mais rapidamente possÃ­vel, jÃ¡ que a aceleraÃ§Ã£o do aquecimento estÃ¡ reposicionando todas as projeÃ§Ãµes feitas atÃ© agora pela ciÃªncia.</p>
+<p>O que se acreditava que poderia ocorrer no final do sÃ©culo jÃ¡ pode acontecer nos anos 70. O que se previa para os anos 50 estÃ¡ acontecendo agora (a ultrapassagem do aumento de 1,5 graus Celsius, por exemplo) e os mais 2,0 graus Celsius, meta limite do Acordo de Paris para o final do sÃ©culo, devem ser atingidos no final desta dÃ©cada.</p>
+<p><strong>Eliminar as emissÃµes com origem no uso de combustÃ­veis fÃ³sseis</strong> implica em suspender a exploraÃ§Ã£o de petrÃ³leo para este fim. Podemos continuar extraindo petrÃ³leo para uso amplo no setor industrial, uso muito mais nobre do que queimÃ¡-lo, sobretudo porque mais difÃ­cil de substituir. Conservar nossas reservas de petrÃ³leo para um futuro muito prÃ³ximo, quando ele vai fazer falta para o conjunto do setor industrial, serÃ¡ algo muito mais inteligente do que queimÃ¡-las agora. Mas a razÃ£o principal Ã© a urgente reduÃ§Ã£o das emissÃµes de GEE.</p>
+<p>Vai ser preciso substituir a geraÃ§Ã£o de energia elÃ©trica por gÃ¡s, carvÃ£o e diesel por energia eÃ³lica e solar, atendendo Ã s necessidades atuais da populaÃ§Ã£o, mas tambÃ©m para a eletrificaÃ§Ã£o da frota de transporte de pessoas e cargas.</p>
+<p>JÃ¡ estamos no rumo desta conversÃ£o, mas o governo Lula tem dado sinais contraditÃ³rios sobre seus objetivos, talvez por estar buscando conciliar todos os interessados, o que nÃ£o Ã© possÃ­vel.</p>
+<p>Lula peleia por liberar a exploraÃ§Ã£o de petrÃ³leo na margem equatorial, quando ela coloca em risco corais e manguezais imensos na costa do AmapÃ¡. Isto quando se sabe que estes ecossistemas marinhos tÃªm uma gigantesca capacidade de absorÃ§Ã£o de CO2, alÃ©m de serem habitats de grande diversidade de espÃ©cies.</p>
+<p>TambÃ©m faz parte das polÃ­ticas do governo o estÃ­mulo para as indÃºstrias automobilÃ­sticas, tanto para automÃ³veis como para caminhÃµes. Devemos alterar profundamente o nosso modal de transporte, privilegiando o coletivo e reduzindo o individual ao mÃ­nimo essencial. Trens, metrÃ´s, VLTs e Ã´nibus elÃ©tricos devem ter prioridade sobre os carros individuais, mesmo que elÃ©tricos. Isto se deve ao fato de que as reservas de lÃ­tio e outros minerais necessÃ¡rios para produzir as baterias e motores elÃ©tricos sÃ£o pequenas e insuficientes para eletrificar todos os veÃ­culos individuais do mundo.</p>
+<p>O investimento para acabar com os lixÃµes e esgotos a cÃ©u aberto contribui para o saneamento bÃ¡sico e para a reduÃ§Ã£o de emissÃµes de GEE. Por outro lado, a compostagem de lixo e de lodo de esgoto pode tornar o paÃ­s autÃ´nomo em fertilizantes orgÃ¢nicos, eliminando tambÃ©m uma forma de emissÃ£o de outro poderoso gÃ¡s de efeito estufa o N2O.</p>
+<p>Vou repetir para ficar bem claro: a Petrobras deverÃ¡ redirecionar seus investimentos para expandir a produÃ§Ã£o de energia solar e eÃ³lica, cessando a pesquisa de novos poÃ§os e a exploraÃ§Ã£o dos que ainda nÃ£o estÃ£o produzindo. E cessar a exportaÃ§Ã£o de petrÃ³leo. NÃ£o podemos impedir as empresas com concessÃµes de exploraÃ§Ã£o de petrÃ³leo no Brasil de continuarem suas operaÃ§Ãµes, mas podemos interromper os leilÃµes para acesso a novos poÃ§os.</p>
+<p>JÃ¡ imagino a grita dos patriotas de direita e de esquerda clamando que o petrÃ³leo Ã© nosso. Ã bom que seja porque assim podemos escolher que uso dar a ele: queimÃ¡-lo como combustÃ­vel fÃ³ssil e acabar com o planeta ou usÃ¡-lo como matÃ©ria prima para a indÃºstria.</p>
+<p>Imagino que vÃ£o dizer que nesta proposta caberia continuar pesquisando e explorando mais petrÃ³leo e apenas redirecionando o seu uso. Mas o fato Ã© que existe um movimento de acelerada substituiÃ§Ã£o do petrÃ³leo como combustÃ­vel que estÃ¡ redimensionando o tamanho do mercado deste produto dentro de 15 a 20 anos. Isto vai derrubar os preÃ§os do petrÃ³leo e tornar insustentÃ¡veis vÃ¡rios investimentos que entrarÃ£o em operaÃ§Ã£o naquela data. Os nossos novos poÃ§os entrarÃ£o em operaÃ§Ã£o lÃ¡ para o final da dÃ©cada de trinta, na hora errada e com um mercado em retraÃ§Ã£o. O mercado de petrÃ³leo para fins industriais Ã© muito menor do que o mercado de combustÃ­veis fÃ³sseis e muitas empresas vÃ£o desviar o seu foco do segundo para o primeiro de modo que Ã© melhor nÃ£o investir pesado em exploraÃ§Ã£o de petrÃ³leo com custos altÃ­ssimos que podem virar um mico em 15 anos,</p>
+<p><strong>O segundo eixo de combate ou atÃ© o primeiro, pelo seu peso nas emissÃµes de</strong> <strong>GEE do Brasil, Ã© a</strong> <strong>supressÃ£o de desmatamentos e</strong> <strong>queimadas.</strong></p>
+<p>Desde a redemocratizaÃ§Ã£o em 1985 atÃ© o terceiro ano do governo Lula III, 2025, a perda mÃ©dia anual de florestas e outras formaÃ§Ãµes vegetais nativas por desmatamento foi de 6 milhÃµes de hectares, totalizando uma Ã¡rea desmatada de 241 milhÃµes de hectares. A Ã¡rea ocupada por culturas e pastagens dobrou no mesmo perÃ­odo.</p>
+<p>O tamanho da devastaÃ§Ã£o variou muito segundo os governos e suas polÃ­ticas de estÃ­mulo ou de controle do desmatamento. As quedas na Ã¡rea desmatada foram contÃ­nuas e consistentes no primeiro perÃ­odo de Lula e comeÃ§aram a subir no governo de Dilma, acelerando atÃ© um pico no perÃ­odo Bolsonaro, para de novo cair no governo Lula III. No ano passado, a Ã¡rea desmatada foi de um milhÃ£o de hectares, com queda em todos os biomas. A reduÃ§Ã£o do desmatamento na AmazÃ´nia foi significativa, mas no Cerrado ele se manteve nos nÃ­veis do governo anterior e crescendo.</p>
+<p>As polÃ­ticas do governo Lula para controlar os desmatamentos tÃªm tido bons resultados, sobretudo na AmazÃ´nia onde, neste ano, uma Ã¡rea de 3.335 km2 foi desmatada, muito abaixo de mÃ©dia histÃ³rica para o bioma. O mesmo se deu em quase todos os outros biomas, menos no Cerrado onde 5.517 km2 foram desmatados, quase a metade de todo o desmatamento nacional. No entanto, a aprovaÃ§Ã£o da pavimentaÃ§Ã£o da rodovia BR 319 de Manaus a Porto Velho, vai facilitar a aÃ§Ã£o de madeireiros e grileiros e colocar em perigo uma das Ãºltimas Ã¡reas de floresta primÃ¡ria.</p>
+<p>A expansÃ£o do desmatamento no Cerrado indica que o governo nÃ£o estÃ¡ enfrentando o agronegÃ³cio em suas prioridades, pois esta Ã¡rea estÃ¡ toda localizada na chamada Matopiba, Ã¡rea limÃ­trofe de MaranhÃ£o, Tocantins, PiauÃ­ e Bahia, considerada a Ãºltima grande fronteira agropecuÃ¡ria com terras de alguma qualidade.</p>
+<p>AlÃ©m dos desmatamentos, que Lula prometeu zerar atÃ© o fim do seu mandato em seu pronunciamento em Sharm el Sheik em 2022, na COP 29, temos que enfrentar o problema das queimadas.</p>
+<p>Se o desmatamento tem um efeito de longo prazo no aumento do volume de GEE na atmosfera, por eliminar um mecanismo de retirada de CO2, as queimadas tÃªm um efeito imediato de lanÃ§ar grandes volumes de CO2 na atmosfera. Desde a Ãºltima dÃ©cada, as queimadas tÃªm se tornado uma das maiores contribuiÃ§Ãµes para a aceleraÃ§Ã£o do aquecimento global.</p>
+<p>No Brasil existe um movimento equivalente de reduÃ§Ã£o de desmatamentos e de ampliaÃ§Ã£o das queimadas. A explicaÃ§Ã£o estÃ¡ na mudanÃ§a da forma de desmatar usada pelos grileiros e produtores rurais.</p>
+<p>Tradicionalmente, o desmatamento passa por uma sequÃªncia de intervenÃ§Ãµes com atores econÃ´micos distintos. Primeiro, a Ã¡rea Ã© invadida por madeireiros, que retiram grandes Ã¡rvores de alto valor, abrindo estradas para a retirada dos troncos. Em seguida, os grileiros ou fazendeiros derrubam todas as outras Ã¡rvores com tratores de esteira arrastando correntes. Finalmente, apÃ³s a vegetaÃ§Ã£o secar no solo vem a fase da queimada, para limpar a Ã¡rea para pasto ou lavoura. Estas queimadas frequentemente provocam incÃªndios em Ã¡reas vizinhas de matas nativas, o que pode ser facilitado pela degradaÃ§Ã£o provocada por madeireiros ou pelas secas cada vez mais repetidas e intensas.</p>
+<p>No entanto, desde que a vigilÃ¢ncia do INPE adquiriu instrumental para controle por satÃ©lite com alto grau de detalhamento, o procedimento de passagem dos tratores de esteira para derrubada da vegetaÃ§Ã£o foi abandonado por ser facilmente detectÃ¡vel em tempo real. Atualmente, com a ajuda de temperaturas mais altas e baixa umidade, a grilagem incendeia a floresta em pÃ©, jÃ¡ que Ã© praticamente impossÃ­vel os satÃ©lites do INPE localizarem um indivÃ­duo carregando um galÃ£o de gasolina no meio do mato, jogando um fÃ³sforo e se afastando discretamente.</p>
+<p>Por esta razÃ£o, ao se afirmar que o desmatamento estÃ¡ sob controle, Ã© preciso relativizar os dados. O modo tradicional de desmatar estÃ¡ em declÃ­nio, mas o formato via queimadas estÃ¡ em ascenso. Segundo o INPE, se somarmos as Ã¡reas desmatadas por tratores e as desmatadas por incÃªndios a perda de vegetaÃ§Ã£o nativa continua nas mesmas proporÃ§Ãµes que no governo do energÃºmeno.</p>
+<p>Como conseguir o fim dos desmatamentos e queimadas? JÃ¡ vimos que a vigilÃ¢ncia do INPE, IBAMA e Instituto Chico Mendes Ã© insuficiente para deter o processo, ainda mais pelo fato de que tem sido muito difÃ­cil impor multas por crimes ambientais e mais ainda cobrÃ¡-las. Processos da PF contra madeireiros, garimpeiros, grileiros e fazendeiros acabam anulados por decurso de prazo.</p>
+<p>A forma mais radical de cortar a cabeÃ§a da serpente do desmatamento Ã© condicionar o financiamento e a comercializaÃ§Ã£o dos produtos provenientes de Ã¡reas onde haja desmatamento e queimada. O governo Lula IV vai ter que travar uma peleja dura com o agronegÃ³cio, sobretudo de criaÃ§Ã£o de gado e obrigar a certificaÃ§Ã£o de origem de cada animal abatido nos frigorÃ­ficos atravÃ©s de chips implantados nas reses desde o nascimento. De forma complementar os bancos deverÃ£o ser proibidos de financiar fazendeiros que tenham sido notificados por desmatamento ou queimada.</p>
+<p>Embora seja provÃ¡vel uma reaÃ§Ã£o da bancada do boi no Congresso, a proposta da rastreabilidade do gado e da carne Ã© apoiada pelos compradores da carne brasileira e Ã© uma exigÃªncia dos governos europeus para colocar em vigÃªncia o Acordo Mercosul/ UniÃ£o Europeia. Talvez frente aos riscos de perder um dos maiores mercados para a carne bovina o agronegÃ³cio se resolva a aceitar a medida.</p>
+<p>Embora essa polÃ­tica nÃ£o garanta o fim dos desmatamentos e queimadas ela deve dar uma boa travada no processo. O problema Ã©, como jÃ¡ escrevi em outro lugar, o fato de que a rentabilidade da carne brasileira no mercado internacional depende do baixo preÃ§o da terra na AmazÃ´nia e Cerrado, enquanto a rÃ¡pida degradaÃ§Ã£o das pastagens cobra o desbravamento de novas Ã¡reas. NÃ£o sendo possÃ­vel incorporar mais terras por desmatamento o agronegÃ³cio vai ter que mudar de prÃ¡ticas, o que Ã© Ã³timo para o paÃ­s e para a AmazÃ´nia e o Cerrado.</p>
+<p>Estancar a progressÃ£o dos desmatamentos na AmazÃ´nia e no Cerrado certamente colocarÃ¡ um limite na capacidade do imenso rebanho de nelore ser sustentado em Ã¡reas de solos pobres e degradados. Desde logo, anos de mal manejo de pastagens produziram 80 a 120 milhÃµes de hectares de terras degradas. A carga animal das pastagens existentes terÃ¡ que ser reduzida para prolongar o seu uso e evitar a degradaÃ§Ã£o. Isto implica em diminuir o rebanho e isto Ã© um tabu para o agronegÃ³cio. Mas para o Brasil o que importa nÃ£o Ã© o lucro de alguns fazendeiros, mas conservarmos o nosso solo, as nossas matas, a nossa biodiversidade e contribuirmos para interromper o aumento da temperatura da terra.</p>
+<p>E esta contribuiÃ§Ã£o pode ainda ser mais importante se o governo Lula IV adotar a consigna do MST, que se propÃ´s a plantar milhÃµes de Ã¡rvores. Reflorestar 100 milhÃµes de hectares nos diferentes biomas serÃ¡ uma tarefa imensa, mas que tem efeitos gigantescos para nÃ³s e para o planeta. Um replantio de apoio Ã  regeneraÃ§Ã£o natural das Ã¡reas desmatadas e queimadas vai custar caro e mobilizar uma enorme quantidade de mÃ£o de obra, mas Ã© uma meta que pode interessar os governos do primeiro mundo mais preocupados com o aquecimento global.</p>
+<p>Para quem se espantar com uma proposta que vai contra a projeÃ§Ã£o do paraÃ­so na terra se traduzindo em churrasco de picanha e cerveja, aviso que a comunidade cientÃ­fica afirma que o consumo de carne bovina tem que ser drasticamente reduzido se quisermos ter alguma esperanÃ§a de salvar o planeta e a forma de criaÃ§Ã£o deste gado residual deverÃ¡ ser tambÃ©m muito diferente da atual. âDrasticamenteâ significa algo como menos 80% e atÃ© consumo zero para os mais radicais.</p>
+<p>O <strong>segundo ponto</strong> de um programa de salvaÃ§Ã£o nacional para o governo Lula IV estÃ¡ exposto em um artigo publicado sÃ¡bado passado e que se intitula âA questÃ£o da seguranÃ§a alimentar e o problema da carestiaâ no G68 e âSeguranÃ§a alimentar e carestiaâ, no A Terra Ã© Redonda.</p>
+<p>O objetivo desta proposta programÃ¡tica Ã© garantir a seguranÃ§a alimentar e nutricional dos brasileiros, dos mais pobres atÃ© os remediados, os que dependerÃ£o de um auxÃ­lio governamental para conseguir acessar os alimentos em quantidade e qualidade suficientes para uma vida saudÃ¡vel.</p>
+<p>NÃ£o vou detalhar a proposta de novo, apenas dizer que ela implica na definiÃ§Ã£o de <strong>um programa de renda mÃ­nima</strong> que inclua os gastos bÃ¡sicos das famÃ­lias, inclusive o alimentar. E para garantir que os alimentos necessÃ¡rios estejam acessÃ­veis a preÃ§os compatÃ­veis com os definidos no programa de renda mÃ­nima vai ser preciso criar uma <strong>polÃ­tica integrada de produÃ§Ã£o, estocagem, importaÃ§Ã£o, processamento e</strong> <strong>distribuiÃ§Ã£o</strong> <strong>de alimentos</strong>. Isto implica em apoiar agricultores familiares e patronais, de pequeno e mÃ©dio porte, desde que adotem algumas prÃ¡ticas sustentÃ¡veis como uso de composto de lixo e de lodo de esgoto (que deverÃ¡ ser generalizado em consÃ³rcio com as prefeituras), manejo integrado de pragas, plantio direto, entre outras.</p>
+<p>Programas de compras governamentais de alimentos para alimentaÃ§Ã£o em escolas, universidades, quartÃ©is e presÃ­dios, entre outros, deverÃ£o ser adaptados para uma alimentaÃ§Ã£o nutritiva, ao mesmo tempo que o governo deveria financiar a criaÃ§Ã£o de restaurantes populares pelas prefeituras, com pratos adequados Ã  uma dieta saudÃ¡vel. Finalmente, o governo deveria fazer uma intensa e continua campanha de educaÃ§Ã£o alimentar ao mesmo tempo em que estarÃ¡ pelejando para garantir a oferta destes alimentos da dieta desejÃ¡vel.</p>
+<p>Outros pontos deverÃ£o ser agregados a estes para definir uma pauta de negociaÃ§Ã£o com o Congresso e com a sociedade. Mas hÃ¡ uma premissa fundamental a ser enfrentada ao mesmo tempo que se define o programa: o modo de financiar tudo o que vai ser necessÃ¡rio.</p>
+<p>Antes de tentar aprovar as vÃ¡rias novas proposta que a realidade do paÃ­s e do planeta exigem, o governo Lula vai ter que travar uma <strong>batalha orÃ§amentÃ¡ria</strong> <strong>decisiva para definir o que poderÃ¡ ser realizado e o que nÃ£o o serÃ¡</strong>.</p>
+<p>A questÃ£o chave Ã© de onde virÃ£o os recursos para pagar os atuais gastosjÃ¡ comprometidos pelo candidato e os novos gastos com um programa de âajuste ambientalâ. O dÃ©ficit fiscal Ã© brutal e crescente, sobretudo pelas taxas de juros praticadas pelo Bacen, a pretexto de controlar o consumo e evitar a inflaÃ§Ã£o. Esta âregra de ouroâ de quase todos os economistas vem sendo contestada por nomes importantes do mundo financeiro e acadÃªmico, aqui e nos Estados Unidos. Desde logo, como a inflaÃ§Ã£o que mais puxou o IPCA foi a dos alimentos e, para esta, o remÃ©dio de elevar os juros nÃ£o funciona, como defendi no artigo citado acima.</p>
+<p>Mas Ã© um fato bem concreto que vai ser preciso mais recursos do que os disponÃ­veis no orÃ§amento, se quisermos redirecionar a economia para o objetivo do carbono zero. Isto, somado aos valores atuais (insuficientes) dos programas sociais e os recursos necessÃ¡rios para revolucionar a educaÃ§Ã£o e a saÃºde, colocam a imposiÃ§Ã£o de rever os impostos cobrados no Brasil.</p>
+<p>A reforma tributÃ¡ria foi mais um projeto do governo que jÃ¡ comeÃ§ou em meia bomba e terminou abastardado. A tÃ­mida proposta redistributiva foi praticamente anulada e setores privilegiados continuam com seus privilÃ©gios. Vai ser preciso rever isto e enfrentar um Congresso ainda mais contrÃ¡rio Ã  justiÃ§a tributÃ¡ria do que o atual. Ou seja, vai ser preciso uma intensa e extensa campanha de debate com o eleitorado em todos os rincÃµes do paÃ­s, com o objetivo de ganhar apoio em claras manifestaÃ§Ãµes nas redes e nas ruas e nas pesquisas de opiniÃ£o. Cada deputado e senador deve saber, com toda clareza, que seus eleitores estarÃ£o cobrando a fatura em 2030.</p>
+<p>Uma reforma tributÃ¡ria redistributiva deveria levar Ã  cobranÃ§a de impostos totais maiores de quem ganha mais. Impostos totais implica em calcular quanto um cidadÃ£o pobre paga em impostos indiretos e qual o valor pago pelos mais ricos. Atualmente o Imposto de Renda Ã© aparentemente mais justo pois isenta os mais pobres e cobra atÃ© 27,5% da renda dos mais ricos. Na realidade, os mais ricos tÃªm meios, legais ou nÃ£o, de driblar esta cobranÃ§a e, no fim das contas, pagam menos impostos totais do que os mais pobres, em termos de porcentagem sobre a renda.</p>
+<p>NÃ£o Ã© sÃ³ por um sentido de justiÃ§a que se deveria cobrar a totalidade dos investimentos necessÃ¡rios para um futuro sustentÃ¡vel para o paÃ­s e para o povo. A verdade Ã© que a concentraÃ§Ã£o de riqueza e de renda Ã© tamanha no Brasil que nÃ£o hÃ¡ outro lugar onde encontrar recursos, temos que tocar no bolso e nos cofres dos 10% mais ricos, aumentando as alÃ­quotas atÃ© chegarmos ao 1%. Quanto deve ser esta alÃ­quota? Nos paÃ­ses nÃ³rdicos ela chega a mais de 50% da renda e da fortuna, enquanto nos paÃ­ses europeus que compuseram a Europa do Mercado Comum ela fica ligeiramente abaixo deste valor. Muitos economistas como notoriamente o francÃªs Piketty defendem taxas ainda maiores para todos os paÃ­ses ricos.</p>
+<p>A nova missÃ£o do exÃ©rcito do Lula Ã© mais difÃ­cil do que desconstruir FlÃ¡vio Bolsonaro para reeleger o presidente. Vai ser preciso levar esta anÃ¡lise da injustiÃ§a tributÃ¡ria e da necessidade de recursos para um futuro melhor. Para que o eleitor saiba para onde irÃ¡ o dinheiro, o governo deve apresentar um programa de mudanÃ§as que eu apenas comecei a esboÃ§ar aqui.</p>
+<p>Este convencimento vai cobrar uma aÃ§Ã£o de debate direto com os independentes e atÃ© com os bolsonaristas. NÃ£o basta repetir slogans nas redes. Vai ser preciso conversar para convencer. Apresentar argumentos, ouvir crÃ­ticas e respondÃª-las. Para a imensa maioria dos brasileiros, os que nÃ£o fazem parte dos 1% mais ricos, a questÃ£o da justiÃ§a tributÃ¡ria nÃ£o Ã© polÃ­tica nem muito menos ideolÃ³gica â ela Ã© um fator chave para vivermos como vivemos, com imensa disparidade de padrÃµes de vida, com muitos sem o bÃ¡sico necessÃ¡rio para uma vida digna e uns poucos vivendo em luxo e esbanjamento.</p>
+<p>Desta vez, presidente Lula, nÃ£o vai dar para conciliar. Vai ser preciso rever os subsÃ­dios que beneficiam setores econÃ´micos em detrimento de outros. Em particular, os 200 bilhÃµes de reais gastos em diferentes formas de apoio ao agronegÃ³cio tem que ser revistos e eliminados. Afinal, como diz a propaganda âagro Ã© tech, agro Ã© pop, agro Ã© tudoâ. Ou sÃ³ Ã© o que Ã© com uma enorme bengala do erÃ¡rio?</p>
+<p>VÃ£o dizer que se os subsÃ­dios forem retirados os preÃ§os dos alimentos vÃ£o subir ainda mais. Pode ser, por um tempo, mas isto vai permitir que as prÃ¡ticas agroecolÃ³gicas, que nÃ£o emitem gases de efeito estufa, poderÃ£o se impor e provocar o abandono do uso de fertilizantes quÃ­micos e agrotÃ³xicos, alÃ©m de prÃ¡ticas deletÃ©rias para os solos agrÃ­colas. E, enquanto a conversÃ£o para a agroecologia nÃ£o se completar e os preÃ§os da produÃ§Ã£o convencional estiverem mais caros, o governo deverÃ¡ financiar o consumo dos setores carentes e aqueles mais bem providos pagarÃ£o o preÃ§o de mercado. No sistema atual os subsÃ­dios do governo beneficiam a todos os consumidores, ricos ou pobres.</p>
+<p>Presidente: apresente um programa ambicioso, mas consistente com as necessidades reais do nosso povo sob ameaÃ§a imediata da crise ambiental planetÃ¡ria. EsqueÃ§a o mote da âpicanha com cervejaâ; as metas de sobrevivÃªncia da humanidade sÃ£o bem mais importantes. E defenda uma reforma tributÃ¡ria em que os ricos paguem o custo das transformaÃ§Ãµes almejadas.</p>
+<p></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/crise-brasileira/e-agora-que-fazer-nos-proximos-quatro-anos/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

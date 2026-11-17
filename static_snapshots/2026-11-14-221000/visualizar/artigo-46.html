@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>America’s AI secrets are leaking — and not just because of the Nvidia spy scandal - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">America’s AI secrets are leaking — and not just because of the Nvidia spy scandal</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/future-perfect/510882/nvidia-jensen-huang-spy-ai-security-openai-anthropic" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/GettyImages-2296993009.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: It’s not just Nvidia’s spy. America’s AI secrets are leaking.
+                            </p>
+                            <p>TORONTO — When a company is building technology that could totally transform the world — technology so high-stakes and secretive that it may underpin the future of geopolitics — you might expect its leaders to have a handle on the basics of security.</p><p>Basics like, say, not having an extramarital affair with an alleged Chinese spy. Basics like not selling the tech to someone who may help smuggle it to a top foreign adversary.</p><p>Instead America got Jensen Huang, the CEO of AI chipmaker Nvidia, who resigned Thursday after admitting that he’d had just such an affair. The woman in question, <a href="https://www.nytimes.com/2026/11/06/us/politics/chinese-spy-agency-nvidia-jensen-huang.html?unlocked_article_code=1.OVE.chUR.Mkcss82COvjZ&amp;smid=url-share" rel="noopener noreferrer" target="_blank">Alice Huang</a>, worked for a company called Megaspeed, which was buying billions of dollars’ worth of chips from Nvidia. Megaspeed is <a href="https://www.nbcnews.com/tech/tech-news/megaspeed-statement-nvidia-jensen-huang-alice-us-exports-chips-china-rcna608939" rel="noopener noreferrer" target="_blank">under investigation</a> for allegedly smuggling chips into China.</p><p>The spy scandal raises serious questions about security in the AI corporate world. How is it possible that an alleged Chinese spy so easily embedded into Nvidia, one of the world’s most valuable companies and a huge strategic asset to America in the global AI race?</p><p>What’s even more disturbing, however, is that Nvidia is just the tip of the iceberg.</p><p>In fact, just as the Huang story was breaking, some of the world’s top AI researchers were gathered in Toronto for the Hinton Lectures, where “godfather of AI” Geoffrey Hinton was hosting AI alignment pioneer Paul Christiano for a series of talks. I was in attendance and, strikingly, I didn’t hear Huang’s scandal mentioned once. The focus was on how the frontier AI companies are racing ahead on building this incredibly powerful technology even though they can’t keep it safe or secure it. For months now, OpenAI and Anthropic have been having their own embarrassing security problems, including corporate espionage and cyber breaches.</p><p>“We are not able to adequately secure AI developments,” Christiano, who recently joined the OpenAI nonprofit board, bluntly acknowledged at the event. “We need to be able to defend models and algorithms from theft.”</p><p>Ironically, national security is a big part of the large AI companies’ rationale for how they operate in the first place. OpenAI and Anthropic, backed by White House policy, both justify their blistering speed in the AI race by saying that the US can’t afford to let China win. And Anthropic recently justified <a href="https://metr.org/blog/2026-11-05-anthropic-ai-rd-acceleration-assessment/#executive-summary" rel="noopener noreferrer" target="_blank">heavily redacting a key independent report</a> on its AI progress by claiming that it can’t afford to let China glean its secrets.</p><p>But that may be the equivalent of worrying that you’ve left the window open a crack when your front door is swinging wide open.</p><p>“I’m frustrated with a lot of the companies because they simultaneously use security as an all-purpose cudgel with which to withhold information — even information that’s very much in the public interest to know — and yet they have terrible security,” Daniel Kokotajlo, a former researcher at OpenAI who <a href="https://www.vox.com/future-perfect/2024/5/17/24158403/openai-resignations-ai-safety-ilya-sutskever-jan-leike-artificial-intelligence" rel="noopener noreferrer" target="_blank">became a prominent whistleblower</a>, told me. (Disclosure: Vox Media is one of several publishers that have signed partnership agreements with OpenAI. Our reporting remains editorially independent.)</p><p>While the story of Huang’s affair has fired up imaginations, the real lesson to be taken from his spectacular downfall is not that he was uniquely weak on security, but that he was remarkably <em>similar</em> to the other big players in AI. They are asking the world to trust them as they claim to be building a machine god — and, in the case of Anthropic, chasing a $1.4 trillion IPO on that basis — yet they haven’t gotten ahold of basic security.</p><p><h2>Are OpenAI and Anthropic practically giving away their secrets due to bad security?</h2></p><p>OpenAI revealed last month that it had found a recording device in a conference room where sensitive discussions take place. Abdulrahman Alfozan, a <a href="https://www.nytimes.com/2026/10/14/business/dealbook/openai-espionage.html" rel="noopener noreferrer" target="_blank">Saudi national working as an engineer at OpenAI</a>, is alleged to have plugged the recorder into the USB port of a television and simply wrapped it in toilet paper. Another recorder was found in a bag in another room. Questions about how to build a device that records continuously and encrypt data also showed up on his spouse’s chatbot account.</p><p>“At this time, we have no indications of this individual inappropriately accessing or exfiltrating model weights, source code, or customer data,” <a href="https://x.com/OpenAINewsroom/status/2110095403198849132" rel="noopener noreferrer" target="_blank">OpenAI said</a> last month, adding, “Our security program is designed to protect against a wide range of threat actors, from insider risks to cybercriminals to nation states.”</p><p>But the incident was worrisome. Alfozan had been working at OpenAI since June 2025. The recording device was <a href="https://www.bbc.com/news/articles/cwg5jq4vlddzo" rel="noopener noreferrer" target="_blank">sitting in that conference room for a couple of days</a> before OpenAI discovered it. Maybe Alfozan <a href="https://www.transformernews.ai/p/openai-spy-exposes-wider-security-problem" rel="noopener noreferrer" target="_blank">wasn’t sophisticated enough</a> to steal model weights — the billions of numbers that shape how an AI system turns input into output — but what if he’d been just slightly more careful or clever?</p><p>OpenAI has also had security weaknesses of a different kind — and no, it’s not just this summer’s notorious <a href="https://huggingface.wtf/" rel="noopener noreferrer" target="_blank">Hugging Face incident</a>. Of the ones we know about (sometimes these are only revealed later), a recent example stands out: A group of “white-hat” hackers, who aim to find vulnerabilities but not to do a company harm, discovered a way to <a href="https://www.nbcnews.com/tech/security/hackers-breach-openai-rcna598518" rel="noopener noreferrer" target="_blank">access OpenAI employees’ ChatGPT accounts</a>, where sensitive research is potentially being done. The whole operation took just 72 hours.</p><p>Over at Anthropic, a group of ex-DOGE staffers who founded an AI startup called Cathedral managed to <a href="https://www.washingtonpost.com/technology/2026/10/26/researchers-cybersecurity-start-up-cathedral-got-inside-anthropic" rel="noopener noreferrer" target="_blank">breach Anthropic’s internal systems in under 12 hours</a>. They reportedly accessed the company’s Slack, where employees trade messages discussing the company’s state-of-the-art models, as well as meeting transcripts.</p><p>“My guess would be that the Slack would contain enough information to get a good sense of what the company is doing and how they’re training their AIs — basically, the juicy secrets would be there,” Kokotajlo told me. “And I would say getting the algorithmic secrets is like 80 percent as good as getting everything, including the model weights.”</p><p>Alleged spies (like Alice Huang or Abdulrahman Alfozan) and cyber breaches (like those targeting OpenAI and Anthropic) are obviously different types of security issues that demand very different types of internal controls. But for Kokotajlo and others, it makes sense to think of them all under the same umbrella — weak security. And it all points to a trend that seems common among the most powerful AI companies: They’re prioritizing rapid technological advancement over the perhaps more boring and slower process of ensuring their work is secure.</p><p>“They show that the companies are very far from having security adequate to protect themselves from a well-resourced state actor,” Kokotajlo said, adding: “If China wants to get the stuff, China will get the stuff.”</p><p>This is all happening against the backdrop of <a href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa26-251a" rel="noopener noreferrer" target="_blank">China’s aggressive distillation of US models</a>, which involves training a new model on the output of a more advanced one. It’s a way to gain powerful capabilities without having to incur the real cost — a bit like cheating on a test by copying off a better student. For example, Anthropic found that the Chinese lab <a href="https://www.anthropic.com/news/detecting-and-preventing-distillation-attacks" rel="noopener noreferrer" target="_blank">DeepSeek has been using Claude to improve</a> its models, which is not a breach per se but illustrates how vigorously China is taking advantage of American companies’ research.</p><p>Kokotajlo also emphasized that there’s another bucket of security incidents we should be worried about: the hacks perpetrated against companies by their own misaligned AI models. Many people forget that in the <a href="https://huggingface.wtf/" rel="noopener noreferrer" target="_blank">Hugging Face incident</a>, OpenAI agents didn’t only hack into Hugging Face — OpenAI’s own systems were breached, too. The sandbox meant to contain the agents was far from airtight, and they broke out.</p><p>“You should consider the AIs as an insider threat,” Kokotajlo said. “And it doesn’t feel like these companies have that locked down very well either.”</p><p><h2>The top AI companies can’t keep using the security practices of a startup</h2></p><p>There are three main reasons why security at the frontier AI companies hasn’t been up to snuff, according to David Robinson, who led transparency work for OpenAI’s safety team until he left in September.</p><p>One is the fact that the companies are building AI agents so capable that it can be genuinely hard — even for their creators — to keep them from doing damage. “We’re training systems to be good at conducting attacks of the kind that the labs internally are now also trying to defend against,” Robinson told me. “That is a challenging situation.”</p><p>There’s also a cultural problem. “If you look back with 20/20 hindsight at the Hugging Face incident, it’s clear that at the time OpenAI had underinvested in cybersecurity controls, and I think part of the reason for this was that there’s a [higher] level of cachet associated with working on alignment,” or the problem of how to get AIs to do what humans want them to do, Robinson said. “Some of the day-to-day practical questions about our cybersecurity posture — even though the people working on those questions are extremely good — I think it was not the same kind of organizational priority as it needed to be.”</p><p>Finally, there’s the fact that market incentives push AI companies to race ahead on developing the tech as fast as they can.</p><p>“Time pressure on the company,” Robinson said, “made it very difficult to be sufficiently careful.” And although researchers still at OpenAI now say the company has gotten dramatically better on security, Robinson noted that those competitive pressures “continue to exist.”</p><p>This is a <a href="https://www.vox.com/future-perfect/2024/5/17/24158403/openai-resignations-ai-safety-ilya-sutskever-jan-leike-artificial-intelligence" rel="noopener noreferrer" target="_blank">well-documented trend</a> at the company. “OpenAI’s security seems to be about what you’d expect from a research lab that scaled at a blistering pace over four years and focused more on beating its competitors than securing its infrastructure,” Joshua Saxe, the chief technology officer of the AI security firm Abundant Security, <a href="https://www.nytimes.com/2026/09/29/technology/openai-warnings-security.html" rel="noopener noreferrer" target="_blank">told</a> the New York Times after the Hugging Face incident.</p><p><a href="https://openai.com/index/hugging-face-model-evaluation-security-incident/" rel="noopener noreferrer" target="_blank">OpenAI itself</a> has implicitly acknowledged that improving security measures sometimes comes “at the cost of research velocity,” as it wrote in a public memo after the incident.</p><p>But if a company cuts corners on security, it can’t ultimately protect its lead over others. If anything, it just ends up helping its adversaries race against it even faster.</p><p>As Kokotajlo and his colleagues at the AI Futures Project <a href="https://blog.aifutures.org/p/q35-timelines-update-looks-like-the" rel="noopener noreferrer" target="_blank">recently warned</a> when writing about the companies’ quest to build a superhuman AI researcher (SAR), an AI that’s as good as the top human researcher: “If we train SAR in the immediate future, the algorithms will probably leak to China, and maybe the model weights too. AI companies have very poor security right now, and so we are on track for SAR leaking to China.”</p><p>And it’s not just that poor security can make it self-defeating for American companies to keep racing forward. Their security weakness could also make it harder for them to slow down even if they themselves want to.</p><p>In his lecture this week in Toronto, Christiano asked all of us in the audience to imagine a scenario that he said currently looks likely: We arrive at a point when further progress on AI seems risky. There’s a demand in the US to slow down. But there’s also a high probability that the AI models or algorithms have already leaked to an adversary like China.</p><p>“We now face a dilemma between either proceeding with a technology we believe to be unsafe — or risking competition from an adversary who has the same resources, who has taken those algorithms, and perhaps is willing to tolerate higher risk,” Christiano said, as the hundreds of people seated around me seemed to visibly tense up. “I think that is one of the most likely ways that we end up in an extremely bad situation.”</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/future-perfect/510882/nvidia-jensen-huang-spy-ai-security-openai-anthropic" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

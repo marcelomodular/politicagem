@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alter do Chão: o fogo que loteia um paraíso - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Alter do Chão: o fogo que loteia um paraíso</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/terraeantropoceno/alter-do-chao-o-fogo-que-loteia-um-paraiso/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5177007670429420887_x.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Alter do ChÃ£o: o fogo que loteia um paraÃ­so
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5177007670429420887_x.jpg"/>Foto: ReproduÃ§Ã£o/Brigada de Alter
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>O fogo jÃ¡ consumiu 11% de toda a Ãrea de ProteÃ§Ã£o Ambiental (APA) de Alter do ChÃ£o. SÃ£o <strong>1.775 hectares</strong> de florestas, savanas e Ã¡reas de preservaÃ§Ã£o permanente calcinados entre 10 de agosto e 11 de novembro, o que equivale a <strong>2.500 campos de futebol</strong>. Calcinar significa que o calor extremo carboniza, alÃ©m da vegetaÃ§Ã£o, a camada viva do solo, os microrganismos, o banco de sementes e a matÃ©ria orgÃ¢nica. Acaba com todas as relaÃ§Ãµes que mantÃªm o ecossistema de pÃ©.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-28-1500x844.png"/><em>Mapeamento de cicatrizes de fogo na APA Alter do ChÃ£o entre agosto e novembro de 2026. <strong>Fonte</strong>: LuÃ­s A. F. Teixeira / IFPA.</em>
+<p>Os dados constam de levantamento do engenheiro florestal LuÃ­s Antonio Fonseca Teixeira, do IFPA (Campus SantarÃ©m), a partir de 43 imagens do satÃ©lite. O mapeamento desmonta qualquer farsa de fogo acidental: quando o combate conseguia conter o incÃªndio num ponto, a âmÃ£o invisÃ­vel do mercadoâ botava fogo em outro ponto estratÃ©gico, torrando Ã¡reas para loteamentos. Em Alter, vende-se a vista.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-29.png"/><em>InÃ­cio e avanÃ§o do fogo na APA: Cronologia dos primeiros focos e frentes ativas de queimada nos setores Ponta de Pedras, Lago Verde e Laranjal/Pindobal (ago.ânov./2026). <strong>Fonte</strong>: LuÃ­s A. F. Teixeira / IFPA Campus SantarÃ©m (dados Sentinel-2)</em>
+<p>Vale examinar os mapas acima com atenÃ§Ã£o. No setor <strong>A (Ponta de Pedras)</strong>, a Ã³rbita do satÃ©lite expÃµe a cronologia do fogo: entre 10 de agosto e 2 de setembro, os primeiros focos consumiram a vegetaÃ§Ã£o em dois pontos iniciais (Pontos 1 e 2); em seguida, a disposiÃ§Ã£o espacial das chamas sugere um cerco planejado. Entre 2 e 9 de setembro, quatro frentes de fogo ativo avanÃ§aram em leque, em um desenho que fecha o perÃ­metro e inviabiliza o combate, queimando 1.064 hectares de savana atÃ© novembro. No setor <strong>B (Lago Verde)</strong>, o padrÃ£o espacial aponta para a mesma lÃ³gica: focos deflagrados em pontos distintos que dispersam as brigadas, torrando 352 hectares entre o CamarÃ£o e o Macaco logo apÃ³s as eleiÃ§Ãµes. JÃ¡ no setor <strong>C</strong>, com Pindobal Ã  esquerda e Laranjal no topo direito, as estradas serviram de rota de acesso e fuga: atearam fogo em datas e locais distintos entre outubro e novembro, consumindo outros 190 hectares para especulaÃ§Ã£o imobiliÃ¡ria.</p>
+<p>Fogo na terra, fumaÃ§a no ar. As queimadas transformaram Alter do ChÃ£o em uma cÃ¢mara de gÃ¡s. A concentraÃ§Ã£o de monÃ³xido de carbono (CO) subiu de 30 para mais de 50 mmol/mÂ². O Ã­ndice de aerossÃ³is, as partÃ­culas microscÃ³picas de fuligem no ar, saltou de 0,1 para picos acima de 0,5. Para quem mora na vila, ficou difÃ­cil respirar. A fumaÃ§a sufoca, os olhos ardem, a cabeÃ§a dÃ³i. A insalubridade do ar superlotou postos de saÃºde e a UPA 24h com problemas respiratÃ³rios. A fuligem tambÃ©m provoca uma pane na formaÃ§Ã£o das nuvens. O climatologista Antonio Donato Nobre descreve a mecÃ¢nica desse colapaso no relatÃ³rio <a href="https://www.ccst.inpe.br/o-futuro-climatico-da-amazonia-relatorio-de-avaliacao-cientifica-antonio-donato-nobre/" rel="noopener noreferrer" target="_blank">Futuro ClimÃ¡tico da AmazÃ´nia</a>: a fumaÃ§a e a fuligem criam ânuvens poluÃ­das e dissipativas que nÃ£o produzem chuvasâ. O incÃªndio impede o choro do cÃ©u.</p>
+<p>Enquanto isso, no chÃ£o quente, o combate vem sendo travado corpo a corpo por brigadistas voluntÃ¡rios da <a href="https://www.instagram.com/brigadadealter/" rel="noopener noreferrer" target="_blank">Brigada de Alter</a>, da <a href="https://www.instagram.com/redebrigadasbaixotapajos/" rel="noopener noreferrer" target="_blank">Rede de Brigadas do Baixo TapajÃ³s</a> e pelos <a href="https://www.instagram.com/guardioesborari/" rel="noopener noreferrer" target="_blank">GuardiÃµes Borari</a> ao lado do Corpo de Bombeiros. Foram os perfis desses coletivos no Instagram que funcionaram como a verdadeira sala de situaÃ§Ã£o da vila, registrando a exaustÃ£o fÃ­sica da linha de frente e informando os comunitÃ¡rios enquanto a gestÃ£o municipal silenciava.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-30-1500x1000.png"/><em>Brigadistas tentam conter o fogo. <strong>Fonte</strong>: Luana Munduruku (@soucabocla)</em>
+<p>Horas apÃ³s conterem o fogo, quando as equipes retornam para o rescaldo e o monitoramento contra o risco de reigniÃ§Ã£o, descobrem que outros passos jÃ¡ passaram na frente. Em alguns pontos encontram rastros de moto, cheiro de gasolina e amontoados de madeira recÃ©m-carbonizada como fogueiras armadas para alimentar o prÃ³xima faÃ­sca criminoso, em outros estacas recÃ©m-fincadas tentando demarcar Ã¡rea privada em terra indÃ­gena.</p>
+<p>âPara nÃ³s indÃ­genas de Alter do ChÃ£o, esse incÃªndio Ã© criminoso. Nunca vi uma coisa tÃ£o feia como essaâ, desabafou a <strong>Cacica Neca Borari</strong> na audiÃªncia pÃºblica que reuniu moradores, pesquisadores e autoridades na vila. âSe apaga o fogo desse lado, para ali jÃ¡ tem outro e outro, e jÃ¡ estÃ¡ tudo demarcado para um loteamento.â</p>
+<p>A fala ecoou no ginÃ¡sio da Escola Borari, lotado na Ãºltima sexta-feira, 13 de novembro. Convocada pelo povo indÃ­gena junto ao MinistÃ©rio PÃºblico Federal, a audiÃªncia pÃºblica escancarou a engrenagem histÃ³rica de loteamentos ilegais, omissÃ£o administrativa e apropriaÃ§Ã£o de terra pÃºblica em Alter do ChÃ£o.</p>
+<p>âAgora estamos enfrentando esse fogo, que acontece todos os anos, mas desta vez foi pior. E poderÃ¡ ser ainda pior se ninguÃ©m tomar providÃªnciasâ, denunciou a Cacica Neca Borari. âO governo do municÃ­pio vai ter que ajudar, vai ter que agir. Porque nÃ£o estÃ£o fazendo nada, nada! A Secretaria de Meio Ambiente vai liberando e nÃ£o fiscaliza nada, nÃ£o fiscaliza nada!â</p>
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-31.png"/><em>A cacica Neca Borari durante a audiÃªncia pÃºblica na vila de Alter do ChÃ£o. <strong>Foto:</strong> PatrÃ­cia Kalil.</em>
+
+<p>A indignaÃ§Ã£o da cacica tem base cientÃ­fica. <strong>Alter do ChÃ£o queima de forma crÃ´nica hÃ¡ pelo menos quatro dÃ©cadas</strong>. Outro <a href="https://fogoapaalter.netlify.app/" rel="noopener noreferrer" target="_blank">estudo geoespacial</a> tambÃ©m conduzido por Teixeira para seu doutorado comprova que um terÃ§o (33,2%) de toda a Ãrea de ProteÃ§Ã£o Ambiental (APA) foi consumido pelas chamas ao menos uma vez entre 1985 e 2024.</p>
+<p>A destruiÃ§Ã£o parece programada. O levantamento revela que quase 70% das Ã¡reas queimadas enfrentaram o fogo repetidas vezes, com Ã¡reas que chegaram a queimar atÃ© 19 vezes no mesmo hectare. Com mais de 90% dos focos concentrados pontualmente entre julho e novembro, <strong>os incÃªndios na aldeia Alter do ChÃ£o tem Ã©poca, mapa e padrÃ£o absolutamente previsÃ­veis</strong>. Se os Ã³rgÃ£os de controle e a academia conhecem exatamente onde pega fogo todos os anos, a persistÃªncia do desastre denuncia a ausÃªncia deliberada de prevenÃ§Ã£o, manejo contÃ­nuo e fiscalizaÃ§Ã£o ostensiva.</p>
+<p>Em 2026, a dimensÃ£o do estrago forÃ§ou uma reaÃ§Ã£o em BrasÃ­lia e BelÃ©m. No fim de outubro, a Secretaria Nacional de ProteÃ§Ã£o e Defesa Civil reconheceu a <a href="https://www.in.gov.br/web/dou/-/portaria-n-3.652-de-21-de-outubro-de-2026-739703253" rel="noopener noreferrer" target="_blank">emergÃªncia de SantarÃ©m</a>. Na sexta 13, dia da audiÃªncia, o governo do estado do ParÃ¡ publicou o decreto <a href="https://www.agenciapara.com.br/noticia/80581/para-declara-emergencia-de-nivel-ii-em-areas-atingidas-por-incendios-florestais" rel="noopener noreferrer" target="_blank">de emergÃªncia de NÃ­vel II</a> nas Ã¡reas atingidas por incÃªndios. Dois dias depois, no domingo, 15, foi a vez do governo federal reconhecer a situaÃ§Ã£o de emergÃªncia em <a href="https://www.agenciapara.com.br/noticia/80595/governo-federal-reconhece-situacao-de-emergencia-em-61-municipios-paraenses-afetados-por-incendios-florestais" rel="noopener noreferrer" target="_blank">61 municÃ­pios do ParÃ¡ por incÃªndios florestais</a>.</p>
+<p>No papel, o aparato federal impressiona: mais de 400 profissionais e 65 veÃ­culos operacionais, alÃ©m de 17 aeronaves jÃ¡ lanÃ§aram quase um milhÃ£o de litros de Ã¡gua pelo Prevfogo e pelo ICMBio para apagar os incÃªndios no Oeste do ParÃ¡. Em resposta a esta reportagem, o Ibama informou ter <strong>multado infratores em R$ 215 mil e embargado cerca de 60 hectares no Lago Verde</strong>. Mas lavou as mÃ£os sobre o quadro geral: alegou que a APA Ã© gerida pela Prefeitura de SantarÃ©m e admitiu nÃ£o dispor de dados consolidados sobre a extensÃ£o da Ã¡rea incendiada na unidade.</p>
+<p>Longe dos sobrevoos, a linha de frente imediata nas comunidades tem sido sustentada por civis desde o primeiro estalo das chamas. O prÃ³prio <strong>procurador da RepÃºblica VinÃ­cius Schlickmann Barcelos</strong> reconheceu, durante audiÃªncia pÃºblica, a insuficiÃªncia da resposta do poder pÃºblico: âSe os brigadistas e os povos indÃ­genas estÃ£o tendo que enfrentar por seus prÃ³prios meios uma crise que Ã© responsabilidade do Estado, algo nÃ£o estÃ¡ funcionando e nÃ³s estamos atentos a isso.â HÃ¡ noites em que a luta nÃ£o dÃ¡ trÃ©gua.</p>
+<p>Na audiÃªncia, diante dos procuradores, os indÃ­genas entregaram a pauta de exigÃªncias: a demarcaÃ§Ã£o imediata da <a href="https://repositorio.ufopa.edu.br/items/3c86e695-8fc4-4c9a-9e7e-25dcb32fc512" rel="noopener noreferrer" target="_blank">Terra IndÃ­gena Borari</a> e a responsabilizaÃ§Ã£o polÃ­tica e jurÃ­dica da gestÃ£o municipal. Cobram a exoneraÃ§Ã£o da secretÃ¡ria municipal de Meio Ambiente, VÃ¢nia Portela, no cargo desde 2018 e acumulando, em flagrante conflito de interesses, a presidÃªncia do <a href="https://santarem.pa.gov.br/noticias/meio-ambiente/conselho-gestor-da-apa-alter-do-chao-toma-posse-para-o-bienio-2026-2027-gsmpso" rel="noopener noreferrer" target="_blank">Conselho Gestor da APA</a> e do <a href="https://santarem.pa.gov.br/noticias/meio-ambiente/conselho-de-meio-ambiente-elege-nova-presidencia-em-reuniao-ordinaria-64krbu" rel="noopener noreferrer" target="_blank">Conselho Municipal de Meio Ambiente</a>. Como pode a gestora acusada de inÃ©rcia ser a prÃ³pria fiscal das denÃºncias contra sua pasta?</p>
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-32.png"/><em>Cacique Maduro ao lado do procurador da RepÃºblica VinÃ­cius Schlickmann Barcelos. <strong>Foto:</strong> PatrÃ­cia Kalil.</em>
+
+<p>âAlter do ChÃ£o, para o governo, Ã© sÃ³ a praia mais bonita do mundo, mas Ã© pouco vista pelo governo local e estadualâ, desabafou o <strong>cacique Rosivaldo Maduro</strong>, lideranÃ§a do povo Borari. âA gente tem lutado muito nesses Ãºltimos dias, tambÃ©m pela nossa saÃºde, que jÃ¡ nÃ£o estÃ¡ indo bem. Respirando fumaÃ§a todo dia, a gente acaba piorando. O povo Borari estÃ¡ aqui resistindo! A gente quer a demarcaÃ§Ã£o do nosso territÃ³rio e pede o apoio do MinistÃ©rio PÃºblico para impedir tantas invasÃµes.â</p>
+<h3><strong>A engrenagem da espoliaÃ§Ã£o: da estrada do âprogressoâ ao territÃ³rio ameaÃ§ado</strong></h3>
+<p>A antiga aldeia Borari antecede em muito os <a href="https://santarem.pa.gov.br/noticias/cultura/prefeitura-de-santarem-celebra-os-268-anos-de-alter-do-chao-com-programacao-cultural-n53uhp" rel="noopener noreferrer" target="_blank">268 anos</a> do registro colonial portuguÃªs, em 6 de marÃ§o de 1758. Essa idade oficial Ã© uma ficÃ§Ã£o do colonizador. A histÃ³ria da regiÃ£o Ã© milenar. A prÃ³pria cidade de SantarÃ©m foi erguida sobre um sÃ­tio arqueolÃ³gico ocupado hÃ¡ pelo menos 10 mil anos, como demonstram as escavaÃ§Ãµes e pesquisas da <a href="https://www.researchgate.net/publication/322831855_Uma_Santarem_mais_antiga_sob_o_olhar_da_Arqueologia" rel="noopener noreferrer" target="_blank">arqueÃ³loga Anne Rapp Py-Daniel</a>, da Universidade Federal do Oeste do ParÃ¡ (UFOPA).</p>
+<p>Mesmo assim, o Estado brasileiro parece paralisado. Desde 2009 engavetou o processo demarcatÃ³rio da aldeia Borari na Funai. O povo Borari, composto por 1.200 famÃ­lias distribuÃ­das nas aldeias Alter do ChÃ£o, Caranazal e CurucuruÃ­, realizou seu prÃ³prio <a href="https://repositorio.ufopa.edu.br/items/3c86e695-8fc4-4c9a-9e7e-25dcb32fc512" rel="noopener noreferrer" target="_blank">RelatÃ³rio de AutodemarcaÃ§Ã£o Territorial</a>, em parceria com o NÃºcleo de Pesquisas sobre EspaÃ§o, PolÃ­tica e EmancipaÃ§Ã£o Social (NEPES) da Universidade Federal do Oeste do ParÃ¡ (UFOPA).</p>
+<p>O estudo acadÃªmico e comunitÃ¡rio escancarou a distorÃ§Ã£o dos Ã³rgÃ£os federais: os traÃ§ados burocrÃ¡ticos do Incra e da Funai deixaram de fora justamente o Lago Verde, que Ã© berÃ§o dos encantados e coraÃ§Ã£o cosmolÃ³gico do territÃ³rio, e as cobiÃ§adas faixas de areia do Rio TapajÃ³s, como as pontas do Cururu, CoatÃ¡, TauÃ¡, MuretÃ¡ e Ponta de Pedras.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-33.png"/>
+<p>Ãgua Ã© territÃ³rio: Mapa da autodemarcaÃ§Ã£o da Terra IndÃ­gena Borari (NEPES-UFOPA/AIBAC). Em verde, a delimitaÃ§Ã£o oficial Funai/Incra, que excluiu o Lago Verde e as praias; em marrom, o traÃ§ado da autodemarcaÃ§Ã£o indÃ­gena, que incorpora as Ã¡guas sagradas e as pontas de areia cobiÃ§adas pela especulaÃ§Ã£o.</p>
+<p>Mas o modo de vida tradicional teve seu primeiro grande abalo na dÃ©cada de 1970, com a abertura em chÃ£o batido da rodovia Everaldo Martins (PA-457). O asfaltamento da estrada, em 1991, aumentou a pressÃ£o sobre o territÃ³rio. <a href="https://biblioteca.univali.br/pergamumweb/vinculos/pdf/Luciana%20Noronha%20Pereira.pdf" rel="noopener noreferrer" target="_blank">Alter virou balneÃ¡rio de turismo</a> e disparou uma corrida predatÃ³ria por terrenos, casas de veraneio e mansÃµes com vista para o TapajÃ³s. FamÃ­lias indÃ­genas e antigos moradores passaram a ser empurrados para as periferias, num processo de gentrificaÃ§Ã£o e racismo socioambiental, enquanto as margens do rio, atÃ© entÃ£o cuidadas pelas famÃ­lias nativas, comeÃ§aram a sofrer com uma sequÃªncia de ocupaÃ§Ãµes e obras irregulares.</p>
+<p>A reaÃ§Ã£o comunitÃ¡ria tentou conter a cobiÃ§a imobiliÃ¡ria ainda no final dos anos 1990, quando lideranÃ§as do Eixo Forte e pesquisadores desenharam uma Unidade de ConservaÃ§Ã£o federal de mais de 50 mil hectares para proteger nascentes, igarapÃ©s e 18 comunidades. Ã frente dessa luta estava <strong>Laudelino Sardinha, o Laudeco</strong>, lideranÃ§a Borari. Em 2003, contudo, a gestÃ£o do prefeito Lira Maia ignorou o projeto popular e promulgou a <a href="https://sapl.santarem.pa.leg.br/norma/485" rel="noopener noreferrer" target="_blank">Lei Municipal nÂº 17.771</a>, criando a APA de Alter, municipal, com 16.180 hectares. <strong>Das 18 comunidades do Eixo Forte que reivindicavam proteÃ§Ã£o, onze ficaram de fora</strong>. Laudeco resumiu a manobra polÃ­tica: âfoi um golpeâ. A reduÃ§Ã£o da Ã¡rea foi uma decisÃ£o para blindar a elite santarena e abrir caminho para a especulaÃ§Ã£o imobiliÃ¡ria.</p>
+<p>Acontece que a prÃ³pria lei municipal da criaÃ§Ã£o da APA <strong>jÃ¡ determinava, </strong><a href="https://sapl.santarem.pa.leg.br/media/sapl/public/normajuridica/2003/485/485_texto_integral.pdf" rel="noopener noreferrer" target="_blank"><strong>no artigo 2Âº</strong></a><strong>, a elaboraÃ§Ã£o do Plano de Manejo e do Zoneamento EcolÃ³gico-EconÃ´mico</strong>. No artigo 4Âº, a regra era expressa: planejamento participativo para definir o que incentivar, restringir ou proibir. Pela legislaÃ§Ã£o federal, a Prefeitura de SantarÃ©m tinha cinco anos para entregar o documento. O prazo venceu em julho de 2008. SÃ£o dezoito anos de descumprimento deliberado.</p>
+<p>O zoneamento deveria organizar o territÃ³rio, definindo regras claras de convivÃªncia com a floresta: apontar no mapa os sÃ­tios de relevÃ¢ncia cultural e arqueolÃ³gica, proteger nascentes, igarapÃ©s e matas nativas, e delimitar onde as atividades humanas podem ocorrer ou precisam ser terminantemente barradas.</p>
+<p>SÃ³ que o zoneamento precisa considerar um labirinto de sobreposiÃ§Ãµes. A Ãrea de ProteÃ§Ã£o Ambiental (APA) Alter do ChÃ£o estÃ¡ diretamente sobreposta sobre uma terra pÃºblica da UniÃ£o sob gestÃ£o do INCRA. Essa mesma poligonal municipal intercepta projetos agroextrativistas da reforma agrÃ¡ria, como o <a href="https://repositorio.ufopa.edu.br/items/32ce7604-d73d-4cc9-99e2-79c18f884fd1" rel="noopener noreferrer" target="_blank">PAE Eixo Forte</a> (criado pela Portaria INCRA nÂº 44/2005) e o <a href="https://www.ufopa.edu.br/media/file/site/ufopa/documentos/2020/3d3c70f1710910ca27180d226dd07002.pdf" rel="noopener noreferrer" target="_blank">PAE Pindobal</a>, alÃ©m de avanÃ§ar sobre o Terra IndÃ­gena Borari, que aguarda sua demarcaÃ§Ã£o final pela Funai.</p>
+<p>Mas mesmo sem qualquer zoneamento municipal da APA, as Ãreas de PreservaÃ§Ã£o Permanente (APPs) nas margens de rios, lagos e igarapÃ©s jÃ¡ sÃ£o protegidas diretamente pelo <a href="https://www2.camara.leg.br/legin/fed/lei/2012/lei-12651-25-maio-2012-613076-normaatualizada-pl.html" rel="noopener noreferrer" target="_blank">CÃ³digo Florestal</a>. Ou seja, <strong>a proteÃ§Ã£o legal das APPS nÃ£o depende e nunca dependeu de nenhum outro documento. </strong>Esse Ã¡libi nÃ£o funciona para lavar as mÃ£os diante de invasÃµes e construÃ§Ãµes ilegais e fingir que nÃ£o vÃª os muros avanÃ§ando sobre o lago e os igarapÃ©s.</p>
+<p>Durante a audiÃªncia pÃºblica, o procurador da RepÃºblica falou de AÃ§Ã£o Civil PÃºblica ajuizada pelo MinistÃ©rio PÃºblico Federal para estancar a ocupaÃ§Ã£o predatÃ³ria da orla: âO zoneamento urbano e ambiental em Alter praticamente inexiste. <strong>Entramos com aÃ§Ã£o para impedir que a prefeitura licencie obras no Lago Verde e nas APPs</strong>. As construÃ§Ãµes que jÃ¡ estÃ£o lÃ¡ precisam ser vistoriadas em processo administrativo e, se irregulares, demolidas. Foi dado prazo de 30 dias para o municÃ­pio e 20 dias para Ibama e Sema. O prÃ³prio representante da Secretaria de Meio Ambiente jÃ¡ admitiu que o municÃ­pio nÃ£o tem mapeamento do que Ã© APP e zona federal, emitindo autorizaÃ§Ãµes indevidas. Isso vai ter que mudar em definitivo perante a JustiÃ§a Federal.â</p>
+<p>A omissÃ£o histÃ³rica da fiscalizaÃ§Ã£o nas APPs avanÃ§a na mesma velocidade que as vias terrestres, validando o clÃ¡ssico modelo amazÃ´nico de desmatamento em ‘espinha de peixe’: a abertura de uma estrada principal gera inevitavelmente dezenas de ramais perpendiculares para loteamentos. Nos 9 quilÃ´metros da Estrada do Pindobal, o fogo atua como o trator dessa expansÃ£o. A Ã¡rea vem sendo destruÃ­da por incÃªndios recorrentes que limpam a vegetaÃ§Ã£o nativa para acelerar um crescimento de loteamentos e ocupaÃ§Ãµes irregulares.</p>
+<h3><strong>Federalizar a APA e demarcar a TI Borari</strong></h3>
+<p>Em 4 de novembro de 2025, exatamente um ano antes da atual crise, o MinistÃ©rio PÃºblico Federal expediu a <a href="https://www.mpf.mp.br/o-mpf/unidades/pr-pa/noticias/docs/recomendacao-mpf-uc-alter-do-chao.pdf/@@display-file/file/recomendacao-mpf-uc-alter-do-chao.pdf" rel="noopener noreferrer" target="_blank">RecomendaÃ§Ã£o nÂº 7/2025</a> Ã  ministra do Meio Ambiente, Marina Silva, e ao presidente do ICMBio, Mauro Pires, exigindo a abertura imediata de processo para criar uma ou mais Unidades de ConservaÃ§Ã£o federais em Alter do ChÃ£o. Respaldado em decisÃµes do STJ e do TRF1 que confirmam que o territÃ³rio estÃ¡ cravado em terras pÃºblicas da UniÃ£o sob gestÃ£o do Incra, e atendendo a um pedido formal dos prÃ³prios caciques Borari, o MPF denunciou que a APA municipal funciona hÃ¡ mais de duas dÃ©cadas sem plano de manejo ou zoneamento, servindo de fachada para grilagem, desmatamento e licenÃ§as ilegais concedidas pela Prefeitura de SantarÃ©m. Os procuradores fixaram o prazo de 30 dias para o inÃ­cio dos estudos tÃ©cnicos e a formaÃ§Ã£o de um Grupo de Trabalho interinstitucional, 60 dias para a entrega de um cronograma executivo e exigiram fiscalizaÃ§Ã£o preventiva e consulta prÃ©via. Um ano depois, os loteamentos seguem avanÃ§ando, a recomendaÃ§Ã£o permanece como o retrato de um alerta federal solenemente ignorado.</p>
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-35.png"/><em>Cacique Osmar Borari ao lado do procurador da RepÃºblica VinÃ­cius Schlickmann Barcelos. <strong>Foto:</strong> PatrÃ­cia Kalil</em>
+
+<p>âEu perguntava para a Cacica Neca quantas audiÃªncias populares jÃ¡ foram feitas, e ela me dizia: âjÃ¡ nÃ£o temos dedos para contarââ, lembrou o <strong>Cacique Osmar Borari</strong>, historiador tradicional e guardiÃ£o do rito religioso do SairÃ©. âGosto sempre de resgatar que, em 1824, hÃ¡ 202 anos, os caciques deste territÃ³rio assinaram um abaixo-assinado lutando contra a invasÃ£o da Coroa de Portugal. Tem gente que ainda vive no nosso territÃ³rio, come e bebe Ã s custas dele, e diz que Alter do ChÃ£o nÃ£o Ã© terra indÃ­gena. NÃ³s nÃ£o aceitamos isso. SÃ³ abrem os olhos para Alter no perÃ­odo de SairÃ©, Carnaval, RÃ©veillon e festa.â</p>
+<p>Laudeco falou do abismo entre o peso da lei quando ela serve aos donos do poder e sua fragilidade quando a vÃ­tima Ã© a floresta e seus povos:</p>
+<p>âO poder estÃ¡ muito prÃ³ximo da gente, mas nÃ£o estÃ¡ do nosso lado. Como Ã© que hÃ¡ sete anos, em 2019, em uma Ãºnica semana conseguiram concluir uma investigaÃ§Ã£o e prender quatro brigadistas? E todo mundo sabe por que estÃ£o queimando agora: Ã© um fogo programado, planejado e executado. Disseram que fogo nÃ£o tem CPF, mas esse tem sim. NÃ³s nÃ£o queremos VÃ¢nia Portela na Secretaria de Meio Ambiente.â</p>
+<p>A indignaÃ§Ã£o e urgÃªncia veio na fala de Lucas TupinambÃ¡, presidente do Conselho IndÃ­gena TapajÃ³s Arapiuns (CITA Baixo TapajÃ³s): âDemarcaÃ§Ã£o jÃ¡! Sangue indÃ­gena, nenhuma gota a mais. JÃ¡ falei presencialmente ao prefeito JosÃ© Maria TapajÃ³s: vocÃª precisa exonerar urgentemente essa secretÃ¡ria. Ela nÃ£o faz o seu papel, nÃ£o tem plano para combater queimadas. Isso Ã© incompetÃªncia ou favorecimento a uma parte dessa sociedade? A histÃ³ria de Alter do ChÃ£o nÃ£o se conta apenas em setembro durante o SairÃ©; esse povo existe aqui hÃ¡ mais de 500 anos. Terra IndÃ­gena Borari nÃ£o Ã© terra sem lei.â</p>
+<p>O procurador da RepÃºblica VinÃ­cius Schlickmann Barcelos reconheceu que o vÃ¡cuo territorial em Alter do ChÃ£o finalmente alcanÃ§ou a esfera judicial: âEm relaÃ§Ã£o Ã  demarcaÃ§Ã£o Borari, o territÃ³rio entrou na agenda no inÃ­cio do ano. A Funai sinalizou a formaÃ§Ã£o do Grupo TÃ©cnico, mas comunicou agora que ele nÃ£o foi constituÃ­do. Cabe agora a judicializaÃ§Ã£o. Nesse momento, Ã© plenamente possÃ­vel judicializar a demarcaÃ§Ã£o da TI Borari.â</p>
+<p>A audiÃªncia pÃºblica terminou com Alter ainda em chamas. Sob a fumaÃ§a criminosa que intoxica toda gente, a luta na vila ultrapassa o combate ao fogo. Todos estÃ£o na linha de frente e querem saber se a AmazÃ´nia dos rios e das florestas serÃ¡ defendida ou entregue aos grileiros que lucram com as suas cinzas.</p>
+<h3><strong>O elo regional: a expansÃ£o da soja e a pressÃ£o sobre Alter</strong></h3>
+<p>Essa voracidade sobre a vila turÃ­stica nÃ£o brotou no vÃ¡cuo: ela Ã© a ponta imobiliÃ¡ria de uma engrenagem que cerca o Baixo TapajÃ³s. Desde os anos 2000, o agronegÃ³cio vem convertendo as florestas do Oeste do ParÃ¡ em extensÃµes contÃ­nuas monocultura. Na regiÃ£o que abrange SantarÃ©m, Belterra e MojuÃ­ dos Campos, a soja jÃ¡ substituiu mais de 120 mil hectares de florestas e terras tradicionais, o equivalente a 168 mil campos de futebol. Segundo levantamento do <a href="https://escolhas.org/wp-content/uploads/2026/09/alimentacao-belem-santarem-para.pdf" rel="noopener noreferrer" target="_blank">Instituto Escolhas</a>, a Ã¡rea plantada com o grÃ£o explodiu 118% entre 2017 e 2024, passando a ocupar 61% de toda a Ã¡rea agrÃ­cola cultivada nesses trÃªs municÃ­pios.</p>
+<p>Como isso estÃ¡ acontecendo em plena AmazÃ´nia? A resposta passa pelo <a href="https://www.scielo.br/j/soc/a/XFFDVpJWnjXwcWjsqSTbsjF/?format=html&amp;lang=pt&amp;ilang=pt_BR" rel="noopener noreferrer" target="_blank">Cadastro Ambiental Rural (CAR)</a> que vem sendo capturado para dar ar tÃ©cnico e fachada de legalidade Ã  grilagem na regiÃ£o. O CAR, cabe lembrar, Ã© autodeclaratÃ³rio e nÃ£o Ã© tÃ­tulo de propriedade. Ainda assim, grileiros desenham polÃ­gonos sobre florestas pÃºblicas e territÃ³rios ancestrais para simular posse, atrair crÃ©dito e forÃ§ar a regularizaÃ§Ã£o.</p>
+<p>Ã a mesma lÃ³gica predatÃ³ria que tenta emplacar a obscenidade do projeto da <a href="https://doi.org/10.1590/1806-675520252810736" rel="noopener noreferrer" target="_blank">FerrogrÃ£o</a> e da <a href="https://www.mpf.mp.br/o-mpf/unidades/pr-pa/noticias/docs/recomendacao-mpf-suspensao-dragagem-rio-tapajos.pdf/@@display-file/file/recomendacao-mpf-suspensao-dragagem-rio-tapajos.pdf" rel="noopener noreferrer" target="_blank">dragagem do Rio TapajÃ³s</a>, atropelando a consulta prÃ©via aos povos tradicionais e abrindo corredores logÃ­sticos para acelerar o escoamento de safras. Um setor que implode compromissos histÃ³ricos como a <a href="https://www.greenpeace.org/brasil/blog/stf-moratoria-da-soja-constitucional/" rel="noopener noreferrer" target="_blank">MoratÃ³ria da Soja</a>, pacto de duas dÃ©cadas que vetava a compra de grÃ£os oriundos de desmatamento recente na AmazÃ´nia, e que ainda dÃ¡ calote em bancos pÃºblicos. O circuito do capital se fecha na especulaÃ§Ã£o imobiliÃ¡ria: o capital acumulado chega em Alter para erguer condomÃ­nios fechados e mansÃµes Ã  beira do TapajÃ³s e do Lago Verde. Destroem o Oeste do ParÃ¡ para viver no paraÃ­so.</p>
+<p>A demarcaÃ§Ã£o da Terra IndÃ­gena Borari e a titulaÃ§Ã£o dos territÃ³rios quilombolas e tradicionais sÃ£o a primeira trincheira contra o avanÃ§o do fogo. Mas a proteÃ§Ã£o da AmazÃ´nia exige que o paÃ­s feche a porteira da impunidade: terra queimada nÃ£o pode virar prÃªmio para grileiro.</p>
+<p>Floresta incendiada precisa de proteÃ§Ã£o integral e regeneraÃ§Ã£o ecolÃ³gica obrigatÃ³ria. No Congresso Nacional, trÃªs projetos de lei atacam essa engrenagem e precisam ser votados com urgÃªncia: o <a href="https://www25.senado.leg.br/web/atividade/materias/-/materia/165510" rel="noopener noreferrer" target="_blank">PL 3629/2024</a>, que veta a regularizaÃ§Ã£o fundiÃ¡ria de ocupaÃ§Ãµes ilegais e loteamentos apÃ³s incÃªndios florestais; o <a href="https://www25.senado.leg.br/web/atividade/materias/-/materia/165378" rel="noopener noreferrer" target="_blank">PL 3517/2024</a>, que enquadra o fogo criminoso em matas e florestas como crime hediondo; e o <a href="https://www.camara.leg.br/proposicoesWeb/prop_mostrarintegra?codteor=2944952" rel="noopener noreferrer" target="_blank">PL 3644/2024</a>, que impÃµe restriÃ§Ãµes severas ao uso econÃ´mico e obriga a recuperaÃ§Ã£o ambiental de Ã¡reas atingidas.</p>
+<p>O Brasil inteiro precisa olhar para o que acontece na AmazÃ´nia. A floresta em pÃ© produz as chuvas que abastecem o paÃ­s, estoca carbono, protege as bacias e abriga a sociobiodiversidade. Vale infinitamente mais que a soja. Vale o futuro. Onde hoje fizeram cinzas, exigimos a floresta de volta.</p>
+<p></p>
+<p><em>Sem publicidade ou patrocÃ­nio, dependemos de vocÃª. FaÃ§a parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/terraeantropoceno/alter-do-chao-o-fogo-que-loteia-um-paraiso/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

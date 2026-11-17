@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Comunicação e a Universidade - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A Comunicação e a Universidade</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/movimentoserebeldias/a-comunicacao-e-a-universidade/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5145908757131890269_x.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A ComunicaÃ§Ã£o e a Universidade
+                            </p>
+                            
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5145908757131890269_x.jpg"/>Fernando FrazÃ£o/AgÃªncia Brasil
+
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Sobrevivemos Ã s urnas, ganhamos tempo e algum respiro, mas ainda estamos em alvoroÃ§o e bastante preocupados â em especial, nas universidades pÃºblicas. Em primeiro lugar, reagimos em meio a uma derrota, pois o primeiro turno nos legou um parlamento mais degradado e, com o segundo turno, o que conseguimos foi evitar o que seria o completo massacre a um projeto progressista. Que nÃ£o se diminua a nossa alegria com a vitÃ³ria no segundo turno, pois soubemos mostrar nosso melhor, do qual precisa fazer parte nossa capacidade de criticar os passos dados e de ler bem os sinais.</p>
+<p>NÃ£o sem razÃµes, alguns julgam que corremos o risco de apenas termos adiado uma derrota e, logo, que hÃ¡ motivos atÃ© para um desespero, em meio Ã  euforia. Ganhamos tempo, insistem, advertindo que, daqui a quatro anos, a destruiÃ§Ã£o pode ser completa. NÃ£o teremos Lula, nem algum lÃ­der salvador; e, com o arcabouÃ§o fiscal, a conservar-se o atual cenÃ¡rio de comprometimento de equipamentos pÃºblicos da democracia (como o SUS e as universidades), estarÃ£o dadas as condiÃ§Ãµes objetivas e subjetivas para uma reviravolta nos avanÃ§os antes desenhados em nossa ConstituiÃ§Ã£o. A direita e a extrema direita poderÃ£o entÃ£o nos fazer barba, cabelo e bigode.</p>
+<p>Conseguimos, porÃ©m, algum respiro. NÃ³s nos mostramos vivos e presentes, com uma forÃ§a polÃ­tica capaz de despertar energias antes esmaecidas. Mostramos, por um lado, o caminho das ruas e das redes e, por outro, desfraldamos bandeiras de horizonte mais largo do que um portfÃ³lio de entregas. Por um momento mÃ¡gico, especialmente com os estudantes, conseguimos unir a dura conquista do pÃ£o Ã  promessa de uma vida digna, o interesse da realizaÃ§Ã£o individual ao desenho de uma sociedade deveras livre.</p>
+<p>Entretanto, o susto foi enorme, a fogueira continua a ameaÃ§ar. Nesse cenÃ¡rio, parece importante pensarmos qual deva ser o papel da comunicaÃ§Ã£o institucional em nossas universidades, uma vez que elas tÃªm sido o objeto de muitos ataques. Nesse sentido, tÃªm aparecido algumas falas e sugestÃµes alarmantes. Algumas dessas sugestÃµes atÃ© foram bem testadas em campanhas polÃ­ticas, como a sugestÃ£o de se usar uma linguagem mais clara, traduzindo a importÃ¢ncia da universidade em ganhos efetivos para cada setor ou mesmo para os indivÃ­duos. O risco Ã© tais sugestÃµes, se transformadas em campanha polÃ­tica, terminarem por fazer dos meios emergenciais de sobrevivÃªncia uma finalidade em si e sacrificarem um caminho virtuoso Ã  necessidade de vitÃ³ria e Ã  eficÃ¡cia dos prÃ³prios meios de comunicaÃ§Ã£o.</p>
+<p>Ã Ã³bvio que as universidades precisam se comunicar melhor e, com isso, sobreviver. Temos, afinal, que justificar nosso direito Ã  existÃªncia, mas tambÃ©m precisamos saber viver de forma plena, sem comprometer nossa natureza, como lugar que somos de produÃ§Ã£o de ciÃªncia, cultura e arte. Ou seja, a comunicaÃ§Ã£o precisa ajudar a revelar a prÃ³pria natureza da universidade e, com isso, poder vindicÃ¡-la.</p>
+<p>HÃ¡ muito tempo, porÃ©m, uma certa comunicaÃ§Ã£o de resultados tem amesquinhado o debate de princÃ­pios. Com isso, a comunicaÃ§Ã£o de direita e a de esquerda acabam adotando regras comuns e, por vezes, todas se parecem. Em suma, supÃµem em suas estratÃ©gias que apenas ofertas e promessas muito diretas podem conquistar eleitores â no vocabulÃ¡rio atual, temos o culto Ã s entregas, de sorte que eleitores passam a ser compreendidos como meros clientes.</p>
+<p>Ora, tal rebaixamento, talvez necessÃ¡rio na emergÃªncia, faz confundir e nivelar todos os matizes polÃ­ticos. Por exemplo, passa-se a discutir quem vai entregar uma ponte e quando, soterrando-se o debate acerca da pertinÃªncia dessa construÃ§Ã£o. Discutem-se, em geral, obras e nÃ£o como serÃ£o feitas ou a quem servirÃ£o. Desse modo, uma comunicaÃ§Ã£o de resultados, mais que um meio, torna-se uma finalidade.</p>
+<p>TerÃ­amos todos, entÃ£o, que falar uma linguagem acessÃ­vel, pois nÃ£o haveria sequer tempo para qualificar o compartilhamento de vocabulÃ¡rios. Palavras difÃ­ceis atÃ© podem servir, mas tÃ£o somente caso provoquem deferÃªncia e gerem adesÃµes, e nÃ£o por enriquecerem um possÃ­vel diÃ¡logo.</p>
+<p>Tendo em conta a defesa da universidade, o caminho agora seria destacar seus resultados, a exemplo das vacinas produzidas, da contribuiÃ§Ã£o direta Ã  geraÃ§Ã£o de riquezas e da participaÃ§Ã£o no desenvolvimento econÃ´mico. Ã claro que os dados dos benefÃ­cios da universidade sÃ£o muitos, verdadeiros e essenciais. Eles sÃ£o, decerto, bons trunfos retÃ³ricos, mas nÃ£o devem valer isoladamente.</p>
+<p>Nossa finalidade nÃ£o pode ser apenas o impacto da informaÃ§Ã£o, e esse pode se tornar danoso, caso se traduza em polÃ­ticas restritivas â a exemplo de quando, com a melhor das intenÃ§Ãµes, nos Ã© sugerido o investimento prioritÃ¡rio em ciÃªncia, tecnologia, engenharias e matemÃ¡tica (STEM) e, por conta disso, os editais de fomento passam a favorecer apenas esses itens, criando um fosso interno na vida universitÃ¡ria, contra o qual devemos reagir cobrando o acrÃ©scimo das artes e humanidades (STEAM).</p>
+<p>Com a retÃ³rica das entregas transformada em polÃ­tica, as universidades deixam de ser uma finalidade associada Ã  sua condiÃ§Ã£o de experimentos democrÃ¡ticos e de equipamentos da democracia, e passam a se justificar por certos tipos de produto, dentre os quais os diplomas. Se fosse esse o caminho, deverÃ­amos louvar as instituiÃ§Ãµes privadas (que entregam mais diplomas e com mais velocidade, mas nÃ£o da melhor forma) ou talvez devÃªssemos preferir centros de pesquisa de interesse mais aplicado e restrito, cujo compromisso se volta apenas a resultados e ao mercado e nÃ£o Ã  mais completa formaÃ§Ã£o universitÃ¡ria.</p>
+<p>A comunicaÃ§Ã£o institucional nÃ£o se reduz a propaganda. NÃ£o Ã© um relato de feitos e efemÃ©rides, mas uma defesa, a longo prazo, da natureza mesma da instituiÃ§Ã£o. Por isso mesmo, nÃ£o deixa de ser um tanto estranha a preocupaÃ§Ã£o exagerada com a divulgaÃ§Ã£o de resultados de posicionamentos em rankings, muitos deles questionÃ¡veis. Temos, sim, que ter atenÃ§Ã£o aos rankings, Ã  medida que importam para imagem da instituiÃ§Ã£o perante a sociedade, mas Ã© inusitado imaginar que estejamos em uma corrida e nÃ£o em uma rede colaborativa, ou que essas medidas externas sejam suficientes ou necessÃ¡rias para a justificaÃ§Ã£o do nosso trabalho ou para o destaque autÃªntico de pesquisadores.</p>
+<p>TambÃ©m, muitos tÃªm associado o papel central da comunicaÃ§Ã£o acadÃªmica ao combate a <em>fake news</em> e ao negacionismo. Certamente, saltam aos olhos razÃµes para tanto e nÃ£o podemos descurar dessa tarefa. Ataques Ã  universidade e Ã  imagem de pesquisadores sÃ£o frequentes e, alÃ©m disso, uma defesa da ciÃªncia passou a integrar o repertÃ³rio da polÃ­tica. Entretanto, combater o negacionismo Ã© pouco.</p>
+<p>A ciÃªncia deve orientar polÃ­ticas pÃºblicas e sua negaÃ§Ã£o causa danos evidentes, mas hÃ¡ outra tarefa ainda mais premente. AlÃ©m de combater negacionismos, Ã© fundamental o combate mais amplo ao obscurantismo, traduzindo-se este, por exemplo, em pautas conservadoras em costumes e atÃ©, quase paradoxalmente, em uma defesa irrestrita da tÃ©cnica. NÃ£o podemos, afinal, confundir o elogio da ciÃªncia com sua mera apologia, sendo uma liÃ§Ã£o que a histÃ³ria teima em repetir o Ã³bvio fato de que um significativo desenvolvimento cientÃ­fico nÃ£o Ã© incompatÃ­vel com uma degradaÃ§Ã£o cultural.</p>
+<p>As universidades precisam, pois, urgentemente, cuidar de sua comunicaÃ§Ã£o institucional. Ã preciso, sim, cuidar melhor tanto da divulgaÃ§Ã£o cientÃ­fica quanto da celebraÃ§Ã£o de sua diversidade de composiÃ§Ã£o e de propÃ³sitos, tornando evidente Ã  sociedade quÃ£o absurdo seria o mundo sem universidades. Temos a obrigaÃ§Ã£o de mostrar o que sÃ£o as universidades e os mÃºltiplos motivos que as tornam necessÃ¡rias como uma aposta generosa da sociedade no conhecimento e nÃ£o na ignorÃ¢ncia.</p>
+<p>Nesse sentido, a comunicaÃ§Ã£o precisa ser criativa, como aliÃ¡s o sÃ£o nossos estudantes. Precisa ser arrojada, pois serve Ã  justificaÃ§Ã£o de um espaÃ§o que pode ser de balbÃºrdia, porque nunca hÃ¡ de ser de barbÃ¡rie. A comunicaÃ§Ã£o tambÃ©m deve ser sofisticada, como Ã© rigoroso e sofisticado o modo prÃ³prio da elaboraÃ§Ã£o acadÃªmica, em todas as Ã¡reas do conhecimento.</p>
+<p>Em outras palavras, a comunicaÃ§Ã£o nÃ£o pode ser capturada por um imaginÃ¡rio conservador, que antes preferiria nos apresentar segundo o modelo de escolas cÃ­vico-militares. Dessa maneira, para alÃ©m da valiosa apresentaÃ§Ã£o dos resultados cientÃ­ficos, que no Brasil sÃ³ sÃ£o prÃ³digos nas universidades pÃºblicas, nossa comunicaÃ§Ã£o deve ajudar a recompor a imagem e a aura do espaÃ§o acadÃªmico como lugar de diversidade e criaÃ§Ã£o, de confrontaÃ§Ã£o de geraÃ§Ãµes e saberes.</p>
+<p>Nossa comunicaÃ§Ã£o, portanto, nÃ£o pode ser reduzida Ã  retÃ³rica mais Ã³bvia das entregas. Reduzidos a esta, podemos atÃ© sobreviver, mas estaremos confirmando a longo prazo nossa prÃ³pria irrelevÃ¢ncia enquanto universidades pÃºblicas, plenas de produÃ§Ã£o cientÃ­fica e de diversidade cultural. Sem criatividade, em 2030, podemos talvez adiar o massacre por mais quatro anos, mas estaremos dando, entÃ£o, um passo a mais em nossa destruiÃ§Ã£o por jÃ¡ termos incorporado parte significativa do ideÃ¡rio perverso do obscurantismo.</p>
+<p><em>Sem publicidade ou patrocÃ­nio, dependemos de vocÃª. FaÃ§a parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/movimentoserebeldias/a-comunicacao-e-a-universidade/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

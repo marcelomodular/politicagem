@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to actually fix America’s air traffic control system - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">How to actually fix America’s air traffic control system</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/future-perfect/510975/faa-air-traffic-control-system-canada-funding" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2304485779.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Why America’s air traffic control system is still so outdated
+                            </p>
+                            <p>On Friday evening, in the midst of the second-longest closure ever of US airspace, I bought two plane tickets and found myself contemplating, possibly for the first time, the list of hidden fees tacked onto my fare.</p><p>I had forked over $16.95 for a US transportation tax, plus $5.30 for a flight segment tax, both of which pool into the Airport and Airway Trust Fund, which will ultimately contribute to the Federal Aviation Administration’s work, thereby ensuring that my flight from New York to Florida lands smoothly.</p><p>But though one might expect my $22.25 — enough to pay an air traffic trainee’s salary for about <a href="https://www.flyingmag.com/how-much-do-air-traffic-controllers-make/" rel="noopener noreferrer" target="_blank">an hour</a> — would go directly into the FAA’s coffers, it does not. In fact, the FAA needs to get congressional approval every time it taps into its trust fund, a <a href="https://thehill.com/homenews/house/6221559-koh-blames-trump-faa-funding/" rel="noopener noreferrer" target="_blank">political bottleneck</a> that has for decades kept the FAA from making the critical long-term modernization projects it needs to make sure that a single botched cable job is not enough to bring down the busiest airspace in the world.</p><p>In the days since all air travel shut down across the United States, we’ve learned a great deal about what happened and why. But the best response to the crisis — and the path to preventing it from happening again (and again and again) — may well be found in shortening the path that my $22.25 takes on its way to the beleaguered agency that needs it so badly. It’s a solution that transformed air travel in Canada — which turned its air traffic control system around three decades ago — and it might yet help guarantee on-time departures here in the United States, too.</p><p>In the aftermath of the groundstop on Friday, college football teams delayed their kickoff times and Microsoft — whose Outlook outage suddenly became only the second-most disruptive telecommunications issue last week — issued an inadvertently <a href="https://x.com/MSFTIssues/status/2121373421670203799?a=xuGpobYqVAnkKel4Bns&amp;s=20" rel="noopener noreferrer" target="_blank">cheeky disclaimer</a> saying “it wasn’t us.” The band Hoobastank performed <a href="https://www.tiktok.com/@lolopopgurl/video/7707823062560951559?refer=player_v1&amp;referer_video_id=7707823062560951559&amp;referrer_url=https%3A%2F%2Fwww.tiktok.com%2Fplayer%2Fv1%2F7707823062560951559&amp;utm_campaign=&amp;utm_source=unknown" rel="noopener noreferrer" target="_blank">an impromptu rendition</a> of their 2004 hit “The Reason” aboard a Southwest Airlines flight, before the actual reason for the delay was even clear. But while rumors have swirled over whether the disruption could be the work of a rogue <a href="https://www.vox.com/future-perfect/503068/ai-infrastructure-hacking-cybersecurity" rel="noopener noreferrer" target="_blank">AI cyberattack</a>, the real reason why the FAA closed America’s airspace for only the third time since 9/11 now appears to have been embarrassingly mundane.</p><p>“They were putting in new equipment and new technology,” said Markwayne Mullin, secretary of the Department of Homeland Security, in a press briefing on Friday, “and that new equipment was overwhelming the older system.”</p><p>There is, to be sure, plenty of new equipment to be put in, and not just at the tiny, two-runway airport in El Dorado, Arkansas, where the trouble began. The physical bones of our air traffic control system were installed back when many of Hoobastank’s Gen X fans were still in diapers, and the bulk of this vital system — which tells pilots when and where it’s safe to land — has not been upgraded since the 1980s. Most control towers still track airplanes using <a href="https://www.cnn.com/2026/06/15/travel/video/faa-wants-to-change-this-old-system-paper-flight-strip-digvid-vrtc" rel="noopener noreferrer" target="_blank">thin strips of cardstock</a>, while 3.5-inch <a href="https://www.pcmag.com/news/the-faa-is-still-using-floppy-disk-based-systems-but-thats-about-to-change" rel="noopener noreferrer" target="_blank">floppy disks</a> remain the medium of choice for uploading weather forecasts. And copper wires, instead of more modern fiber optic cables, still transmit large swaths of data between air traffic control facilities.</p><p>In 2024, the Government Accountability Office found indications that <a href="https://www.gao.gov/products/gao-24-107001" rel="noopener noreferrer" target="_blank">76 percent</a> of the FAA’s systems were or could be unsustainable because of factors like aging equipment. Just a few months ago, a <a href="https://www.vox.com/future-perfect/504720/disney-utilidors-utility-tunnels-811" rel="noopener noreferrer" target="_blank">single severed cable</a> grounded flights at some of the nation’s busiest airports. And for years, air traffic controllers have been <a href="https://www.nytimes.com/2023/12/02/business/air-traffic-controllers-safety.html" rel="noopener noreferrer" target="_blank">sounding the alarm</a> about chronic understaffing, unsustainable workloads, and an accumulation of safety complaints.</p><p>What happened on Friday was only the latest symptom of an aging air traffic control system, one that has suffered from deferred maintenance for so long that even trying to fix things can make the whole network go haywire. The Trump administration, to its credit, has made upgrading this decades-old system a priority of its transportation agenda, spurred in part by a tragedy over the Potomac last year in which an Army helicopter <a href="https://nymag.com/intelligencer/article/inside-the-helicopter-that-caused-the-potomac-air-disaster.html" rel="noopener noreferrer" target="_blank">collided with a commercial airliner</a>, killing 67 people.</p><p>But making sure that this fiasco doesn’t happen again will require more than just plying the FAA with another <a href="https://www.reuters.com/legal/government/white-house-urges-congress-provide-301-billion-aviation-reform-2026-11-13/" rel="noopener noreferrer" target="_blank">$50 billion in cash</a>, per Transportation Secretary Sean Duffy’s pleas to Congress. It might require doing away entirely with the political wrangling that keeps the FAA thirsting for your airline fees, and giving it easier access to those hidden fees tacked on to your boarding pass and mine.</p><p>“Modernization in the US is a political battle,” John Gradek, an aviation expert at McGill University, told me. But in other countries like Canada, air traffic control “modernization is very much a functional battle,” made possible by predictable “funding it can use to modernize at its own pace, rather than fighting constant battles for congressional appropriations.”</p><p>Even $50 billion may not be enough to fix what’s wrong with the FAA, not least of all because a single lump sum — no matter how gigantic — won’t address the funding bottleneck that makes it hard to keep things running day in and day out. “They’re throwing a number at it, and there’s no detail behind the number,” he said. “What’s the architecture of the solution?” In fact, there is a better way to fix our airspace, and our neighbors to the north might be able to chart the course.</p><p><h2><strong>How Canada fixed its air traffic control system</strong></h2></p><p>In the 1990s, Canada’s air traffic control system was bogged down by many of the same problems that the American system still suffers from now.</p><p>Audits at the time found that <a href="https://www.bst.gc.ca/eng/rapports-reports/aviation/etudes-studies/90sp001/90sp001.html" rel="noopener noreferrer" target="_blank">chronic staffing shortages</a> and unreasonable expectations of overtime were playing a serious role in air traffic incidents such as dangerously close calls between passenger jets. Meanwhile, Canada’s transportation department, Transport Canada, had gone seriously over budget and behind schedule while trying to modernize the country’s radar system, par for the course of a system under strain.</p><p>At the time, as in the US, a fee tacked onto flights went into a fund under the control of the Canadian government, meaning that Transport Canada often found itself begging Parliament for more cash. But this changed in 1996, after a broad coalition of fed-up pilots, airlines, and air traffic controllers rallied behind a new governance structure for Canada’s air traffic control system. Rather than being housed within Transport Canada, the new system would fall under a newly created independent nonprofit called NAV Canada.</p><p>NAV is funded directly through passenger fees without parliamentary approval, and since it’s not a government entity, it’s exempted from civil service requirements, rigid procurement rules, and other barriers that dogged the old system. In the ’80s and ’90s, Transport had spent $18 million Canadian dollars and six years to modernize its radar system. When NAV undertook a <a href="https://www.cba.org/sections/air-and-space-law/member-articles/canada-s-experience-with-atc-privatization/" rel="noopener noreferrer" target="_blank">comparable extension</a> in 1997, it completed the project in about six months and at a cost of $6 million.</p><p>“That whole process of modernizing and bringing new technology to bear on air traffic control,” said Gradek, “has paid out handsomely to the Canadian air traffic control system.”</p><p>Douglas Mein, a senior director of Transport Canada during the transition, <a href="https://publications.parliament.uk/pa/cm199798/cmselect/cmenvtra/360-e/36017.htm" rel="noopener noreferrer" target="_blank">later testified</a> to the British Parliament that moving the air traffic control system to an independent nonprofit freed it from the red tape that often prevented necessary hiring and tied up technological investments for years on end. A few years after NAV took over in 1996, Canada’s air traffic controllers started retiring the paper strips they once used to track flights in favor of an <a href="https://www.bloomberg.com/news/articles/2016-04-12/paper-pushing-flight-controllers-see-future-in-canada-s-system" rel="noopener noreferrer" target="_blank">electronic system</a>, an upgrade that the US only started rolling out <a href="https://enotrans.org/article/electronic-flight-strips-brief-history-u-s-canada/" rel="noopener noreferrer" target="_blank">in 2022</a>.</p><p>Nav Canada began rolling out electronic flight tracking decades before the FAA did. Patrick Doyle/Bloomberg via Getty Images</p><p>Over the decades, Canada’s air traffic control system seems to have become more resilient, while the US has just gotten more vulnerable to disruption as its technology continues to molder. American policymakers have repeatedly pointed to Canada’s success in arguing for a restructuring of America’s air traffic control system. Most recently, under the first Trump administration, Republicans pushed for a <a href="https://www.npr.org/2025/06/27/nx-s1-5442651/privatizing-air-traffic-control-faa" rel="noopener noreferrer" target="_blank">Canada-style restructuring</a> that floundered in Congress, seemingly under pressure from the private aviation industry, which was concerned that such an arrangement would prioritize the interests of the commercial airline industry.</p><p>Others have pointed to fears that such a system would lead to a loss of public accountability. Some also note that Canada, while seemingly still better off than the US, has run into its own <a href="https://montrealgazette.com/news/canada-is-short-about-200-air-traffic-controllers-but-were-much-better-off-than-the-u-s/" rel="noopener noreferrer" target="_blank">renewed staffing shortages</a> and other air traffic control issues in recent years. But fixing America’s air traffic control system might not necessarily require this kind of privatization. In The Atlantic last year, Dorothy Robyn, who oversaw aviation policy under the Clinton administration — which also pushed for a similar spinoff for the FAA — <a href="https://www.theatlantic.com/ideas/archive/2025/05/air-traffic-control-system-faa/682842/" rel="noopener noreferrer" target="_blank">argued that</a> air traffic control ought to be spun off into a standalone entity, possibly one that would still be governmental. This would, she suggests, contribute to efficiency, while also ensuring the independence of safety regulators, who are currently housed within the FAA itself.</p><p>Since 1995, Robyn wrote, more than 60 countries have separated their air traffic control system from regulators, some through standalone nonprofits but others through government entities. For example, Germany and New Zealand both migrated their air traffic control systems away from their transportation departments and into government-run entities that are still publicly owned, but have much more freedom to hire workers and spend passenger fees on improvements than the FAA does.</p><p>Even if the US is not destined for Canadian-style independent air traffic control, a reform that allows the FAA to tap into the fees we all pay on our flights without having to grovel to Congress could help the institution better plan and invest in its technology and staff in the long run. A more fluid and regularized funding scheme would hardly fix everything overnight, but it would at least present a vision for the future of the nation’s air traffic control system that neither requires intermittent multibillion-dollar checks nor panic-inducing admonition that without literally any funding <em>right now</em>, the system that keeps Americans safe in the sky is “going to continue to fail,” as Duffy <a href="https://www.foxbusiness.com/politics/duffy-sounds-alarm-over-aging-faa-system-after-nationwide-air-travel-shutdown" rel="noopener noreferrer" target="_blank">proclaimed</a> on Friday.</p><p>“There is a way for the system to be able to, in fact, build in redundancy, build in resilience, and build in backups,” said Gradek, but to do so, “air traffic control needs constant funding, needs constant handholding, and you cannot have these battles to figure out where the next dollar is going to come from.”</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/future-perfect/510975/faa-air-traffic-control-system-canada-funding" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

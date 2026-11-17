@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Por uma nova revolução digital no MinC - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Por uma nova revolução digital no MinC</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/por-uma-nova-revolucao-digital-no-minc/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/Captura-de-Tela-2026-11-16-as-12.24.16.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Por uma nova revolução digital no MinC
+                            </p>
+                            
+<p>É chegada a hora de fazer da revolução digital um projeto de emancipação cultural e democrática no Brasil. As tecnologias já organizam a criação, a circulação da cultura e a vida coletiva, mas nossa capacidade de decidir sobre os rumos dessa transformação permanece profundamente desigual. Disputar quem controla as infraestruturas pelas quais nos comunicamos, quem define o que podemos conhecer e compartilhar e quem se apropria da riqueza que produzimos coletivamente tornou-se uma tarefa central da política cultural. O Ministério da Cultura precisa assumir essa tarefa como eixo do conjunto de suas políticas, articulando autonomia da sociedade, soberania cultural e democracia.</p>
+<p>A proposta diz respeito ao conjunto da cultura brasileira. Do terreiro ao museu, do cinema à biblioteca, da aldeia ao coletivo de periferia, nenhuma expressão cultural está alheia às transformações digitais, embora cada uma as viva de maneira diferente. Um Ministério à altura da cultura contemporânea precisa reconhecer essa diversidade e ampliar a capacidade de seus protagonistas de decidir sobre suas próprias formas de existência. Seu compromisso seria fazer da transformação tecnológica uma oportunidade de autonomia cultural, criação compartilhada e aprofundamento democrático. Esse deveria ser o ponto de partida da discussão sobre o futuro da pasta no próximo ciclo político brasileiro.</p>
+<p>O segundo turno das eleições presidenciais de 2026 conferiu urgência a essa discussão. Milhões de pessoas foram às ruas, ocuparam as redes, inventaram linguagens, organizaram campanhas próprias e fizeram da defesa da democracia uma experiência coletiva de criação. O que começou como reação à possibilidade de retorno do bolsonarismo transformou-se em um levante cívico que ultrapassou as estruturas partidárias e revelou capacidades de organização dispersas pela sociedade. A cultura foi constitutiva desse acontecimento: nas linguagens populares, no humor, na música, nos vínculos comunitários e na disposição de agir em conjunto.</p>
+<p></p>
+<h2>O MinC e sua experiência revolucionária </h2>
+<p>Essa experiência também tornou mais evidente uma contradição. A sociedade demonstrou extraordinária capacidade de ação coletiva, mas precisou exercê-la em infraestruturas digitais controladas por corporações que concentram poder sobre a comunicação pública, as chamadas Big Techs. Aprendemos a disputar os algoritmos enquanto permanecemos submetidos às regras de quem os controla. A vitória abriu uma possibilidade política, mas deixou intacta a questão das condições materiais que permitirão sustentar os vínculos, os conhecimentos e as capacidades produzidas naquela mobilização. O Ministério da Cultura teria de tomar essa contradição como um de seus problemas centrais.</p>
+<p>Essa ambição tem uma história que precisamos trazer de volta ao debate. Em uma aula magna na USP, em agosto de 2004, Gilberto Gil afirmou que “a revolução das tecnologias digitais é, em essência, cultural”. E enunciou uma transformação do próprio MinC: “Ministério, enfim, da Cultura Digital e das Indústrias Criativas.” A cultura digital aparecia ali como uma perspectiva para redefinir a forma e o conteúdo das políticas culturais. Inclusão significava autonomia e autodeterminação; software e audiovisual integravam uma questão de soberania coletiva. Mais de vinte anos depois, essa formulação oferece um ponto de partida para cobrar consequências políticas de uma compreensão que já havíamos alcançado.</p>
+<p>O discurso também reconhecia conflitos. Ao discutir uma tentativa daquele período de regulação do audiovisual, a Ancinav, em cenário semelhante ao que ocorre atualmente com as plataformas de streaming, e a colaboração em software livre, Gil enfrentava a concentração de poder e a possibilidade de apropriação corporativa da produção compartilhada. Sua defesa da regulação estava associada à diversidade e à democracia. Ou seja, é preciso olhar com precisão para aquele momento, sem recorrer à acusação de que era uma abordagem naif: havia entusiasmo pelas possibilidades tecnológicas, mas também consciência das disputas que condicionam sua realização. O que fizemos, desde então, daquela compreensão? Essa é a pergunta que precisa acompanhar nossa homenagem ao pioneirismo brasileiro.</p>
+<p>O Ministério exercia uma espécie de liderança espiritual da política brasileira: a capacidade de anunciar caminhos, mobilizar sensibilidades, despertar a imaginação coletiva e ampliar o horizonte do que uma sociedade considera possível. Essa liderança tinha consequências materiais. Produzia políticas, instituições, redes, programas e novas capacidades de ação. Gil compreendeu que a cultura poderia antecipar transformações sociais, dar-lhes linguagem e contribuir para realizá-las. A experiência de sua gestão e da de Juca Ferreira, que também contou com outras lideranças como Célio Turino e Cláudio Prado, mais Eliane Costa na retaguarda da Petrobrás, por exemplo, demonstrou a influência que uma pasta relativamente pequena pode exercer quando consegue produzir sentido político e mobilizar a sociedade.</p>
+<p>O desafio agora é dar consequência a uma ambição semelhante àquela em condições mais adversas. A concentração nas plataformas, os modelos de negócio extrativistas e os mecanismos algorítmicos de controle da atenção ampliaram a distância entre nossa capacidade de criar e nosso poder de decidir sobre a circulação do que criamos. A inteligência artificial estende essa disputa à produção cultural, aos direitos dos criadores e à organização do conhecimento. A autonomia exige hoje capacidade de governar dados, desenvolver tecnologias, sustentar alternativas de circulação e decidir coletivamente sobre seus usos. Recuperar a ousadia de Gil implica enfrentar a escala que esses conflitos adquiriram e construir os meios públicos e comuns para transformá-los.</p>
+<p></p>
+<h2>O que faltou no terceiro governo de Lula</h2>
+<p>Foi essa conexão com o contemporâneo que faltou ao terceiro governo Lula. A recriação do Ministério da Cultura, a recuperação dos mecanismos de financiamento e a retomada de programas interrompidos eram indispensáveis. Mas a reconstrução acabou ocupando o lugar do horizonte estratégico. Enquanto a extrema direita fazia dos valores, dos comportamentos, das linguagens e dos imaginários um terreno central de sua ação política, a esquerda institucional frequentemente continuava tratando a cultura como um setor a administrar. Faltou conectar a política cultural à crise democrática e às transformações tecnológicas. Faltou aquela capacidade de liderar os desejos que marcou a experiência anterior.</p><a href="https://autonomialiteraria.com.br/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2024/05/Banner-300-600.gif"/></a>
+<p>Essa crítica precisa ser feita com a generosidade que este novo ciclo exige das forças democráticas que irão orbitar o quarto mandato de Lula. Generosidade comporta franqueza, assim como a unidade exige debate sobre os rumos do projeto político. O governo Lula 3 foi refratário ao contraditório. Isso tem de ser superado. Qualquer eventual insatisfação com a gestão Menezes-Tavares tampouco pode servir à restauração dos privilégios das elites culturais tradicionais, especialmente das concentradas no eixo Rio–São Paulo. A democratização territorial e social do financiamento é uma conquista a aprofundar. O que precisamos discutir é como fazer dessa distribuição de recursos uma base para transformações mais amplas nas relações entre cultura, tecnologia, Estado e sociedade.</p>
+<p>Um Ministério à altura da cultura contemporânea daria consequência a essa mudança de perspectiva. O financiamento à criação teria de enfrentar também as condições de circulação, distribuição e remuneração. A defesa da diversidade alcançaria os mecanismos que determinam o que ganha visibilidade e o que permanece invisível. A preservação da memória incorporaria a disputa sobre a digitalização dos acervos, seus usos e sua apropriação por sistemas de inteligência artificial. A formação cultural se aproximaria da compreensão crítica das tecnologias e da capacidade de criá-las e governá-las. A soberania cultural passaria a orientar escolhas materiais sobre dados, conhecimento e infraestrutura.</p>
+<p>Isso exige capacidade pública de construir alternativas. Regular as plataformas é indispensável, mas precisamos também fortalecer a comunicação pública e comunitária, desenvolver tecnologias abertas e sustentar infraestruturas orientadas pelo interesse público e pelo comum. O Ministério poderia articular essa agenda com educação, ciência e tecnologia, comunicações e outras áreas do Estado, aproximando universidades, instituições culturais, movimentos, criadores e comunidades. Sua contribuição seria dar direção cultural e democrática a uma transformação que frequentemente é apresentada como assunto exclusivo de especialistas ou como destino imposto pelo mercado.<br/><br/>Urge criar condições para uma economia criativa digital que opere de baixo para cima, na qual empreendimentos brasileiros possam nascer, gerar renda, prosperar e disputar mercados. Há espaço para negócios comerciais, cooperativas, organizações da sociedade civil e arranjos comunitários que desenvolvam tecnologias e serviços conectados às necessidades dos territórios. O fomento público pode ampliar esse campo, combinando financiamento, compras públicas e regulação com compromissos de trabalho digno, diversidade, proteção de dados e distribuição mais justa do valor produzido. </p>
+<p></p>
+<h2>O que o levante democrático de 2026 aponta</h2>
+<p>As eleições deixaram claro que a capacidade de empreender e construir prosperidade precisa fazer parte do horizonte que oferecemos à sociedade – e essa agenda não pode ser exclusividade dos <em>coachs</em> da extrema direita. Sustentar alternativas à concentração das big techs exige também viabilizar modelos econômicos para pequenos produtores, organizações e iniciativas locais, permitindo que alguns desses empreendimentos ganhem escala sem perder seus vínculos e compromissos. Uma política cultural à altura do presente deve ajudar a transformar a criatividade brasileira em autonomia econômica, bem-estar coletivo e capacidade duradoura de inovação.<br/><br/>Essa ambição precisa alcançar a participação social. Conferências, conselhos e instâncias representativas possuem legitimidade e funções específicas, mas sua restauração não esgota as possibilidades democráticas do presente. Temos muitos exemplos do que podem ser mecanismos de coprodução cidadã das políticas públicas: uma relação em que a sociedade participa diretamente de sua elaboração e realização, com recursos, responsabilidades e condições efetivas de ação. Cabe ao Estado ampliar sua capacidade de trabalhar com a inteligência distribuída pela sociedade, sustentando espaços de encontro, redes de cooperação e meios permanentes de experimentação. Sobretudo, cabe ao estado se adequar às formas de movimentação da sociedade e não o contrário. E o digital pode ajudar muitíssimo nisso. </p>
+<p>O segundo turno vermelho, ao qual nos entregamos com alegria e disposição, revelou essa inteligência em movimento. No levante cívico, cidadãs e cidadãos, organizados previamente ou não, compartilharam conhecimentos, recursos e capacidades para produzir um resultado que ninguém poderia controlar inteiramente. Essa potência tem uma história que atravessa a cultura digital, os Pontos de Cultura, as redes de comunicação independente e muitas experiências de organização territorial. Transformá-la em capacidade democrática duradoura exige instituições dispostas a aprender com ela. O Ministério deve oferecer essas condições, reconhecendo a autonomia de uma energia social que nenhum governo possui.</p>
+<p>Um primeiro gesto nessa direção seria convocar o 3º Fórum da Cultura Digital Brasileira. Um processo de encontro e formulação capaz de reunir as experiências que abriram esse caminho e os sujeitos que hoje enfrentam as novas formas de concentração tecnológica. Seu propósito seria construir coletivamente uma agenda de cultura digital capaz de orientar a reinvenção do Ministério e sua articulação com outras políticas públicas, conectando soberania, direitos culturais, inteligência artificial, comunicação pública e infraestruturas do comum. </p>
+<p>A própria construção do Fórum poderia experimentar a relação entre Estado e sociedade que essa proposta pretende afirmar. Os dois primeiros foram realizados em 2009 e 2010. Foram interrompidos por um acidente gigantesco no percurso das políticas culturais. Seria um gesto simbólico, mas também uma ação que permitiria ampliar a conversa e canalizar esforços. </p>
+<p>É por isso que o debate sobre o futuro do Ministério deve começar pelo projeto. A escolha de nomes e a composição das estruturas precisam responder a uma ambição política previamente discutida. Queremos uma pasta capaz de transformar a energia democrática das ruas e das redes em possibilidades permanentes de criação e organização social. Um Ministério que reconheça na cultura digital uma dimensão constitutiva da vida brasileira e assuma a tarefa de ampliar nossa liberdade diante dos poderes que a organizam.</p>
+<p>Gil, nosso mestre tropicalista, nos ensinou que a política cultural pode anunciar possibilidades que ainda não encontraram forma institucional. O levante democrático de 2026 mostrou que a sociedade continua capaz de inventá-las. Conectar essa potência a uma nova ambição pública é a tarefa que temos diante de nós. É chegada a hora da revolução digital: fazer da potência tecnológica uma capacidade coletiva de criar, decidir e transformar a vida. Essa revolução será obra da sociedade brasileira. Precisamos de um Ministério da Cultura capaz de ajudar a torná-la possível.</p>
+
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Rodrigo Savazoni				
+</h5>
+</p>
+
+<p>é jornalista, escritor, pesquisador e ativista da cultura digital, doutor em Ciências Humanas e Sociais pela Universidade Federal do ABC (UFABC). É autor de inúmeros livros sobre cultura e tecnopolítica, entre eles <i>O Comum entre Nós: da cultura digital à democracia do Século XXI (Editora do SESC)</i>. </p>
+<p> </p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+
+<p>é sociólogo, professor na UFABC e autor e organizador de diversos livros. O último, lançado recentemente, é "Colonialismo de dados: como opera a trincheira algorítmica na guerra neoliberal" (Autonomia Literária, 2021).</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Gabriela Agustini				
+</h5>
+</p>
+
+<p>é mestre em design pela PUC-Rio, diretora do OLABI e foi uma das principais articuladoras das duas primeiras edições do Fórum da Cultura Digital Brasileira e do Festival <a href="http://culturadigital.br" rel="noopener noreferrer" target="_blank">CulturaDigital.Br</a></p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/por-uma-nova-revolucao-digital-no-minc/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

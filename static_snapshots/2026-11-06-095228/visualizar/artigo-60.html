@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Post-Midterms AI Reckoning - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The Post-Midterms AI Reckoning</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/05/midterm-results-ai-data-centers-texas-georgia-ohio/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/texas-data-centers-ai-greg-abbott-google-GettyImages-2246165120.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Midterm Results Reflect AI, Data Center Concerns
+                            </p>
+                            
+<p>Barely 60 seconds into his <em>60 Minutes</em> <a href="https://youtu.be/YX44XDt0gXI?t=70" rel="noopener noreferrer" target="_blank">interview</a> on Sunday—two days before the U.S. midterm election—Abdul El-Sayed was asked to pick the most important issue he was hearing about from voters in Michigan, where he ran for Senate.</p>
+<p>“I think right now we are barreling toward a world where the most important issue I hear about every day is AI,” El-Sayed said, listing a well-documented series of potential risks from artificial intelligence, including massive economic disruption to AI escaping human control. He laid out a list of proposals to mitigate those risks, including a “cabinet-level agency” to regulate AI, partial public ownership of AI companies, and “terms of engagement” for data centers that would be negotiated with local communities. He also advocated for a “full-on pause” on so-called frontier AI development, referring to the world’s most advanced models made by Silicon Valley giants such as OpenAI, Anthropic, Google, and Microsoft.</p> 
+
+<p>Barely 60 seconds into his <em>60 Minutes</em> <a href="https://youtu.be/YX44XDt0gXI?t=70" rel="noopener noreferrer" target="_blank">interview</a> on Sunday—two days before the U.S. midterm election—Abdul El-Sayed was asked to pick the most important issue he was hearing about from voters in Michigan, where he ran for Senate.</p>
+<p>“I think right now we are barreling toward a world where the most important issue I hear about every day is AI,” El-Sayed said, listing a well-documented series of potential risks from artificial intelligence, including massive economic disruption to AI escaping human control. He laid out a list of proposals to mitigate those risks, including a “cabinet-level agency” to regulate AI, partial public ownership of AI companies, and “terms of engagement” for data centers that would be negotiated with local communities. He also advocated for a “full-on pause” on so-called frontier AI development, referring to the world’s most advanced models made by Silicon Valley giants such as OpenAI, Anthropic, Google, and Microsoft.</p>
+<p>Come January, El-Sayed will have the opportunity to put that talk into action, having won one of the most high-profile races in the Democratic sweep of Congress. But he’s not the only Democratic candidate whose views on AI helped propel them to victory.</p>
+<p>While the national blue wave is largely being seen as a <a href="https://foreignpolicy.com/2026/11/04/democrats-midterms-senate-house-united-states-trump-global-backlash/" rel="noopener noreferrer" target="_blank">repudiation</a> of U.S. President Donald Trump’s agenda, it also served as a referendum on AI and the data centers required to support them.</p>
+<p><a href="https://www.nbcnews.com/politics/2026-election/exit-poll-trump-midterms-voters-economy-disapproval-rcna607045" rel="noopener noreferrer" target="_blank">NBC exit polls</a> found that 57 percent of voters believed that AI would do more harm to society than good, with 56 percent deeming the technology as “crucial or a major factor” in determining their vote. From Texas to Georgia to Ohio, voters opted to support candidates—mostly Democrats—who promised to rein in AI development and slow the data center buildout.</p>
+<p>Strikingly, the Democratic blowout came despite Silicon Valley bigwigs—including Elon Musk, venture capitalists Marc Andreessen and Ben Horowitz, and OpenAI co-founder Greg Brockman along with his wife, Anna—spending <a href="https://www.nytimes.com/interactive/2026/11/01/us/politics/2026-midterm-top-donors.html?partner=slack&amp;smid=sl-share" rel="noopener noreferrer" target="_blank">more than half a billion dollars</a> to back Republicans, who have widely been seen as <a href="https://www.americanprogressaction.org/article/almost-every-house-republican-voted-to-block-state-and-local-governments-ability-to-protect-residents-from-ai-data-centers/" rel="noopener noreferrer" target="_blank">less favorable to regulating AI</a> over the past two years.</p>
+<p>Many Republican candidates tried to backpedal their support for the unbridled AI development that Trump has <a href="https://foreignpolicy.com/2026/09/16/ai-risk-jacob-coxon-openai-anthropic-dario-amodei-sam-altman-trump-doomsday/" rel="noopener noreferrer" target="_blank">advocated</a>, but—as with many other issues—their association with the U.S. president appears to have outweighed those efforts in voters’ minds.</p>
+<p>“I think this is the public doing the only thing it really can in the context of a governance regime in which there’s no real regulation in the United States,” Alondra Nelson, the former acting director of the White House Office of Science and Technology Policy under former President Joe Biden and the lead architect of the Biden administration’s Blueprint for an AI Bill of Rights, told <em>Foreign Policy</em>.</p>
+
+<p>Nowhere is the opposition to AI more palpable than with data centers, whose numbers <a href="https://foreignpolicy.com/2026/10/12/data-center-energy-water-land-pollution/" rel="noopener noreferrer" target="_blank">have exploded</a> in the United States. These facilities, which house computing infrastructure, support the <a href="https://foreignpolicy.com/2026/10/28/data-centers-locations-world-global-ai-construction/" rel="noopener noreferrer" target="_blank">internet as we know it</a>, underpinning everything from video streaming to web purchases. But the Trump administration’s push for AI dominance has led to the proliferation of bigger and more powerful facilities, including the “hyperscale” data centers used by tech giants.</p>
+<p>More than 1,500 data centers are now being developed across the country, joining more than 3,000 facilities already in operation, according to the <a href="https://www.pewresearch.org/short-reads/2026/04/13/most-new-data-centers-in-the-us-are-coming-to-rural-areas/" rel="noopener noreferrer" target="_blank">Pew Research Center</a>. The boom has mostly centered on a handful of hot spots—namely Virginia, Texas, and California—although planned construction is now spreading to more regions.</p>
+<p>Backlash has been fierce. From Maine to Utah, opposition has grown over the sheer pace of the buildout and the facilities’ impact on energy bills, water usage, jobs, land, and local pollution. Even before the midterms, polls suggested that more than <a href="https://news.gallup.com/poll/709772/americans-oppose-data-centers-area.aspx" rel="noopener noreferrer" target="_blank">two-thirds of Americans</a> are against local construction of AI data centers, and at least 15 states have <a href="https://foreignpolicy.com/2026/10/12/data-center-energy-water-land-pollution/" rel="noopener noreferrer" target="_blank">weighed moratoriums</a>.</p>
+<p>“You can’t fight against a Silicon Valley company, but you can fight against a data center being developed in your area,” said Joshua Rhodes, a research scientist at the University of Texas at Austin. “If that’s the only lever you have to pull, then that’s the lever you’re going to look to pull.”</p>
+<p>And pull that lever they did. In Tuesday’s election, there were 41 local measures on the ballot across 10 states that would in some way restrict data center construction. In all but one of the cases, Americans voted against data centers, <a href="https://www.cnbc.com/2026/11/04/data-center-ballot-measures-2026-midterm.html" rel="noopener noreferrer" target="_blank">according to CNBC</a>.</p>
+<p>One of Democrats’ most stunning victories came in Texas, which has been a Republican stronghold for decades but has seen fierce debates play out over the state’s embrace of data centers. Texas Gov. Greg Abbott once <a href="https://foreignpolicy.com/2026/10/12/data-center-energy-water-land-pollution/" rel="noopener noreferrer" target="_blank">courted data center investment</a> in his pledge to make the state the “epicenter of AI development.” But so many data centers were built that they strained the state’s electrical grid, prompting public outrage. In June, Abbott <a href="https://www.axios.com/2026/08/23/greg-abbott-texas-data-centers-ai-backlash" rel="noopener noreferrer" target="_blank">told</a> state regulators to make data centers bear the cost of the electrical infrastructure they need; in August, he <a href="https://www.wsj.com/livecoverage/stock-market-today-dow-sp-500-nasdaq-08-03-2026/card/texas-governor-halts-data-center-grid-connections-oEUSoB3gjoaiFj9nuM7x" rel="noopener noreferrer" target="_blank">ordered</a> regulators to stop data center grid connections and directed audits.</p>
+<p>Yet his late-stage pivot wasn’t enough to save him. On Tuesday, Abbott was unseated by Gina Hinojosa, who has urged an <a href="https://www.bloomberg.com/news/articles/2026-11-04/ai-data-center-boom-is-set-for-upheaval-after-us-election-rout" rel="noopener noreferrer" target="_blank">immediate moratorium</a> on data center development. Texas Sen.-elect James Talarico, too, has called for <a href="https://www.texastribune.org/2026/07/22/texas-james-talarico-data-centers-regulation-senate-2026/" rel="noopener noreferrer" target="_blank">stronger data center regulations</a>. “Texas should be a leader when it comes to innovation and technology, but that only works if Texans get a say and get a share of that economic growth—and that’s not what’s happening right now,” he said in July.</p>
+<p>Hinojosa’s call for a data center moratorium has been <a href="https://www.fox5atlanta.com/news/georgia-governor-debate-bottoms-jackson-clash-over-health-care-data-centers" rel="noopener noreferrer" target="_blank">echoed</a> by Keisha Lance Bottoms, the former mayor of Atlanta who won the race to be Georgia’s governor.</p>
+<p>In Ohio, former Democratic Sen. Sherrod Brown defeated his Republican opponent, Jon Husted, despite <a href="https://www.politico.com/news/2026/11/02/big-tech-ohio-sherrod-brown-husted-01144504" rel="noopener noreferrer" target="_blank">millions in spending</a> by tech billionaires to defeat Brown and support Husted’s campaign. Brown repeatedly criticized Husted as “the face of data centers” during his campaign. Democrat Annie Andrews also won the South Carolina Senate seat previously held by the late Sen. Lindsey Graham in another big upset—in part by dubbing her opponent, Graham’s sister, as “<a href="https://datacenterdarline.com" rel="noopener noreferrer" target="_blank">Data Center Darline</a>.”</p>
+<p>The techlash extended to the House, where two candidates in key races who centered AI safety issues—Manny Rutinel of Colorado and Scott Wiener of California—both won.</p>
+
+<p>So what happens now? While there is broad recognition across the Democratic Party that AI regulation is needed, there is a wide range of proposals from <a href="https://foreignpolicy.com/2026/10/26/democrats-midterms-priorities-corruption-iran-ukraine-nato-venezuela-ai/" rel="noopener noreferrer" target="_blank">current</a> and prospective lawmakers on what form that regulation should take.</p>
+<p>The midterm results could give more power to individual states to further their AI regulation and ensure more cohesion between the state and federal level. Trump administration orders to <a href="https://www.whitehouse.gov/presidential-actions/2025/12/eliminating-state-law-obstruction-of-national-artificial-intelligence-policy/" rel="noopener noreferrer" target="_blank">nationalize AI rulemaking</a> have received significant <a href="https://beyer.house.gov/news/documentsingle.aspx?DocumentID=9009" rel="noopener noreferrer" target="_blank">Democratic congressional pushback</a> over the past year, and <a href="https://www.governor.ny.gov/news/ai-safety-governor-hochul-announces-next-steps-regulate-major-ai-developers-and-protect-new" rel="noopener noreferrer" target="_blank">New York</a>, <a href="https://www.gov.ca.gov/2025/09/29/governor-newsom-signs-sb-53-advancing-californias-world-leading-artificial-intelligence-industry/" rel="noopener noreferrer" target="_blank">California</a>, and <a href="https://capitolnewsillinois.com/news/pritzker-signs-landmark-ai-regulation-bill-that-aims-to-mitigate-risks/" rel="noopener noreferrer" target="_blank">Illinois</a> have all put forward their own legislation to regulate AI. “What these three [states] share is that they are led by Democratic governors,” said Nelson. She suggested that we could now see regulations that states have piloted “being advanced at the federal level in a more accelerated way.”</p>
+<p>Much of the immediate scrutiny and restrictions will likely target data centers, said Rhodes, given how much of a lightning rod they have become. “I imagine we’re still going to build a lot of data centers in this country,” he said, “but the scrutiny over cost allocation, water consumption, and community benefits are going to become real drivers in which projects get green lighted.” (Musk, who alone spent almost $450 million to help Republicans in the midterms, sardonically <a href="https://x.com/elonmusk/status/2117862462976594112" rel="noopener noreferrer" target="_blank">posted</a> on X that “Data centers in space” were “looking pretty appealing right now.”)</p>
+<p>But Ami Fields-Meyer, an author and political strategist who previously served as a senior policy advisor on AI and technology in the Biden administration, believes that voters are demanding action on far more than just data centers.</p>
+<p>“It would be a big mistake for Democrats to misread these results as being only about data centers. This is about power and agency,” Fields-Meyer said. “After the [2008] financial crisis, we focused on providing immediate relief but failed to turn the rage the public felt at Wall Street into a broader reckoning,” he added. “But if congressional Democrats are smart, if they want to get the politics right, they won’t make that mistake again and they’ll see this as a much broader mandate to deal with corporate power in the tech industry.”</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/05/midterm-results-ai-data-centers-texas-georgia-ohio/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

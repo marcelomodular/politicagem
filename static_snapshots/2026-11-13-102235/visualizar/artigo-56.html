@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is this the end of the Electoral College? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Is this the end of the Electoral College?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/today-explained-newsletter/510466/national-popular-vote-compact-2026" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2192158211.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Is this the end of the Electoral College?
+                            </p>
+                            <p><em>This story appeared in Today, Explained, a daily newsletter that helps you understand the most compelling news and stories of the day. <a href="https://www.vox.com/today-explained-newsletter" rel="noopener noreferrer" target="_blank">Subscribe here</a></em>.</p><p>I don’t know how much time you spend in the more feverish right-wing corners of the internet, but some conservative commentators are growing very alarmed about a specific Democratic policy proposal that could be nearing fruition.</p><p>It’s not <a href="https://www.vox.com/policy-and-politics/2018/3/19/17116980/ice-abolish-immigration-arrest-deport" rel="noopener noreferrer" target="_blank">abolishing ICE</a>. It’s not <a href="https://www.vox.com/politics/497491/mamdani-grocery-stores-nyc-discounts" rel="noopener noreferrer" target="_blank">nationalizing grocery stores</a>. It’s not even investigating President Donald Trump over <a href="https://www.nytimes.com/2026/11/10/us/politics/trump-china-trip-nvidia.html" rel="noopener noreferrer" target="_blank">his reported failure to act</a> on intelligence about <a href="https://www.wsj.com/business/nvidia-is-preparing-to-oust-nvidia-ceo-jensen-huang-30f421ad" rel="noopener noreferrer" target="_blank">his newly jobless/disgraced pal</a>, Nvidia ex-CEO Jensen Huang.</p><p>Instead, they’re concerned about <a href="https://www.vox.com/politics/487766/national-popular-vote-interstate-compact-electoral-college" rel="noopener noreferrer" target="_blank">a wonky electoral workaround called the National Popular Vote Interstate Compact</a>, which would essentially sidestep the Electoral College. (And in <a href="https://x.com/bennyjohnson/status/2120193556706955591" rel="noopener noreferrer" target="_blank">the words</a> of one right-wing commentator, “effectively [rig] the system so Democrats could never lose again.”)</p><p>NPV isn’t <em>quite</em> as nefarious as that (Trump <a href="https://www.cookpolitical.com/vote-tracker/2024/electoral-college" rel="noopener noreferrer" target="_blank">won the popular vote</a> just two years ago!), though it would revolutionize how the United States conducts presidential elections. The compact is basically an agreement between states to award their electors to the winner of the national popular vote, regardless of how their own state voted. Once enough states sign on, their combined electoral votes would guarantee the presidency to whoever wins the national popular vote.</p><p>The compact has laid dormant for two decades, however, while its backers lobby to sign on more states and their electoral votes. Eighteen states and Washington, DC, have signed on thus far, representing 222 votes.</p><p>But with Democrats <a href="https://www.vox.com/politics/510050/midterm-elections-2026-blue-wave-democratic-landslide-charts" rel="noopener noreferrer" target="_blank">soon controlling state governments</a> in Arizona, Michigan, Nevada, Pennsylvania, and Wisconsin, NPV could finally gain the critical mass to become reality. Politico reported on Tuesday that lawmakers in several states, including Pennsylvania, are <a href="https://www.politico.com/news/2026/11/10/democrats-national-popular-vote-electoral-college-2028-wisconsin-michigan-pennsylvania-01158164" rel="noopener noreferrer" target="_blank">already discussing </a>the possibility.</p><p>There’s just one problem: Conservative influencers aren’t the only ones worried about the plan. In fact, even one of its architects has come to regard NPV as a “doomsday machine” that could trigger gigantic constitutional problems.</p><p>My colleague Andrew Prokop <a href="https://www.vox.com/policy-and-politics/2016/11/12/13598316/donald-trump-electoral-college-slavery-akhil-reed-amar" rel="noopener noreferrer" target="_blank">called up this conflicted architect, the Yale University professor Akhil Amar</a>, earlier this week. Andrew has been writing and thinking about NPV for years. But Amar has been thinking about it even longer — since the aftermath of the 2000 election that made George W. Bush president.</p><p>Famously, Bush was elected even though he lost the popular vote, which Al Gore won by roughly half a percentage point. Amar thought the Electoral College was historically and inherently flawed, but only a constitutional amendment could abolish it.</p><p>Recognizing the long odds there, Amar and his brother instead sketched out a quick thought experiment — the broad strokes of what is now the NPV compact. The concept was later picked up and championed by the computer scientist John Koza and his group National Popular Vote Inc.</p><p>Koza has had quite a lot of success getting states to sign on to this workaround. But all the signees so far have leaned Democratic, which concerns Amar. The institution of the Electoral College doesn’t inherently favor one party over the other (in fact, both parties <a href="https://www.history.com/articles/electoral-college-nearly-abolished-thurmond" rel="noopener noreferrer" target="_blank">nearly got rid of it</a> after the 1968 election), and the NPV wasn’t designed to tilt the scales, either. But as the discourse on right-wing social media suggests, Trump’s 2016 victory with a popular vote minority has only further hardened views on each side, and all the Democratic signatories have made it look like a partisan proposition.</p><p>There’s another problem too, Amar says. The compact leaves each participating state to calculate the national total, without a centralized body to oversee a nationwide count or recount. A very close election could leave states disagreeing over who won. But in the current environment, it’s actually hard to imagine a centralized body that both parties would find credible: People just don’t trust institutions the way they did in, say, 2000.</p><p>That puts NPV advocates in a tricky spot: The political process may finally favor the compact, but it faces significant cultural problems that could undermine its legitimacy.</p><p>Amar, for his part, thinks that even the small risk of electoral disruption outweighs the benefits of NPV. Especially since the Electoral College does actually work, whatever its shortcomings.</p><p>“The one thing we really do need to avoid as the stabilizing superpower in the world is constitutional chaos,” he told Vox. “And because this is sort of a new plan, even if it’s in principle likely to be better in all sorts of scenarios, if in a certain small percentage of cases it would lead to chaos, that’s something we need [to] seriously consider.”</p><p><strong>➨ Stop subway scrolling. </strong>If social media feels exhausting and overwhelming to you — which it does to me, often — <a href="https://www.vox.com/future-perfect/494129/quit-social-media-political-influence-offline-luddite" rel="noopener noreferrer" target="_blank">try to stop logging on from public places</a>. “People feel more lonely when they use social media while in transit, around people they have close relationships with, and when they are in nature,” says Vox contributor Shayla Love. “In contrast, when people use social media for shorter periods when they are alone at home or in study locations, it doesn’t have as much of a negative effect.”</p><ul><li><strong>Did you know…</strong>that the invention of fabrics like Spandex and Lycra changed not only what we wear — but when and how we wear it? With the advent of stretchy fabrics, Parisian fashion houses and the silhouettes they designed <a href="https://www.vox.com/culture/400549/finding-your-personal-style-journey-kibbe-what-not-to-wear" rel="noopener noreferrer" target="_blank">lost some of their influence</a>. </li><li><strong>Today’s trivia:</strong> What type of nymphs live in trees, as opposed to water, caves or clouds? (You can find this and other brain puzzles <a href="https://link.vox.com/click/6a46cfd46352b082500e86fe/aHR0cHM6Ly93d3cudm94LmNvbS8yMTUyMzIxMi9jcm9zc3dvcmQtcHV6emxlcy1mcmVlLWRhaWx5LXByaW50YWJsZT91ZWlkPWM3Mzg0ZDJhYzRmZDQ0YzcyZDI4OGQ4N2YxZjM5NDlh/664389def568f1a4620aa3aeC7b08b10b" rel="noopener noreferrer" target="_blank">in Vox’s daily crossword</a>. Look for the answer in tomorrow’s edition.)</li><li><strong>Yesterday’s trivia: </strong>Yesterday we asked you what type of music Leontyne Price performed. That would be opera: Price, now 99, <a href="https://www.kennedy-center.org/artists/p/po-pz/leontyne-price/" rel="noopener noreferrer" target="_blank">was among the first</a> Black American opera singers to achieve acclaim around the world.</li></ul>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/today-explained-newsletter/510466/national-popular-vote-compact-2026" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

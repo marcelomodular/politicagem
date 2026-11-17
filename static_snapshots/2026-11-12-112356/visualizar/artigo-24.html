@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foi também isso, Maio de 68 - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Foi também isso, Maio de 68</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/11/160366/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/11/0708920a-d7bd-46d6-b7a7-bce313855c16.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Foi também isso, Maio de 68
+                            </p>
+                            
+<h3>Por Henri Simon <strong>[1]</strong></h3>
+<blockquote>
+<p><em>Esse texto foi publicado no n° 163 da revista </em>Échanges <em>(primavera de 2018)</em>.</p>
+<p>Fonte: <a href="http://www.echangesetmouvement.fr/2018/05/ce-fut-aussi-cela-mai-68/" rel="noopener noreferrer" target="_blank" title="http://www.echangesetmouvement.fr/2018/05/ce-fut-aussi-cela-mai-68/">HTTP://WWW.ECHANGESETMOUVEMENT.FR/2018/05/CE-FUT-AUSSI-CELA-MAI-68/</a><br/>
+Original: <a href="https://www.archivesautonomies.org/IMG/pdf/echanges/echanges-n163.pdf" rel="noopener noreferrer" target="_blank" title="https://www.archivesautonomies.org/IMG/pdf/echanges/echanges-n163.pdf">HTTPS://WWW.ARCHIVESAUTONOMIES.ORG/IMG/PDF/ECHANGES/ECHANGES-N163.PDF</a></p></blockquote>
+<p>Em Maio de 1968, eu tinha quarenta e cinco anos e já atrás de mim vinte e três anos de ativismo político e sindical (mesmo que eu sempre tenha negado o título de militante ou ativista, rejeitando o sentido clássico dessa palavra, de trabalhar ardentemente por uma causa política específica). Eu era, ao mesmo tempo, articulador sindical de um grupo de oposição sindical na empresa em que eu trabalhava desde 1945 e até certo ponto articulador sindical do grupo de trabalhadores <em>Informations Correspondances Ouvrières</em> (ICO) (do grupo Socialismo ou Barbárie), que reunia pouco mais de vinte trabalhadores em Paris. Desde os primeiros dias de Maio de 68, a ICO havia crescido com um fluxo de quase uma centena de simpatizantes, principalmente estudantes e intelectuaizinhos. Tudo isso é uma outra história e, contrariamente a todos aqueles que, aposentados, tentam colocar no papel os feitos e malfeitos de sua juventude de então, eu não escreverei sobre o que foi o “meu” Maio de 68, exceto por algumas notas que se seguem. O que mais traria um grande livro de minhas próprias lembranças evocadas através de uma memória falha, que nenhum daqueles que me acompanharam nessa confusão de um grande mês poderia corrigir, pois, ou eles desapareceram, ou não são mais capazes de fazê-lo, ou desesperadamente não se importam (e eles têm razão)?</p>
+<p>O que eu gostaria de fazer, nessas linhas, é destacar alguns pontos precisos do que eu vivi então, para colocar em evidência que esses acontecimentos muitas vezes não foram o que se podia acreditar deles nem o que, testemunhas ou não, se podia ainda acreditar deles hoje, cinquenta anos depois.</p>
+<p>Primeiramente e antes de tudo, de forma honesta, justamente sobre o que alguns insistem, essa liberação da relação e das relações sociais. Nessa empresa de seguros onde eu “militava” com uns 3.000 empregados, enquanto a greve estourava em 20 de maio (um pouco tarde demais para seguir o movimento) com a criação de um comitê de greve imponente (na verdade, uma espécie de assembleia permanente), uma jovem de vinte anos veio perturbar o meu ordinário (sem dúvida, eu não fui o único tocado pelo que foi uma pequena parte de um tipo de transcendência das relações sociais). Mas para mim, e somente para mim, esse processo consagrou o nascimento de uma amizade amorosa que quase transbordou na sexualidade, mas finalmente não despejou ali. O que não muda nada em uma relação tão intensa que ela ainda existe, mas que as vicissitudes da vida e as distâncias geográficas fizeram com que os encontros materiais sejam cada vez mais espaçados, deixando apenas essa realidade do coração. Entretanto, foi apenas uma pequena imensa parte dessa “liberação” que foi por alguns meses o Maio de 68: eu já tinha conhecido isso bem brevemente nos “verdadeiros” movimentos de luta, mas dessa vez era na escala do mundo e do tempo. Entretanto, desde o início, já havia limites evidentes do movimento. E isso será minha primeira lembrança.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/sempe-5-1a491.jpg"/>Na multidão dessa reunião da ICO, onde nós vimos fluir essa massa indefinível de mais de uma centena de simpatizantes, nós tivemos de organizar uma assembleia (foi a única) em um anfiteatro de Jussieu. Estava lotado e eu fui o único a tomar a palavra. Manifestamente, a maior parte dos presentes esperavam instruções de ações. Mas eles ficaram amplamente decepcionados. Eu lhes disse simplesmente que eles deviam encontrar em si mesmos o que deviam fazer, procurar associar-se com outros e decidir em comum tanto a escolha quanto os métodos e perspectivas. Eu tinha apenas essa mensagem para transmitir. Eu nem usei a palavra “autônomo” pois me parecia supérfluo. Mas eu constatava, com uma certa amargura, vista a decepção evidente com minha “mensagem”, que a “liberação” das relações sociais não havia modificado muito o apego a regras pré-estabelecidas, a instruções, na verdade, a um líder portador de uma mensagem ideológica de ação seguindo uma certa linha. O que as minhas experiências posteriores confirmaram.</p>
+<p>Em 20 de maio, de manhã, antes do início da jornada, enquanto a greve ainda não havia começado, camaradas estudantes do 22 de Março com os quais nós estávamos em contato pelo grupo Noir et Rouge (do qual Cohn-Bendit mais ou menos participava), haviam vindo distribuir um panfleto anônimo que alguns entre nós, um pequeno grupo de oposição antissindical, tinham redigido, e no qual era recomendada a ocupação total da empresa, a expulsão de todos os dirigentes e a introdução da autogestão na empresa. Objetaram-nos como um absurdo a autogestão de uma empresa de seguros, mas, para nós, teria sido apenas uma etapa na utilização desse enorme edifício para fazer outra coisa além de escritórios. Caberia a todos os empregados decidir. Eu não sei qual eco isso teve entre os empregados, mas nós sabíamos que a direção tinha levado isso a sério e havia convocado com a máxima urgência um conselho de administração para considerar as medidas a serem tomadas. Isso se concretizou em uma aliança de fato entre a direção (que pôde gozar, ao longo da greve, de seus escritórios e de livre circulação na empresa) e os sindicatos que se elegeram como “guardiões da ferramenta de trabalho” para prevenir toda “ação maliciosa”.</p>
+<p>Michael Seidman esclarece que suas pesquisas <strong>[2]</strong> mostraram que os atos de sabotagem foram relativamente menores e muito específicos. Nós nos damos conta disso quando nós consideramos golpes: roubar todos os arquivos do escritório do pessoal para distribuí-los a cada empregado, sabotar o imponente computador central (o que era fácil). Mas nós percebemos que todos os setores sensíveis estavam bem vigiados dia e noite por tipos de milícias sindicais e que, sem um movimento de massas, toda ação de choque era condenada. Além disso, mesmo se os sindicalistas, a CFDT (Confederação Francesa Democrática do Trabalho) especialmente, colocassem na mesa a questão da autogestão, esta interessava apenas aos pequenos executivos que viam ali apenas um meio de aumentar sua influência sobre as decisões. A grande massa dos empregados não se importava nem um pouco. A maioria havia se colocado em greve para seguir o movimento, sem saber muito o porquê. E começou a elaboração de reivindicações onde cada um destacava seus problemas pessoais mais que uma visão geral de um movimento, mesmo de reforma. A greve não visava absolutamente reformas profundas, mas devia melhorar o ordinário. Ela não ultrapassou esse nível, inclusive na Renault onde a dominante CGT precisou retornar várias vezes frente à assembleia dos trabalhadores de Billancourt com proposições de remuneração um pouco mais atraentes para justificar a retomada do trabalho.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/Sine.jpg"/>Foi também isso, o Maio de 68, que não ultrapassa, exceto em alguns lugares isolados, especialmente próximo do fim em Montbéliard, a ação reivindicativa tradicional. Sem dúvida, a maioria dos votos de retomada mostrou que por volta de um terço dos trabalhadores queriam “outra coisa”, mas o quê? Pois isso não havia nunca se concretizado em reivindicações ou em ações mais radicais.</p>
+<p>Às vezes, eu ia passear no pátio da Sorbonne ocupada onde podíamos navegar para todo lado sem restrições. Na verdade, com uma exceção. Um dia, eu encontrei nesse pátio um camarada britânico militante do grupo Solidarity, Chris Pallis, e nós nos demos conta que havia apenas uma parte do edifício que permanecia totalmente fechada: a capela adjacente ao pátio – e que é mais que uma capela -, pois ela contém os restos mortais do cardeal Richelieu, um personagem da história da França. Em giz, escrevemos em grandes letras a seguinte frase, na porta da capela:</p>
+<p>“Pode-se pensar livremente na sombra de uma capela?”.</p>
+<p>Essa inscrição foi atribuída mais tarde aos situacionistas, mas ela não teve nenhum efeito. Entretanto, nós colocamos ali duas questões fundamentais: a presença da capela e do personagem que ali jazia, do qual era o símbolo da religião (ele era cardeal) e do Estado (poderoso ministro sob Luís XIII e que havia largamente contribuído para o fortalecimento do poder de Estado) e, respeitando a capela, respeitava-se tudo. Afinal de contas, a revolução de 1789 dessacralizou e vandalizou muito as igrejas e cortou a cabeça do rei; a Espanha republicana havia feito, em parte, o mesmo. Aqui, em maio de 1968, estávamos bem longe. E dizer que do outro lado do pátio da Sorbonne, à sombra da capela tão simbólica, conversávamos sobre a liberdade, a religião e o Estado. Tudo em palavras, nada em ações, foi isso Maio de 68?</p>
+<p>Em 24 de maio, no início da noite, com alguns companheiros da ICO, nós nos encontramos no átrio da estação de Lyon no começo de uma manifestação monstruosa convocada, como na época, pelo telefone sem fio e que, vista a aglomeração, se dividiu em vários pedaços. O pedaço em que estávamos caminhou pela Bastilha até a Bolsa. Enquanto chegávamos ali, um comando, não sabíamos bem qual, havia colocado fogo nas cabines telefônicas de madeira do hall de entrada, o que fazia uma iluminação, mas não arriscava inflamar esse monstro de pedra (enquanto o subsolo do edifício escondia toneladas de produtos inflamáveis de uma gráfica, que poderiam ter produzido um espetacular fogo de artifício bolseiro, mas nossos aprendizes piromaníacos sabiam disso?). Ninguém ousava entrar nesse edifício. E diferentes fatos me revelaram essa indecisão e uma recusa de engajar ações para além de certos limites invisíveis e que podiam se resumir em “ninguém estava lá para fazer uma revolução”. Ao meu lado, uma jovem teve uma crise histérica ao ver a luz avermelhada no interior do edifício, gritando várias vezes “eu não vim para fazer isso”. Um pouco mais longe, uma centena de maoístas da UJCML (União da Juventude Comunista Marxista-Leninista) esperava as instruções de seu líder que, agarrado na grade do recinto, lhes declarou sem rodeios: “O que fazemos agora?”. Algumas vozes, em outros lugares, propunham ocupar o edifício permanentemente, o que foi na mesma hora recusado pela maioria: “impossível, seremos massacrados”. Ainda assim, podemos imaginar qual podia ser o resultado, o que teria sido a ocupação do Templo da Finança, talvez um polo de resistência levando a um movimento mais vasto. Mas a multidão manifestamente rejeitava o confronto e, sobretudo, não via uma dimensão futura do movimento, exceto por essa caminhada noturna: a ocupação do Teatro de Odéon não carregava nenhum risco e nenhum símbolo, foi apenas espetáculo. Foi apenas isso, o Maio de 68?</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/fv00wbjufo.jpg"/>O que se seguiu confirmou essas premissas. A manifestação acabou voltando para pousar na Praça Vendôme onde ficava o Ministério da Justiça, um outro símbolo; foi um <em>bis repetita</em> do que aconteceu na Bolsa, exceto que não houve nem o jogo de fósforos. Parece que foi Rocard, do PSU (Partido Socialista Unificado) da época, que se opôs à ocupação do ministério pois teria sido necessário brigar com os policiais que deviam apinhar o interior, o que entretanto não se sabia. E na falta de um resultado qualquer fora das ambições rapidamente acalmadas, a multidão, sem saber quem a guiava, partiu novamente para o seu curral, o Quartier Latin, que se tornou uma verdadeira ratoeira. Enquanto caminhávamos em Tuileries nas margens do Sena, eu tive verdadeiramente o sentimento de um monótono rebanho de ovelhas que partiam resignadas para o abatedouro. O que foi bem o caso: estampados em todo o Boulevard Saint-Michel fechado solidamente por policiais nas duas extremidades, inundados por diversos gases, não havia outra saída além de fugir pelas ruas laterais onde os policiais esperavam para a caçada. É assim que nós nos encontramos, pelo resto da noite, cerca de quinze companheiros, em uma casinha estreita dos meus filhos estudantes na rue Monsieur-le-Prince: quando saímos prudentemente de manhã, o Boulevard Saint-Michel estava bem limpo, tudo circulava normalmente. Apenas alguns restos de gás lacrimogênio materializavam a lembrança dessa noite. Isso tudo serviu para quê? O inútil um pouco perigoso, mas muito pouco mesmo, hesitante, espetacular, o medo do conflito, nada mais. Foi isso o Maio de 68?</p>
+<p>Ocupávamos a Sorbonne, as fábricas, as faculdades, os colégios, as escolas, o Teatro Odeon… mas não o resto, exceto algumas delegacias de bairro, troféu de caça de alguns grupos isolados que buscavam resolver problemas, nenhuma das sedes de poder (prefeituras, departamentos etc.), sedes sociais de grandes empresas, ou câmaras patronais. Nem sequer, como vimos, os escritórios de direção das fábricas ocupadas. Um engenheiro que havia se aproximado da ICO em 1958 e que se separou dele para ir trabalhar no sindicato patronal nacional do automóvel, nos tinha contatado para nos dar as chaves do edifício onde era sediado esse sindicato, mas aqueles do 22 de março, contatados, não tentaram utilizar essa vantagem. Foi o medo de um conflito (de Gaulle pensava nisso, ele que fez a viagem para Baden-Baden junto às tropas francesas acantonadas na Alemanha) que fez com que todas essas ocupações permanecessem sem riscos, ou a consciência da desigualdade das forças? Foi também isso o Maio de 68, nas coisas essenciais nas quais a imensa maioria não pensava, deixando as vanguardas políticas à margem… ou então essas vanguardas falavam uma linguagem que praticamente ninguém compreendia? Ou propunham projetos que não correspondiam ao futuro que a maioria dos grevistas podia pensar? Como, por exemplo, o discurso autogestionário.</p>
+<p>Mesmo nos ínfimos detalhes, encontrava-se esse respeito às sedes da legalidade do sistema. Entre os 3.000 empregados da empresa de seguros da qual eu falava, ninguém teve a menor ideia de que o comitê de greve teria podido ser sediado ilegalmente sob os dourados da sala do conselho de administração, onde os dirigentes se reuniam regularmente, enquanto todos os membros desse comitê de greve achavam absolutamente normal permanecer com toda legalidade na austeridade e na nudez da sala do comitê de empresa. Um símbolo e tanto. Foi também isso, o Maio de 68: não transgredir os limites traçados.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/172.jpg"/>Eu não sei se é uma lenda ou se é simplesmente devido à greve dos hospitais; seja como for, circulou o burburinho, depois do Maio de 68, de que durante todo esse período os hospitais psiquiátricos não haviam registrado nenhuma ocorrência. Isso se explicaria pelo fato de que todos os psicóticos diversos teriam tido a possibilidade de extravasar sem restrições na rua e em outros lugares. Em dois casos pessoais, eu pude constatar o poder de atração de tais eventos para concretizar fantasmas recalcados até então. Retornando a Paris de carro, eu dei carona para dois homens, um jovem e um menos jovem, que me disseram ter ouvido que havia conflito nas ruas de Paris e que iam para a capital para lutar, embora aparentemente não tivessem nenhuma motivação direta para fazê-lo. E, em uma noite desse Maio de 68, enquanto com um amigo explorávamos as ações diversas e dispersas de grupos de ativistas, encontramos alguns jovens que nos confessaram estar à procura de um policial isolado para despi-lo inteiramente e deixá-lo na noite, nu como um verme – e, de fato, houve algumas agressões de policiais isolados, antes que seus chefes lhes ordenassem permanecer agrupados. Essas catarses individuais foram certamente inúmeras, mas não há ninguém para contá-las e os atores têm mais interesse em se calar sobre suas façanhas. Foi também isso o Maio de 68, essa expansão desmesurada de atos individuais associais desconhecidos.</p>
+<p>Eu não sei mais em qual dia de maio de 1968, eu passava, indo não sei onde, pela praça interior do Palácio do Louvre, e eu assisti a um espetáculo particularmente insólito, quase surrealista. Acontecia ali uma condecoração de policiais no mais puro estilo do cerimonial de circunstância; Paris não estava em chamas, mas estava no caos das ocupações, manifestações e de uma violência mal contida. Mas a maquinaria do Estado continuava a funcionar, mesmo em seus aspectos mais irrisórios. Foi essa a demonstração da certeza dos dirigentes de todos os tipos que tudo era apenas um episódio facilmente superável e que as rotinas não deviam ser interrompidas por tão pouco? Aquilo me instilou algum pessimismo e deu um banho de água gelada em meu entusiasmo. Foi também isso, Maio de 68: esses dirigentes tão seguros de si mesmos face a um movimento que não exibia realmente perspectivas?</p>
+<p>Maio de 68, se houve aqueles que escaparam da loucura, e a imensa maioria que viveu essas horas inesquecíveis, também teve seus mortos, mas não na desmedida de movimentos considerados “revolucionários”. No governo de então, uma tendência não diretamente repressiva prevaleceu contra aqueles que, como de Gaulle, queriam “atirar para todo lado”. A tendência conciliatória pensava justamente que podíamos confiar nos sindicatos para controlar o movimento e orientá-lo para a negociação e o fim progressivo do movimento. Eles sabiam também que toda ação repressiva violenta podia desencadear uma reação ainda mais forte de grevistas e outros manifestantes e criar assim uma crise maior do próprio sistema. Afinal de contas, Frachon, o líder de 1936, não havia declarado aos patrões durante discussões sobre os acordos de Matignon: “Se vocês não tivessem demitido sistematicamente os responsáveis sindicais, não estaríamos aqui”. É o que fará a diferença entre Renault Billancourt, onde a CGT reinava soberana e proibia toda deriva radical, e a fábrica Peugeot de Sochaux, de igual importância, mas onde a reputação da Peugeot na caça aos sindicalizados que não fossem os do sindicato da casa já não era necessária. Efetivamente, os sindicatos tinham apenas uma presença reduzida nas fábricas Peugeot. O que deixava o caminho livre, não tanto para a base dos 25.000 trabalhadores da fábrica, mas para uma minoria radical que, ao contrário do que acontecia em outros lugares, não teve nenhuma dificuldade em intensificar a ação, sendo seguida nisso por uma parte dos trabalhadores. As diversas pressões, as evidentes manipulações de um voto ultraminoritário para um acordo de retomada mínima em 10 de junho, fizeram com que o que era considerado uma traição se traduzisse em reocupação selvagem e dura da fábrica de Sochaux, no mesmo dia de uma retomada anunciada e seguida de uma parte importante dos trabalhadores<strong>[3]</strong>.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/6327ca61-584a-4559-98f8-01dcf5836092.jpg"/>Nesse período de declínio da greve geral, enquanto a retomada do trabalho se iniciava um pouco para todo lado com uma oposição de quase um terço dos grevistas, essa ação se tornava intolerável pois ela podia descarrilar tudo, até movimentos ainda mais radicais. E os sindicatos na Peugeot, impotentes, podiam sê-lo ainda mais frente a uma tamanha extensão possível. Com a barreira sindical, da negociação, não operando mais, a força seria o único recurso. Patrões e o governo (e sindicatos nos bastidores) comandaram a intervenção dos CRS, forças especiais de controle de ordem pública, que puderam atirar na multidão para liquidar o foco de tensão. O que foi feito ao preço da morte de dois trabalhadores, um por bala, e mais de 120 feridos, alguns também por bala.</p>
+<p>A região de Montbéliard entrando de alguma forma em resistência, em reação contra esse assalto assassino, não precisou menos de dez dias para que as intervenções políticas e um novo acordo chegassem a restaurar “a calma” e assegurar uma retomada do trabalho. Um acordo que, para além das vantagens financeiras e uma melhoria das condições de trabalho não negligenciáveis, instituía a entrada dos sindicatos na empresa da qual haviam sido excluídos até então, ironia de um movimento antissindical que lhes dava a legitimidade de se opor, de uma maneira ou de outra, a todo movimento que eles não controlavam. Fora de Sochaux, em maio-junho de 1968, havíamos contado – oficialmente – apenas três mortos: um jovem de dezessete anos, Gilles Tautin, que, próximo da fábrica Renault de Flins se afogou no dia 10 de junho ao se jogar no Sena para escapar dos CRS, e dois outros, em 24 de maio, ainda mais controversos em torno de um infarto: um manifestante em Paris e um comissário de polícia em Lyon.</p>
+<p>Tradicionalmente, para a festa religiosa de Pentecostes, a segunda-feira é dia de folga. Habilidosamente, em 31 de maio, o governo decidiu abastecer os postos de serviços vazios desde o início da greve (pode-se questionar o papel dos sindicatos que teriam podido então se opor a esse desbloqueio). O que fez com que assistíssemos a uma corrida fora de Paris daqueles que, com a greve chegando ao fim, queriam completar essas férias excepcionais com uma fuga igualmente excepcional. Vivemos enormes engarrafamentos, mas também – nessa forma de loucura – aconteceram em três dias, 1º, 2 e 3 de junho, 117 mortes nos caminhos da esperança de alguns momentos de vidas mais intensos. Devemos contá-los entre os mortos de Maio de 68? Pois, Maio de 68, foi também isso.</p>
+<p>Para terminar esses fragmentos de lembranças pontuais e a interpretação que eu posso lhes dar, eu gostaria de evocar a memória não dos que estão mortos desde Maio de 68, mas que, antes de baterem as botas, puderam falar sobre isso ao redor deles ou mesmo escrever um pouco sobre o que eles haviam vivido então – o que tentamos fazer na ICO até o fim de 1968<strong>[4]</strong>. Mas evocar a memória daqueles que se deram a morte nos anos seguintes, emparedados em boa parte na perda das ilusões que Maio de 68 podia ter suscitado sobre almas sensíveis demais e levadas ao entusiasmo. Claro, nesses suicídios, encontramos também razões que tocam as dificuldades de sua própria vida, problemas afetivos graves e, quem sabe, outros que prejudicam a fragilidade de uma sensibilidade invasora demais… Todas essas razões que fizeram parte do cotidiano com mais ou menos intensidade, mas que, sozinhas, não conduzem ao ato de coragem (alguns dizem de covardia) de apagar sua vida. No período de ascensão de um movimento espontâneo de uma dimensão inigualável como Maio de 68, essas questões “pessoais” passam ao segundo plano, relegadas por essa parte de um sangue coletivo de um renascimento que faz com que cada um dê uma força ao movimento em ascensão e receba em retorno a força para superar o cotidiano. Mas, no período de declínio do movimento, inevitável pois, finalmente, ele próprio não sabia para onde ia verdadeiramente, esses problemas graves do cotidiano retornam a todo galope e, sendo a gota d’água que transborda o vaso, a desilusão de um fim pouco glorioso e a perda das esperanças tornam intolerável uma vida que não vê mais que um confinamento entre paredes intransponíveis.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/a08a0a26-3be3-4ce6-aa1d-3ce405486dd0.jpg"/>Eu encontrei, nesses anos pós-68, cinco camaradas que se suicidaram, o que é muito para o grupo limitado da ICO. Florence Ribon, uma jovem e pequena mulher morena cujo rosto eu revejo e nada mais, foi a primeira do grupo a desaparecer se atirando pela janela. Um outro, Germinal Clemente, que era entregador no jornal <em>Le Monde</em> e cujo fim, de circunstâncias particularmente trágicas, eu não evocarei. As lembranças de três outros são ainda mais precisas. Michel Marsella era o filho de um casal anarquista de Lyon. Estudante, ele deu seus primeiros passos na geração de 68 em Lyon, mas tinha ido para Paris, capital da revolução, e quase sonhava em ser revolucionário profissional, se dedicando em boa parte à ICO e outros grupos como o VLR, e vivendo de pequenos empregos. Para sua infelicidade, ele se tornou perdidamente apaixonado por uma participante da ICO, uma ambiciosa que não se preocupava nem um pouco com ele e que estava na extrema esquerda apenas como a primeira etapa de uma ascensão social. O pobre Michel acumulou desilusões de seu amor insatisfeito e do fim de 68, e ele morreu também se atirando pela janela, do terceiro andar. Nicolas Boulte tinha sido um militante exemplar do grupo maoísta UJCML, que se tornou Gauche Prolétarienne, e, como tal, havia trabalhado como operário na fábrica Renault Billancourt, e participou ativamente do Comitê de Luta Renault, fundado por essa organização. Tanto quanto as opções políticas impostas de uma maneira por vezes violenta, os incontáveis esquemas no maoísmo de então o conduziram à saída dessa rotina do maoísmo e a escrever sob um pseudônimo um <em>Balanço do Comitê de Luta Renault</em> <strong>[5]</strong>. O fato de que ele propôs à ICO a publicação de seu texto era um reconhecimento da objetividade do grupo e um sinal da confiança que ele lhe concedia. Isso valia para a ICO, mas sobretudo para ele mesmo, a vingança de seus antigos camaradas, que o consideraram como um traidor que era preciso eliminar: ele sofreu, além de várias agressões, uma perseguição constante em todas as suas formas que ele acabou, talvez com algumas circunstâncias pessoais a favor, por não conseguir mais suportar ao ponto de se suicidar, deixando apenas esse texto cuja importância havia condicionado sua morte.</p>
+<p>Eu guardei o último dos cinco para terminar essa evocação, este – Christian Lagant – que foi primeiro uma relação política e depois um amigo, no sentido pleno do termo. Nós nos conhecemos em 1959 durante a criação das premissas da ICO e até a minha demissão em 1971 (trabalhávamos perto um do outro, pois ele trabalhava em uma gráfica como revisor, recusando o posto áureo de revisor de imprensa), nos encontrávamos todas as quintas-feiras ao meio-dia em um pequeno bistrô atrás da Biblioteca Nacional.</p>
+<p>Aliás, o bistrô se tornou um lugar de encontro para uns e para outros. Sem nunca o dizer e sem grandes demonstrações, nós nos sentíamos muito próximos, discutindo sobre tudo. Christian era um homem completo, artista (tanto pintor quanto caricaturista), escritor (tanto poeta surrealista quanto militante político), tribuno, quem sabe o que mais (podemos encontrar todas as facetas de sua personalidade pesquisando seu nome em uma ferramenta de busca na internet). Nossos encontros se tornaram mais esporádicos, ainda mais quando eu emigrei para Londres, em 1977, mas eu não perdia a oportunidade de encontrá-lo em cada uma de minhas breves visitas a Paris. No dia de seu suicídio por barbitúricos, eu retornava a Paris e tínhamos combinado nos encontrar. Christian era lendariamente discreto com sua vida privada, mesmo que por vezes tenha sido um pouco aberto sobre isso comigo. Antes de sua decisão de levar a cabo seu plano, seu pai, com quem morava sozinho havia muito tempo em uma habitação subsidiada no 18° arrondissement de Paris, faleceu.</p>
+<p>Qual acúmulo de decepções pessoais e políticas pôde motivar seu gesto? Ninguém saberá, mas ele devia também ser assombrado pela morte há um bom tempo por ter escrito, nos anos 1950, para o jornal do MIAJ (Movimento Independente dos Albergues da Juventude), do qual era um militante ativo, o seguinte poema que pode fechar essa incursão pelos esquecidos de Maio de 68:</p>
+<p>Se eu morro<br/>
+Não se canse<br/>
+Para mim<br/>
+A cremação<br/>
+ou o cemitério<br/>
+me esfria</p>
+<p>Não cante a Marselhesa<br/>
+Ou a Internacional<br/>
+Não procure bandeira negra<br/>
+Vermelha<br/>
+Ou bandeira vermelha e preta<br/>
+Não busque<br/>
+Tudo isso</p>
+<p>Se eu tenho um buraco<br/>
+Não se “recolham”<br/>
+Eu não estarei aqui para ninguém<br/>
+Mesmo se quiserem me ver</p>
+<p>Eu estarei mais longe<br/>
+Com os companheiros<br/>
+Felizes ao vê-los rir<br/>
+Contando piadas com eles<br/>
+Eu estarei próximo do fogo<br/>
+Sob as chaminés traiçoeiras<br/>
+E se eu ali me colidir<br/>
+Os “Jovens do mundo inteiro”<br/>
+Não serão lascados</p>
+<p>Sem tristeza, amigos<br/>
+Senão eu irei, à noite<br/>
+Cosquinhar seus pés<br/>
+para fazê-los rir<br/>
+C.L.</p>
+<p>Afinal de Contas?</p>
+<p>Foram muitos nesse “meio” os que pensavam que 1968 carregava as premissas de um vasto movimento revolucionário mundial, e que durante anos se lançavam de corpo e alma em um ativismo fanático para que suas esperanças se concretizassem.</p>
+<p>Na época, eles tratavam com desprezo – ou até mesmo como covardes – aqueles que não compartilhavam desse messianismo. Eles não viam que Maio de 68 tinha sido outra coisa que eles não conseguiam compreender, tomados em seus esquemas políticos. Como mostramos em diferentes episódios, a grande massa dos atores não buscava de modo algum “fazer a Revolução”. Não há certeza alguma de que os 30% que, em média, tinham recusado os acordos coletivos de empresa feitos na sequência dos acordos de Grenelle para a retomada do trabalho, o tivessem feito porque julgavam que o que havia sido proposto era bem medíocre, tendo em conta quase um mês de greve. Exceto que eles planejavam simplesmente prolongar a festa de suas insólitas férias. Aliás, uma parte da contestação diz respeito aos pagamentos dos dias de greve.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/Poster-Mai-68-Sempe-2.webp"/>É evidente que as questões de dinheiro e/ou condições de trabalho desempenharam um papel nos debates para a retomada, o retorno ao cotidiano, à rotina do trabalho e das preocupações da vida. Vivemos férias excepcionais, um tipo de liberação total, férias como nunca mais teríamos. Tínhamos, sem ter realmente procurado isso, vivido intensamente. Tínhamos, enfim, vivido como teríamos gostado de viver e é isso que contava antes de tudo; conscientemente ou não, procurávamos prolongar esse canto do paraíso social que acabávamos de viver, e ser um pouco pago por isso, o máximo possível conforme necessário. Alguns dias após o fim da greve, um curta-metragem – <em>La Reprise du travail aux usines Wonder</em> (A retomada do trabalho nas fábricas Wonder) – tinha mostrado o grito do coração de uma trabalhadora que criticava com uma violência verbal inigualável sua recusa em retornar ao inferno cotidiano de seu trabalho. Mas esse grito, que era o de toda uma classe de explorados, exprimia também, para todos aqueles que haviam vivido um tipo de paraíso temporário das relações sociais, um certo desespero ao ver que isso desaparecia talvez para sempre, deixando apenas uma nostalgia profunda, uma lembrança latejante de emoções até então desconhecidas.</p>
+<p>Esse grito se juntava ao slogan de agitadores que não estavam realmente ali, “Sous les pavés, la plage” (“Sob os pavimentos, a praia”). Pois era mesmo a praia que eles todos haviam vivido, que tudo foi feito para apagar. Os pavimentos recolocados em seus devidos lugares são hoje recobertos pelo asfalto cinza do cotidiano. Poderíamos dizer muito sobre isso, mas sobretudo tentar situar essas esplêndidas férias do Maio de 68 em uma perspectiva histórica. Esse movimento que se estendia sem rumo bem definido (não encontramos nada melhor que “mal-estar”), essas caminhadas na cidade igualmente sem rumo, negligenciando todos os símbolos do poder, esse abandono global, apesar de alguns vestígios de formas de lutas do passado ao redor da conquista armada, isso não lhes diz nada, tendo em conta o que se desenvolveu na última década? Maio de 68: a premonição do que vemos hoje em dia no mundo, do que aparece como uma nova forma de luta internacional global. Mas sobretudo o modelo que os pretensos vanguardistas autoproclamados tentam, como nossos fanfarrões de Maio de 68, perpetuar na ação direta violenta do conflito com forças de repressão do capital.</p>
+<p>Foi também isso, Maio de 68, um imenso movimento cuja força se encontrou não na exterioridade da ação violenta, mas no coração individual e coletivo da busca pela Vida.</p>
+<p><em>As imagens que ilustram o artigo são de Siné e Sempé.</em></p>
+<h4><strong>Notas</strong></h4>
+<p><strong>[1]</strong> Traduzido por Lucca Lobato.</p>
+<p><strong>[2]</strong> The Imaginary Revolution. Parisian Students and Workers in 1968, de Michael Seidman, Berghahn Books, 2004.(<a href="https://web.archive.org/web/20220707040912/https://www.echangesetmouvement.fr/2018/06/mai-68-modeste-ou-mythique/" rel="noopener noreferrer" target="_blank" title="https://web.archive.org/web/20220707040912/https://www.echangesetmouvement.fr/2018/06/mai-68-modeste-ou-mythique/">ver aqui</a>)</p>
+<p><strong>[3]</strong> Ver « <a href="https://web.archive.org/web/20220706064958/https://www.mondialisme.org/spip.php?article1401" rel="noopener noreferrer" target="_blank" title="https://web.archive.org/web/20220706064958/https://www.mondialisme.org/spip.php?article1401">Chez Peugeot en juin 1968, une insurrection ouvrière peu connue</a> », relato dessa greve, em Echanges n°124 (primavera de 2008). E <a href="https://web.archive.org/web/20220407143246/http://www.mondialisme.org/spip.php?article773" rel="noopener noreferrer" target="_blank" title="https://web.archive.org/web/20220407143246/http://www.mondialisme.org/spip.php?article773">Les Grèves en France en mai-juin 1968</a>, de Bruno Astarian, Echanges e Mouvement, 2003.</p>
+<p><strong>[4]</strong> Cópias de textos da ICO disponíveis sob demanda.</p>
+<p><strong>[5]</strong> <a href="https://archivesautonomies.org/IMG/pdf/ico/supplement/zorobabel.pdf" rel="noopener noreferrer" target="_blank" title="https://archivesautonomies.org/IMG/pdf/ico/supplement/zorobabel.pdf">Tentative de bilan du Comité de lutte Renault</a>, de Baruch Zorobabel, ICO, setembro de 1972.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/11/160366/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

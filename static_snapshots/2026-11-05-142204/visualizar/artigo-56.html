@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A tiny Ohio town just found a way to make data centers pay - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A tiny Ohio town just found a way to make data centers pay</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/future-perfect/509247/ohio-data-centers-ai-election-perry-tax-breaks" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/a6f36868-b687-4b0b-858b-1e4d237ab066.jpg?quality=90&strip=all&crop=0%2C15.095986038394%2C100%2C69.808027923211&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A tiny Ohio town could change how America deals with data centers
+                            </p>
+                            <p>In a state of post-election bliss, John Nicely drove his daily school bus route on Wednesday morning through the tiny town of Perry, Ohio, a few miles south of Lake Erie.</p><p>“So, when are you taking down the signs, Mr. Nicely?” his students asked him as they filed inside, “because you kicked butt, buddy.”</p><p>They were joking, of course, the way kids sometimes do with an adult they really like — and Nicely is, if my calls with him are any indication, a man who makes good on the promise of his name. But they were also right: He <em>had </em>kicked butt.</p><p></p><ul><li>Americans overwhelmingly voted to put new restrictions on data centers this Election Day, with dozens of new bans and restrictions enacted across the country.</li><li>In Perry, Ohio, a village of roughly 1,400 people, the newly passed Issue 16 could compel data centers to take out a bond that backs up their promises of future jobs or tax revenue.</li><li>If this election is a wake-up call for data centers — and it should be — then Issue 16 might offer a blueprint for building better deals between small towns and Big Tech.</li></ul><p>Of all the losers in the midterm elections perhaps none collapsed as decisively as data centers, those hulking, humming backbones of the AI boom, whose construction has incited a rage-fueled bipartisan backlash across the country. More than 40 data center-related measures made it to the ballot this Tuesday, and <a href="https://www.cnbc.com/2026/11/04/data-center-ballot-measures-2026-midterm.html" rel="noopener noreferrer" target="_blank">data centers lost all but one of them</a>, often by dramatic margins. It is by far the most resounding referendum yet on the infrastructure of AI, a bipartisan revolt against a <a href="https://www.npr.org/2026/08/27/nx-s1-5879528/data-center-nda-disclosure-louisiana" rel="noopener noreferrer" target="_blank">flagrantly opaque</a> industry with a near-unanimous “no thanks,” or at the very least, a “probably not, but only if.”</p><p>Even against the dramatic background of that national movement, Perry stands out. For much of the past year, the village has been embroiled in a bitter fight over plans for an enormous 230-acre data center — the <a href="https://www.cleveland19.com/2026/04/14/perry-village-residents-demand-answers-proposed-data-center/" rel="noopener noreferrer" target="_blank">equivalent of one-sixth</a> of its surface area — quite literally in Nicely’s backyard, or at least in the center of the town he now calls home. But he and his fellow residents aren’t simply looking to stop the project from happening.</p><p>While most of the measures that passed elsewhere outright ban data centers, or at least limit their construction, Perry’s <a href="https://ballotpedia.org/Perry,_Ohio,_Issue_16,_Hyperscale_Data_Center_Tax_Incentive_Financial_Guarantee_Requirement_Initiative_(November_2026)" rel="noopener noreferrer" target="_blank">Issue 16</a> does something more novel and maybe more consequential: It forces data centers to keep their promises. As crafted by Nicely and other advocates in Perry, it would require any data center in Perry that accepts a tax abatement or a subsidy — <a href="https://www.ncsl.org/fiscal/subsidizing-servers-how-states-are-competing-to-attract-data-centers" rel="noopener noreferrer" target="_blank">as almost all of them do</a> — to take out a bond guaranteeing that <a href="https://www.vox.com/podcasts/466649/ai-bubble-burst-data-centers-economy" rel="noopener noreferrer" target="_blank">even if the AI bubble bursts</a>, <a href="https://www.vox.com/future-perfect/501756/orbital-data-centers-space" rel="noopener noreferrer" target="_blank">even if companies fling all the data centers into space</a>, or even if the facilities <a href="https://www.bbc.com/news/articles/cd0ynenr1eno" rel="noopener noreferrer" target="_blank">shrink to the size of a penny</a>, the village will be left with more than empty promises and a gaping vacant campus.</p><p>And on Tuesday, after months of sign-posting, petition drives, and unprecedentedly raucous village hall meetings, Nicely and his allies won.</p><p>“I was absolutely choked up” as the results poured in, he told me on Wednesday, still a little bit teary over the final vote on <a href="https://ballotpedia.org/Perry,_Ohio,_Issue_16,_Hyperscale_Data_Center_Tax_Incentive_Financial_Guarantee_Requirement_Initiative_(November_2026)" rel="noopener noreferrer" target="_blank">Issue 16</a>, which received a stunning 87 percent of Perry’s support. “I had the optimism that we would get it passed, but never by a landslide,” he said. “I couldn’t be prouder of this town than I am today.”</p><p>Data center companies should be paying attention. Combined with a <a href="https://www.vox.com/politics/509132/midterm-results-five-lessons-from-blue-tsunami" rel="noopener noreferrer" target="_blank">blue tsunami</a> that has carried in a slate of Democratic candidates who’ve campaigned on <a href="https://www.reuters.com/world/china/global-markets-view-europe-2026-11-04/" rel="noopener noreferrer" target="_blank">data center restrictions</a>, and with more than half of <a href="https://stateline.org/2026/11/04/voters-across-the-country-reject-data-centers/" rel="noopener noreferrer" target="_blank">voters calling AI a major issue</a> in their choice for Congress, the industry cannot proceed with business as usual. As of now, if a data center wants to get built in the US, it will need to offer Americans a much better, more convincing deal. Issue 16 might show them the way.</p><p><h2><strong>Small town, big data center</strong></h2></p><p>Few towns know what a good deal looks like better than Perry, which has been molded for the past half-century by the looming cooling towers of its local nuclear power plant.</p><p>When the Perry Nuclear Power Plant first opened in the 1980s, it brought hundreds of well-paying jobs and <a href="https://spectrumnews1.com/oh/columbus/news/2021/04/08/-they-were-promised-wealth-that-would-go-on-through-eternity--what-happens-to-perry-if-the-nuclear-power-plant-shuts-down-" rel="noopener noreferrer" target="_blank">enough tax revenue</a> to build luxury public school facilities like an Olympic-sized swimming pool.</p><p>“I knew kids from high school who graduated and got these power plant jobs, and it was like hitting the lottery,” said Nicely, who grew up in the town next door. “They came in right off the bat to partner with the community,” bankrolling benefits such as garbage collection and free utilities for those most affected by “this thing being right in their backyards.”</p><p>Today, the station’s plumes of vapor are like pheromonal beacons, calling out to energy-hungry data centers. Earlier this year, the plant’s operator <a href="https://www.news5cleveland.com/news/local-news/feds-announce-big-loan-for-expansion-of-perry-nuclear-plant" rel="noopener noreferrer" target="_blank">inked deals with Meta</a> and the US Department of Energy to greatly expand its capacity, potentially making the facility into the largest of its kind in the country. But all that juice will do little good without the data centers that need it, and when a far-flung developer called the Province Group showed up in Perry in April, having already <a href="https://www.theohioregister.com/tag/perry-township/" rel="noopener noreferrer" target="_blank">made a bunch of secret dealings</a> with local policymakers behind closed doors, residents were livid.</p><p>The Perry Nuclear Power Plant recently struck a deal with Meta to power its AI data centers. Nancy Andrews/Bloomberg via Getty Images</p><p>“I’m going, ‘Oh my God! They think that this town is nothing but a bunch of little hicks,’” said Nicely, who was recruited onto the village council a few months ago for his activism. He remembers thinking just that while he sat on his perch at the village hall, listening as the developer “tried to wow us with a bunch of spreadsheets,” rattling off promises for future jobs and tax revenue. Nicely, who is in his mid-60s, had a career working in business before he moved back to northeastern Ohio a few years ago to care for his mother — and, ultimately, drive the school bus, among other things. In his old life, he’d been a self-described “spin doctor,” and in the village hall he sniffed a lousy deal right away. If Perry’s nuclear plant once “truly took on a partnership role” when it came online, he said, then “these people came in with no regard to partner.”</p><p>Under the Province Group’s initial proposal, the data center would receive a <a href="https://www.news-herald.com/2026/07/17/perry-village-wont-grant-tax-abatement-to-data-center-developer/" rel="noopener noreferrer" target="_blank">75 percent tax exemption</a> for its first 15 years after construction. In return, once it started paying taxes, <a href="https://www.cleveland.com/lake-county/2026/10/perry-approves-one-year-data-center-moratorium-with-an-exception.html" rel="noopener noreferrer" target="_blank">it promised to pay up plenty</a>, to the tune of over $320 million over the next three decades, while ushering in the creation of hundreds of jobs. But 15 years is a long time to wait for a company to fork over the goods, and data centers are hardly known for going on <a href="https://www.brookings.edu/articles/new-evidence-on-data-center-employment-effects/" rel="noopener noreferrer" target="_blank">long-term hiring sprees</a>.</p><p>Data centers, despite their odious reputation, can be good for local communities under the right conditions. Virginia’s Loudoun County has become well-known as “Data Center Alley” for its AI-fueled growth. There too, tax revenue from the industry has paid for fancy amenities, much like Perry’s nuclear plant did in the ’80s — indeed, Loudoun even <a href="https://www.nytimes.com/2026/08/19/technology/data-centers-backlash-loudoun-virginia.html" rel="noopener noreferrer" target="_blank">got an Olympic pool of its own</a>. And there are <a href="https://www.vox.com/politics/488754/data-centers-ban-electric-bill-water" rel="noopener noreferrer" target="_blank">plenty of other proposals swirling</a> for using the oodles of money behind data centers to improve local infrastructure.</p><p>But Ohioans like Nicely had reason to fear they were about to get ripped off, partly because it had happened before. Back in 2019, Perry’s nuclear power plant — like other energy developments across the state — was on the <a href="https://clevelandmagazine.com/articles/why-tensions-are-brewing-at-perry-nuclear-power-plant/" rel="noopener noreferrer" target="_blank">verge of bankruptcy</a>. Ohio passed HB 6, a last-ditch <a href="https://thebulletin.org/2020/04/a-dirty-battle-for-a-nuclear-bailout-in-ohio/" rel="noopener noreferrer" target="_blank">billion-dollar bailout</a> funded by surcharges on Ohioans’ energy bills, in response. But while HB 6 saved the plant, it was later revealed to be part of the <a href="https://www.vox.com/2020/7/22/21334366/larry-householder-affidavit-ohio-bribery-firstenergy" rel="noopener noreferrer" target="_blank">largest bribery scandal</a> in Ohio history, one that sent the state’s former House Speaker Larry Householder to federal prison for two decades.</p><p>What’s more, many of the policymakers involved in HB 6 have spent the past few years rolling out the red carpet for data center developers, enacting subsidies and tax breaks that have turned the state into one of the <a href="https://spectrumnews1.com/oh/columbus/news/2026/10/12/ohio-data-centers-" rel="noopener noreferrer" target="_blank">fastest-growing data center markets</a> in the country.</p><p>“They have no credibility on this issue,” said Nick Owens, a co-founder of Conserve Ohio, a group that sponsored ballot measures in 10 communities across the state. Owens is a former Republican candidate for state office who <a href="https://www.10tv.com/article/news/investigations/10-investigates/fbi-informant-on-householder-case-talks-with-10-investigates/530-2b25df6c-57ca-4957-ae57-9c3e0e6b05f1" rel="noopener noreferrer" target="_blank">became an FBI informant</a> in the HB 6 case.</p><p>After that scandal, “you would think there would be some muscle memory left in the system to realize that we shouldn’t be bought and paid for by all these special interests,” he told me. “But it’s still happening.”</p><p><h2><strong>What if data centers had to keep their promises?</strong></h2></p><p>And that brings us to Issue 16, the ballot measure Nicely helped bring to Perry’s ballot on Election Day. Amid outrage from residents, the village council in Perry had already <a href="https://gazettenews.com/perry-village-announces-no-abatement-or-pilot-in-data-center-deal/" rel="noopener noreferrer" target="_blank">struck down</a> the Province Group’s initial request for a tax abatement in July, putting the project in limbo.</p><p>But thanks to the passage of Issue 16, if that developer or another like it tries to apply for one in Perry again, they will be forced to take out a kind of insurance on their promises, protecting the town in case the projected tax revenue never materializes as expected in the years that follow.</p><p>“That’s the threat with data centers, that in a couple of years, these projects will not be needed,” said Kasia Tarczynska, a senior research analyst at Good Jobs First, a group that studies government subsidies. “It is totally fair to say that if you want us to give you something, give us something in return and guarantee that you really want to be here.”</p><p></p><p>“Initiatives like this really show that people are innovative and smart — they understand what they’re giving up. They understand that these corporations often come in, promise, and never deliver.”</p>— Kasia Tarczynska, Good Jobs First senior research analyst<p>Many small towns, particularly across the Rust Belt, are acutely sensitive to the risks of an industry swooping in for a few sweet decades before disappearing, leaving decaying facilities and a local economy in turmoil. In recent years, states <a href="https://dor.georgia.gov/high-technology-data-center-equipment-exemption" rel="noopener noreferrer" target="_blank">like Georgia</a> and <a href="https://sao.texas.gov/Reports/Main/26-009.pdf" rel="noopener noreferrer" target="_blank">Texas</a> have required projects to take out bonds similar to Perry’s to guarantee that local benefits actually materialize for developments that receive a large subsidy or tax break from the government, or to compel them to clean up after themselves if a project goes bust.</p><p>“Initiatives like this really show that people are innovative and smart — they understand what they’re giving up,” Tarczynska said. “They understand that these corporations often come in, promise, and never deliver.”</p><p>If data centers want to continue to build in small towns across America, then they might need to become much more comfortable backing up their promises before they break ground. As Sam Nelson, a professor of political science at the University of Toledo, put it, “communities might be a lot more willing to be open to this development if they were actually going to see the money flowing.”</p><p>Nicely has been hearing from local policymakers across the state and the country interested in building out similar bonds into their data center deals, some of which have been inspired by Issue 16 in Perry. Even before the election, developers around the country had begun offering eye-popping and legally binding <a href="https://conduitstreet.mdcounties.org/2026/09/02/frederick-secures-110m-community-benefits-agreement-for-data-center-campus/" rel="noopener noreferrer" target="_blank">community benefits agreements</a> promising to pump tens of millions of dollars into local schools and infrastructure. Those concessions may not assuage all the concerns that Americans have about data centers — which are, after all, arguably proxies for other <a href="https://www.vox.com/future-perfect/490350/data-center-moratoria-ai-backlash" rel="noopener noreferrer" target="_blank">fears about the madcap proliferation of AI</a>. But they can still be meaningful, especially in communities that otherwise have the least to start with or the most to lose.</p><p>And Nicely’s town could certainly use the cash.</p><p>“Perry needs the money,” he told me. The town’s newest fire truck is now a decade old, and its ambulances are “in dire need of replacement,” he said. “There’s just no money to do it. So we have got to have some type of economic development.”</p><p>And that will probably require doing something with the sprawling property in the middle of town. It need not be a data center, Nicely said. But if it is, the town now has a lot of leverage to go with all the power flowing from its plant. “If you want to be business partners then come in as business partners. Offer the people something up front, and tell them how you’re going to invest in their community, not how it’s going to benefit you,” he said. “Or go away.”</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/future-perfect/509247/ohio-data-centers-ai-election-perry-tax-breaks" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

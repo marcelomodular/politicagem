@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O espelho que reflete o capitalismo - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O espelho que reflete o capitalismo</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/11/160359/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/11/Black-Mirror-8.avif" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O espelho que reflete o capitalismo
+                            </p>
+                            
+<h3>Por Michel Goulart da Silva</h3>
+<p>Cerca de dez anos atrás, <em>Black Mirror</em> era uma das séries mais comentadas e elogiadas. Com uma premissa relativamente simples, a série mostrava os efeitos da tecnologia sobre a sociedade em um futuro bastante próximo. Parte considerável dos episódios estava centrada nos efeitos do “espelho negro” — que pode ser entendido como a tela do celular ou da televisão — sobre a vida das pessoas. Os episódios de <em>Black Mirror</em> não faziam um elogio à tecnologia, mas a problematizava e criticavam o caráter deletério que provoca na convivência em sociedade e na vida das pessoas. Os temas problematizados na série eram dos mais variados. No primeiro episódio da série, “The National Anthem” (2011), uma princesa é sequestrada e exige-se um bizarro pagamento de resgate: o primeiro-ministro britânico deveria manter relações sexuais com um porco, e o ato seria transmitido ao vivo pela televisão. Embora o governo se esforce para manter o máximo de sigilo acerca do sequestro e do pedido de resgate, a mídia não apenas divulga todos os detalhes como constrói uma narrativa sensacionalista. Quanto à população, aguarda pelo bizarro pagamento do resgate, em frente à televisão, inclusive deixando as ruas vazias. Pode-se entender que “o alvo do sequestrador não era nem a princesa, nem o primeiro-ministro, mas sim o próprio público; uma aposta de que as pessoas interromperiam com todas as atividades para assistir passivamente na TV a uma aberração”. <strong>[1]</strong></p>
+<p>O controle do “espelho negro” sobre a vida das pessoas também se expressava na relação com as aparências que se busca manter. Nesse aspecto, o episódio “Nosedive” (2016), o primeiro da terceira temporada, acaba assumindo um tom cômico por lembrar muito o cotidiano atual das pessoas nas redes sociais. No episódio, as pessoas passam boa parte do tempo fixadas em seus celulares, atribuindo notas para todos com quem interagem. Essa conquista de avaliações positivas parece tornar-se o centro da vida dessas pessoas, levando a uma competição de popularidade em tempo real, onde as maiores notas garantem o acesso a uma série de bens de consumo e privilégios. Observa-se que na sociedade “muitos usuários das plataformas sociais avaliam seu modo de existência em função do grau de acúmulo das métricas das redes sociais, visualizações e curtidas, que quantificam a parcela da atenção da sociedade que eles foram capazes de alcançar e ferozmente buscam manter e ampliar”. <strong>[2]</strong></p>
+<p>O controle da tecnologia se expressa inclusive nas relações amorosas. No episódio “Hang the DJ” (2017), o quarto da quarta temporada, as pessoas vão sendo direcionadas para seus parceiros por um aplicativo, ganhando uma casa e toda a estrutura para compartilhar uma vida, mas a relação tem uma duração estabelecida de forma prévia. O episódio problematiza como, diante da dificuldade de escolha ou mesmo de cultivo do relacionamento, acaba “sendo muito mais fácil deixar essa decisão na mão de terceiros, mesmo que fosse aos cuidados da frieza envolvida nos recursos tecnológicos, tais como os relacionados à inteligência artificial”. <strong>[3]</strong></p>
+<p>No episódio “San Junipero” (2016), o quarto da terceira temporada, a tecnologia permite fazer o <em>upload</em> da consciência das pessoas, mostrando a relação entre Yorkie, que sofreu um acidente na juventude que a deixou tetraplégica e em coma, e Kelly, que tem uma doença terminal. O episódio é um dos mais sentimentais e visto como um dos mais otimistas da série, refletindo sobre “a tendencia contemporânea para a reconfiguração da memória, reduzida, por um lado, a dados informacionais e, por outro, transmutada em objeto de consumo, esvaziando, assim, sua potência existencial e política”. <strong>[4]</strong></p>
+<p>Contudo, os temas abordados por <em>Black Mirror</em> extrapolavam o “espelho negro”. No episódio “Be Right Back” (2013), o primeiro da segunda temporada, uma jovem busca na tecnologia formas de suprir a ausência do namorado recentemente morto. Começa com uma espécie de bate-papo, em que textos escritos em vida pelo jovem morto servem como parâmetro para que sejam elaboradas, por uma espécie de inteligência artificial, as respostas mais prováveis em um diálogo. Como mostrado no episódio, ao longo da troca de mensagens, a personagem “vai aderindo à ficção do outro virtualmente reencarnado, como que devolvido à vida”. <strong>[5]</strong> Em tempos nos quais as pessoas têm procurado tantas coisas nas diversas inteligências artificiais, até mesmo algo que classificam como terapia, o episódio se mostra assustadoramente atual.<img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/black-mirror-white-bear-1.avif"/></p>
+<p>No episódio, essa tecnologia mostrada na série, que permite o diálogo com um ser artificial arquivado em um espaço virtual, avança até que seja possível reviver uma réplica do jovem morto em um androide, que não apenas fala e exterioriza sentimentos, mas que até mesmo pode fazer sexo. Ele seria um ser artificialmente criado que aparentemente poderia substituir o ente morto. Contudo, como fica demonstrado na parte final do episódio, o androide não tem como ser a mesma pessoa, afinal é um ser criado com rotinas mecânicas e definidas e que não tem a autenticidade, as imperfeições e mesmo a personalidade de uma pessoa real.</p>
+<p>Outro tema que aparece em diferentes episódios é o que poderia ser chamado de uso da tecnologia para promover formas paralelas de justiça. No episódio “White Bear” (2013), o segundo da segunda temporada, acompanhamos uma jovem sem memória que por uma razão desconhecida pelo espectador é perseguida e atacada por pessoas mascaradas. Outras pessoas, ao mesmo tempo que algumas tentam matá-la, permanecem fixas em seus celulares, gravando as imagens da perseguição. No final descobre-se que a mulher perseguida foi cúmplice no sequestro e assassinato de uma criança, e que a perseguição diária é sua punição, teatralizada dia a dia por aquelas mesmas pessoas.</p>
+<p>Essas formas de punição também aparecem no episódio “Shut Up and Dance” (2016), o terceiro episódio da terceira temporada, no qual um conjunto de pessoas que tiveram vídeos e imagens íntimos acessados pela internet se vê obrigado a executar tarefas a mando de um desconhecido, que entra em contato apenas por mensagens de textos, sob ameaça de vazamento desse material. Contudo, mesmo após o cumprimento das tarefas, todas as imagens e vídeos são divulgadas, e então o espectador descobre que as personagens pelas quais nutriram simpatia e até compaixão durante o episódio têm nos materiais vazados crimes como pedofilia e racismo, entre outros. Quem os ameaçava parecia ter “a intenção de realizar algum tipo de justiça com as próprias mãos, ao imputar e executar determinadas penas com relação a essas pessoas que tinham cometido algum tipo de ato obsceno ou imoral”. <strong>[6]</strong></p>
+<p>Portanto, há na série um conjunto de críticas, que passam pelo uso da presença exagerada e controladora da tecnologia na sociedade. Por outro lado, diante de todo o pessimismo que impregna os episódios, não se apresentam possíveis saídas para a solução dos problemas, ou melhor, naquela sociedade entra-se em um círculo cujas alternativas estão controladas. Sabe-se que a tecnologia é dominada por alguém, possivelmente com recursos financeiras e se materializa em empresas, mas a crítica expressa na série acaba sendo muito mais para as consequências do que para possíveis causas. Em função disso, a crítica expressa nos episódios acaba sendo muito mais uma forma emocional e imediata de desabafo do que a construção de um projeto alternativo de sociedade. Existem alguns exemplos significativos disso.</p>
+<p>No episódio “Fifteen Million Merits” (2011), o segundo da primeira temporada, um grupo de pessoas passa os dias pedalando em bicicletas e assistindo a todo tipo de vídeos, entre jogos, desenhos, eróticos, entretenimento e outros. Esse trabalho é recompensado com pontos que permitem a eles viver naquele espaço, uma vida limitada a assistir a programas de televisão e se alimentar. Um dos grandes sonhos expressos por alguns deles é poder deixar a bicicleta e se tornarem estrelas, inspirados nas celebridades que admiram das telas. Nessa sociedade, “os mecanismos existentes no processo de cooptação são extremamente convincentes em razão de mostrar, reiteradamente, que existem para todos oportunidades iguais de sucesso, sendo necessário, para isso, talento e dedicação exaustiva por parte dos candidatos”. O jovem protagonista do episódio se apaixona por uma das garotas e doa sua pontuação para que ela participe do teste de um programa de talentos. Ela, apesar da belíssima voz e excelente execução da música, não é considerada uma extraordinária cantora pelos jurados, mas, devido a sua beleza, é convidada a se tornar atriz em filmes eróticos. Embora hesitando no começo, a garota acaba por aceitar o convite.<strong>[7]</strong></p>
+<p>O jovem protagonista, enraivecido, se joga a conquistar todos os pontos possíveis para poder chegar a participar do programa de talentos e tentar se vingar do sistema que havia cooptado sua grande paixão. Para tanto, passa horas e mais horas sobre a bicicleta. Deixa de comer para não gastar seus pontos. Com isso, acaba conseguindo a pontuação necessária para se entrar no programa e executa uma apresentação de dança. Contudo, sua intenção principal é fazer uma denúncia do sistema de imagens falso que predomina naquela sociedade. Ele afirma, ameaçando se suicidar, segurando um pedaço de vidro no pescoço: “Estamos tão loucos de desespero que não conhecemos nada melhor. Só objetos falsos e coisas para comprar. É como nos comunicamos, como nos expressamos. Compramos coisas”. Embora o susto inicial, para sua surpresa, os jurados do programa não apenas afirmam concordar com o discurso raivoso do jovem, como o convidam para fazer participações em um programa para dizer “verdades” sobre a sociedade. Portanto, mostra-se aqui que a raiva sem projeto político acaba por ser cooptada pela sociedade capitalista, tornando-se também um produto rentável.</p>
+<p>Essa ausência de projeto político também se expressa em outro episódio em que se discute alternativas para a sociedade, ou melhor, mostra-se que não se vislumbram alternativas. No episódio “The Waldo Moment” (2013), o terceiro da segunda temporada, é colocado em cena um ursinho azul criado por computador, chamado Waldo. Conhecido por seu sarcasmo e pelos muitos palavrões que fala, o ursinho acaba se lançando como candidato em uma eleição parlamentar local. Nos debates e em sua propaganda, ele se limita basicamente a “queimar” os demais candidatos e desqualificar qualquer proposta política que se apresente. Com isso, acaba não apenas caindo nas graças do público, mas se tornando favorito na eleição. Mesmo perdendo a eleição, ficando atrás somente do candidato conservador, Waldo se torna uma figura central naquela sociedade.</p>
+<p>O comediante que dá vida ao Waldo, que tem um envolvimento pessoal com a candidata trabalhista, acaba se arrependendo dos rumos que as coisas vão tomando, ainda que de forma tardia e sem a possibilidade de consertar o estrago que havia feito com Waldo. Essa forma de fazer a política desprovida de conteúdo acaba por ser levada a sério pelas pessoas, que se sentem cansadas do discurso dos partidos tradicionais e das promessas não cumpridas pelos “políticos”. O esgotamento da política e esvaziamento de conteúdo do debate político leva parte das pessoas a passarem a não levar a sério mesmo projetos societários coerentes e consistentes. Como consequência, abre-se espaço para o crescimento ou mesmo o surgimento de alternativas reacionárias, que deslegitimam “a própria política, fazendo do fanatismo uma espécie de bússola”. Podem ser considerados exemplos desse esvaziamento a eleição de figuras sem projeto político e que, de forma geral, exalam ódio em seu discurso de destruição das políticas estatais e de perseguição às oposições. Nesse quadro foram eleitos presidentes figuras como Donald Trump, Jair Bolsonaro e Javier Milei.</p>
+<p>Em seus episódios, Black Mirror mostrava um quadro pessimista não apenas de um futuro próximo facilmente imaginável, mas também da nossa própria sociedade. Contudo, com o passar dos anos e com o acúmulo de temporadas, a série foi perdendo muito de seu caráter crítico e, além disso, a própria realidade foi mostrando que muito daquilo que se mostrava ganhou materialidade na vida das pessoas. Os temas discutidos na série mostravam a urgência de se repensar a forma como estamos organizando nossas sociedades, questionando as raízes desses problemas. Embora a série não apresente uma crítica radical da sociedade, aponta um conjunto de elementos que permitem refletir sobre a construção de alternativas políticas e sociais. Podemos, dessa forma, olhar para além dos espelhos que refletem o capitalismo e enxergar a sociedade real que nos cerca.</p>
+<blockquote><p>As imagens que ilustram o artigo são cenas do episódio White Bear, da série Black Mirror.</p></blockquote>
+<p><strong>Notas</strong></p>
+<p><strong>[1]</strong> Mario Roberto Santim da Silva. Telas sombrias: uma análise psicossocial de Black Mirror. Jundiaí: Paco, 2020, p. 85.</p>
+<p><strong>[2]</strong> Kenzo Soares Seto. O algoritmo e o capital: ensaios introdutórios à Economia dos Meios Digitais. Curitiba: Appris, 2024, p. 83.</p>
+<p><strong>[3]</strong> Mario Roberto Santim da Silva. Telas sombrias: uma análise psicossocial de Black Mirror. Jundiaí: Paco, 2020, p. 75.</p>
+<p><strong>[4]</strong> Maria Cristina Franco Ferraz; Ericson Saint Clair. Para além de Black Mirror: estilhaços distópicos do presente. São Paulo: N-1 Edições, 2020, p. 111.</p>
+<p><strong>[5]</strong> Maria Cristina Franco Ferraz; Ericson Saint Clair. Para além de Black Mirror: estilhaços distópicos do presente. São Paulo: N-1 Edições, 2020, p. 151.</p>
+<p><strong>[6]</strong> Mario Roberto Santim da Silva. Telas sombrias: uma análise psicossocial de Black Mirror. Jundiaí: Paco, 2020, p. 92.</p>
+<p><strong>[7]</strong> Mario Roberto Santim da Silva. Telas sombrias: uma análise psicossocial de Black Mirror. Jundiaí: Paco, 2020, p. 149.</p>
+<p><strong>[8]</strong> Maria Cristina Franco Ferraz; Ericson Saint Clair. Para além de Black Mirror: estilhaços distópicos do presente. São Paulo: N-1 Edições, 2020, p. 83.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/11/160359/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

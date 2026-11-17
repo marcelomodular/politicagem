@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memórias do Jornalismo: Há propaganda política popular? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Memórias do Jornalismo: Há propaganda política popular?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismoha-propaganda-politica-popular/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5150112941704154238-1.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: MemÃ³rias do Jornalismo: HÃ¡ propaganda polÃ­tica popular?
+                            </p>
+                            
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>O texto a seguir compÃµe a sÃ©rie <em>Passageiro da HistÃ³ria</em>, memÃ³rias de Carlos Azevedo.<br/>Leia tambÃ©m:<strong><br/><a href="https://outraspalavras.net/historia-e-memoria/carlos-azevedo-passageiro-da-historia/" rel="noopener noreferrer" target="_blank">Carlos Azevedo,<em> Passageiro da HistÃ³ria</em></a><br/><a href="https://outraspalavras.net/historia-e-memoria/o-dia-em-que-janio-quadros-renunciou/" rel="noopener noreferrer" target="_blank">[1] O dia em que JÃ¢nio Quadros renunciou</a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-a-semana-da-legalidade/" rel="noopener noreferrer" target="_blank">[2] MemÃ³rias do Jornalismo: A Semana da Legalidade</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/um-pais-polarizado-e-um-reporter-brincando-com-fogo/" rel="noopener noreferrer" target="_blank">[3] Um paÃ­s polarizado e um repÃ³rter brincando com fogo</a></strong><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-em-1964-vendo-o-golpe-acontecer/" rel="noopener noreferrer" target="_blank"><strong>[4] MemÃ³rias do Jornalismo: Em 1964, vendo o golpe acontecer</strong></a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-revista-ousada-em-tempo-obscuro/" rel="noopener noreferrer" target="_blank"><strong>[5] MemÃ³rias do Jornalismo: Revista ousada em tempo obscuro</strong></a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-a-ditadura-arreganha-os-dentes/" rel="noopener noreferrer" target="_blank"><strong>[6] MemÃ³rias do Jornalismo: A ditadura arreganha os dentes</strong></a><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-clandestinidade-e-libertacao/" rel="noopener noreferrer" target="_blank"><strong>[7] MemÃ³rias do Jornalismo: Clandestinidade e âlibertaÃ§Ã£oâ</strong></a><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-em-pauta-a-revolucao-brasileira/" rel="noopener noreferrer" target="_blank">[8] MemÃ³rias do Jornalismo: Em pauta, a revoluÃ§Ã£o brasileira</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-sete-anos-no-esconderijo/" rel="noopener noreferrer" target="_blank">[9] MemÃ³rias do Jornalismo: Sete anos no esconderijo</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memoria-do-jornalismo-quando-partido-nao-basta/" rel="noopener noreferrer" target="_blank">[10] MemÃ³rias do Jornalismo: Quando o partido jÃ¡ nÃ£o basta</a></strong><br/><strong><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-polemicas-e-afetos-na-luta-contra-a-ditadura/" rel="noopener noreferrer" target="_blank">[11] MemÃ³rias do Jornalismo: PolÃªmicas e afetos na luta contra a ditadura</a></strong><br/><a href="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismo-travessias-politicas/" rel="noopener noreferrer" target="_blank"><strong>[12] MemÃ³rias do Jornalismo: Travessias polÃ­ticas</strong></a></p>
+<p>Em 1987 o movimento popular continuava em ascensÃ£o e na campanha eleitoral para o Congresso com poderes de Assembleia Constituinte elegeu uma bancada, embora minoritÃ¡ria, de qualidade e combativa. Meus ex-companheiros Haroldo Lima e Aldo Arantes foram eleitos. LuÃ­s InÃ¡cio Lula da Silva e outros quinze militantes do PT tambÃ©m se elegeram. </p>
+<p>A bancada da esquerda teve um grande desempenho na formulaÃ§Ã£o de pontos chaves da nova ConstituiÃ§Ã£o. Para isso contou com o apoio de um movimento popular forte sem precedente maciÃ§amente presente nas galerias e comissÃµes que levaram a vitÃ³rias significativas que deram o carÃ¡ter progressista da nova Carta Magna. Manifestando uma vez mais sectarismo a bancada do PT votou contra, argumentando que queria uma ConstituiÃ§Ã£o mais avanÃ§ada. Depois, sua bancada acabou assinando a ConstituiÃ§Ã£o.  </p>
+<p>Haroldo Lima, do PCdoB, sempre lembrava a fundamental participaÃ§Ã£o da sociedade nos debates durante a formulaÃ§Ã£o da Constituinte. Centenas de propostas e petiÃ§Ãµes foram apresentadas, milhares de cidadÃ£os  e cidadÃ£s estiveram presentes defendendo suas proposiÃ§Ãµes, acompanhando e pressionando os constituintes durante as discussÃµes. </p>
+<p>Lembro de uma foto icÃ´nica da plateia, toda uma bancada formada por indÃ­genas pintados de vermelho e com cocares, alguns com pesadas bordunas. No centro dela o cacique Raoni, dos txucarramÃ£es, que anos antes, em 1966, eu havia conhecido no posto Diauarum, no Parque IndÃ­gena do Xingu. Um homem grande e forte, corpo magro e sÃ³ mÃºsculos. Ele jÃ¡ usava aquele botoque no lÃ¡bio, mas mal falava o portuguÃªs. </p>
+<p>Acompanhei de longe os trabalhos da Constituinte. Na promulgaÃ§Ã£o da nova ConstituiÃ§Ã£o, o presidente da CÃ¢mara, Ulysses GuimarÃ£es, a classificou como a âConstituiÃ§Ã£o cidadÃ£â e de fato ela trouxe importantes avanÃ§os democrÃ¡ticos. </p>
+<p>Em 1988 estavam previstas eleiÃ§Ãµes municipais e o mundo polÃ­tico andava agitado. A economia nÃ£o ia bem, a inflaÃ§Ã£o chegava a 70% ao mÃªs. Havia muitas crÃ­ticas ao governo e o presidente JosÃ© Sarney ficava cada vez mais impopular. Apoiando o governo, o PMDB estava em baixa. De sua costela, rompendo, surgiu uma ala que se autodefinia como social-democrata, o PSDB – Partido da Social Democracia.  </p>
+<p>Em meados do ano eu continuava meu trabalho na Secretaria de EducaÃ§Ã£o. Um ex-colega da Globo, JoÃ£o Batista Olivi, veio me convidar para fazer uma campanha polÃ­tica. Contratado pelo prefeito JosÃ© MagalhÃ£es Teixeira, o <em>Grama,</em> de Campinas,  ele estava empresariando duas campanhas para candidatos do PSDB Ã s Prefeituras de Campinas e Bauru. Minha tarefa seria a campanha de Bauru. Primeiro, recusei. </p>
+<p>Em seguida fui passar o fim de semana numa casa emprestada de uma amiga, Bia Pereira, em Visconde de MauÃ¡, perto do pico de Itatiaia, na serra da Mantiqueira. Precisava descansar e pensar na vida. Fazia um frio gostoso. De madrugada me enrolei num cobertor, deitei-me no gramado e meus olhos mergulharam por horas nas estrelas e constelaÃ§Ãµes que, na noite cristalina, caminhavam pelo cÃ©u. Pela primeira vez me senti viajando pelo espaÃ§o, passageiro da astronave Terra.</p>
+<p>Na volta ao trabalho, presenciei uma discussÃ£o de minha chefe com uma das nossas companheiras de trabalho. De repente senti que meu tempo ali estava esgotado. Telefonei para Olivi e disse que topava fazer a campanha em Bauru.</p>
+<p>Essa campanha, a segunda que eu fazia, foi um treino para a campanha que veio depois, a <em>Rede Povo.</em></p>
+<p>O candidato era um jovem engenheiro que havia sido secretÃ¡rio de Obras da Prefeitura no governo do ex-petista Tunga Angerami, que acabara de se filiar ao recÃ©m-fundado PSDB. </p>
+<p>AntÃ´nio Izzo era um jovem grande, pesado. NÃ£o tinha carisma e nÃ£o era bom orador. Ele havia sido lanÃ§ado como azarÃ£o, ou mesmo para nÃ£o ganhar, ao enfrentar figurÃµes, velhas raposas locais do PMDB e PTB.</p>
+<p>Ao chegar a Bauru perguntei a um taxista quem era esse Izzo. Respondeu: âÃ© um jovem desconhecido, nÃ£o tem nenhuma chance!â</p>
+<p>Mas havia uma realidade dos fatos, uma situaÃ§Ã£o objetiva que, trabalhada por um elemento subjetivo poderia mudar tudo.</p>
+<p>A situaÃ§Ã£o objetiva: Apesar de a economia do paÃ­s estar se arrastando, Bauru passava por uma conjuntura de crescimento. A demanda de novas empresas levara a Prefeitura formar um Distrito Industrial, oferecendo incentivos.  As empresas estavam contratando e a forÃ§a de trabalho crescia. </p>
+<p>Angerami dividia o planejamento com David Capistrano Filho, comunista, mÃ©dico sanitarista de larga visÃ£o. Foi o secretÃ¡rio de SaÃºde, mas influenciava em toda administraÃ§Ã£o. Promoveu uma revoluÃ§Ã£o combinando EducaÃ§Ã£o e SaÃºde, com excelentes escolas municipais e postos de saÃºde, mais equipes de mÃ©dicos e enfermeiros que visitavam as famÃ­lias em casa. Havia atÃ© vitoriosos programas de fornecimento de leite materno e de vacinaÃ§Ã£o em massa. Procedimentos que tornaram o prefeito bastante popular e capaz de projetar seu prestÃ­gio para seu candidato Ã  sucessÃ£o.</p>
+<p>O elemento subjetivo comeÃ§ava pelo PSDB. O partido acabava de ser constituÃ­do com base em SÃ£o Paulo, saindo do PMDB liderado pelo governador Orestes Quercia, acusado de corrupÃ§Ã£o. O novo partido se apresentava como defensor da Ã©tica e contava em seus quadros com Franco Montoro, Mario Covas, Fernando Henrique Cardoso e outros figurÃµes que haviam participado da frente ampla pela democratizaÃ§Ã£o. </p>
+<p>Mais diretamente eu tambÃ©m fazia parte do elemento subjetivo na campanha. Aqui peÃ§o vÃªnia ao improvÃ¡vel leitor para que nÃ£o me considere vaidoso. Nessa ocasiÃ£o eu tinha 48 anos. Jornalista desde os 20 anos. Comecei em 1960 pelo jornal A Hora, vespertino da capital. Depois passei pelo <em>O Estado de S. Paulo, DiÃ¡rio da Noite, O Cruzeiro, Quatro Rodas, Realidade,</em> entre outros veÃ­culos. </p>
+<p>Em 1968, com 28 anos, fui para a militÃ¢ncia polÃ­tica na organizaÃ§Ã£o clandestina AÃ§Ã£o Popular e cuidar de sua imprensa. Em 1969, com mandado de prisÃ£o contra mim, parti com a famÃ­lia para a clandestinidade. Continuei fazendo a imprensa da organizaÃ§Ã£o e depois, do PCdoB, com o qual  AP havia se unido. A partir de 1976 tambÃ©m colaborava com o jornal <em>Movimento</em>, fazendo matÃ©rias assinadas por outros ou com codinomes.  SÃ³ fui sair da clandestinidade em 1979, com 39 anos. Durante esse perÃ­odo fiz muito trabalho de denÃºncia da ditadura e apoio aos trabalhadores e Ã  democratizaÃ§Ã£o.</p>
+<p>Mas tambÃ©m foi a Ã©poca da minha vida em que mais estudei. Li <em>O Capital</em>, volume 1, aprendi sobre o trabalho, o valor e a mais valia. E o volume 2, sobre a circulaÃ§Ã£o de mercadorias. Li Engels e LÃªnin. E li muita estatÃ­stica do IBGE para entender o Brasil. Como nÃ£o cursei ensino superior acho que essa foi uma espÃ©cie de faculdade. </p>
+<p>Deixando o PCdoB voltei Ã  vida legal e Ã  imprensa. Em 1981, com 41 anos, estava no Globo Rural. Contratado pela TV Globo me senti mais estÃ¡vel e comprei uma casa em um cantinho do ButantÃ£. Financiada pela Caixa EconÃ´mica Federal, paguei em 15 anos. Em 1985, fiz a campanha de FHC Ã  Prefeitura de SÃ£o Paulo. Em 1986, passei pela TV Cultura, em 1987, estava na Secretaria da EducaÃ§Ã£o. Em 1988 fui para Bauru.</p>
+<p>Capistrano nÃ£o estava mais na cidade. Filiado ao PT, havia assumido a assessoria da candidata Telma de Souza na campanha Ã  prefeitura de Santos. Ela foi eleita com boa votaÃ§Ã£o, enfurecendo a poderosa direita do balneÃ¡rio. Foi uma vitÃ³ria da periferia, dos morros, das palafitas, dos trabalhadores do porto que ainda mantinha a tradiÃ§Ã£o de âporto vermelhoâ, contra a orgulhosa orla branca. Nunca seria perdoada por essa ousadia de ser mulher, do povo, de esquerda, petista, feminista, e assumir o cargo mais importante da cidade. Malhada o tempo todo, ainda assim conseguiu se reeleger vÃ¡rias vezes como vereadora.</p>
+<p>Para a campanha de Bauru, JoÃ£o Batista Olivi jÃ¡ havia contratado uma produtora de SÃ£o Paulo, a <em>Video Noir, </em>de LÃ­dia Geribelo, para fornecer equipamento de TV, acompanhado por uma jovem editora de imagem e um gerente financeiro. Um dos sÃ³cios de Olivi na empreitada era um repÃ³rter chamado Jorge Licurci, destacado para a campanha de Bauru.  </p>
+<p>Havia dois cinegrafistas que tinham saÃ­do da TV Globo de Bauru (lembro do nome de um deles, Adauto Nascimento), assistentes para luz e som, e duas cÃ¢meras simples, mas em bom estado, equipamentos de luz e som. Alugamos uma casa, preparamos a sala para ser um pequeno estÃºdio, outra para ser a ilha de ediÃ§Ã£o. Nos fundos foram morar vÃ¡rios desses trabalhadores. SalÃ¡rios baixos, inclusive o meu. A campanha me pagou hotel.</p>
+<p>Por que digo que essa campanha de Bauru foi um treino para a Rede Povo, no ano seguinte? Eu havia apreendido que o povo, mobilizado e organizado, Ã© uma forÃ§a poderosa. Resolvi levar o povo para a TV. Bauru nunca havia visto uma campanha polÃ­tica pela TV. E as pessoas comuns nunca haviam se visto na tela. AlguÃ©m criou o slogan <em>Ã Izzo aÃ­!</em> que pegou. E propus fazermos comÃ­cios. Como palanqueiro Izzo se virava melhor do que no estÃºdio. Orientei o candidato a falar com o povo, inclusive com pessoas supostamente conhecidas presentes na plateia, do tipo: <em>âSeu Raimundo, vou asfaltar a sua rua!</em></p>
+<p>Os comÃ­cios eram feitos Ã  noite. Eu usava as duas cÃ¢meras, uma fixa no candidato. E mandava iluminar a plateia, que nas primeiras fileiras tinha muitos jovens. E eles viam que estavam sendo filmados e se animavam a aplaudir o candidato. Assistindo ao programa eleitoral no dia seguinte, uma novidade na cidade, as pessoas se viam e viam conhecidos participando do comÃ­cio. E se mobilizavam para ir ao prÃ³ximo. Os comÃ­cios foram crescendo em nÃºmero e animaÃ§Ã£o.</p>
+<p>O programa contava com falas curtas de Izzo no estÃºdio em que anunciava suas propostas de governo. Havia matÃ©rias positivas mostrando as realizaÃ§Ãµes da gestÃ£o de Angerami e os avanÃ§os da cidade. Para definir de que lado estÃ¡vamos eu produzia algo como editoriais, lidos por um locutor, com crÃ­ticas ao governo de Sarney e ao PMDB nacional e local. A trilha sonora era um frevo. </p>
+<p>Os programas dos adversÃ¡rios eram compostos de falas discursivas, demagÃ³gicas, sem rumo e repetitivas, que nÃ£o empolgavam, apesar de serem polÃ­ticos conhecidos da regiÃ£o.  </p>
+<p>Izzo saiu do anonimato, aos poucos cresceu em popularidade e venceu a eleiÃ§Ã£o para espanto geral com 44% dos votos.  </p>
+<p>Em vÃ¡rias cidades as eleiÃ§Ãµes desse ano trouxeram novidades e surpresas como essa. Em SÃ£o Paulo foi eleita LuÃ­sa Erundina, do PT, que vinha se destacando como lÃ­der de um movimento nos bairros por casa prÃ³pria Ã  base de mutirÃµes. Sua campanha causou um racha no PT. Lula e a maioria do diretÃ³rio nacional eram contra seu nome. Inicialmente ela contou com apoio do PCdoB, em particular de Aldo Rebelo, que na Ã©poca era um vereador destacado na CÃ¢mara Municipal da capital. Em seguida, a base local do PT decidiu sustentar a candidatura de Erundina. </p>
+<p>O candidato Paulo Maluf liderou as pesquisas durante toda a campanha. Mas, como em polÃ­tica fatos novos podem mudar um cenÃ¡rio, aconteceu que Ã s vÃ©speras da eleiÃ§Ã£o uma tropa do ExÃ©rcito reprimiu com violÃªncia uma greve. E assassinou quatro operÃ¡rios metalÃºrgicos da SiderÃºrgica Nacional, de Volta Redonda, no Rio de Janeiro. Levantou-se uma comoÃ§Ã£o na sociedade.  Luiza Erundina, que estivera sempre atrÃ¡s de Maluf, se beneficiou desse clima e foi eleita, se tornando a primeira mulher a administrar a capital.  </p>
+<p>Como prefeita protagonizou uma postura que, na minha opiniÃ£o, foi de extrema ingratidÃ£o polÃ­tica.  Embora no inÃ­cio o PT tenha rejeitado sua candidatura, Erundina contou desde logo com o apoio do PCdoB municipal. Mas em toda sua gestÃ£o jamais deu participaÃ§Ã£o a esse partido.</p>
+<p>Em outros lugares candidatos de oposiÃ§Ã£o se beneficiaram dessa brisa popular que vinha das Diretas JÃ¡ e da nova ConstituiÃ§Ã£o: Telma de Souza (PT) em Santos, o lÃ­der petroleiro da refinaria de PaulÃ­nia, JacÃ³ Bittar (PT) em Campinas, OlÃ­vio Dutra (PT) em Porto Alegre e outros. Detalhe: todos eles contaram com apoio do PCdoB.  E nenhum deles tornou isso pÃºblico. Ã que, eleitos, fugiam de ser associados Ã  palavra âcomunistaâ, objeto de injusta rejeiÃ§Ã£o no meio social.</p>
+<p>Seja como for, o dado geral dessa conjuntura era que o povo voltava a respirar e a participar da polÃ­tica.</p>
+<p>Registro que AntÃ´nio Izzo foi um fracasso na administraÃ§Ã£o, afastou-se de Angerami, acabou cassado e atÃ© chegou a ser preso por corrupÃ§Ã£o! Lamentei e confesso que senti um mal-estar. Em nenhum momento acreditei que ele pudesse ser um administrador competente. Assim mesmo fiz dele uma figura popular e o levei Ã  vitÃ³ria. Ã verdade que nÃ£o foi escolhido por mim. </p>
+<p>Em minha defesa pensava: apenas realizei meu trabalho. Mas sempre me senti um tanto culpado e mais ainda quando soube que ele foi um prefeito desastroso. Esse Ã© o dilema Ã©tico do propagandista polÃ­tico. AliÃ¡s, de todo propagandista, jÃ¡ que ele pode fazer propaganda de uma margarina reconhecidamente ruim e a tornar um sucesso de vendas, em prejuÃ­zo do consumidor. </p>
+<p>Em futuras campanhas polÃ­ticas das quais participei me defrontei com o mesmo dilema. Ã verdade que recusei vÃ¡rias. </p>
+<p>Deixei Bauru com algum prestÃ­gio de que era um bom propagandista polÃ­tico.  Foi Ãºtil a experiÃªncia adquirida em propaganda em AÃ§Ã£o Popular, no PCdoB, enriquecida com o aprendizado em jornalismo de televisÃ£o no Globo Rural e TV Cultura. Aos poucos, sem planejamento, meio ao acaso, fui adquirindo esse conhecimento.</p>
+<p></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/historia-e-memoria/memorias-do-jornalismoha-propaganda-politica-popular/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

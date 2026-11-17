@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holocausto da Fome - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Holocausto da Fome</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/opiniao/holocausto-da-fome/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/11/valeria3.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Holocausto da Fome
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+<p><strong> PAUSE!</strong> Enquanto lê… ouça <em>Tao of Love</em>, Vangelis (1979).</p><p>
+</p>
+<p></p><p>
+</p>
+<p>A repórter Michelle Cottle, do <em>The New York Times</em>, advertiu que a vitória democrata pode entregar a Trump aquilo de que ele mais gosta: um inimigo institucional a enfrentar. A vitória veio em 3 de novembro: os <a href="https://aljazeera.com/us-midterm-elections-2026/results/" rel="noopener noreferrer" target="_blank">republicanos perderam a Câmara e o Senado dos Estados Unidos</a>. Trump não estava na cédula, mas fizera campanha como se estivesse. A leitura de Cottle é uma interpretação, não a confissão do presidente. Ela aponta, porém, a estranha economia do espetáculo: o partido perde, a guerra política rende e para Trump segue tudo absolutamente bem.</p><p>
+</p>
+<p>Dois dias depois, Mar-a-Lago, sua propriedade, recebeu a <a href="https://maralago.cpac.org/" rel="noopener noreferrer" target="_blank">gala da CPAC</a>: US$ 2.500 pelo jantar, US$ 95 mil pelo acesso <em>Backstage</em>. Matt Schlapp, presidente da <em>American Conservative Union</em>, organizadora da CPAC, lobista e aliado de Trump, figurava entre os organizadores. Flávio Bolsonaro, derrotado na eleição presidencial brasileira, e Eduardo Bolsonaro constavam da programação. Há uma festa para poucos. Há outra conta para todos.</p>
+<p></p>
+<p><strong>Vinte mil mortes por dia, 300 dias, seis milhões: o número do Holocausto passa sem minuto de silêncio</strong></p>
+<p>Vinte mil por dia. Trezentos dias. Seis milhões. Em um ano não bissexto, a conta chega a 27 de outubro. Passou. Sem desfile, sem sirene, sem minuto de silêncio.</p>
+<p>A conta parte de uma declaração de 2004: Thoraya Ahmed Obaid, então diretora executiva do <a href="https://www.unfpa.org/press/health-and-links-nutrition-maternal-health-key" rel="noopener noreferrer" target="_blank">Fundo de População das Nações Unidas (UNFPA)</a>, advertiu que a fome crônica estava associada à morte de cerca de vinte mil pessoas por dia. O calendário é uma provocação à consciência, não um registro de óbitos.</p>
+<p>Seis milhões é também o número de judeus assassinados pelo regime nazista. O Holocausto foi um genocídio deliberado, organizado e historicamente singular. A comparação numérica não iguala causas, métodos, responsabilidades nem crimes. Exige outra coisa: que a humanidade explique por que aprendeu a solenizar a memória de determinados mortos enquanto se acostuma a não perguntar pelas mortes evitáveis que se repetem, sem cerimônia, diante de seus olhos.</p>
+<p><strong>ONU prevê fome declarada em Darfur até janeiro de 2027. O Sul Global posa para a foto. Onde fica a África nessa cartografia?</strong></p>
+<p>O relatório <a href="https://www.fao.org/hunger/en" rel="noopener noreferrer" target="_blank"><em>O Estado da Segurança Alimentar e Nutrição no Mundo 2026</em></a> estima que 645 milhões de pessoas passaram fome em 2025, 309 milhões delas na África. No Sudão, o relatório <a href="https://wfp.org/news/new-fao-wfp-report-warns-worsening-hunger-puts-13-hotspots-significant-risk" rel="noopener noreferrer" target="_blank"><em>Hunger Hotspots</em>, da FAO e do PMA</a> identifica risco de fome declarada em 14 áreas de Darfur e Cordofão do Sul até setembro de 2026, com persistência em 13 delas até janeiro de 2027. <strong>Ninguém poderá alegar surpresa.</strong> O financiamento da ajuda alimentar caiu cerca de 59% entre 2022 e 2025.</p>
+<p>A União Africana ocupa desde 9 de setembro de 2023 um assento permanente no G20, que, apesar de reunir agora 21 membros, conserva o nome. A África entrou na fotografia institucional. A fome continua do lado de fora da mesa onde se decidem as prioridades. <strong>Onde fica a África nessa cartografia?</strong> Um continente de 54 países não cabe na nota de rodapé de uma expressão geopolítica.</p>
+
+
+<img alt="valeria2" src="https://revistaforum.com.br/wp-content/uploads/2026/11/valeria2.jpg"/>
+
+<p>Obra Banksy – Foto: Phœnix Veríssimo</p>
+<p><strong>Hackers aquecem congeladores a 50 °C em sete países da Europa. A comida vai para o lixo e ninguém assume a autoria</strong></p>
+<p>Na madrugada de 2 de novembro, sistemas de refrigeração de supermercados europeus foram manipulados remotamente em sete países. Na rede ICA, na Suécia, <a href="https://www.reuters.com/business/retail-consumer/temperature-soars-swedish-grocery-store-freezers-one-store-blames-hackers-2026-11-02/" rel="noopener noreferrer" target="_blank">congeladores chegaram a 50 °C</a>. Lojas da Coop, do Carrefour e da Spar, na Bélgica, redes em Luxemburgo e unidades da SuperValu, na Irlanda, registraram problemas. A promotoria federal belga investiga. Em outubro, uma onda semelhante já havia atingido <a href="https://therecord.media/cyberattack-grocery-freezers-europe" rel="noopener noreferrer" target="_blank">centenas de estabelecimentos na França</a>. Ninguém identificou publicamente a autoria. <strong>Enquanto a ONU prevê fome declarada em Darfur até janeiro de 2027, alguém aqueceu congeladores europeus até a comida virar lixo.</strong></p>
+<p><strong>Exércitos de amor, de paz e de democracia marcham em praças que pertencem a Zuckerberg e Musk</strong></p>
+<p>Raymundo Faoro deixou o mapa dos proprietários do mando, o <strong>estamento burocrático-patrimonial</strong>. Rubem Fonseca, em <em>O Cobrador</em>, pôs em movimento quem exige o que lhe foi negado: comida, abrigo, dignidade, dentes (<a href="https://revistaforum.com.br/opiniao/os-donos-do-poder-e-os-outros-faoro-e-fonseca-no-mesmo-espelho/" rel="noopener noreferrer" target="_blank">Faoro e Fonseca no mesmo espelho</a>, nesta coluna, em julho). A máquina agora cabe no bolso e rola com o polegar.</p>
+<p>Nas plataformas de conglomerados privados, surgem exércitos de amor, exércitos de paz, exércitos em defesa da democracia. Exército é uma forma de organizar combate, mesmo quando o uniforme virou imagem de perfil. A indignação pode ser legítima. Nada disso altera a propriedade da praça onde ela acontece. O Cobrador de 1979 nomeava sua dívida e procurava o devedor. O usuário de 2026 organiza uma tropa, financia com dados e atenção o ambiente em que protesta e termina, muitas vezes, combatendo outro usuário. <strong>Quem ainda sabe a quem cobrar?</strong></p>
+<p>Zuckerberg construiu no Havaí um complexo com <a href="https://www.wired.com/story/mark-zuckerberg-inside-hawaii-compound/" rel="noopener noreferrer" target="_blank">instalações subterrâneas de proteção</a>. Musk anunciou o <a href="https://www.terafab.ai/" rel="noopener noreferrer" target="_blank">Terafab</a>, projeto de fabricação de semicondutores. Têm nomes, imóveis, máquinas e donos. Os usuários recebem o convite para acreditar que comandam o futuro pela tela. George Orwell escreveu, em <em>1984</em>, o lema “Guerra é Paz”, e o Ministério do Amor administrava a tortura. Em que momento “exército da paz” deixou de soar como contradição?</p>
+<p><strong>As tropas da democracia marcham no quartel dos donos</strong></p>
+<p>Bauman falou de modernidade líquida. A política parece ter evaporado da praça. A imagem da <strong>ressublimação</strong> ajuda a observar o que vem depois: do gasoso ao sólido, sem recuperar o estado líquido. Na vida institucional, a metáfora é inquietante: a convivência se dispersa, enquanto comandos privados e identidades de combate se endurecem sem recompor vínculos públicos. O sentido colapsa. A obediência encontra formas novas.</p>
+<p>A filósofa Eva von Redecker, em <a href="https://www.fischerverlage.de/magazin/interviews/eva-von-redecker-ueber-faschismus-und-ihr-buch" rel="noopener noreferrer" target="_blank"><em>Dieser Drang nach Härte</em></a>, livro deste ano cujo título nomeia o impulso à dureza, examina o autoritarismo que promete recuperar pela força uma propriedade imaginada como perdida. É a ressublimação em ato: o gasoso da convivência dispersa endurece em comando sem passar pelo líquido, e o patrimônio, real ou fantasiado, entra em cena.</p>
+<p>Byung-Chul Han descreveu o panóptico digital e a expulsão do outro. O indivíduo isolado vigia, acusa e explora a si mesmo; julga-se soberano porque pode publicar e acredita ter encontrado comunidade porque participa de uma tropa virtual. A perda é também do <em>Mitsein</em>, o “ser-com” de Heidegger: a experiência de existir com outros que não são meros avatares de adversários. Os comuns ainda pagam para permanecer conectados a ela. O ruído cresce. A escuta encolhe.</p>
+<p>Essa tropa virtual de amor, de paz e de defesa da democracia treina na praça alheia, usa a munição do dono (algoritmo, visibilidade, regras de moderação) e paga o quartel com atenção e dados. <strong>É policiar a casa do inimigo dentro da casa do inimigo, com as armas do inimigo.</strong></p>
+<p>Vinte mil por dia foi o alerta de 2004. Seiscentos e quarenta e cinco milhões com fome foi a estimativa para 2025. A ONU prevê fome declarada em Darfur até janeiro de 2027. Nos supermercados europeus, a comida apodreceu e ninguém assumiu. Em Mar-a-Lago, houve festa.</p>
+<p>Os comuns não foram convidados à festa e seguem pagando a conta.</p>
+<p><strong>A cobrança começa por aí: quantas vidas ainda cabem debaixo do tapete?</strong></p>
+<p><strong><em>*Este artigo não reflete, necessariamente, a opinião da Revista Fórum.</em></strong></p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+ 
+Leia mais textos de Valéria Tavares de Sant'Anna 
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/opiniao/holocausto-da-fome/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O manejo do mundo - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O manejo do mundo</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://piaui.uol.com.br/revista/241/o-manejo-do-mundo/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/10/agentes_85social.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O manejo do mundo
+                            </p>
+                             <p> </p> <p><strong>H</strong><em>oje fui passear na mata a fim de ver peixes </em>kuma wai<em> – peixes que ficaram presos na seca dos igarapés-mirins, no outro lado do igarapé Buraco de Cobra. Fomos eu e minhas duas filhas. No mato, vimos frutos de japurá-grande caídos, estão brotando e crescendo, e outra fruta </em>wai mutu<em>, tipo de cucura da roça, mas são pequeninos. Vimos também patauá, está verde ainda. Lá descemos no </em>[igarapé]<em> Wairama. Pescamos, matamos dezessete acarás e duas traíras. Cozinhamos e comemos lá mesmo. Depois continuamos a pescar e matamos pouco. E voltamos para casa lá pelas 15 horas.</em></p> <p>O indígena Damião Barbosa, do povo Makuna, escreveu as observações acima em 4 de janeiro de 2023. Ele vive com a família na comunidade amazonense de São Felipe, às margens do Rio Castanha, e mantém um minucioso diário. O povoado faz parte de São Gabriel da Cachoeira, terceiro maior município do Brasil em extensão territorial – e o único com cinco línguas oficiais: nheengatu, tukano, baniwa, yanomami e, claro, o português. </p> <p>  </p> <p> </p> <p>No diário manuscrito, Barbosa anota não só o próprio cotidiano, mas também o da comunidade. Registra desde cerimônias e festas sazonais até os princípios que regem a agricultura, a pesca, a caça e a coleta de frutos e insetos. Descreve, ainda, tudo o que observa em seu ambiente: o comportamento dos peixes, a revoada de insetos, a prenhez dos animais terrestres, a migração das aves, a floração e a frutificação das plantas. Geralmente, se expressa num português repleto de termos indígenas.</p> <p>Cerca de quarenta moradores daquela região, no noroeste do estado do Amazonas, redigem diários parecidos com os de Barbosa. São os Agentes Indígenas de Manejo Ambiental, ou Aimas, agricultores, pescadores, coletores e artesãos que dedicam um tempo à pesquisa sobre os ciclos anuais em seus territórios. Pertencem às etnias tukano, desana, tuyuka, baniwa, tariana, koripako, baré, yuhupde ou makuna, espalhando-se por comunidades ao longo dos rios Tiquié, Içana, Uaupés, Negro e alguns de seus afluentes.</p> <p>  </p> <p>Juvêncio Cardoso, por exemplo, é um baniwa da comunidade de Canadá, localizada no Rio Ayari. Em 13 de outubro de 2016, escreveu um belo relato sobre o voo das andorinhas: </p> <p><em>No finalzinho da tarde, às 18h30, quando eu e minha família descemos para tomar banho de rio, observamos a movimentação de um bando de andorinhas </em>olioda<em>. Elas estavam sobrevoando a água do rio, próximo ao porto, e voavam formando círculos, várias vezes. A história baniwa diz que, nesse fenômeno, elas estão caindo na água e se transformando em peixe </em>toloya<em>.</em> [...]<em> A observação anatômica feita pelos velhos diz ser o coração do peixe </em>toloya<em> muito parecido com o coração da andorinha </em>olioda<em>.</em></p> <p>No dia seguinte, Cardoso voltou ao assunto, acrescendo-o de uma dúvida:<em> Durante a noite não choveu, foi uma noite clara de luar. Mas pela manhã, a partir das 6 horas, veio a chuva moderada até as 10h30, depois parou.</em> [...]<em> Questão do dia: será que o movimento das andorinhas previa a chuva que ocorreu na manhã de hoje?</em> </p> <p> </p> <p>  </p> <p> </p> <p>Iniciada em 2005, a pesquisa dos Aimas foi desenhada a partir dos relatos dos conhecedores indígenas sobre o ciclo anual. Os relatos destacam atividades como as do calendário agrícola e da pesca, associadas à passagem das constelações celestes. Assim, uma observação aparentemente aleatória, como o voo das andorinhas, pode acabar informando sobre uma mudança no ciclo das chuvas.</p> <p>Como disse o conhecedor makuna Ignacio Valencia, “mais que ninguém, mais que o homem, são os animais que melhor conhecem o funcionamento do tempo, ao passo que o homem segue só o que se pode enxergar”. Roberval Pedrosa, tukano da comunidade de Serra de Mucura, usou as rãs, os cupins – e também alguns frutos, como o japurá e o umari – para falar sobre o ciclo de cheia do Rio Tiquié, em março de 2023: </p> <p><em>Amanheceu chovendo muito, revoada de cupim, bioindicador de outra constelação. Às 16 horas, a constelação de Dahsi</em><em>ũ</em><em> (Camarão) deu estrondo muito grande e de noite as rãs cantaram pouco. O rio está enchendo médio e as praias começam a desaparecer. Japurá começa a amadurecer muito, umari começa a cair, parece que o calendário adiantou muito neste ano, pelo que nós observamos e acompanhamos com as constelações. Muita gente acha que nesse ano está chovendo muito, mas não dá enchente. Isso é muito estranho para os povos da região, e cada ano que passa vai mudando.</em></p> <p>  </p> <p>  </p> <p>O noroeste amazônico, onde vivem os Aimas, é formado por uma extensa drenagem de cursos d’água que confluem para o Negro – um rio ácido e escuro, de pouca matéria orgânica, que em Manaus encontra o Solimões para formar o Amazonas. A inexistência quase total de um acesso por terra acabou deixando a região de São Gabriel bastante preservada: 62% da Bacia do Rio Negro está sob proteção legal. Já do ponto de vista cultural, houve muitas pressões: a instalação dos grandes internatos salesianos nas pequenas cidades ribeirinhas dos rios Negro e Uaupés, no século XX, levou os indígenas à conversão maciça ao catolicismo e, mais recentemente, ao evangelismo. A colonização ibérica e uma longa história de contatos com agentes externos transformaram profundamente a vida local, mas a população nativa segue sendo majoritária, tirando seu sustento do manejo de seus territórios. A pesca e a agricultura são as principais atividades que garantem a segurança alimentar das comunidades.</p> <p>A região, também chamada de Cabeça do Cachorro em razão do seu formato, que remete à boca de um cão abocanhando parte da Colômbia, está situada na altura da linha do Equador, o que torna o clima bastante uniforme. As estações do ano são definidas pelos indígenas por uma composição de referências astronômicas, regime de chuvas e indicadores ecológicos, e não por dias mais ou menos longos. Em um ano, podem acontecer por volta de trinta pequenas estações. O período de uma constelação começa quando ela cai no horizonte durante o crepúsculo, havendo um trovão, como um “estrondo”.</p> <p>  </p> <p>  </p> <p>As comunidades onde vivem os Aimas situam-se às margens dos rios, que estão em permanente alternância entre vazante e enchente, conforme as chuvas. Essas flutuações determinam o movimento dos cardumes e a forma de pescaria a ser adotada (que armadilhas e instrumentos utilizar, que ambientes acessar, em que horários). O alagamento da floresta pode propiciar a migração e a reprodução de algumas espécies, como conta Rogelino Azevedo, tukano da comunidade de São José II, em seu caderno: </p> <p><em>O nível do Rio Tiquié está subindo muito. Durante a madrugada teve muitas festas de rãs em todos os ambientes </em>[ao redor]<em> da comunidade, fazendo suas desovas. Também à tarde desse domingo, saí de casa para ver a desova dos peixes abaixo de minha comunidade, no poço Martim-Pescador (Sarãperituku). Quando cheguei por lá às 16 horas, as piabas já estavam fazendo desova.</em></p>  <img alt="" src="https://piaui.uol.com.br/media/uploads/2026/10/caderno.jpg"/> Diário de Rogelino Azevedo, referente aos dias 25, 26, 27 e 28 de fevereiro de 2024. As anotações percorrem diferentes assuntos, desde observações meteorológicas e sobre o nível do rio, os movimentos de embarcações fluviais, passando pelas frutificações, frutos usados como isca na pescaria, diferentes atividades realizadas e, no final, a identificação de uma estação (o verão de pupunha). Rogelino sempre foi muito zeloso e detalhista em seus diários. CRÉDITO: MARIANA LACERDA_INSTITUTO SOCIOAMBIENTAL   <p> </p> <p>A coordenação do trabalho dos Aimas é feita pelo Instituto Socioambiental (isa) em conjunto com a Federação das Organizações Indígenas do Rio Negro (Foirn), que representa 24 povos espalhados por 750 comunidades (povos que falam línguas de quatro famílias distintas: aruak, tukano oriental, yanomami e naduhup). Ao longo desses vinte anos, o projeto contou com a participação de 89 Aimas – 81 homens, 8 mulheres –, que preencheram 440 diários. Esse material permite comparar comunidades e regiões, revelando a diversidade socioambiental presente nesses territórios.</p> <p>A grande maioria dos Aimas usa o português nos diários, mas alguns escrevem em tukano, tuyuka ou baniwa. Sempre se incentivou o uso dos nomes indígenas para animais e plantas, por serem mais precisos. “Em Aracu-Cachoeira o tempo continua nublado e frio, tempo de aru”, escreveu Sidério Rodrigues, do povo Baniwa, em julho de 2025. “Às 14 horas pessoal foi ver na cachoeira, estão subindo e caindo no <em>caiá</em> e <em>haali</em>, um cacurizinho, onde entraram muitas. Pegamos muito, e aracu-dumé também, mais de 40 kg.”</p> <p>Os relatos, como o de Oscarina Caldas, do povo Desana, descrevem situações cotidianas – “hoje amanheceu dia lindo de Sol. Depois da quinhampira, fomos tirar mandioca para farinha de nosso consumo diário”<em> –, </em>mas também servem para marcar os efeitos dos grandes eventos climáticos. Estão lá a estiagem que atingiu o Alto Rio Negro em 2018, as cheias de São Gabriel da Cachoeira em 2021, e o novo período de seca – o mais grave deste século na Amazônia – ocorrido em 2023 e 2024. “Sol quente, muito mais quente. Acho que está dando mudança climática, estava completando doze dias sem chover. O Rio Tiquié secando muito”, escreveu Rogelino Azevedo, de São José II, em 23 de março de 2023. Um dia depois, Roberval Pedrosa escreveria relato similar, de outra comunidade, Serra de Mucura: “Os frutos de japurá estão caindo muito secos, tipo moqueado, no lago; e abacaxi na roça também ficou queimado nas partes que bate muito Sol.”</p> <p>Os Aimas se encontram algumas vezes ao ano para compartilhar seus trabalhos e produzir um conhecimento coletivo sobre cada ciclo anual. Conhecedores mais velhos são convidados a ajudar. São feitas também representações visuais do ano, como linhas do tempo e calendários circulares. Alguns desses textos e imagens são publicados na revista <em>Aru</em>, dedicada às pesquisas interculturais do noroeste amazônico.</p> <p>  </p> <p>Embora as mudanças do clima não tenham sido a motivação inicial do trabalho, elas acabaram permeando cada vez mais as interpretações dos ciclos anuais no Rio Negro. Depois dessas duas décadas, os pesquisadores reuniram observações suficientes para mostrar como a emissão excessiva de carbono – que pode acontecer nos Estados Unidos, na China, na Rússia, na Arábia Saudita ou em qualquer canto do mundo – acaba repercutindo em pequenas comunidades numa das partes mais preservadas da Amazônia. Longe de viverem isolados nos territórios, os pesquisadores indígenas estão engajados em esforços de entendimento, buscando compor uma governança ambiental mais ampla – ou, como eles dizem, buscando fazer o manejo do mundo.<br/><br/></p> <p><strong>Todo repórter carrega uma caixinha de frustrações. Minha maior frustração se deu em junho de 2022, quando viajei a São Gabriel da Cachoeira, no Amazonas, para escrever uma reportagem sobre o trabalho dos Agentes Indígenas de Manejo Ambiental (Aimas), indígenas que pesquisam os ciclos ambientais nos últimos vinte anos na região. É possível falar sobre o aquecimento global a partir da quantidade de carbono na atmosfera. Ou a partir do sapo cururu, que deixou de cantar antes das enchentes. </strong></p> <p><strong>O trabalho é coordenado pelo antropólogo Aloisio Cabalzar, do Instituto Socioambiental. Os agentes observam o meio ambiente e organizam os dados em cadernos, depois compartilhados em oficinas. Fui a São Gabriel para acompanhar uma oficina, na comunidade de São José II, perto da fronteira do Brasil com a Colômbia. Na viagem de dez dias pelos rios, conheci alguns dos Aimas presentes nas páginas seguintes. Rosivaldo Miranda, do povo Pira-tapuya, falou sobre o desaparecimento de uma minhoca usada como isca para a pesca. Ismael dos Santos, do povo Desana, me mostrou os desenhos naturalistas que faz mês a mês, a partir dos frutos e bichos que observa. </strong></p> <p><strong>Além das observações científicas, o trabalho dos Aimas tem uma camada cosmológica. As mudanças do clima são atribuídas às chuvas e à seca, mas também ao abandono gradual de práticas rituais. “Nossos bisavós dançavam para ter fartura, mas os missionários proibiram”, lamentou Roberval Pedrosa, do povo Tukano. O clima no mundo piorou “por falta de benzimento”.</strong></p> <p><strong>Voltei de São Gabriel encantado, mas não consegui colocar nada no papel. Havia uma certa magia no trabalho dos Aimas que era difícil de traduzir em um texto jornalístico. Carreguei essa frustração até saber, pelo próprio Cabalzar, que a piauí publicaria este portfólio. Alegrei-me e escrevi à Redação pedindo para fazer este breve prelúdio, como forma de homenagem.      </strong></p> <p><strong>ROBERTO KAZ</strong></p> <p> </p> <p>*Com ISA e a rede dos Agentes Indígenas de Manejo Ambiental: Alexandro Gomes Lima, Celésio Rezende, Dagoberto Martins Arcanjo, Damião Amaral Barbosa, Edécio Marques Meira, Estevão da Silva Barbosa, Ismael Pimentel dos Santos, Jackson Antonio Rezende, Josimar Rezende Marques, Lucas Alves Bastos, Mateus Macedo, Oziel Barbosa Macedo, Rafael Azevedo, Roberval Sambrano Pedrosa; além de Oscarina Caldas (in memoriam) e Rogelino Azevedo (in memoriam) (do Rio Tiquié); Adalton Pacheco, Arlindo Alfredo Gregório, Carolina Campos, Cleberson Oliveira, Genilton Apolinário, Juvêncio Cardoso, Maria de Lima, Milena Joaquim, Sidério Rodrigues, Valêncio da Silva Macedo, Victor Mateus Lopes, Walter Lopes da Silva, Wilson Gomes (do Rio Içana)</p> <p></p>  <img alt="" src="https://piaui.uol.com.br/media/uploads/2026/10/cunuri_dt231916724.jpg"/> Comunidade Cunuri, Médio Rio Tiquié, onde são realizadas algumas oficinas dos Agentes Indígenas de Manejo Ambiental. CRÉDITO: MARIANA LACERDA_INSTITUTO SOCIOAMBIENTAL    
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/revista/241/o-manejo-do-mundo/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

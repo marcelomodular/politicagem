@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinte dias que abalaram o mundo - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Vinte dias que abalaram o mundo</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/leia-tambem/vinte-dias-que-abalaram-o-mundo/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2024/12/opzinho.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Vinte dias que abalaram o mundo
+                            </p>
+                            
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Quando John Reed escreveuÂ <em>Dez dias que abalaram o mundo</em>, reconheceu a intensidade daqueles momentos em que a histÃ³ria parece acelerar e os acontecimentos transformam o destino de sociedades inteiras. Em 1917, trabalhadores, soldados e camponeses protagonizaram uma revoluÃ§Ã£o que transformaria a RÃºssia e repercutiria por todo o planeta. Mais de um sÃ©culo depois, nos vinte dias que separaram os dois domingos eleitorais de outubro de 2026, o Brasil viveu uma das mais intensas disputas polÃ­ticas de sua histÃ³ria recente. O primeiro turno, em 4 de outubro, revelou a expressiva presenÃ§a eleitoral da direita e colocou em questÃ£o a reeleiÃ§Ã£o de Lula, a continuidade de um projeto democrÃ¡tico e o futuro das forÃ§as progressistas brasileiras.</p>
+<p>O que estava em jogo ultrapassava a permanÃªncia de um presidente no poder. A esquerda, em sua diversidade de partidos, movimentos sociais, organizaÃ§Ãµes populares e tradiÃ§Ãµes polÃ­ticas, enfrentava uma disputa decisiva pela direÃ§Ã£o do paÃ­s e em defesa da democracia. Confrontavam-se diferentes projetos de sociedade e perspectivas sobre direitos, justiÃ§a social e soberania nacional. A defesa da reeleiÃ§Ã£o de Lula tornou-se tambÃ©m uma luta coletiva por um horizonte polÃ­tico mais amplo, reunindo diferentes geraÃ§Ãµes, experiÃªncias e setores da sociedade brasileira.</p>
+<p>Havia vinte dias para mudar o destino daquela eleiÃ§Ã£o. E foi nesse curto intervalo que a capacidade de reaÃ§Ã£o de setores da sociedade brasileira ganhou as ruas. Os estudantes da Universidade Federal Fluminense tiveram protagonismo nas mobilizaÃ§Ãµes. Trabalhadores, trabalhadoras, movimentos sociais, militantes e pessoas de diferentes geraÃ§Ãµes compreenderam que a disputa exigia retomar as ruas com participaÃ§Ã£o cotidiana. PraÃ§as e avenidas voltaram a ser lugares de encontro, organizaÃ§Ã£o e esperanÃ§a. Em uma sociedade marcada pela fragmentaÃ§Ã£o social, pelo individualismo e pela circulaÃ§Ã£o permanente do medo, a aÃ§Ã£o coletiva recuperou sua dimensÃ£o polÃ­tica.</p>
+<h3><strong>Rua e redes, a forÃ§a de um exÃ©rcito conectado e sem armas</strong></h3>
+<p>A esquerda brasileira jÃ¡ conhecia as redes sociais. HÃ¡ dÃ©cadas, movimentos populares, sindicatos e organizaÃ§Ãµes polÃ­ticas disputam narrativas e constroem formas de comunicaÃ§Ã£o digital. Qual foi, entÃ£o, a contribuiÃ§Ã£o singular do deputado federal reeleito AndrÃ© Janones? Acredito que uma delas tenha sido compreender a importÃ¢ncia da linguagem, uma questÃ£o anterior Ã  tecnologia e que muitos especialistas talvez ainda nÃ£o tenham compreendido inteiramente. Parte da esquerda institucional habituou-se a falar por meio de conceitos acadÃªmicos, discursos programÃ¡ticos e cÃ³digos reconhecidos principalmente por quem jÃ¡ participa do debate polÃ­tico, os famosos pares. Janones percebeu a potÃªncia de falar com aqueles que raramente se reconheciam nessa comunicaÃ§Ã£o. Utilizou o humor, a ironia, a indignaÃ§Ã£o, a provocaÃ§Ã£o e o vocabulÃ¡rio cotidiano. Falou de polÃ­tica como quem conversa na porta de casa, no Ã´nibus ou na fila do mercado. Aproximou o debate polÃ­tico das experiÃªncias concretas, dos sentimentos e das preocupaÃ§Ãµes populares.</p>
+<p>Para nÃ³s, professoras e professores, a atuaÃ§Ã£o de Janones e do nosso exÃ©rcito, digo nosso porque participei ativamente dele, expÃµe uma contradiÃ§Ã£o que atravessa a prÃ³pria universidade, frequentemente habituada a falar para si mesma. Nesse movimento, corremos o risco de nos distanciar dos saberes, das experiÃªncias e das formas de expressÃ£o da populaÃ§Ã£o. Paulo Freire nos ensinava que o diÃ¡logo exige reconhecer o universo cultural daqueles com quem buscamos construir conhecimento e consciÃªncia polÃ­tica. Aqueles vinte dias me fizeram pensar tambÃ©m sobre nossas prÃ¡ticas de comunicaÃ§Ã£o e de escuta. Sobre o quanto ainda precisamos reconhecer a potÃªncia das linguagens populares. Permanece, contudo, o desafio de construir uma comunicaÃ§Ã£o acessÃ­vel e mobilizadora que preserve a complexidade do pensamento crÃ­tico, sem sucumbir Ã s simplificaÃ§Ãµes, ao personalismo e Ã  lÃ³gica do confronto permanente.</p>
+<p>Ao criar o canal digital âExÃ©rcito do Lulaâ, Janones mostrou que compreendia as redes como espaÃ§os de sociabilidade, produÃ§Ã£o de sentidos e aÃ§Ã£o polÃ­tica coletiva. Articulou uma militÃ¢ncia conectada, capaz de produzir, compartilhar e fazer circular conteÃºdos em tempo real, mobilizando afetos, repertÃ³rios culturais e formas de participaÃ§Ã£o prÃ³prias e relevantes da comunicaÃ§Ã£o em rede. Sua atuaÃ§Ã£o estimulou a inteligÃªncia coletiva, a linguagem dos memes, a interaÃ§Ã£o permanente e a velocidade de circulaÃ§Ã£o das informaÃ§Ãµes. Seguidores tornaram-se participantes ativos da disputa polÃ­tica. Mais do que ampliar o alcance das mensagens, Janones contribuiu para organizar uma militÃ¢ncia que atuava na cultura participativa das plataformas, combinando iniciativa individual, coordenaÃ§Ã£o coletiva e rapidez de resposta.</p>
+<p>Essa experiÃªncia tambÃ©m ajuda a pensar a hegemonia, conceito desenvolvido por Antonio Gramsci para compreender como determinados grupos conquistam e mantÃªm a direÃ§Ã£o polÃ­tica e cultural da sociedade. Os acontecimentos de outubro mostraram como essa direÃ§Ã£o pode ser contestada quando diferentes setores sociais passam a agir coletivamente. A mobilizaÃ§Ã£o reuniu experiÃªncias distintas. Jovens preocupados com o futuro, trabalhadores submetidos Ã  precarizaÃ§Ã£o, mulheres que enfrentam desigualdades persistentes, populaÃ§Ãµes negras e perifÃ©ricas para as quais a democracia possui consequÃªncias concretas sobre a vida, a seguranÃ§a e os direitos. Essa diversidade constitui uma forÃ§a polÃ­tica, mas tambÃ©m apresenta desafios. A unidade construÃ­da durante uma eleiÃ§Ã£o precisa enfrentar diferenÃ§as de interesses, condiÃ§Ãµes materiais e expectativas sobre o governo. A vitÃ³ria eleitoral, por mais expressiva que seja, convive com a permanÃªncia das estruturas econÃ´micas, institucionais e culturais que alimentam o autoritarismo.</p>
+<h3><strong>O Brasil e a geopolÃ­tica da esperanÃ§a</strong></h3>
+<p>O significado desses vinte dias ultrapassa as fronteiras nacionais. A AmÃ©rica Latina vive disputas intensas entre projetos democrÃ¡ticos, forÃ§as conservadoras, interesses econÃ´micos transnacionais e movimentos que reivindicam soberania e justiÃ§a social. O Brasil ocupa uma posiÃ§Ã£o estratÃ©gica nesse cenÃ¡rio, por sua dimensÃ£o econÃ´mica e territorial e por sua influÃªncia polÃ­tica e cultural. A reeleiÃ§Ã£o de Lula alimenta as forÃ§as progressistas latino-americanas e os movimentos democrÃ¡ticos que, em diferentes partes do mundo, enfrentam o avanÃ§o da extrema direita.</p>
+<p>Nos Estados Unidos, o governo de Donald Trump, com sua retÃ³rica nacionalista, suas polÃ­ticas anti-imigraÃ§Ã£o e seus ataques Ã s instituiÃ§Ãµes e aos direitos, tornou-se uma das principais referÃªncias internacionais desse campo polÃ­tico. Sua influÃªncia ultrapassa as fronteiras norte-americanas, construindo alianÃ§as, discursos e estratÃ©gias que encontram ressonÃ¢ncia tambÃ©m no Brasil. Na Europa, paÃ­ses como FranÃ§a, Alemanha, ItÃ¡lia e Portugal convivem com o fortalecimento de movimentos nacionalistas, xenÃ³fobos e autoritÃ¡rios, que tensionam direitos e conquistas democrÃ¡ticas. Nesse contexto, a experiÃªncia brasileira adquire uma dimensÃ£o internacional ao demonstrar a possibilidade de enfrentar eleitoralmente forÃ§as polÃ­ticas articuladas em escala global. Em um mundo atravessado por guerras, desigualdades e pela concentraÃ§Ã£o do poder econÃ´mico e comunicacional, a vitÃ³ria brasileira pode fortalecer a esperanÃ§a de que o avanÃ§o da extrema direita, por mais poderoso e internacionalmente articulado que seja, permanece sujeito Ã  resistÃªncia e Ã  aÃ§Ã£o coletiva.</p>
+<p>A analogia com John Reed encontra aqui sua potÃªncia e seus limites. A RevoluÃ§Ã£o Russa rompeu uma ordem estatal e inaugurou outra. O outubro brasileiro expressa uma disputa democrÃ¡tica cuja profundidade histÃ³rica dependerÃ¡ das transformaÃ§Ãµes sociais e polÃ­ticas que conseguirmos produzir. Acredito que uma das maiores liÃ§Ãµes desses vinte dias esteja na redescoberta da forÃ§a da aÃ§Ã£o coletiva. A juventude ocupou os espaÃ§os pÃºblicos ao lado das geraÃ§Ãµes mais velhas, trazendo consigo a memÃ³ria das lutas pela democracia. Mulheres, populaÃ§Ã£o negra, povos indÃ­genas, pessoas LGBTQIAPN+, trabalhadores e trabalhadoras, movimentos populares e diferentes sujeitos polÃ­ticos fizeram da diversidade de suas experiÃªncias uma possibilidade de construÃ§Ã£o coletiva.</p>
+<p>Nas redes, a comunicaÃ§Ã£o popular e a organizaÃ§Ã£o digital ampliaram as formas de participaÃ§Ã£o. Nas ruas, encontros entre geraÃ§Ãµes e movimentos deram corpo Ã  resistÃªncia. A polÃ­tica se fez nesses diferentes espaÃ§os, mobilizando territÃ³rios, relaÃ§Ãµes cotidianas e ambientes da cibercultura. A histÃ³ria registrarÃ¡ os resultados das urnas, mas a grandeza desses acontecimentos serÃ¡ medida pela capacidade de transformar a energia extraordinÃ¡ria de uma campanha em organizaÃ§Ã£o popular duradoura, ampliaÃ§Ã£o de direitos, enfrentamento das desigualdades e participaÃ§Ã£o efetiva nas decisÃµes do paÃ­s.</p>
+<p>Quando Lula afirma que serÃ¡ preciso fazer um governo melhor, suas palavras carregam uma responsabilidade que ultrapassa a gestÃ£o administrativa. Governar melhor significa enfrentar as estruturas que reproduzem o racismo, a concentraÃ§Ã£o de renda, a violÃªncia de gÃªnero, a LGBTfobia, a exclusÃ£o dos povos indÃ­genas e as desigualdades territoriais. Significa reconhecer que a democracia precisa ser vivida para alÃ©m das eleiÃ§Ãµes, com polÃ­ticas pÃºblicas capazes de transformar concretamente a vida da populaÃ§Ã£o. Entre as mudanÃ§as necessÃ¡rias, a comunicaÃ§Ã£o ocupa um lugar decisivo. A experiÃªncia desses vinte dias revelou a urgÃªncia de rever a maneira como governos, partidos e instituiÃ§Ãµes pÃºblicas se relacionam com a sociedade. Ã preciso aprender com as linguagens populares, compreender as dinÃ¢micas da cibercultura, nossa cultura contemporÃ¢nea e construir canais permanentes de diÃ¡logo, escuta e participaÃ§Ã£o. Uma comunicaÃ§Ã£o democrÃ¡tica exige atuaÃ§Ã£o viva nos territÃ³rios, compromisso com a verdade e capacidade de tornar compreensÃ­veis as decisÃµes que afetam a vida cotidiana.</p>
+<h3><strong>As urnas derrotam governos. Quem derrota o fascismo?</strong></h3>
+<p>Em <em>EducaÃ§Ã£o e emancipaÃ§Ã£o</em>, no ensaio <em>O que significa elaborar o passado</em>, publicado originalmente em 1959, Theodor Adorno advertia que a ameaÃ§a do fascismo permanece enquanto sobrevivem as condiÃ§Ãµes sociais que o produziram. Sua reflexÃ£o ganha especial atualidade no Brasil de 2026. A derrota da extrema direita nas urnas representa uma conquista fundamental, mas as estruturas que alimentam o autoritarismo continuam presentes na sociedade brasileira. EstÃ£o no racismo, na desigualdade social, na violÃªncia, na concentraÃ§Ã£o do poder econÃ´mico e na disseminaÃ§Ã£o do Ã³dio nas plataformas digitais. A reeleiÃ§Ã£o de Lula e a mobilizaÃ§Ã£o das forÃ§as democrÃ¡ticas abrem possibilidades histÃ³ricas, mas tambÃ©m impÃµem responsabilidades. Defender a democracia exige enfrentar essas estruturas, ampliar direitos, fortalecer a educaÃ§Ã£o crÃ­tica e transformar as condiÃ§Ãµes de vida da populaÃ§Ã£o.</p>
+<p>John Reed escreveu sobre dez dias que transformaram o mundo. NÃ³s vivemos vinte dias que demonstraram a capacidade de uma sociedade de interferir nos rumos da prÃ³pria histÃ³ria. O desafio que comeÃ§a agora Ã© muito maior que vencer uma eleiÃ§Ã£o. Ã fazer com que a democracia defendida nas ruas e nas redes seja reconhecida na escola pÃºblica, no prato de comida, na proteÃ§Ã£o dos territÃ³rios indÃ­genas, na liberdade dos corpos, na dignidade do trabalho e no direito de cada pessoa existir plenamente. A forÃ§a histÃ³rica desses vinte dias dependerÃ¡ do que formos capazes de construir nos anos que virÃ£o. A advertÃªncia de Adorno permanece. O fascismo encontra terreno fÃ©rtil quando suas raÃ­zes sociais continuam intocadas. E elas estÃ£o.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/leia-tambem/vinte-dias-que-abalaram-o-mundo/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

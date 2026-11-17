@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cenário após o grande levante popular - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Cenário após o grande levante popular</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/movimentoserebeldias/cenario-apos-o-grande-levante-popular/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5156811033396579773.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Cenário após o grande levante popular
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5156811033396579773.jpg"/>Foto: Eline Luz/Imprensa ANDES-SN
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Por <strong>Luiz Filgueiras</strong> e <strong>Graça Druck</strong></p>
+<p>Título Original:<br/><strong>O 4º governo Lula e a mudança na Fortuna</strong></p>
+<p><strong>O tamanho da vitória eleitoral e o seu significado<br/><br/></strong>Depois de uma disputa eleitoral acirrada, que parecia indefinida, com quase todas as pesquisas indicando um empate técnico mas com Flávio Bolsonaro com dois pontos percentuais à frente, Lula venceu a disputa pela Presidência com quase quatro pontos percentuais de diferença, totalizando quatro milhões e quatrocentos mil votos a mais que o seu adversário (64,3 milhões contra 59,8 milhões).</p>
+<p>Mas o significado de todo o processo e da vitória obtida extrapola em muito o triunfo eleitoral, com importantes implicações nacionais e internacionais. No âmbito interno, houve um movimento de massas gigantesco, em boa medida iniciado de forma espontânea e horizontal pelo levante da juventude, por fora da direção oficial da campanha de Lula. Deu um novo norte à sua campanha e recuperou a autoestima da esquerda brasileira, ao evidenciar a sua capacidade de mobilização e de luta, em especial contra o neofascismo.</p>
+<p>Adicionalmente, o processo marcou a apropriação, pela esquerda, das redes sociais até então sob domínio bolsonarista, evidenciando que não existe separação entre elas e o “mundo real”. As redes sociais e a nova sociabilidade que ela criou são uma das dimensões do “mundo real”. Não há como separá-las das ruas, não há por que optar entre as ruas e as redes sociais, porque ambas estão ligadas e atadas organicamente. E mais, foi criada uma clara percepção de que essa mobilização conjunta, ruas e redes sociais, cruciais para a derrota do neofascismo, deve ser mantida de forma permanente no próximo governo de Lula – isto é, ela não pode se restringir apenas ao período eleitoral.</p>
+<p>Por fim, conseguiu-se constituir um movimento político que derrotou o imperialismo dos EUA , as big techs e o TSE através dos seus ministros bolsonaristas, que interferiram o tempo todo a favor da extrema direita, tentando inviabilizar o uso das redes sociais pela campanha do Lula. Além disso, derrotou também os prefeitos bolsonaristas que ordenaram a redução da frota de ônibus no dia das eleições, particularmente nas cidades e zonas eleitorais em que Lula venceu no primeiro turno – o que gerou uma extraordinária onda de carona solidária para viabilizar a participação dos eleitores.</p>
+<p>No âmbito internacional, a derrota do fascismo brasileiro é a derrota do fascismo mundial: colocou um dique ao avanço da extrema direita na América Latina, evidenciou que ela pode ser parada e derrotada também na Europa e enfraqueceu Trump, o seu líder maior, em um momento crítico. Concretizou-se, dez dias depois do pleito brasileiro, o risco de derrota gigantesca do presidente nas eleições de meio mandato dos EUA, e de perder a sua maioria parlamentar em ambas as casas legislativas. Os tarifaços, a guerra contra o Irã e o envolvimento na guerra da Ucrânia-Rússia implicaram na elevação dos preços dos produtos importados (petróleo, matérias-primas e alimentos). O resultado final foi o aumento do custo de vida e da inflação nos EUA. Além disso, a política de perseguição aos imigrantes, com o uso de ameaças e intimidações tipicamente fascistas, deixou como saldo violência, arbítrio e mortes. Mas lá, como aqui, os valores democráticos venceram.</p>
+<p>A vitória da esquerda no Brasil junta-se às grandes mobilizações que estão se disseminando por todo o mundo, com a participação decisiva dos movimentos estudantis. Em particular, em diversos países da Europa, à insatisfação com os insuficientes orçamentos públicos destinados à educação, decorrentes de ajustes fiscais reiterados e das demais políticas e reformas neoliberais, somou-se a revolta contra a elevação do custo de vida e o absurdo encarecimento da habitação.</p>
+<p>Tudo isso junto aponta, muito provavelmente, para um novo momento histórico, de avanço das lutas contra o fascismo no Brasil e no resto do mundo. A onda de solidariedade e o entusiasmo em defesa da democracia difundiu-se mundo afora, com a vitória de Lula servindo de referência e exemplo para muitos países. As novas circunstâncias nacionais e internacionais (a fortuna) exige do próximo governo um outro comportamento, distinto do atual. A ameaça real de perder a eleição e entregar o poder ao neofascismo teve muitas razões mas, sem dúvida, a política de ajuste fiscal permanente, típica do neoliberalismo, expressa no Novo Arcabouço Fiscal (NAF), explica, juntamente com o encapsulamento da luta política no Parlamento e a desmobilização de suas bases sociais, a incapacidade de Lula 3 para entregar suas promessas de campanha, levando à frustração das fortes expectativas positivas quando do seu início.</p>
+<p><strong>Como analisar as causas da vitória</strong></p>
+<p>O que determinou esse desfecho do processo eleitoral, com uma vitória gigante da esquerda, quando se constata que Lula 3 passou quase o tempo todo na defensiva, sendo confrontado permanentemente pela extrema direita neofascista e a direita neoliberal, majoritárias no Congresso (Câmara e Senado), e pelo capital financeiro e seus prepostos na grande mídia corporativa?</p>
+<p>Com certeza, não foi o <em>modus operandi</em> do governo, ao se negar mobilizar a sua base social, aceitando o encapsulamento da disputa política no plano institucional, onde a correlação de forças era claramente contrária. Com o empoderamento do Congresso, impulsionado pelo orçamento secreto e as emendas parlamentares clandestinas, o dito “presidencialismo de coalização” se esgotou. Em poucos momentos e situações em que assumiu bandeiras históricas da esquerda e a luta política foi deslocada para as ruas e as redes sociais (por exemplo, a isenção do imposto de renda para quem ganha até cinco salários-mínimos e o fim da escala 6×1), o governo Lula obteve algumas vitórias importantes.</p>
+<p>No fim das contas, a melhora dos indicadores econômicos, em especial um maior crescimento do PIB e a redução da desocupação não foram suficientes para uma avaliação mais positiva do governo, conforme indicado o tempo todo pelas pesquisas. O enorme endividamento das famílias, a qualidade precária das ocupações geradas e o aumento do custo de vida, somados à incapacidade de disputar a comunicação com a extrema direita, contribuíram para isso. Adicionalmente, o famigerado Novo Arcabouço Fiscal (NAF), um teto de gastos flexibilizado, restringiu, quando não impediu, o aprofundamento das políticas sociais. O exemplo sintomático, mas não único, foi o não reajuste dos valores do Bolsa-Família durante quase todo o mandato – o que só veio a ocorrer já dentro do período eleitoral. Da mesma maneira, os orçamentos da educação e da saúde, embora recuperando o arrocho imposto pelo governo Bolsonaro, ficaram aquém do período anterior ao de Temer.</p>
+<p>Mas, em que pese essa forma equivocada de atuação, buscando a todo custo a negociação restrita ao parlamento, inviabilizando suas próprias propostas e promessas programáticas, Lula obteve uma vitória impressionante. Especialmente se considerarmos que em nenhuma eleição anterior (pós-redemocratização) o candidato derrotado no primeiro turno conseguiu reverter o resultado na segunda volta. O que possibilitou ou viabilizou essa virada? A resposta à essa pergunta não é simples, e não pode ser reducionista, com a identificação de uma causa única.</p>
+<p>Muitos analistas, políticos, partidos, pesquisadores na academia e especialistas de todo tipo tendem a eleger uma causa fundamental ou única, que explicaria o ocorrido. Alternativamente, consideram e apontam diversas variáveis explicativas (causas), estimando (através de modelos matemáticos) a contribuição parcial (percentual) de cada uma delas, cujo somatório sintetizaria supostamente todas as razões que explicariam o resultado.</p>
+<p>De forma distinta, a análise aqui adotada apoia-se na visão que as diversas causas identificadas podem estar conectadas – isto é, não são independentes umas das outras. Portanto não podem ser analisadas cada uma isoladamente. Em suma, a ação conjunta das diversas causas, influenciando-se reciprocamente, é que produz o efeito final do processo. Nessa perspectiva, o resultado não é meramente a soma das causas, pois resulta da interação orgânica entre elas e do lugar que ocupam na dinâmica global. Por isso, nessa leitura alternativa, não há uma “bala de prata” ou uma hierarquização do grau de suas respectivas importâncias.</p>
+<p>Além disso, sabe-se que uma das características centrais dos sistemas complexos, como é o caso óbvio das sociedades humanas, é de que pequenas alterações em alguma das variáveis que determinam a sua dinâmica, conhecidas ou não, podem levar a grandes alterações no resultado de sua trajetória. Assim, embora possa-se, do ponto de vista metodológico, reconhecer uma hierarquia nas diversas causas identificadas, das mais gerais às mais particulares, todas elas se relacionam, não cabendo definir ou separar as mais importantes das secundárias. A hierarquia é metodológica, e não do respectivo grau de importância de cada uma.</p>
+<p><strong>As razões da vitória</strong></p>
+<p>Antes de listarmos e comentarmos as possíveis causas da vitória de Lula, uma constatação é fundamental: Lula teve no segundo turno 10,4 milhões de votos a mais do que no primeiro, enquanto Flávio obteve um acréscimo total de 3,7 milhões. Isso resultou, no cômputo final do segundo turno, em uma diferença de mais de 4,4 milhões de votos totais a favor de Lula. A queda das abstenções em todo o país e a redução do número de votos brancos e nulos foram decisivas para a sua vitória, além da perda de votos de Flávio, em alguns estados. O que possibilitou isso, revertendo o resultado do primeiro turno?</p>
+<p>Em primeiro lugar, a retomada de mobilizações de rua gigantescas no segundo turno, puxadas inicialmente pela juventude de forma espontânea e horizontal, para além das direções partidárias e da campanha oficial. Isso, em sinergia com as redes sociais, produziu uma força e amplitude impressionantes expressas em uma aliança intergeracional (jovens e velhos) e que impactou fortemente a subjetividade das pessoas, que passaram a acreditar, cada vez mais, na possibilidade da virada.</p>
+<p>O engajamento nas redes sociais, por sua vez, superou a presença da extrema direita nesse âmbito, em que tradicionalmente a esquerda não conseguia ter presença significativa. O ponto alto, mas não único, foi o chamado “Exército do Lula” organizado e comandado pelo deputado reeleito André Janones, juntamente com outros jovens influenciadores que se elegeram. Tudo isso contrapôs-se às “narrativas” da extrema direita com fatos e evidenciar suas <em>fakes news </em>e se mostrou também decisivo para a vitória.</p>
+<p>As duas circunstâncias anteriores refletiram e ao mesmo tempo implicaram outra orientação da campanha no segundo turno, com mudança na sua direção política e no modo de comunicação — que incorporou e respondeu às mobilizações de rua, articulando-as fortemente às redes sociais. Especificamente, o apelo à importância de votar, mirando os eleitores que não o fizeram no primeiro turno (principalmente os mais velhos e mais pobres), foi decisivo para a redução da abstenção em todo o país.</p>
+<p>Adicionalmente, no período entre o primeiro e o segundo turnos, o governo implementou um pacote de medidas e ações socioeconômicas e trabalhistas de grande impacto para a vida de amplos segmentos da sociedade. Conseguiu aprovar o fim da escala 6×1. Encaminhou ao Congresso a PEC do Passe Livre (tarifa zero nos transportes aos sábados, domingos e feriados em todo território nacional). Reajustou o bolsa-família em 15%. Lançou um programa de perdão das dívidas acumuladas (R$ 12,6 bilhões) por mais de 3 milhões de microempreendedores individuais (MEIs). Elevou o teto de faturamento destes de R$ 80 mil para R$ 140 mil. Decretou um novo programa (o Desenrola 3) para a compra e renegociação de dívidas atrasadas de pessoas físicas. Expandiu o Programa Pé de Meia para o ensino superior (auxílio financeiro de R$ 700 mensais por 10 meses). Proibiu as apostas online (bets) e, como consequência de todas essas medidas, anunciou a revisão no Projeto de Lei Orçamentária Anual para remanejar cerca de R$ 20 bilhões, abrindo espaço fiscal para acomodar e custear as novas despesas. Isso significou, na prática, uma ruptura momentânea com o NAF, expressão maior do neoliberalismo em Lula 3, e contribuiu fortemente para a vitória final.</p>
+<p>Além do mais. o histórico negativo do governo Bolsonaro – comportamento desastroso e negacionista durante a pandemia (desacreditando e retardando a vacinação e recomendando remédios sem qualquer apoio científico), tentativa de golpe de Estado, destruição do meio ambiente, desidratação das políticas sociais, desestruturação de vários órgãos do Estado etc. – e a “folha corrida” horrorosa de Flávio Bolsonaro foram explorados e evidenciados de modo competente pela campanha de Lula. Com a recuperação dessa memória, o temor da volta da família Bolsonaro cresceu e se difundiu para amplos segmentos da população.</p>
+<p>Por fim, o desempenho negativo de Flávio Bolsonaro nos dois debates que ocorreram explicitou atributos que sua campanha procurou o tempo todo esconder: extensa ficha criminal e seus vínculos com o crime organizado (em especial com as milícias e matadores de aluguel), a fragilidade de suas propostas e a adesão oportunista e fingida às políticas sociais do governo Lula, o seu despreparo, soberba, arrogância, agressividade e deselegância e, principalmente, a prática reiterada de mentir cinicamente e de fugir de questões referentes a sua trajetória política (e de vida) problemática. Além disso, o anúncio, para agradar o capital financeiro, de que faria um corte (caso fosse eleito) de R$ 250 bilhões nas despesas do governo teve um impacto desastroso em sua campanha, pois apontou para uma futura recessão brutal, com a falência de milhares de empresas e a inevitável explosão do desemprego. Com isso, caiu por terra a tentativa, por parte de sua campanha e da maior parte da mídia corporativa, de construir uma imagem moderada, de maior sensibilidade social e mais moderna do candidato, supostamente respeitadora das instituições e da democracia, completamente distinta da de Jair Bolsonaro.</p>
+<p>Todas essas razões e provavelmente outras não identificadas, cujos efeitos no resultado final não são passíveis de serem medidos, articularam-se e se alimentaram mutuamente. Definiram os rumos da eleição no segundo turno, dando a vitória às forças de esquerda e democráticas sobre o fascismo e o neoliberalismo. Foi um sufoco, com as forças democráticas e de esquerda o tempo todo “à beira de um ataque de nervos”. Mas ficou uma mensagem fundamental: o fascismo pode ser derrotado para além das eleições se, e somente se, for confrontado cotidianamente pelo povo organizado nas ruas, nos bairros, nos locais de trabalho e nas redes sociais.</p>
+<p><strong>O Pós-Eleições</strong></p>
+<p>Promulgada a vitória de Luiz Inácio Lula da Silva pelo TSE e reconhecida por quase todos os governos do mundo, com exceção dos EUA e da Argentina, o povo tomou as ruas novamente nas principais cidades do país para comemorar o resultado maiúsculo de sua luta.</p>
+<p>No dia seguinte, em sentido contrário, o mercado financeiro explicitou a sua contrariedade, com a queda da bolsa de valores e a subida do dólar. O movimento decorreu também de apostas anteriores na vitória de Flávio Bolsonaro, com previsões de até 95% de probabilidade. O revés implicou grandes prejuízos para a maior parte dos investidores nacionais e estrangeiros (e ganhos para alguns poucos espertos). Uma manifestação clara da convergência política e de interesses do capital financeiro e do neoliberalismo com o neofascismo.</p>
+<p>Adicionalmente, enfurecidos pela derrota, empresas e patrões começaram a demitir trabalhadores que votaram em Lula, cometendo crime eleitoral. O Tribunal Superior do Trabalho, Ministério Público do Trabalho e Ministério do Trabalho e Emprego constituíram uma força tarefa para receber as denúncias, fiscalizar e multar as empresas, declarando que “quem vende a sua força de trabalho para sobreviver, não vende a sua alma”. A liberdade de pensamento, expressa no voto, é um direito elementar numa sociedade democrática.</p>
+<p>Também como parte desses atos fascistas, comunidades indígenas passaram a sofrer violência física de grandes proprietários de terras, depois que se mobilizaram para votar em Lula, apesar de todas as dificuldades impostas ao seu deslocamento para as zonas eleitorais de votação.</p>
+<p>Para culminar o inconformismo da estrema direita, um dia após as eleições, o país assistiu estupefato a fuga de Flávio Bolsonaro para os Estados Unidos, com o apoio do governo Trump e do presidente da Argentina, que juntos com o candidato derrotado, não reconheceram a vitória de Lula. O candidato derrotado virou as costas para seus apoiadores e eleitores, numa atitude covarde, com medo de uma possível prisão por conta de todos os processos de investigação em andamento na Polícia Federal, por envolvimento com lavagem de dinheiro, corrupção e formação de quadrilha.</p>
+<p>Mas a “cereja do bolo” se expressou na divulgação, logo após a chegada de Flávio aos EUA, de uma carta patética, de teor golpista, na qual o candidato derrotado se autoproclamou presidente eleito dos “Estados Unidos do Brazil” – substituído depois por República Federativa do Brasil, e trocando o “verdadeiro presidente eleito” por “líder da oposição”. Tudo isso abriu uma crise no bolsonarismo e nos partidos apoiadores, com o descolamento da extrema direita não-bolsonarista e mesmo de parcelas do bolsonarismo – além da direita tradicional, que tenta ressuscitar como uma “terceira via” após ser engolida pelo neofascismo. Todas as lideranças desses campos políticos reconheceram a vitória de Lula, posicionaram-se contra a carta e o seu teor golpista, isolando politicamente o seu autor.</p>
+<p><strong>Quarto governo Lula: o que será?</strong></p>
+<p>Antes mesmo do início do próximo governo, as novas circunstâncias da conjuntura, em especial a manutenção da mobilização após a eleição, propiciaram duas vitórias muito importantes para a esquerda e o campo democrático. A primeira foi a proibição das bets, decretada durante a campanha e reconhecida pelo STF como questão de saúde pública, responsável, entre outras razões, pela fragilização financeira (endividamento) das famílias. Além disso, o Senado aprovou a PEC da Segurança enviada pelo Executivo, que já havia sido aprovada pela Câmara dos Deputados antes da eleição. Com isso, o próximo governo poderá participar, de fato, e em articulação com estados e municípios, do combate ao crime organizado.</p>
+<p>No plano internacional, como mencionado antes, Trump sofreu uma derrota fragorosa, tão grande que o levou a aceitar imediatamente o resultado do pleito, reduzindo o seu discurso belicoso e avaliando/reconhecendo que a agressão contra o Irã decretou a sua derrota. Este resultado e a vitória de Lula influenciarão, sem dúvida, nas relações dos EUA com o Brasil, em especial no que se refere ao comércio bilateral. A sua política tarifária será questionada e dificultada pelo novo Congresso eleito.</p>
+<p>Mas nem tudo são flores no horizonte político do quarto overno Lula. A extrema direita (abrigada principalmente no Partido Liberal) elegeu o maior número de deputados e senadores no primeiro turno das eleições. O chamado “Centrão” definhou e a esquerda manteve basicamente o seu contingente – mas trocando parlamentares mais antigos e acomodados por novos, muito jovens e mais combativos. Portanto, o perfil do próximo Congresso será mais à direita que o atual, o que implicará para o futuro governo enorme dificuldade de negociação em todos os temas.</p>
+<p>Além disso, o capital financeiro e seus prepostos na mídia corporativa desencaderam, já no dia seguinte à vitória de Lula, uma campanha de emparedamento do novo governo, cobrando agressivamente a execução de um forte ajuste fiscal (mais do mesmo). Verbalizou a sua insatisfação até mesmo com o Novo Arcabouço Fiscal em voga no atual governo e, suprema ousadia, passou a indicar nomes “responsáveis” para ocupar o ministério da Fazenda (como por exemplo o do governador petista reeleito do Piauí, Rafael Fonteles, cujos aliados se apressaram a divulgar que o mesmo só aceitaria o cargo se tivesse total carta branca).</p>
+<p>Como já estamos escaldados de “outros carnavais”, acreditamos que já está aberta a disputa sobre a natureza do 4º Governo Lula, com as seguintes disjuntivas:</p>
+<p>1.  Lula irá trilhar o mesmo roteiro que guiou o seu atual governo, mantendo, reforçando ou substituindo por outro mecanismo o NAF – que dinamicamente entra em rota de colisão com os pisos constitucionais da saúde e da educação, conspira contra os reajustes do salário-mínimo acima da inflação e o seu vínculo com as aposentadorias e os benefícios sociais? Continuará com a prática de executar contingenciamentos do orçamento, em prejuízo dos gastos sociais? Manterá a política monetária de taxas de juros elevadíssimas para obter uma meta de inflação absurdamente irrealista de 3%, que engorda a especulação do capital financeiro mas não consegue atacar a subida sazonal dos preços dos alimentos ou dos insumos importados? Seguirá mantendo rigidamente o atual regime de política macroeconômica (o tripé instituído no segundo governo FHC, mas flexibilizado nos governos Lula 1 e 2), que inviabilizou e inviabilizará qualquer mudança estrutural significativa no padrão indecoroso de distribuição de renda do país? Operará politicamente apenas no âmbito do Congresso Nacional, encapsulando aí a disputa política e desmobilizando ou manipulando a sua base social, que lhe deu o 4º mandato? </p>
+<p>2. Lula seguirá um novo roteiro, indicado pela vitória extraordinária que obteve contra o neofascismo, ouvindo e incentivando a mobilização (nas ruas e nas redes sociais) de sua base social ampliada, decisiva na virada eleitoral e no seu sucesso? Mudará, de fato, o jeito de governar, tal como anunciou em seu discurso da vitória, incorporando a participação popular? Saberá ler as novas circunstâncias históricas e conjunturais, tendo a virtude de montar o “cavalo da fortuna” que está passando? Articulará a negociação no Parlamento com a mobilização e pressão social, denunciando e enfrentando o sistema clandestino de emendas parlamentares? Adotará um novo regime de política macroeconômica, que altere a política fiscal, eliminando qualquer tipo de teto de gastos que impeça e restrinja a execução das políticas sociais e o investimento público na infraestrutura do país? Reconhecerá que o cerne do problema fiscal está no serviço da dívida, cujas absurdas taxas de juros implicaram só nos últimos 12 meses o dispêndio R$ 1,2 trilhão (8,9% do PIB), constituindo-se na causa fundamental do crescimento da dívida pública, e não os gastos primários do governo? Buscará a taxação efetiva da grande propriedade rural e dos rendimentos dos mais ricos? Aumentará a meta de inflação para tirar a pressão sobre as taxas de juros? Disponibilizará, através dos bancos públicos, crédito às famílias e às pequenas e médias empresas com taxas de juros bem menores do que as de mercado? Em suma, fará de seu quarto e último mandato uma referência histórica para o país?</p>
+<ol></ol>
+<p>O futuro é absolutamente incerto, mais ainda na luta política, e não há qualquer determinismo inscrito previamente. Não se pode nem descartar, dado o caráter conciliador de Lula, evidenciado em sua trajetória política e seus governos anteriores, uma tentativa de combinar elementos constitutivos das duas alternativas – uma espécie de social-liberalismo. Entretanto, o resultado final da disputa dependerá da capacidade da esquerda e demais forças democráticas sintonizarem-se com a vontade política das imensas multidões que foram às ruas em defesa da democracia e dos direitos sociais e trabalhistas – configurando-se um autêntico levante popular.</p>
+<p><em>Sem publicidade ou patrocínio, dependemos de você. Faça parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/movimentoserebeldias/cenario-apos-o-grande-levante-popular/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

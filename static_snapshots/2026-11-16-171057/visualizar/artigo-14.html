@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O ajuste fiscal e o desafio de um novo ciclo de desenvolvimento - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O ajuste fiscal e o desafio de um novo ciclo de desenvolvimento</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Opera Mundi</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://operamundi.uol.com.br/opiniao/o-ajuste-fiscal-e-o-desafio-de-um-novo-ciclo-de-desenvolvimento/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://operamundi.uol.com.br/wp-content/uploads/2026/11/reuniao_de_lideres-8_0.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O ajuste fiscal e o desafio de um novo ciclo de desenvolvimento
+                            </p>
+                            
+<p>O quarto mandato do presidente Lula começa diante de uma escolha histórica: administrar os limites de uma economia que cresce pouco ou mobilizar o País para superá-los. O debate fiscal, acalorado entre a Faria Lima, o governo e diferentes campos da esquerda, oferece a oportunidade de discutir nosso projeto econômico. Precisamos equilibrar as contas, investir, ampliar a produção e assegurar crescimento sustentado. Mas é fundamental distinguir duas questões: a consolidação fiscal, com a preservação dos compromissos sociais, e a superação dos problemas estruturais que mantêm o Brasil com baixo investimento e crescimento insuficiente.</p>
+<p>O arcabouço de 2023 substituiu o teto de gastos e permitiu recompor políticas públicas. Segundo o economista Paulo Gala, professor da USP, a despesa primária federal cresceu, em média, 4,3% ao ano acima da inflação entre 2022 e 2025. Cresceram os recursos para Bolsa Família, Previdência, BPC (Benefício de Prestação Continuada), saúde e educação, enquanto a arrecadação se recuperou. Lula reconstruiu a proteção social e ampliou a atuação do Estado. Falta transformar essa recuperação numa base duradoura para o desenvolvimento.</p>
+<p>A equipe do ministro do Planejamento, Bruno Moretti, elaborou o PLP 299/2026, cujo texto-base foi aprovado pelo Senado em 12 de novembro. O projeto amplia os instrumentos de gestão orçamentária para cumprir a meta de superávit primário de 2027, estabelecida antes das eleições, preservando os pisos constitucionais da saúde e da educação, as regras previdenciárias e a política de valorização real do salário mínimo. Ao ampliar a flexibilidade orçamentária, também busca abrir espaço para compromissos assumidos por Lula durante a campanha, como a universalização do Pé-de-Meia, o Pé-de-Meia Universitário, o Desenrola e o Pix MEI. A limitação do crescimento real das despesas a 2%, em lugar de 2,5%, aplica-se aos exercícios em que forem adotadas medidas de contenção, mantendo a estrutura central do arcabouço fiscal.</p>
+<p>Segundo o governo, cerca de 70% do impacto previsto virá da revisão de benefícios tributários e de restrições a compensações fiscais. O PLP permite contingenciar determinadas emendas parlamentares e despesas com controle de fluxo, preservando potencialmente recursos do PAC e dos serviços públicos. Prevê providências relacionadas aos supersalários e autoriza investimentos estruturantes adicionais sob determinadas condições.</p>
+<p>O governo procura compatibilizar compromissos sociais com previsibilidade orçamentária. Defendo os objetivos e os principais instrumentos do projeto, com aperfeiçoamentos para proteger os investimentos e avaliar os efeitos de restrições sobre o Plano Safra e as compensações previdenciárias. A tramitação deve aperfeiçoar o acompanhamento dos efeitos econômicos e sociais das medidas. O PLP responde a uma necessidade concreta de gestão fiscal. Seria um equívoco, entretanto, confundir essa tarefa com a definição da política de crescimento do próximo mandato.</p>
+<p>Em 2015, após a reeleição de Dilma Rousseff, o governo adotou um ajuste severo, conduzido pelo então ministro da Fazenda, Joaquim Levy, para recuperar a confiança e estimular os investimentos. O país mergulhou numa profunda recessão, com causas internas e externas, entre elas o aperto fiscal e monetário. As condições atuais e o conteúdo do PLP 299 são distintos, mas aquela experiência mostrou os riscos de apostar na contração da demanda como caminho suficiente para restaurar o crescimento.</p>
+<p>A meta de superávit primário de 0,5% do PIB em 2027 importa para as expectativas, o câmbio, os juros de longo prazo e o financiamento do Estado. A credibilidade fiscal importa para qualquer governo. Mas precisamos separar o esforço de cumprimento da meta primária do desafio de elevar o investimento nacional. O Brasil enfrenta um problema de crescimento e de financiamento da produção que exige soluções próprias. Sua sustentabilidade fiscal depende também do desempenho da economia, da arrecadação, da qualidade das despesas e, sobretudo, do custo da dívida.</p>
+<p>O governo cometeu erros políticos na condução do processo. A proposta exigia diálogo prévio com partidos aliados, bancadas e forças sociais que sustentam o projeto vitorioso nas urnas. Uma coalizão se constrói compartilhando diagnósticos, debatendo alternativas e assumindo compromissos, para além da negociação de votos no plenário. A governabilidade dependerá de uma maioria política e social capaz de sustentar um projeto nacional e suas reformas.</p>
+<p>A comunicação foi outro problema grave. Faltou explicar à sociedade as políticas preservadas pelo PLP, a origem das receitas e o alcance das medidas. A queda do lucro do Banco do Brasil, relacionada à inadimplência no agronegócio, já mostrara a importância de explicar fatos econômicos e suas causas. Comunicação pública é instrumento de transparência, participação e confiança. Governar exige disputar também a compreensão dos problemas nacionais e das soluções apresentadas.</p>
+<p>O principal desafio econômico, porém, tem outra dimensão. Entre 2023 e 2026, a recuperação do emprego, a valorização do salário mínimo, as transferências de renda e o crédito impulsionaram o consumo das famílias. Essa recuperação encontra limites sem expansão da capacidade produtiva e da produtividade. Os sinais recentes de desaceleração do consumo, dos serviços e da atividade econômica exigem atenção. Mas reconhecer essa ameaça e defender mais investimento constitui uma discussão distinta daquela sobre os instrumentos necessários para cumprir a meta fiscal.</p>
+<p>A taxa de investimento brasileira permanece próxima de 17% do PIB. Precisamos elevá-la para um patamar entre 21% e 23%, condição para sustentar crescimento mais elevado, modernização produtiva e geração de empregos qualificados. Na infraestrutura, investimos muito aquém das necessidades nacionais, que exigiriam recursos próximos de 4% do PIB ao ano. Essa transformação depende de financiamento de longo prazo, reforma tributária, mobilização do investimento privado e mudanças na política monetária e financeira. A contenção das despesas primárias, por si só, jamais produzirá essa mudança de escala.</p>
+<p>As bases começaram a ser construídas. A Nova Indústria Brasil definiu prioridades para a reindustrialização, o BNDES retomou o financiamento ao desenvolvimento e a Petrobras voltou a investir em setores estratégicos. A transição energética abre novas oportunidades industriais. É preciso dar escala a essas iniciativas, mobilizar os bancos públicos e o sistema financeiro, ampliar o crédito de longo prazo e atrair investimento privado. O desenvolvimento depende da articulação entre Estado, empresas, trabalhadores e ciência.</p>
+<p>Essa estratégia exige recuperar a capacidade de planejamento e execução do Estado. Universidades, institutos federais, Embrapa, Funai, Ibama, Instituto Chico Mendes e centros de pesquisa precisam de recursos, quadros qualificados e continuidade. Infraestrutura, habitação, saneamento e modernização agrícola também exigem instituições capazes de cumprir suas missões. Eficiência administrativa e fortalecimento do Estado devem caminhar juntos.</p>
+<p>A reforma tributária precisa avançar além do consumo. Avançamos na tributação das altas rendas, mas persistem distorções sobre patrimônio, grandes fortunas, lucros e dividendos e rendimentos financeiros. Deputados do PT apresentaram projetos para aprofundar a progressividade, entre eles o PL 5.853/2026, que propõe tributar em 7,5% os rendimentos hoje isentos das Letras de Crédito do Agronegócio (LCA), Imobiliário (LCI) e do Desenvolvimento (LCD), além das debêntures incentivadas de infraestrutura. É preciso calibrar essas medidas para preservar o financiamento à agricultura, à habitação e ao investimento produtivo. Também precisamos rever benefícios fiscais de baixo retorno e buscar novas fontes de financiamento da Previdência, inclusive diante da desoneração da folha. A Previdência depende do crescimento, da formalização, dos salários e de mais contribuintes. O desenvolvimento amplia a capacidade de financiar direitos.</p>
+<p>Os juros representam uma dimensão decisiva do problema econômico e fiscal brasileiro. Nos doze meses encerrados em setembro de 2026, os juros nominais apropriados pelo setor público consolidado alcançaram 1,205 trilhão de reais, cerca de 9% do PIB, diante de déficit primário de 70,1 bilhões de reais. São componentes distintos, mas evidenciam o peso da política monetária na trajetória da dívida. Temos um desequilíbrio primário relativamente limitado diante da dimensão dos encargos financeiros. A dívida pública, que já supera 80% do PIB, é pressionada por juros elevados, embora sua evolução dependa também da inflação, do crescimento e das necessidades de financiamento do Estado.</p>
+<p>Tenho insistido, no debate com economistas de diferentes correntes, que a política fiscal influencia expectativas, câmbio e juros longos, mas a excepcionalidade brasileira exige investigação mais ampla. Devemos examinar a indexação da dívida, o crédito, os spreads bancários e a transmissão da política monetária. A discussão sobre o investimento precisa considerar o conjunto dessa estrutura financeira, que encarece a produção, favorece aplicações de elevada rentabilidade e restringe a capacidade de expansão das empresas.</p>
+<p>A decisão do Banco Central de manter a Selic em 13,75% ao ano, num cenário de desaceleração econômica e risco de recessão, é um contrassenso. A autoridade monetária reconhece a perda de dinamismo da atividade, mas preserva uma política fortemente contracionista, cujos efeitos alcançam o consumo, o crédito, a produção e o investimento. Combater a inflação é indispensável à renda dos trabalhadores. Mas devemos discutir a adequação da meta de 3% ao ano às características da formação de preços no Brasil e aos choques de alimentos, energia e câmbio. Juros reais elevados restringem o investimento produtivo, pressionam o endividamento das famílias e empresas e aumentam os encargos da dívida pública. O custo dessa política precisa integrar a avaliação de seus resultados.</p>
+<p>A contribuição recente de André Lara Resende recolocou essa discussão em termos institucionais. Sua proposta de criar um Conselho Fiscal e Monetário Nacional merece debate pela perspectiva de coordenação fiscal e monetária. Em artigo recente, publicado no <i>Valor Econômico</i>, Luiz Gonzaga Belluzzo e Kaio Zanin Vieira lembraram que a Lei nº 4.595, de 1964, já atribuía ao Conselho Monetário Nacional a coordenação das políticas monetária, creditícia, orçamentária, fiscal e da dívida pública. Essa articulação precisa voltar ao debate nacional.</p>
+<p>A PEC 65, relativa à autonomia financeira e orçamentária do Banco Central, também exige discussão. Autonomia operacional, transparência, responsabilidade institucional e coordenação macroeconômica precisam ser conciliadas. Decisões monetárias afetam emprego, produção e contas públicas. A arquitetura institucional deve favorecer o diálogo entre as autoridades econômicas, preservando a estabilidade monetária e os objetivos do desenvolvimento.</p>
+<p>O debate econômico precisa recuperar sua dimensão política. Uma estratégia de crescimento exige uma maioria nacional capaz de sustentar reformas, enfrentar interesses corporativos e articular investimentos públicos e privados. Produção, inovação, distribuição de renda e soberania econômica e tecnológica devem unir trabalhadores, empresários, pesquisadores, governadores, prefeitos e forças democráticas.</p>
+<p>O Brasil já demonstrou capacidade de reduzir a pobreza, reconstruir políticas públicas, ampliar direitos e defender a democracia. O quarto mandato de Lula pode transformar essas conquistas num ciclo de crescimento sustentado, inovação e melhor distribuição da renda. Para tanto, precisamos tratar com clareza duas agendas complementares: a consolidação fiscal, preservando direitos e compromissos sociais, e uma transformação estrutural das condições de investimento e crescimento da economia brasileira.</p>
+<p>Nossa responsabilidade histórica é mobilizar o País para essa nova etapa. Temos recursos naturais, indústria, ciência, mercado interno e uma população capaz de grandes transformações. No debate fiscal, cabe à esquerda defender os instrumentos necessários do PLP e aperfeiçoar as medidas para proteger o investimento e os compromissos eleitorais. Ao mesmo tempo, precisamos exigir do governo uma estratégia nacional de crescimento, com reforma tributária, crédito produtivo, expansão do investimento e enfrentamento dos juros elevados. Precisamos resolver o problema da consolidação fiscal sem sacrificar direitos e enfrentar o problema do baixo crescimento com os instrumentos que ele realmente exige. O ajuste organiza as contas do presente. A mudança da política monetária, a reforma tributária e a retomada do investimento decidirão o futuro do Brasil.</p>
+<p><b><i>(*) José Dirceu</i></b><i> foi ministro-chefe da Casa Civil no primeiro governo Lula (2003-2005), presidente nacional do Partido dos Trabalhadores e deputado federal por São Paulo.</i></p><p>Fonte: Especial para Opera Mundi</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://operamundi.uol.com.br/opiniao/o-ajuste-fiscal-e-o-desafio-de-um-novo-ciclo-de-desenvolvimento/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

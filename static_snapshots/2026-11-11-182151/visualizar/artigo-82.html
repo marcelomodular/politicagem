@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Papa e a máquina - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O Papa e a máquina</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Opera</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaopera.operamundi.uol.com.br/2026/11/10/o-papa-e-a-maquina/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaopera.operamundi.uol.com.br/wp-content/uploads/2026/11/papa-leao.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O Papa e a máquina
+                            </p>
+                            
+<p>Se as tecnologias de IA geram uma profunda ansiedade, não é apenas devido às formas como já estão transformando o cotidiano, substituindo o trabalho humano e consumindo grandes quantidades de água e outros recursos naturais.</p>
+<p>Mais do que isso, é devido à forma como alguns executivos do setor de tecnologia retratam o futuro que a IA trará. Em particular Peter Thiel, que em uma estranha mistura de falsa teoria evolutiva e escatologia, criou uma visão da humanidade atingindo seu destino final ao transcender as limitações corporais por meio do desenvolvimento da IA.</p>
+<p>A primeira encíclica do Papa Leão XIV, <i>Magnifica humanitas</i> (“Magnífica humanidade”), é, em parte, uma resposta a esse tipo de fantasia. As encíclicas papais não são conhecidas por seu humor, mas <i>Magnifica</i> inclui uma ironia sarcástica dirigida a Thiel. Ela aparece no final do texto, sob a forma de uma citação literária surpreendente:</p>
+<p>“O autor católico do século XX J. R. R. Tolkien, nas palavras de um protagonista de um de seus romances, descreveu nossa responsabilidade desta forma: ‘Não nos cabe dominar todas as marés do mundo, mas fazer o que está ao nosso alcance para socorrer aqueles anos em que estamos inseridos, arrancando o mal dos campos que conhecemos, para que aqueles que viverem depois possam ter terra limpa para cultivar’”. (par. 213)</p>
+<p>O “protagonista” é Gandalf, o mago, que lutou contra “Os Palantiri”: pedras que tudo veem e se comunicam à distância. O nome da empresa de Thiel, Palantir, é tirado de <i>O Senhor dos Anéis</i>, e a alusão do Papa Leão a Gandalf pode ser interpretada como uma espécie de provocação papal ao executivo do setor de tecnologia.</p>
+<p>Leão dedica relativamente poucas das 42 mil palavras da encíclica a um ataque direto à escatologia ao estilo de Thiel, mas sua rejeição a ela é clara. Ele reconhece que termos como “pós-humanismo” e “transhumanismo” não são definidos de forma fácil e inequívoca, mas, mesmo assim, “constituem o pano de fundo ideológico presente em alguns centros de poder tecnológico e ocupam a imaginação coletiva de maneira simplificada, especialmente na mídia e nas redes sociais”. Há um risco moral, argumenta ele, em aceitar a noção de que a condição humana pode, e deve, ser transcendida tecnologicamente:</p>
+<p>“[…] a questão central não é o uso da tecnologia em si, mas a visão que a sustenta. Se o ser humano for tratado como algo a ser aperfeiçoado ou superado, torna-se mais fácil aceitar que algumas vidas sejam menos úteis, menos desejáveis ou menos dignas. Em nome do progresso, ‘sacrifícios necessários’ podem começar a ser justificados, colocando o fardo sobre os mais vulneráveis em busca de uma suposta otimização da espécie […] os avanços científicos e tecnológicos, quando dissociados do progresso moral e social, acabam se voltando contra a humanidade. Por essa razão, é preciso fazer uma distinção clara. Uma coisa é integrar a tecnologia em uma visão relacional e centrada no ser humano; outra bem diferente é deixar-se guiar por uma perspectiva que desvaloriza os limites humanos e promete uma forma puramente técnica de ‘salvação’”. (par. 117)</p>
+<p>A humanidade que Leão considera que deva ser salvaguardada é inerentemente encarnada, com os limites e fragilidades que isso implica. Mas quem deve salvaguardá-la e como deve fazê-lo? Sua resposta à primeira pergunta resume-se a: “cada um de nós, trabalhando com os outros da maneira que pudermos”, conforme expresso na citação de Gandalf. A resposta à segunda pergunta encontra-se em uma jornada pela doutrina social católica que ocupa mais de um terço da encíclica, muito antes de Leão chegar a Gandalf. Seu uso dessa doutrina é sugestivo, não prescritivo. Ele não espera que todos se tornem católicos, muito menos que sigam todas as ordens de Roma (ele sabe que nem mesmo a maioria dos católicos faria isso). O Papa está oferecendo recursos que podem ser úteis para refletir sobre a cooperação humana.</p>
+<p>A jornada doutrinária é precedida por uma meditação sobre duas metáforas bíblicas relacionadas à cooperação: a história da Torre de Babel, do Livro do Gênesis, e a reconstrução de Jerusalém, conforme narrada no Livro de Neemias. Babel é uma história de advertência sobre a ambição excessiva do ser humano. O povo da cidade procurou construir uma torre que alcançasse os céus; não só fracassou, como, nesse processo, perdeu a língua comum que dava sustentação aos seus esforços. A torre desabou, e com ela sua civilização, e o povo se espalhou pela Terra.</p>
+<p>A história em Neemias é um espelho do destino de Babel. Quando o povo judeu recebe permissão para retornar a Jerusalém após o exílio na Babilônia, encontra a cidade em ruínas. Eles são guiados na reconstrução por Neemias, um judeu a serviço do rei persa (há uma ressonância intrigante nisso, ainda que não intencional, para os nossos tempos). Depois de orar e refletir sobre o que deve fazer, Neemias obtém a permissão do rei para retornar à sua cidade natal a fim de ajudar o povo. Eis a visão de Leão sobre como ele fez isso:</p>
+<p>“Ele reuniu as famílias, designou a cada uma delas um trecho da muralha para reconstruir, ouviu suas preocupações, coordenou seus esforços e enfrentou qualquer oposição. A narrativa mostra como a cidade renasce, não por iniciativa de um único homem, mas por meio da responsabilidade compartilhada de todos: homens, mulheres, sacerdotes, artesãos, chefes de família e jovens — todos desempenham um papel.” (par. 8)</p>
+<p>Podemos perceber aonde Leão quer chegar com isso. Mas será que os diversos textos que expõem a doutrina social católica realmente o ajudam a chegar lá? Ele identifica cinco princípios que se repetem ao longo da tradição: o bem comum, o destino universal dos bens, a subsidiariedade, a solidariedade e a justiça social. Este artigo analisa dois deles, deixando a exploração dos demais para aqueles que tenham tempo e disposição para ler <i>Magnifica</i> por conta própria.</p>
+<p>O “destino universal dos bens” é a expressão católica para uma espécie de socialismo. Trata-se, simplesmente, do reconhecimento de que a criação e tudo o que ela contém são para o benefício de todos, e que qualquer direito à propriedade privada deve estar sempre subordinado a esse “destino universal”. O princípio é antitético ao ultraliberalismo de alguns dos “<i>tech bros</i>”, como Thiel e Musk.</p>
+<p>A subsidiariedade sempre foi o mais desconcertante dos princípios sociais católicos, embora seja bastante fácil explicar o que ela supostamente significa — que as decisões devem ser tomadas no nível mais baixo de autoridade capaz de implementá-las efetivamente. Ela foi oficialmente adotado pela União Europeia – embora isso faça com que ela pareça uma piada de mau gosto. Onde está a subsidiariedade, a tomada de decisão descentralizada, nessa organização transnacional notoriamente burocrática?</p>
+<p>O princípio da subsidiariedade tem sido muito elogiado sem nunca ter realmente se concretizado. A visão de Leão sobre o assunto, no entanto, o afasta um pouco da preocupação com os níveis de autoridade e o direciona para uma preocupação com a responsabilidade compartilhada. A subsidiariedade não se refere apenas ao que os Estados, as regiões e as famílias possam decidir; trata-se também de como pessoas com preocupações éticas em comum podem cooperar, como Neemias, para alcançar seus objetivos.</p>
+<p>Peter Thiel não é mencionado nominalmente em <i>Magnifica</i>, nem outros desenvolvedores e fabricantes de IA. Alguns, no entanto, participaram dos diálogos de Minerva — discussões entre teólogos, representantes de outras tradições religiosas, especialistas em ética secular, engenheiros de software e executivos do setor de tecnologia que tiveram início em 2016, sob o papado do Papa Francisco, e que acabaram levando à encíclica do Papa Leão (os diálogos receberam o nome da basílica dominicana em Roma, <i>Santa Maria sobre Minerva</i>, onde ocorreram). <i>Magnifica</i> não surge, portanto, apenas do Vaticano e da Igreja Católica.</p>
+<p>Os colaboradores dos diálogos de Minerva se reuniram novamente em Roma para o lançamento da encíclica em maio, e entre eles estava Christopher Olah, cofundador da Anthropic, fabricante do assistente de IA Claude. Olah disse ao público presente no lançamento que o desenvolvimento da IA não deve ser deixado exclusivamente nas mãos das empresas de tecnologia, pois elas são movidas principalmente pela concorrência e pelo desejo de lucro. Isso é especialmente perigoso agora, quando algumas formas de IA estão se tornando capazes de orientar seu próprio desenvolvimento e suas futuras aplicações. No contexto da encíclica, esse alerta expressa o que Leão chama de destino universal dos bens. Olah pediu que “críticos informados” e “vozes morais” limitem as decisões das empresas de tecnologia. Ele não explicou como isso poderia funcionar, mas elogiou a <i>Magnifica</i> como um primeiro passo.</p>
+<p>Os cínicos poderiam observar que a própria Anthropic é concorrente de outras empresas de tecnologia, como a OpenAI, da qual seus fundadores se separaram em 2021, e que um alinhamento com o Vaticano não será exatamente prejudicial ao modelo de negócios da empresa. E a própria Anthropic se viu envolvida em uma controvérsia ética: até o momento da redação deste artigo, ela foi acusada, juntamente com outras grandes empresas de tecnologia, de se apropriar do trabalho de escritores e artistas e usá-lo sem dar crédito. No entanto, a Anthropic também tem sido alvo de críticas por parte do governo Trump por se recusar a permitir que seus próprios produtos sejam adaptados para uso em sistemas de armas autônomas. Como indica a escolha do nome “Anthropic” (“antrópica”, em tradução literal) pelos fundadores, há um compromisso explícito com tecnologias que não aniquilem a experiência e a criatividade humanas.</p>
+<p>Uma crítica frequentemente ouvida aos textos que compõem a doutrina social católica é que eles são, em sua maioria, exemplos da Igreja tentando somente se adequar aos novos tempos. Essa crítica remonta ao documento fundamental da série, a encíclica <i>Rerum novarum</i> (“das coisas novas”) do Papa Leão XIII, publicada em 1891, que foi motivada pelas misérias e turbulências desencadeadas pelo capitalismo industrial. Os críticos tinham razão. Afinal, a revolução industrial já vinha se alastrando há mais de um século. Mais recentemente, a <i>Laudato Si</i>, do Papa Francisco, lançada em 2015, ecoa as preocupações do movimento ambientalista global (devemos cuidar da Terra, nossa casa comum) e as insere em um quadro teológico, décadas após o surgimento do movimento.</p>
+<p>Talvez seja um indicativo dos tempos que mudam — e dos papas —, no entanto, o fato de que <i>Magnifica humanitas</i> contribua para um debate de fato muito contemporâneo: quais são as consequências para a existência humana da grande tecnologia transformadora de nosso tempo, a inteligência artificial (IA)?</p>
+<p><i>Magnifica</i> não é uma reação contra a IA, e certamente não é um repúdio total a ela. O Papa Leão parte do pressuposto de que o nosso mundo cotidiano está sendo remodelado pela IA, de maneiras que ainda não compreendemos totalmente e, potencialmente, de maneiras que nem sequer começamos a imaginar.</p>
+<p>É uma convenção que os papas que escrevem sobre questões sociais o façam com uma referência às visões de seus predecessores, mas <i>Magnifica</i> leva os leitores além das breves menções habituais. Leão oferece uma análise histórica substancial e, em seguida, uma exposição teológica de todos os textos relevantes antes de abordar o tema central da IA. Nesse processo, toda a tradição da doutrina social é vista sob uma nova luz. Isso, por sua vez, o leva a refletir sobre como as mudanças tecnológicas em geral — e não apenas a IA — exigem uma reconsideração de alguns aspectos do ensinamento católico, como a noção de “guerra justa”. (Além da própria encíclica, a rejeição de Leão às guerras opcionais, juntamente com sua postura sobre a migração e a proteção dos refugiados, resultou em hostilidade aberta contra ele por parte do governo Trump.)</p>
+<p>Não há prescrições lapidares em <i>Magnifica humanitas</i>. Leão não pretende oferecer soluções simples que possam ser seguidas por aqueles que temem que certos tipos de mudança tecnológica, especialmente a IA, estejam diminuindo nosso senso do que significa ser humano. O que ele oferece é algo mais fundamental: uma aliança.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaopera.operamundi.uol.com.br/2026/11/10/o-papa-e-a-maquina/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

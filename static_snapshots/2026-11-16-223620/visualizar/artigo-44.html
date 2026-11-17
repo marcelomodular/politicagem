@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabalho: A morte calculada e o “risco aceitável” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Trabalho: A morte calculada e o “risco aceitável”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/trabalhoeprecariado/trabalho-a-morte-calculada-e-o-risco-aceitavel/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-16-at-18-22-07-construction-workers-on-elevated-steel-girders.jpeg-imagem-JPEG-1000-%C3%97-750-pixels-Redimensionada-86.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Trabalho: A morte calculada e o ârisco aceitÃ¡velâ
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-16-at-18-22-07-construction-workers-on-elevated-steel-girders.jpeg-imagem-JPEG-1000-%C3%97-750-pixels-Redimensionada-86.png"/>
+<h3><strong>A externalizaÃ§Ã£o do risco como regra produtiva</strong></h3>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Ao longo de cinco anos de cobertura jornalÃ­stica internacional e brasileira (novembro de 2021 a novembro de 2026), os registros mais recorrentes sobre condiÃ§Ãµes de trabalho descrevem mortes violentas no exercÃ­cio da funÃ§Ã£o: quedas em altura, eletrocussÃµes, esmagamentos por prensas hidrÃ¡ulicas e soterramentos em canteiros de obras. A estrutura narrativa das reportagens obedece a um roteiro quase invariÃ¡vel: um trabalhador morre, familiares apontam ausÃªncia de treinamento ou falha de proteÃ§Ã£o, a empresa anuncia uma sindicÃ¢ncia interna e o caso desaparece do noticiÃ¡rio em poucos dias.</p>
+<p>Sob a perspectiva da sociologia e da economia polÃ­tica do trabalho, essa repetiÃ§Ã£o nÃ£o expressa uma soma de fatalidades tÃ©cnicas ou falhas pontuais de fiscalizaÃ§Ã£o. Ela revela como o risco Ã© distribuÃ­do e precificado na organizaÃ§Ã£o produtiva. Na relaÃ§Ã£o salarial, quem detÃ©m o controle do processo de trabalho define o tempo, o ritmo, a cadÃªncia das mÃ¡quinas, a lÃ³gica dos algoritmos, o cronograma das obras e a margem de tolerÃ¢ncia ao perigo; quem vende a forÃ§a de trabalho absorve o impacto fÃ­sico e psÃ­quico dessa aceleraÃ§Ã£o. Como o tempo gasto com treinamento e as paradas para manutenÃ§Ã£o comprimem a produtividade imediata, o capital tende a externalizar o custo do desgaste â transferindo o Ã´nus do adoecimento, da mutilaÃ§Ã£o ou da morte para o trabalhador, para as famÃ­lias e para o fundo pÃºblico via PrevidÃªncia Social e sistema pÃºblico de saÃºde.</p>
+<p>O levantamento empÃ­rico que fundamenta esta anÃ¡lise reÃºne 2.899 matÃ©rias sobre saÃºde e seguranÃ§a no trabalho, 1.820 sobre assÃ©dio e 1.061 sobre horas extras extraÃ­das da base GDELT, incluindo 282 reportagens em lÃ­ngua portuguesa no recorte de saÃºde e seguranÃ§a. Esses nÃºmeros nÃ£o medem a incidÃªncia estatÃ­stica real dos agravos â papel das bases previdenciÃ¡rias e fiscais â, mas revelam o que rompe a barreira da invisibilidade pÃºblica e o que permanece silenciado no cotidiano produtivo.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-21-1500x343.png"/>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-22-1500x612.png"/>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-23-1500x794.png"/>
+<p>A pergunta que orienta este texto Ã© como a imprensa cobre as condiÃ§Ãµes de trabalho e o que essa cobertura permite ver dos ambientes de trabalho. A resposta tem duas faces. De um lado, o noticiÃ¡rio oferece um retrato possÃ­vel dos ambientes produtivos, sobretudo nos episÃ³dios de morte, acidente e denÃºncia. De outro, esse retrato Ã© filtrado por aquilo que tem valor de notÃ­cia: o evento agudo e visÃ­vel ocupa o espaÃ§o que o desgaste lento, o adoecimento psÃ­quico e a sobrecarga cotidiana nÃ£o ocupam. O que a cobertura nÃ£o mostra Ã©, portanto, tÃ£o relevante quanto o que mostra.</p>
+<h3><strong>Economia polÃ­tica do acidente</strong></h3>
+<p><strong>AlienaÃ§Ã£o tÃ©cnica, terceirizaÃ§Ã£o e exÃ©rcito de reserva no Brasil</strong></p>
+<p>A leitura integrada dos casos registrados na imprensa brasileira permite observar como categorias clÃ¡ssicas e contemporÃ¢neas da sociologia do trabalho operam no chÃ£o de fÃ¡brica e nos canteiros de obras. Longe de serem episÃ³dios isolados, as ocorrÃªncias expressam trÃªs mecanismos estruturais de expropriaÃ§Ã£o da forÃ§a de trabalho:</p>
+<p><strong>Perda de controle tÃ©cnico e compressÃ£o de prazos:</strong> na organizaÃ§Ã£o capitalista do processo de trabalho, a subsunÃ§Ã£o real do trabalho ao capital retira do trabalhador o controle sobre os meios, os mÃ©todos e o ritmo da produÃ§Ã£o. Esse fenÃ´meno aparece com nitidez na morte de um trabalhador de 21 anos, prensado por uma mÃ¡quina hidrÃ¡ulica em uma metalÃºrgica de Santa Catarina apÃ³s apenas um mÃªs na empresa (O Globo e g1, 01/06/2026), e na queda fatal de um operÃ¡rio de 30 metros nas obras da ponte de Guaratuba, no ParanÃ¡, mesmo fazendo uso de equipamentos de proteÃ§Ã£o individual (g1, 15/09/2024). A entrega formal do EPI individualiza a responsabilidade pela seguranÃ§a sem alterar a cadÃªncia imposta ao processo tÃ©cnico nem o cronograma contratual â o que define na prÃ¡tica o chamado “risco aceitÃ¡vel”, como ilustra o guincho instalado em posiÃ§Ã£o inadequada identificado pelo MinistÃ©rio do Trabalho apenas apÃ³s uma morte em Sorocaba (g1, 18/07/2024).</p>
+<p><strong>TerceirizaÃ§Ã£o e erosÃ£o da proteÃ§Ã£o salarial:</strong> as mortes em empreiteiras e subcontratadas â registradas em obras em Mato Grosso (Olhar Direto, 27/11/2021), em pedreiras no interior paulista (g1, 22/05/2026) e em grandes obras pÃºblicas na ParaÃ­ba e em Pernambuco (g1, 21/09/2026 e 28/09/2026) â evidenciam a lÃ³gica estrutural das cadeias de subcontrataÃ§Ã£o e precarizaÃ§Ã£o do vÃ­nculo. Na economia dos conflitos sociais, a terceirizaÃ§Ã£o funciona como instrumento de compressÃ£o de custos salariais e diluiÃ§Ã£o da responsabilidade jurÃ­dica: ao fragmentar a relaÃ§Ã£o empregatÃ­cia entre contratante principal e subempreiteiras, o modelo corrÃ³i os alicerces da sociedade salarial e da proteÃ§Ã£o social associada ao emprego estÃ¡vel, desconectando a prestaÃ§Ã£o do serviÃ§o das garantias coletivas de prevenÃ§Ã£o.</p>
+<p><strong>Assimetria de poder e vulnerabilidade etÃ¡ria:</strong> a recorrÃªncia de vÃ­timas tanto na faixa dos 20 anos quanto acima dos 60 anos â como o trabalhador de 61 anos morto soterrado em uma obra de aterro sanitÃ¡rio no ParanÃ¡ (tnonline, 02/06/2026) â reflete as duas pontas mais vulnerÃ¡veis do exÃ©rcito industrial de reserva brasileiro. De um lado, jovens sem poder de barganha inseridos precariamente em funÃ§Ãµes de alto risco sem curva adequada de aprendizado; de outro, trabalhadores idosos mantidos em atividades fÃ­sicas extenuantes pela insuficiÃªncia dos rendimentos previdenciÃ¡rios ou pela informalidade.</p>
+<p><strong>ReparaÃ§Ã£o tardia versus prevenÃ§Ã£o estrutural:</strong> diante dessa estrutura, a reaÃ§Ã£o institucional tende a ser reativa e punitiva apenas a posteriori, como a interdiÃ§Ã£o de tanques de gÃ¡s em TietÃª apÃ³s um Ã³bito (g1, 02/07/2024) ou a condenaÃ§Ã£o judicial de empresas ao pagamento de R$ 1 milhÃ£o por morte em obra no Rio de Janeiro (Folha, 15/09/2025). Na economia polÃ­tica do risco, a indenizaÃ§Ã£o tardia entra no cÃ¡lculo empresarial como passivo contingente, enquanto a prevenÃ§Ã£o contÃ­nua exige alteraÃ§Ã£o na organizaÃ§Ã£o do trabalho â razÃ£o pela qual a resistÃªncia coletiva, como a paralisaÃ§Ã£o dos trabalhadores da Novelis em Pindamonhangaba apÃ³s uma morte na fÃ¡brica (g1, 06/01/2025), permanece como o principal freio real Ã  intensificaÃ§Ã£o perigosa.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-24-1500x663.png"/>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-25-1500x805.png"/>
+<p><strong>Casos em outros paÃ­ses: o mesmo mecanismo em outros contextos</strong></p>
+<p>Os tÃ­tulos coletados em inglÃªs, espanhol, francÃªs e alemÃ£o mostram padrÃµes que se repetem fora do Brasil, com variaÃ§Ãµes de setor e de regulaÃ§Ã£o.</p>
+<p>Os primeiros exemplos sÃ£o de riscos de processo e de energia. Em outubro de 2026, a investigaÃ§Ã£o em Singapura sobre trabalhadores mortos apÃ³s inalar gÃ¡s tÃ³xico em uma instalaÃ§Ã£o da PUB concluiu que eles nÃ£o usavam mÃ¡scaras de respiraÃ§Ã£o (<a href="https://www.straitstimes.com/singapore/courts-crime/workers-who-died-after-inhaling-toxic-gas-at-pub-facility-did-not-wear-respirator-masks-investigator" rel="noopener noreferrer" target="_blank">Straits Times, 02/10/2026</a>). Em Taiwan, a obra de uma fÃ¡brica da TSMC em Kaohsiung deixou mortos e levou a empresa a paralisar os trabalhos; a Xinhua informou trÃªs mortes (<a href="https://english.news.cn/20261020/ca367e2ebdce4f35bb058b06cfa39272/c.html" rel="noopener noreferrer" target="_blank">Xinhua, 21/10/2026</a>), enquanto o The Independent falou em quatro (<a href="https://www.independent.co.uk/asia/east-asia/tsmc-taiwan-factory-accident-workers-killed-b3070397.html" rel="noopener noreferrer" target="_blank">The Independent, 21/10/2026</a>). Nos Estados Unidos, a DuPont foi multada em 16 milhÃµes de dÃ³lares por um vazamento em La Porte que matou quatro funcionÃ¡rios (<a href="https://www.houstonchronicle.com/news/houston-texas/article/dupont-la-porte-leak-deaths-fined-sixteen-million-17915839.php" rel="noopener noreferrer" target="_blank">Houston Chronicle, 25/04/2023</a>). No Quebec, o Ã³rgÃ£o de seguranÃ§a do trabalho atribuiu a uma solda a explosÃ£o que matou trÃªs trabalhadores da empresa Propane Lafortune (<a href="https://www.ohscanada.com/features/quebecs-workplace-safety-board-says-welding-led-to-blast-that-killed-three-workers-at-propane-lafortune/" rel="noopener noreferrer" target="_blank">OHS Canada, 19/12/2023</a>). Em todos esses casos, a complexidade da instalaÃ§Ã£o nÃ£o elimina o risco de exposiÃ§Ã£o; a seguranÃ§a depende da operaÃ§Ã£o concreta de quem trabalha ali.</p>
+<p>Outro grupo reÃºne colapsos e quedas em estruturas, guindastes e andaimes. Na SuÃ­Ã§a, ao menos trÃªs operÃ¡rios morreram no colapso de um andaime de prÃ©dio (<a href="https://www.francetvinfo.fr/faits-divers/au-moins-trois-ouvriers-tues-dans-l-effondrement-de-l-echafaudage-d-un-immeuble-en-suisse_6662529.html" rel="noopener noreferrer" target="_blank">France Info, 12/07/2024</a>). Na Alemanha, a nacelle de um guindaste se soltou e matou trÃªs trabalhadores (<a href="https://www.dna.fr/faits-divers-justice/2025/05/21/la-nacelle-d-une-grue-se-detache-trois-ouvriers-tues" rel="noopener noreferrer" target="_blank">DNA, 21/05/2025</a>). Na FranÃ§a, um muro desabou sobre uma obra em Pommard, na CÃ´te-dâOr, e matou trÃªs operÃ¡rios (<a href="https://www.franceinfo.fr/faits-divers/trois-ouvriers-tues-dans-l-effondrement-d-un-mur-a-pommard-en-cote-d-or_7244793.html" rel="noopener noreferrer" target="_blank">franceinfo, 13/05/2025</a>). No mesmo paÃ­s, a obra do Grand Paris Express registrou uma segunda morte em um ano (<a href="https://paris.maville.com/actu/actudet_-un-deuxieme-ouvrier-decede-sur-le-chantier-du-grand-paris-express-un-an-apres-la-mort-d-un-premier-_fil-5017066_actu.Htm" rel="noopener noreferrer" target="_blank">Maville, 05/01/2022</a>). No CanadÃ¡, a morte de Dan Alder, que trabalhava num guindaste a 56 metros de altura, levou a famÃ­lia a exigir respostas (<a href="https://www.ohscanada.com/dan-alder-died-on-the-job-in-a-crane-56-metres-in-the-air-his-family-wants-answers/" rel="noopener noreferrer" target="_blank">OHS Canada, 18/12/2023</a>). Nos Estados Unidos, uma investigaÃ§Ã£o sobre o colapso de um depÃ³sito da Amazon durante um tornado encontrou riscos Ã  seguranÃ§a dos trabalhadores (<a href="https://patch.com/illinois/across-il/probe-deadly-amazon-warehouse-collapse-finds-worker-safety-risks" rel="noopener noreferrer" target="_blank">Patch, 29/04/2022</a>). Esse grupo expÃµe a mesma lÃ³gica das obras brasileiras: o prazo e a pressa de liberar a estrutura pesam mais do que a inspeÃ§Ã£o prÃ©via.</p>
+<p>Um terceiro grupo liga o acidente ao excesso de trabalho e ao calor. Na Coreia do Sul, o fundador da Coupang evitou ser indiciado por encobrir a morte de um jovem trabalhador por excesso de trabalho (<a href="https://english.hani.co.kr/arti/english_edition/e_business/1283897.html" rel="noopener noreferrer" target="_blank">Hankyoreh, 23/10/2026</a>), um caso que conecta diretamente a exaustÃ£o Ã  responsabilidade empresarial. Na AustrÃ¡lia, trabalhadores de Queanbeyan protestaram por proteÃ§Ã£o contra o calor apÃ³s uma morte (<a href="https://www.queanbeyanage.com.au/story/8523245/workers-protest-call-for-heat-safeguards-after-death/?cs=14264" rel="noopener noreferrer" target="_blank">Queanbeyan Age, 15/02/2024</a>), e em Brisbane a viÃºva de um trabalhador que morreu na obra do Cross River Rail afirma que a morte poderia ter sido evitada (<a href="https://www.dailymail.co.uk/news/article-13089709/Daniel-Sau-died-Brisbane-Cross-River-Rail.html" rel="noopener noreferrer" target="_blank">Daily Mail, 16/02/2024</a>). O calor Ã© o elo com o alerta da OIT sobre o estresse tÃ©rmico tratado na seÃ§Ã£o 5.</p>
+<p>O Ãºltimo grupo mostra repetiÃ§Ã£o e desgaste institucional. Na GalÃ­cia, na Espanha, a manchete do La RegiÃ³n sobre uma morte nas obras do AVE em San Cibrao das ViÃ±as diz que a tragÃ©dia se soma a âdecenas de vÃ­ctimasâ das obras da linha (<a href="https://www.laregion.es/san-cibrao-das-vinas/muerto-san-cibrao-suma-decenas_1_20251119-4061816.html" rel="noopener noreferrer" target="_blank">La RegiÃ³n, 19/11/2025</a>). No Chile, a Codelco foi alvo de um alerta do sindicato do cobre apÃ³s novas mortes de trabalhadores (<a href="https://www.biobiochile.cl/noticias/nacional/region-de-antofagasta/2026/10/01/basta-de-trabajadores-muertos-en-codelco-gremio-del-cobre-emplaza-a-estatal-y-se-declara-en-alerta.shtml" rel="noopener noreferrer" target="_blank">BioBioChile, 01/10/2026</a>). Na Espanha, outro trabalhador do Metro morreu apÃ³s ter reconhecida uma doenÃ§a causada pela exposiÃ§Ã£o ao amianto (<a href="https://www.telecinco.es/informativos/sociedad/muere-luis-gomez-trabajador-metro-exposicion-amianto_18_3322471660.html" rel="noopener noreferrer" target="_blank">Telecinco, 30/04/2022</a>), o que liga o acidente Ã  doenÃ§a ocupacional tratada na seÃ§Ã£o 4.</p>
+<p>Esses casos nÃ£o substituem a anÃ¡lise das bases, mas mostram que as mortes ligadas a contratos, prazos, exposiÃ§Ã£o e excesso de jornada nÃ£o sÃ£o um problema exclusivo do Brasil.</p>
+<p><strong>A materialidade do risco: instalaÃ§Ãµes fÃ­sicas e controle espacial:</strong> a distribuiÃ§Ã£o desigual do desgaste tambÃ©m se inscreve na prÃ³pria arquitetura das instalaÃ§Ãµes produtivas. No Ã¢mbito global, as pesquisas sobre o ambiente fÃ­sico de trabalho dividem-se em dois polos que espelham a estratificaÃ§Ã£o da classe trabalhadora. De um lado, levantamentos voltados ao setor corporativo e de serviÃ§os, como o Global Workplace Survey, do Gensler Research Institute, e o Leesman Index, documentam o impacto da transiÃ§Ã£o para escritÃ³rios abertos (<em>open-plan</em>) e estaÃ§Ãµes rotativas (<em>hot-desking</em>). Sob a retÃ³rica da colaboraÃ§Ã£o e da flexibilidade, esses arranjos respondem Ã  compressÃ£o do capital constante imobiliÃ¡rio (reduÃ§Ã£o de metragem por trabalhador) e operam como dispositivos de vigilÃ¢ncia horizontal, produzindo sobrecarga acÃºstica, perda de privacidade e exaustÃ£o cognitiva.</p>
+<p>De outro lado, nos setores industriais, agrÃ­colas e da construÃ§Ã£o civil, a precarizaÃ§Ã£o espacial assume forma diretamente letal. RelatÃ³rios da OrganizaÃ§Ã£o Internacional do Trabalho (OIT) sobre seguranÃ§a e saÃºde diante do calor estimam que 2,41 bilhÃµes de trabalhadores estÃ£o expostos anualmente a estresse tÃ©rmico excessivo nas instalaÃ§Ãµes fabris, galpÃµes e frentes de obra (OIT, 2024, <em>Heat at Work</em>, conforme noticiado pelo <a href="https://www.outlookbusiness.com/planet/industry/global-heat-stress-costs-billions-and-claims-thousands-of-lives-annually-ilo-report" rel="noopener noreferrer" target="_blank">Outlook Business</a>). Segundo estimativa da OIT noticiada pelo Outlook Business, as perdas econÃ´micas globais chegam a US$ 361 bilhÃµes por ano. Enquanto a gestÃ£o corporativa debate ergonomia e conforto ambiental para trabalhadores de alta qualificaÃ§Ã£o, a base da estrutura produtiva opera sob dÃ©ficit crÃ´nico de ventilaÃ§Ã£o, proteÃ§Ã£o tÃ©rmica, contenÃ§Ã£o fÃ­sica de mÃ¡quinas e saneamento, evidenciando que a precariedade das instalaÃ§Ãµes nÃ£o Ã© um resquÃ­cio tÃ©cnico, mas uma variÃ¡vel de reduÃ§Ã£o de custos fixos.</p>
+<p>Essa assimetria expÃµe uma premissa frequentemente negligenciada no debate ecolÃ³gico contemporÃ¢neo: para discutir seriamente a questÃ£o ambiental, o ponto de partida incontornÃ¡vel Ã© o prÃ³prio ambiente de trabalho. Antes de extravasar para os rios, o solo ou a atmosfera como externalidade difusa, a degradaÃ§Ã£o ambiental produzida pelo regime de acumulaÃ§Ã£o incide diretamente sobre o corpo vivo do trabalhador confinado no espaÃ§o produtivo, seja pela exposiÃ§Ã£o a agrotÃ³xicos, poeiras minerais, ruÃ­do contÃ­nuo e estresse tÃ©rmico nas frentes de produÃ§Ã£o, seja pelo confinamento insalubre e pela sobrecarga sensorial nos serviÃ§os. Tratar a crise ambiental sem enfrentar a insalubridade e a organizaÃ§Ã£o predatÃ³ria das instalaÃ§Ãµes laborais significa naturalizar a primeira fronteira da destruiÃ§Ã£o ecolÃ³gica: a prÃ³pria forÃ§a de trabalho.</p>
+<h3><strong>PsicodinÃ¢mica e intensificaÃ§Ã£o</strong></h3>
+<p><strong>A expropriaÃ§Ã£o lenta: burnout, assÃ©dio como gestÃ£o e o colapso gerencial</strong></p>
+<p>Quando a anÃ¡lise se desloca do chÃ£o de fÃ¡brica e da construÃ§Ã£o civil para os setores de serviÃ§os, comÃ©rcio e escritÃ³rios, a extraÃ§Ã£o de sobre trabalho muda de forma, mas mantÃ©m a mesma natureza econÃ´mica. Em vez da destruiÃ§Ã£o fÃ­sica sÃºbita, opera a expropriaÃ§Ã£o lenta da saÃºde fÃ­sica e psÃ­quica por meio da extensÃ£o de jornada (mais-valia absoluta) e da intensificaÃ§Ã£o cognitiva e emocional das metas (mais-valia relativa).</p>
+<p>Na perspectiva da psicodinÃ¢mica do trabalho, o sofrimento patogÃªnico emerge da distÃ¢ncia irreconciliÃ¡vel entre o trabalho prescrito e o trabalho real: as organizaÃ§Ãµes impÃµem metas que nÃ£o podem ser cumpridas dentro das normas de saÃºde, transferindo ao indivÃ­duo o Ã´nus de gerir essa contradiÃ§Ã£o. A anÃ¡lise da relaÃ§Ã£o entre demanda e controle confirma que a combinaÃ§Ã£o entre alta exigÃªncia psicolÃ³gica e baixa autonomia decisÃ³ria acelera o esgotamento profissional.</p>
+<p>Os dados globais do relatÃ³rio State of the Global Workplace 2026 (Gallup, referente a 2025) oferecem lastro empÃ­rico para esse diagnÃ³stico. O engajamento global recuou para 20% â o menor patamar desde 2020 â, gerando uma perda estimada em US$ 10 trilhÃµes em produtividade. O dado sociologicamente mais revelador do relatÃ³rio, contudo, estÃ¡ na estratificaÃ§Ã£o hierÃ¡rquica: o recuo geral foi puxado pela queda acentuada do engajamento da mÃ©dia gerÃªncia (de 31% em 2022 para 22% em 2025), e os lÃ­deres passaram a relatar mais estresse, raiva, tristeza e solidÃ£o do que os colaboradores individuais. Sob o gerencialismo contemporÃ¢neo, os nÃ­veis intermediÃ¡rios operam como correia de transmissÃ£o da pressÃ£o financeira: espremidos entre metas inatingÃ­veis definidas pela cÃºpula e equipes exaustas na base, convertem a cobranÃ§a em vigilÃ¢ncia permanente.</p>
+<p>Nesse contexto, o assÃ©dio moral e sexual â tema de 1.820 matÃ©rias no levantamento global e de 147 das reportagens brasileiras analisadas â deixa de ser um desvio comportamental isolado para funcionar como tecnologia de gestÃ£o destinada a extrair horas extras nÃ£o remuneradas e cumprimento de metas.</p>
+<p><strong>A subjetividade como campo de disputa gerencial:</strong> quando incorpora a psicanÃ¡lise na gestÃ£o organizacional contemporÃ¢nea, o capital desloca-se da coerÃ§Ã£o puramente tecnocrÃ¡tica para uma abordagem estratÃ©gica na qual afetos e pulsÃµes sÃ£o canalizados para a busca compulsiva pela “excelÃªncia”. Nesse arranjo, a organizaÃ§Ã£o tende a ocupar o lugar do ego ideal dos indivÃ­duos, operando a gestÃ£o da cultura corporativa como dispositivo de dominaÃ§Ã£o ao converter contradiÃ§Ãµes estruturais e sociais em problemas meramente psicolÃ³gicos. Contudo, instrumentalizar a subjetividade como tÃ©cnica de administraÃ§Ã£o acaba por convertÃª-la em modismo gerencial descartÃ¡vel â o que reforÃ§a a leitura crÃ­tica adotada aqui sobre o <em>burnout</em> e o assÃ©dio moral como formas sistemÃ¡ticas de gestÃ£o, e nÃ£o como desvios individuais.</p>
+<p><strong>Ambiente fÃ­sico e adoecimento: o que os dados mostram:</strong> o desenho do espaÃ§o tambÃ©m entra na equaÃ§Ã£o. Segundo a CBRE Group, empresa global de serviÃ§os imobiliÃ¡rios, a taxa mÃ©dia global de ocupaÃ§Ã£o dos escritÃ³rios subiu de 38% em 2024 para 53% em 2025, e as mesas com atribuiÃ§Ã£o fixa caÃ­ram para 55%, contra 83% desde 2021 (<a href="https://www.cbre.com/insights/articles/the-affiliation-imperative-the-offices-new-purpose-what-the-data-shows" rel="noopener noreferrer" target="_blank">CBRE Group</a>). Com o compartilhamento de mesas, o trabalhador perde o controle sobre o prÃ³prio posto, o que torna a qualidade do ambiente ainda mais decisiva. Na base da Leesman Index, que reÃºne 601.570 respostas entre 2022 e o terceiro trimestre de 2025, a satisfaÃ§Ã£o com o ruÃ­do ficou em 35% em 2023, 33% em 2024 e em torno de 36% no inÃ­cio de 2025, embora 70% dos respondentes considerem o ruÃ­do importante (<a href="https://www.leesmanindex.com/articles/noisy-spaces-quiet-consequences" rel="noopener noreferrer" target="_blank">Leesman Index</a>). Sobre temperatura, o estudo de Krebs (2022), do Instituto de Tecnologia de Massachusetts (MIT), estima queda de desempenho cognitivo de cerca de 0,7% entre 21 e 24 Â°C e de cerca de 1,5% acima de 27 Â°C, com desempenho Ã³timo em torno de 16,5 Â°C (<a href="https://climate.mit.edu/posts/temperature-and-cognitive-performance" rel="noopener noreferrer" target="_blank">MIT Climate</a>). Na saÃºde respiratÃ³ria, um estudo do Instituto Nacional de SeguranÃ§a e SaÃºde Ocupacional dos Estados Unidos (NIOSH) com 2.030 trabalhadores da saÃºde de Nova York associou umidade e mofo no trabalho a sintomas de asma (<a href="https://stacks.cdc.gov/view/cdc/223260" rel="noopener noreferrer" target="_blank">Henneberger et al., 2020</a>). As normas europeias de conforto ambiental, hoje a norma EN 16798-1 do ComitÃª Europeu de NormalizaÃ§Ã£o, que substituiu a norma EN 15251, tratam desses parÃ¢metros (<a href="https://www.dinmedia.de/en/standard/din-en-16798-1/264630492" rel="noopener noreferrer" target="_blank">norma EN 16798-1, publicada pelo Instituto AlemÃ£o de NormalizaÃ§Ã£o (DIN)</a>).</p>
+<p>Ambiente fÃ­sico e adoecimento: indicadores verificados (CBRE Group, Leesman Index, Instituto de Tecnologia de Massachusetts e Instituto Nacional de SeguranÃ§a e SaÃºde Ocupacional dos Estados Unidos)</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-26.png"/>
+<h3><strong>Direito e previdÃªncia</strong></h3>
+<p><strong>O conflito distributivo no reconhecimento do adoecimento</strong></p>
+<p>A cobertura jornalÃ­stica sobre sÃ­ndrome de burnout e doenÃ§as ocupacionais revela uma disputa jurÃ­dica e econÃ´mica em torno de quem financia a reproduÃ§Ã£o da forÃ§a de trabalho adoecida. Em 2022 entrou em vigor a CID-11 da OrganizaÃ§Ã£o Mundial da SaÃºde, que descreve o burnout como sÃ­ndrome restrita ao contexto ocupacional. A Portaria GM/MS nÂº 1.999, assinada em 27 de novembro de 2023 e publicada no DiÃ¡rio Oficial da UniÃ£o em 29 de novembro, atualizou a Lista de DoenÃ§as Relacionadas ao Trabalho (LDRT) dentro da Portaria de ConsolidaÃ§Ã£o GM/MS nÂº 5, de 2017. Pelo seu art. 4Âº, ela entrou em vigor 30 dias apÃ³s a publicaÃ§Ã£o, ou seja, em 29 de dezembro de 2023. O texto oficial confirma a inclusÃ£o do cÃ³digo Z73.0, “Esgotamento (Burnout)”, entre os fatores psicossociais da Lista A, Parte V. TambÃ©m constam transtornos ansiosos (F41) e depressivos (F32 e F33), que aparecem na Lista A e na Lista B. Na Lista A, os fatores psicossociais incluem violÃªncia e assÃ©dio moral ou sexual e jornada de trabalho. A imprensa noticiou amplamente a ampliaÃ§Ã£o de direitos como auxÃ­lio-doenÃ§a acidentÃ¡rio e estabilidade provisÃ³ria no emprego.</p>
+<p>As manchetes, porÃ©m, frequentemente confundem o diagnÃ³stico clÃ­nico com o enquadramento previdenciÃ¡rio e trabalhista. Na CID-11, a OrganizaÃ§Ã£o Mundial da SaÃºde (OMS) define o burnout como uma sÃ­ndrome “resultante do estresse crÃ´nico no local de trabalho que nÃ£o foi administrado com sucesso”, restringindo seu uso ao contexto ocupacional (cÃ³digo QD85, OMS, CID-11). Na prÃ¡tica judiciÃ¡ria, o reconhecimento do nexo causal exige prova pericial robusta e enfrenta forte resistÃªncia patronal, como demonstram decisÃµes recentes que rejeitaram pedidos de indenizaÃ§Ã£o por ausÃªncia de comprovaÃ§Ã£o do vÃ­nculo direto entre a organizaÃ§Ã£o do trabalho e o quadro psÃ­quico (Tribuna de Minas, 24/10/2026) ou que afastaram a presunÃ§Ã£o automÃ¡tica de doenÃ§a ocupacional para infecÃ§Ãµes como a covid-19 (Conjur, 11/03/2024). Enquanto os tribunais arbitram caso a caso, o trabalhador esgotado costuma ser descartado antes do diagnÃ³stico formal por meio da alta rotatividade (turnover).</p>
+<h3><strong>CrÃ­tica metodolÃ³gica e sociolÃ³gica</strong></h3>
+<p><strong>A economia da atenÃ§Ã£o jornalÃ­stica e o que permanece invisÃ­vel</strong></p>
+<p>O contraste entre os nÃºmeros do GDELT â onde 217 das 243 matÃ©rias brasileiras de saÃºde e seguranÃ§a tratam de mortes ou acidentes fatais, contra apenas 8 sobre burnout e 2 sobre outras doenÃ§as ocupacionais â nÃ£o reflete a proporÃ§Ã£o real dos agravos no mercado de trabalho, mas a prÃ³pria economia polÃ­tica da atenÃ§Ã£o jornalÃ­stica.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-27-1500x668.png"/>
+<p>A imprensa comercial organiza sua cobertura em torno do evento agudo, visual e disruptivo: o andaime que desaba, a explosÃ£o ou a interdiÃ§Ã£o imediata de uma obra. JÃ¡ a violÃªncia estrutural e crÃ´nica â o adoecimento lento por LER/DORT, a exaustÃ£o psÃ­quica, a exposiÃ§Ã£o quÃ­mica de longo prazo e o desgaste cotidiano do trabalho informal e plataformizado â raramente rompe o limiar de noticiabilidade enquanto o trabalhador segue produtivo. Ao narrar o acidente como episÃ³dio pontual e silenciar sobre o regime de metas, a terceirizaÃ§Ã£o e a duraÃ§Ã£o efetiva da jornada, o noticiÃ¡rio tende a naturalizar a organizaÃ§Ã£o produtiva e a individualizar o risco.</p>
+<p>Essa dinÃ¢mica revela um paradoxo central do capital da notÃ­cia. Do ponto de vista do empregador, o acidente de trabalho Ã© um passivo que precisa ser ocultado â seja pela subnotificaÃ§Ã£o (omissÃ£o da ComunicaÃ§Ã£o de Acidente de Trabalho), por acordos extrajudiciais silenciosos ou pela atribuiÃ§Ã£o da culpa ao suposto “ato inseguro” da prÃ³pria vÃ­tima. O evento sÃ³ rompe esse bloqueio e chega ao noticiÃ¡rio quando adquire visibilidade pÃºblica incontornÃ¡vel, como ocorre nos desabamentos em Ã¡reas urbanas, no acionamento de equipes de resgate ou nas paralisaÃ§Ãµes de trabalhadores. Quando noticia, porÃ©m, a imprensa comercial opera um segundo filtro: monetiza a tragÃ©dia como <em>fait divers</em>, mas frequentemente preserva o pacto com o empresariado ao omitir o nome da contratante principal, diluir a cadeia de terceirizaÃ§Ã£o ou tratar a morte como fatalidade tÃ©cnica.</p>
+<p>Esse silÃªncio seletivo torna-se ainda mais agudo quando o objeto da precarizaÃ§Ã£o Ã© o prÃ³prio trabalho jornalÃ­stico. Submetidas Ã  reestruturaÃ§Ã£o produtiva, Ã  pejotizaÃ§Ã£o, ao enxugamento das redaÃ§Ãµes e Ã  tirania das mÃ©tricas de audiÃªncia em tempo real, as empresas de mÃ­dia reproduzem internamente a mesma gestÃ£o pelo estresse que documentam fora delas. Contudo, o adoecimento psÃ­quico, o burnout, o assÃ©dio moral e os casos extremos de exaustÃ£o entre jornalistas raramente ganham as manchetes: expor a degradaÃ§Ã£o das condiÃ§Ãµes de trabalho nas redaÃ§Ãµes significaria revelar a prÃ³pria imprensa nÃ£o como observadora neutra, mas como capital empregador sujeito Ã s mesmas contradiÃ§Ãµes da exploraÃ§Ã£o do trabalho.</p>
+<p>Os tÃ­tulos do levantamento permitem ver esses filtros. Em alguns casos, a reportagem nomeia a terceirizaÃ§Ã£o: “Trabalhador terceirizado do TST morre apÃ³s sofrer choque elÃ©trico” (<a href="https://www.correio24horas.com.br/brasil/trabalhador-terceirizado-do-tst-morre-apos-sofrer-choque-eletrico-0724" rel="noopener noreferrer" target="_blank">Correio 24 Horas, 09/07/2024</a>; a mesma notÃ­cia aparece em <a href="https://odia.ig.com.br/brasil/2024/07/6879072-trabalhador-terceirizado-do-tst-morre-apos-sofrer-choque-eletrico.html" rel="noopener noreferrer" target="_blank">O Dia, 09/07/2024</a>). Em outros, a versÃ£o da empresa vira o tÃ­tulo: “Trabalhador morreu apÃ³s cair de 10 metros com desabamento de estrutura metÃ¡lica na Ponte do Futuro, diz consÃ³rcio da obra” (<a href="https://g1.globo.com/pb/paraiba/noticia/2026/09/21/trabalhador-morreu-apos-cair-de-10-metros-com-desabamento-de-estrutura-metalica-na-ponte-do-futuro-diz-consorcio-da-obra.ghtml" rel="noopener noreferrer" target="_blank">g1 PB, 21/09/2026</a>). O tÃ­tulo atribui a explicaÃ§Ã£o ao consÃ³rcio e nÃ£o o identifica no texto do tÃ­tulo. Os casos de paralisaÃ§Ã£o e de resgate aparecem quando a cena Ã© pÃºblica: os trabalhadores da Novelis, em Pindamonhangaba, protestaram por seguranÃ§a apÃ³s uma morte (<a href="https://g1.globo.com/sp/vale-do-paraiba-regiao/noticia/2025/01/06/trabalhadores-da-novelis-em-pindamonhangaba-protestam-por-seguranca-apos-morte-na-fabrica.ghtml" rel="noopener noreferrer" target="_blank">g1, 06/01/2025</a>), e uma equipe de resgate encontrou o corpo de um trabalhador soterrado em grÃ£os de soja (<a href="https://www.capitalnews.com.br/cotidiano/equipe-de-resgate-encontra-corpo-do-trabalhador-soterrado-em-graos-de-soja/372524" rel="noopener noreferrer" target="_blank">Capital News, 14/06/2022</a>).</p>
+<p>Do ponto de vista metodolÃ³gico, a leitura dos dados exige quatro ressalvas estruturais:</p>
+<ol>
+<li><strong>Cobertura midiÃ¡tica versus estatÃ­stica oficial:</strong> o GDELT registra o volume e o enquadramento da cobertura midiÃ¡tica, nÃ£o a prevalÃªncia epidemiolÃ³gica. PaÃ­ses com maior volume de cobertura â caso da ItÃ¡lia, que lidera o ranking com 1.601 matÃ©rias â aparecem Ã  frente nÃ£o necessariamente por maior letalidade relativa, mas por maior visibilidade pÃºblica do tema.<br/></li>
+<li><strong>ViÃ©s de indexaÃ§Ã£o e recorte linguÃ­stico:</strong> a extraÃ§Ã£o via descritores em inglÃªs com filtro de idioma (portuguÃªs, espanhol, francÃªs, alemÃ£o, italiano e inglÃªs) captura prioritariamente notÃ­cias indexadas em grandes portais e agÃªncias, sub-representando conflitos em setores informais, rurais e de trabalho por aplicativo.<br/></li>
+<li><strong>LimitaÃ§Ãµes da classificaÃ§Ã£o automatizada:</strong> a classificaÃ§Ã£o automatizada por palavras-chave nos tÃ­tulos concentra ruÃ­do semÃ¢ntico (59% dos registros globais de saÃºde e seguranÃ§a ficaram sem tipo especÃ­fico identificado), exigindo triagem manual dos tÃ­tulos em portuguÃªs para separar casos concretos de notas institucionais, colunas de opiniÃ£o ou informes publicitÃ¡rios de consultorias.<br/></li>
+<li><strong>SubnotificaÃ§Ã£o de riscos ambientais e crÃ´nicos:</strong> o recorte jornalÃ­stico precisa ser lido em contraponto a levantamentos estruturais, como a estimativa da OrganizaÃ§Ã£o Internacional do Trabalho (OIT) de 18.970 mortes anuais e 2,41 bilhÃµes de trabalhadores expostos ao estresse tÃ©rmico excessivo â fenÃ´menos que operam como externalidades silenciosas da crise climÃ¡tica sobre o trabalho manual.</li>
+</ol>
+<h3><strong>Nota metodolÃ³gica</strong></h3>
+<p><strong>Nota metodolÃ³gica e sÃ­ntese das bases consultadas</strong></p>
+<ol>
+<li><strong>Monitoramento de imprensa, base GDELT (nov/2021 a nov/2026):</strong> coleta automatizada em janelas mÃ³veis de 30 dias com remoÃ§Ã£o de duplicatas por URL e tÃ­tulo. Totalizou 2.899 artigos em saÃºde e seguranÃ§a (italiano: 1.655; inglÃªs: 470; portuguÃªs: 282; espanhol: 264; francÃªs: 200; alemÃ£o: 28), 1.820 em assÃ©dio (pico de 493 em 2023) e 1.061 em horas extras. No subconjunto brasileiro de saÃºde e seguranÃ§a (243 matÃ©rias apÃ³s deduplicaÃ§Ã£o temÃ¡tica), 217 referem-se a mortes ou acidentes fatais, 8 a burnout, 2 a outras doenÃ§as ocupacionais e 16 a registros gerais; somam-se ainda 127 matÃ©rias classificadas como assÃ©dio moral ou sexual (147 no total, incluindo as nÃ£o classificadas) e 12 classificadas como jornada e horas extras (38 no total).<br/></li>
+<li><strong>Indicadores globais e Brasil, Gallup (State of the Global Workplace 2026, dados de 2025):</strong> pesquisa representativa com trabalhadores a partir de 15 anos (margem de erro global de Â±0,05 a Â±0,08 p.p.; mÃ©dias trienais por paÃ­s). No agregado global: 20% engajados, 64% nÃ£o engajados e 16% ativamente desengajados; 34% prosperando, 56% lutando e 9% sofrendo; 40% com estresse diÃ¡rio elevado; e 18% dos trabalhadores nos EUA avaliando como provÃ¡vel a eliminaÃ§Ã£o de seu posto pela inteligÃªncia artificial em cinco anos (Ã­ndice que sobe para 23% em organizaÃ§Ãµes que jÃ¡ adotam IA).<br/></li>
+<li><strong>ReferÃªncias empÃ­ricas e hemerogrÃ¡ficas:</strong> os casos citados ao longo do texto (O Globo, g1, Folha de S.Paulo, Olhar Direto, tnonline, Conjur, Tribuna de Minas) foram selecionados a partir dos metadados e tÃ­tulos indexados no GDELT entre 2021 e 2026 para ilustrar os mecanismos estruturais analisados.</li>
+</ol>
+
+<p><strong>ReferÃªncias</strong></p>
+<p><strong>Documentos oficiais e relatÃ³rios</strong></p>
+<p>BRASIL. MinistÃ©rio da SaÃºde. Portaria GM/MS nÂº 1.999, de 27 de novembro de 2023. Institui a Lista de DoenÃ§as Relacionadas ao Trabalho (LDRT) e altera a Portaria de ConsolidaÃ§Ã£o GM/MS nÂº 5, de 28 de setembro de 2017. Publicada no <em>DiÃ¡rio Oficial da UniÃ£o</em> em 29 nov. 2023 (texto oficial consultado no DOU).</p>
+<p>BRASIL. MinistÃ©rio da SaÃºde. Portaria de ConsolidaÃ§Ã£o GM/MS nÂº 5, de 28 de setembro de 2017. Anexo LXXX: Lista de DoenÃ§as Relacionadas ao Trabalho (versÃ£o anterior Ã  Portaria nÂº 1.999/2023).</p>
+<p>ORGANIZAÃÃO MUNDIAL DA SAÃDE (OMS). <em>ClassificaÃ§Ã£o Internacional de DoenÃ§as, 11Âª revisÃ£o (CID-11)</em>. VersÃ£o final publicada em 11 de fevereiro de 2022 (nota Ã  imprensa da OMS).</p>
+<p>ORGANIZAÃÃO INTERNACIONAL DO TRABALHO (OIT). <em>Heat at Work: Implications for Safety and Health</em>. Genebra: OIT, 2024 (ano informado pela notÃ­cia citada; confirmar na publicaÃ§Ã£o original). Estimativas de 2,41 bilhÃµes de trabalhadores expostos ao estresse tÃ©rmico e de cerca de 19.000 mortes anuais.</p>
+<p>OUTLOOK BUSINESS. Global heat stress costs billions and claims thousands of lives annually, ILO report, 14 ago. 2024. Fonte da estimativa de US$ 361 bilhÃµes em perdas econÃ´micas (valor secundÃ¡rio, nÃ£o confirmado no relatÃ³rio original). https://www.outlookbusiness.com/planet/industry/global-heat-stress-costs-billions-and-claims-thousands-of-lives-annually-ilo-report</p>
+<p>GALLUP. <em>State of the Global Workplace 2026</em>. Dados de 2025.</p>
+<p>GDELT PROJECT. <em>GDELT 2.0 DOC API</em>. DisponÃ­vel em: https://api.gdeltproject.org/api/v2/doc/doc</p>
+
+<p><strong>Reportagens e matÃ©rias citadas</strong></p>
+<p>ANSA, 02/10/2026. Sob forte comoÃ§Ã£o, ItÃ¡lia se despede de operÃ¡rio que morreu no Coliseu. https://ansabrasil.com.br/brasil/noticias/ultimo_momento/2026/10/01/sob-forte-comocao-italia-se-despede-de-operario-que-morreu-no-coliseu_5bdec5d6-c09f-421d-8ed7-357f993836ca.html</p>
+<p>Correio 24 Horas, 09/07/2024. Trabalhador terceirizado do TST morre apÃ³s sofrer choque elÃ©trico. https://www.correio24horas.com.br/brasil/trabalhador-terceirizado-do-tst-morre-apos-sofrer-choque-eletrico-0724</p>
+<p>O Dia, 09/07/2024. Trabalhador terceirizado do TST morre apÃ³s sofrer choque elÃ©trico. https://odia.ig.com.br/brasil/2024/07/6879072-trabalhador-terceirizado-do-tst-morre-apos-sofrer-choque-eletrico.html</p>
+<p>Capital News, 14/06/2022. Equipe de resgate encontra corpo do trabalhador soterrado em grÃ£os de soja. https://www.capitalnews.com.br/cotidiano/equipe-de-resgate-encontra-corpo-do-trabalhador-soterrado-em-graos-de-soja/372524</p>
+<p>Conjur, 11/03/2024. NÃ£o se presume Covid-19 como doenÃ§a ocupacional, entende TRT-18. https://www.conjur.com.br/2024-mar-11/nao-se-presume-covid-19-como-doenca-ocupacional-entende-trt-18/</p>
+<p>Folha de S.Paulo (MÃ´nica Bergamo), 15/09/2025. JustiÃ§a condena empresas a pagar R$ 1 milhÃ£o por morte em obra. https://www1.folha.uol.com.br/colunas/monicabergamo/2025/09/justica-condena-rio-aguas-e-consorcio-a-pagar-r-1-milhao-por-morte-de-operario-em-obra.shtml</p>
+<p>g1, 01/06/2026. Trabalhador que morreu em metalÃºrgica estava hÃ¡ 1 mÃªs na empresa. https://g1.globo.com/sc/santa-catarina/noticia/2026/06/01/trabalhador-que-morreu-em-maquina-de-metalurgica-estava-ha-1-mes-na-empresa-em-sc.ghtml</p>
+<p>O Globo, 01/06/2026. Trabalhador de 21 anos morre apÃ³s ter a cabeÃ§a prensada por mÃ¡quina hidrÃ¡ulica em metalÃºrgica de SC. https://oglobo.globo.com/brasil/noticia/2026/06/01/trabalhador-de-21-anos-morre-apos-ter-cabeca-prensada-por-maquina-hidraulica-em-metalurgica-de-sc.ghtml</p>
+<p>g1, 15/09/2024. Trabalhador que morreu na obra da ponte de Guaratuba usava equipamentos de proteÃ§Ã£o e caiu de altura de 30 metros, dizem bombeiros. https://g1.globo.com/pr/parana/noticia/2024/09/15/trabalhador-que-morreu-na-obra-da-ponte-de-guaratuba-usava-equipamentos-de-protecao-e-caiu-de-altura-de-30-metros-dizem-bombeiros.ghtml</p>
+<p>g1, 18/07/2024. Guincho de obra onde trabalhador morreu ao cair de quase 20 metros em Sorocaba estava em posiÃ§Ã£o inadequada, diz MTE. https://g1.globo.com/sp/sorocaba-jundiai/noticia/2024/07/18/guincho-de-obra-onde-trabalhador-caiu-em-sorocaba-estava-em-posicao-inadequada-diz-mte.ghtml</p>
+<p>Olhar Direto, 27/11/2021. FuncionÃ¡rio de empreiteira morre eletrocutado um dia apÃ³s lanÃ§amento de obra do Parque Novo Mato Grosso. https://olhardireto.com.br/noticias/exibir.asp?id=496416&amp;noticia=funcionario-de-empreiteira-morre-eletrocutado-um-dia-apos-lancamento-de-obra-do-parque-novo-mato-grosso</p>
+<p>g1 Sorocaba, 22/05/2026. FamÃ­lia de trabalhador morto em pedreira pede indenizaÃ§Ã£o em SP. https://g1.globo.com/sp/sorocaba-jundiai/noticia/2026/05/22/familia-de-trabalhador-que-morreu-soterrado-em-pedreira-processa-empresas-morte-dele-nao-foi-em-vao.ghtml</p>
+<p>g1 PB, 21/09/2026. Trabalhador morreu apÃ³s cair de 10 metros com desabamento de estrutura metÃ¡lica na Ponte do Futuro, diz consÃ³rcio da obra. https://g1.globo.com/pb/paraiba/noticia/2026/09/21/trabalhador-morreu-apos-cair-de-10-metros-com-desabamento-de-estrutura-metalica-na-ponte-do-futuro-diz-consorcio-da-obra.ghtml</p>
+<p>g1 PE, 28/09/2026. Trabalhador morre apÃ³s cair de estrutura de andaimes em JaboatÃ£o. https://g1.globo.com/pe/pernambuco/noticia/2026/09/28/trabalhador-morre-apos-cair-de-estrutura-de-andaimes-em jaboatao.ghtmltnonline, 02/06/2026. Trabalhador de 61 anos morre soterrado em obra de aterro sanitÃ¡rio no PR. https://tnonline.uol.com.br/noticias/parana/trabalhador-de-61-anos-morre-soterrado-em-obra-de-aterro-sanitario-no-pr-1095144</p>
+<p>g1, 02/07/2024. MinistÃ©rio do Trabalho interdita tanques de gÃ¡s de empresa onde trabalhador morreu apÃ³s acidente quÃ­mico em TietÃª. https://g1.globo.com/sp/itapetininga-regiao/noticia/2024/07/02/ministerio-do-trabalho-interdita-tanques-de-empresa-onde-trabalhador-morreu-apos-acidente-quimico-em-tiete.ghtml</p>
+<p>g1, 06/01/2025. Trabalhadores da Novelis, em Pindamonhangaba, protestam por seguranÃ§a apÃ³s morte na fÃ¡brica. https://g1.globo.com/sp/vale-do-paraiba-regiao/noticia/2025/01/06/trabalhadores-da-novelis-em-pindamonhangaba-protestam-por-seguranca-apos-morte-na-fabrica.ghtml</p>
+<p>g1, 11/01/2022. SÃ­ndrome de burnout Ã© reconhecida como doenÃ§a ocupacional; veja o que muda para o trabalhador. https://g1.globo.com/economia/concursos-e-emprego/noticia/2022/01/11/sindrome-de-burnout-e-reconhecida-como-doenca-ocupacional-veja-o-que-muda-para-o-trabalhador.ghtml</p>
+<p>Tribuna de Minas, 24/10/2026. FuncionÃ¡ria pede mais de R$ 1 milhÃ£o apÃ³s alegar burnout, assÃ©dio moral e demissÃ£o discriminatÃ³ria, mas JustiÃ§a rejeita todos os pedidos. https://tribunademinas.com.br/maistendencias/funcionaria-pede-mais-de-r-1-milhao-apos-alegar-burnout-assedio-moral-e-demissao-discriminatoria-mas-justica-rejeita-todos-os-pedidos</p>
+<p>Straits Times, 02/10/2026. Workers who died after inhaling toxic gas did not wear respirator masks, investigator. https://www.straitstimes.com/singapore/courts-crime/workers-who-died-after-inhaling-toxic-gas-at-pub-facility-did-not-wear-respirator-masks-investigator</p>
+<p>Xinhua, 21/10/2026. Three killed in workplace accident at TSMC Kaohsiung construction site. https://english.news.cn/20261020/ca367e2ebdce4f35bb058b06cfa39272/c.html</p>
+<p>The Independent, 21/10/2026. Taiwanese chipmaking giant halts work after four workers killed at factory site. https://www.independent.co.uk/asia/east-asia/tsmc-taiwan-factory-accident-workers-killed-b3070397.html</p>
+<p>Houston Chronicle, 25/04/2023. DuPont fined $16 million over La Porte leak that killed 4 employees. https://www.houstonchronicle.com/news/houston-texas/article/dupont-la-porte-leak-deaths-fined-sixteen-million-17915839.php</p>
+<p>OHS Canada, 19/12/2023. Quebec workplace safety board says welding led to blast that killed three workers at Propane Lafortune. https://www.ohscanada.com/features/quebecs-workplace-safety-board-says-welding-led-to-blast-that-killed-three-workers-at-propane-lafortune/</p>
+<p>OHS Canada, 18/12/2023. Dan Alder died on the job in a crane, 56 metres in the air â his family wants answers. https://www.ohscanada.com/dan-alder-died-on-the-job-in-a-crane-56-metres-in-the-air-his-family-wants-answers/</p>
+<p>Patch, 29/04/2022. Probe of deadly Amazon warehouse collapse finds worker safety risks. https://patch.com/illinois/across-il/probe-deadly-amazon-warehouse-collapse-finds-worker-safety-risks</p>
+<p>France Info, 12/07/2024. Au moins trois ouvriers tuÃ©s dans lâeffondrement de lâÃ©chafaudage dâun immeuble en Suisse. https://www.francetvinfo.fr/faits-divers/au-moins-trois-ouvriers-tues-dans-l-effondrement-de-l-echafaudage-d-un-immeuble-en-suisse_6662529.html</p>
+<p>DNA, 21/05/2025. La nacelle dâune grue se dÃ©tache : trois ouvriers tuÃ©s. https://www.dna.fr/faits-divers-justice/2025/05/21/la-nacelle-d-une-grue-se-detache-trois-ouvriers-tuesfranceinfo, 13/05/2025. Trois ouvriers tuÃ©s dans lâeffondrement dâun mur Ã  Pommard, en CÃ´te-dâOr. https://www.franceinfo.fr/faits-divers/trois-ouvriers-tues-dans-l-effondrement-d-un-mur-a-pommard-en-cote-d-or_7244793.html</p>
+<p>Maville, 05/01/2022. Un deuxiÃ¨me ouvrier dÃ©cÃ¨de sur le chantier du Grand Paris Express, un an aprÃ¨s la mort dâun premier. https://paris.maville.com/actu/actudet_-un-deuxieme-ouvrier-decede-sur-le-chantier-du-grand-paris-express-un-an-apres-la-mort-d-un-premier-_fil-5017066_actu.Htm</p>
+<p>Hankyoreh (versÃ£o em inglÃªs), 23/10/2026. Coupang founder avoids indictment for coverup of young worker death from overwork. https://english.hani.co.kr/arti/english_edition/e_business/1283897.html</p>
+<p>Queanbeyan Age, 15/02/2024. Workers protest, call for heat safeguards after death. https://www.queanbeyanage.com.au/story/8523245/workers-protest-call-for-heat-safeguards-after-death/?cs=14264</p>
+<p>Daily Mail, 16/02/2024. Daniel Sau widow says death of young father-of-three who died after a shift working on Brisbane Cross River Rail could have been prevented. https://www.dailymail.co.uk/news/article-13089709/Daniel-Sau-died-Brisbane-Cross-River-Rail.html</p>
+<p>La RegiÃ³n, 19/11/2025. El muerto en San Cibrao se suma a las decenas de vÃ­ctimas de las obras del AVE en Galicia. https://www.laregion.es/san-cibrao-das-vinas/muerto-san-cibrao-suma-decenas_1_20251119-4061816.html</p>
+<p>BioBioChile, 01/10/2026. Basta de trabajadores muertos en Codelco: gremio del cobre emplaza a estatal y se declara en alerta. https://www.biobiochile.cl/noticias/nacional/region-de-antofagasta/2026/10/01/basta-de-trabajadores-muertos-en-codelco-gremio-del-cobre-emplaza-a-estatal-y-se-declara-en-alerta.shtml</p>
+<p>Telecinco, 30/04/2022. Muere otro trabajador de Metro al que se le reconociÃ³ enfermedad por su exposiciÃ³n al amianto. https://www.telecinco.es/informativos/sociedad/muere-luis-gomez-trabajador-metro-exposicion-amianto_18_3322471660.html</p>
+
+<p><strong>Obras de referÃªncia teÃ³rica</strong></p>
+<p>MARX, Karl. <em>O capital</em>. Livro I. Primeira ediÃ§Ã£o alemÃ£, 1867.</p>
+<p>BRAVERMAN, Harry. <em>Trabalho e capital monopolista</em>: <em>a degradaÃ§Ã£o do trabalho no sÃ©culo XX</em>. Rio de Janeiro: Guanabara, 1987</p>
+<p>DEJOURS, Christophe. <em>A loucura do trabalho: estudo de psicopatologia do trabalho</em>. SÃ£o Paulo: Cortez, 1992.</p>
+<p>KARASEK, Robert; THEORELL, TÃ¶res. <em>Healthy Work: Stress, Productivity, and the Reconstruction of Working Life</em>. Nova York: Basic Books, 1990.</p>
+<p>ANTUNES, Ricardo. <em>Adeus ao trabalho? Ensaio sobre as metamorfoses e a centralidade do mundo do trabalho</em>. SÃ£o Paulo: Cortez, 1995.</p>
+<p>CASTEL, Robert. <em>As metamorfoses da questÃ£o social: uma crÃ´nica do salÃ¡rio</em>. PetrÃ³polis: Vozes, 1998.</p>
+<p>MOTTA, Fernando C. Prestes; FREITAS, Maria Ester de (Orgs.). <em>Vida psÃ­quica e organizaÃ§Ã£o</em>. Rio de Janeiro: Editora FGV, 2000. 152 p. </p>
+<p>PAULA, Ana Paula Paes de. Resenha de <em>Vida psÃ­quica e organizaÃ§Ã£o</em> e <em>GestÃ£o com pessoas e subjetividade</em>. <em>RAE â Revista de AdministraÃ§Ã£o de Empresas</em>, SÃ£o Paulo, v. 41, n. 4, p. 103-110, out./dez. 2001. DisponÃ­vel em: https://periodicos.fgv.br/rae/article/download/37762/36510/74860</p>
+<p>CBRE Group. The affiliation imperative: the officeâs new purpose, what the data shows (Global Workplace &amp; Occupancy Insights 2026, parte 4). https://www.cbre.com/insights/articles/the-affiliation-imperative-the-offices-new-purpose-what-the-data-shows</p>
+<p>Leesman Index. Noisy spaces, quiet consequences. https://www.leesmanindex.com/articles/noisy-spaces-quiet-consequences</p>
+<p>KREBS, Benjamin. Temperature and Cognitive Performance. Massachusetts Institute of Technology (MIT), Center for Energy and Environmental Policy Research (CEEPR), Working Paper 2022-019, dez. 2022. Resumo em: https://climate.mit.edu/posts/temperature-and-cognitive-performance</p>
+<p>HENNEBERGER, P. K. et al. Workplace Indoor Environmental Quality and Asthma-Related Outcomes in Healthcare Workers. <em>American Journal of Industrial Medicine</em>, 63(5), p. 417-428, 2020. Publicado por pesquisadores do Instituto Nacional de SeguranÃ§a e SaÃºde Ocupacional dos Estados Unidos (NIOSH). https://stacks.cdc.gov/view/cdc/223260</p>
+<p>Norma EN 16798-1, do ComitÃª Europeu de NormalizaÃ§Ã£o, publicada pelo Instituto AlemÃ£o de NormalizaÃ§Ã£o (DIN), com o tÃ­tulo original em inglÃªs âIndoor environmental input parameters for the design and assessment of energy performance of buildingsâ. https://www.dinmedia.de/en/standard/din-en-16798-1/264630492</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/trabalhoeprecariado/trabalho-a-morte-calculada-e-o-risco-aceitavel/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino mantém prazo inicial da 5x2, mas flexibiliza regra de transição - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Dino mantém prazo inicial da 5x2, mas flexibiliza regra de transição</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Nova Central Sindical</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.ncst.org.br/siscon/../subpage.php?id=27575" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.ncst.org.br/images_news/Image/image(627).png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Dino mantém prazo inicial da 5x2, mas flexibiliza regra de transição
+                            </p>
+                            
+<img alt="" src="https://www.ncst.org.br/images_news/Image/image(627).png"/>
+Rosinei Coutinho/STF
+
+<p>
+Escala entra em vigor no dia 16 de dezembro
+</p><p>
+Fonte: Agência Brasil 
+</p><p>
+O ministro Flávio Dino, do Supremo Tribunal Federal (STF), concedeu nesta quinta-feira (12) uma liminar (decisão provisória) para permitir jornadas de trabalho superiores a 8h diárias durante a fase de transição da escala 5x2, que prevê a jornada semanal de 42 horas semanais pelo prazo de um ano.
+</p><p>
+O ministro também manteve o início da vigência da escala 5x2 para o dia 16 de dezembro, conforme previsto na Emenda Constitucional que acabou com a escala 6x1 no país.
+</p><p>
+Com a decisão, os empregadores estão autorizados a distribuir as 42h semanais, durante o período de um ano de transição, entre os cinco dias de trabalho da escala 5x2, o que resultada em jornadas diárias de até 8h24. Dessa maneira, os 24 minutos extra jornada diários não darão direito ao recebimento de hora extra.
+</p><p>
+“Durante a etapa intermediária - isto é, até 15 de dezembro de 2027 -, a distribuição das 42 horas semanais em cinco jornadas diárias de até 8 horas e 24 minutos, sem incidência do adicional de horas extraordinárias [quanto aos 24 minutos mencionados]”, escreveu o ministro.</p><p>
+Ele acrescentou que “com isso, compatibilizam-se as duas decisões do Congresso Nacional, mesmo que se frustre a negociação coletiva. Ou seja, em 16 de dezembro de 2026, será aplicada a jornada semanal de 42 horas, com dois dias de repouso remunerado”.
+</p><p>
+Dino buscou atender aos anseios das confederações que representam empregadores de diversas categorias. Em audiência de conciliação nesta semana, representantes patronais expressaram o receio de não ter tempo hábil para negociar acordos coletivos de trabalho que permitissem a adoção da jornada semanal intermediária de 42h, obrigando-os então a adotar diretamente a escala de 40h.
+</p><p>
+Ainda na audiência, Dino buscou tranquilizar as confederações patronais, afirmando não haver possibilidade de que a escala semanal intermediária de 42h não fosse permitida, uma vez que a etapa de transição foi determinada pelo Congresso Nacional, numa decisão política incontornável.</p><p>
+O ministro, contudo, negou o adiamento da entrada em vigência da escala 5x2, um pedido que havia sido feito formalmente pela Confederação Nacional da Indústria (CNI) e a Confederação Nacional do Comércio de Bens, Serviços e Turismo (CNC), que representam o grosso dos empregadores nacionais.
+</p><p>
+As confederações alegam que o prazo de 60 dias dado pela Emenda Constitucional seria exíguo para adequar a jornada de trabalho e alcançar acordo em convenções coletivas de diversas categorias mais complexas.
+</p><p>
+Setores da indústria, por exemplo, alegam ser necessário treinamento de novos funcionários para que as linhas de produção não acabem tendo o tempo de funcionamento reduzido.
+</p><p>
+Presente na audiência, o ministro do Trabalho, Luiz Marinho, afirmou ser “plenamente possível negociar”, e que “as federações [sindicais], os sindicatos patronais, estão seguindo sua vida”. Ele opinou pela desnecessidade de intervenção do Judiciário na implementação da escala 5x2 nos prazos estipulados pelo Congresso.  
+</p><p>
+Flexibilização
+</p><p>
+Por meio da liminar, Dino também autorizou a modulação (flexibilização) do artigo da Emenda Constitucional que permite, em casos excepcionais, a escala 6x1, contanto que a segunda folga semanal seja compensada ainda no mesmo mês da semana em que foi suprimida.</p><p>
+Pela regra aprovada pelo Congresso, caso não seja possível ao trabalhador gozar das duas folgas semanais na mesma semana, somente uma delas pode ser flexibilizada, podendo ser usufruída em outro dia do mesmo mês-calendário.
+</p><p>
+O ministro afirmou ter havido consenso na audiência de conciliação de que tais travas - compensação no mesmo mês e ao menos uma das folgas na própria semana - poderiam inviabilizar a operação de diversos setores econômicos.
+</p><p>
+Como exemplo, ele citou: as altas sazonais de demanda no comércio e serviços; atividades agrícolas, condicionadas aos ciclos de plantio e colheita; setores de turismo e hotelaria, marcados por períodos de alta temporada; e atividades desenvolvidas em embarcações e plataformas marítimas, nas quais as escalas de trabalho e repouso dependem de condições operacionais específicas.
+</p><p>
+Nessas situações, as negociações coletivas podem estipular prazos mais longos para compensação das folgas, sem considerar as travas de compensação semanal e no mesmo mês-calendário.
+</p><p>
+“Tais limites podem ser modulados por acordo ou convenção coletiva de trabalho, desde que preservada a integralidade do direito aos 2 (dois) repousos semanais remunerados, admitindo-se o diferimento de sua fruição”, escreveu Dino.
+</p><p>
+Apelos ao Congresso
+</p><p>
+Em sua decisão, Dino reconheceu alguns impasses trazidos na audiência de conciliação, mas em vez de impor regras, optou por fazer um apelo ao Congresso para que regule pontos obscuros resultantes da emenda.
+</p><p>
+Um desses pontos diz respeito às jornadas de trabalho diferenciadas, que por diferentes motivos são adotadas por diversas categorias, por força de lei. É o caso, por exemplo, dos atendentes de telemarketing e dos jornalistas, que possuem jornadas diárias máximas de 6h e 5h, respectivamente.</p><p>
+Nesses casos, escreveu Dino, o Congresso deve aprovar uma nova legislação, uma vez que “a diversidade das atividades econômicas, especialmente aquelas submetidas a condições operacionais peculiares, exigirem disciplina normativa que compatibilize a redução da jornada e a ampliação dos repousos semanais com as especificidades de sua organização produtiva”.
+</p><p>
+O mesmo ocorre no caso do tratamento favorecido que deve ser dado às micro e pequenas empresas, uma obrigação prevista na Constituição. O ministro afirmou que o Congresso Nacional deve aprovar leis para permitir regimes mais brandos de implementação da escala 5x2, embora não caiba ao STF interferir.
+</p><p>
+“Falo, por exemplo, do vasto conjunto - visível sobretudo nos bairros populares - de proprietários de pequenas padarias, lojas de confecção e utensílios do lar, mercadinhos e quitandas, restaurantes de bairro, oficinas de manutenção, entre outros estabelecimentos semelhantes”, elencou o ministro.</p>
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.ncst.org.br/siscon/../subpage.php?id=27575" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

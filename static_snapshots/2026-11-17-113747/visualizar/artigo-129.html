@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisando o autoritarismo em Uganda - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Analisando o autoritarismo em Uganda</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/analisando-o-autoritarismo-em-uganda/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/571472899180.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Analisando o autoritarismo em Uganda
+                            </p>
+                            
+<p>Resenha do livro <em>Slow poison: Idi Amin, Yoweri Museveni, and the making of the ugandan State</em> [Veneno lento: Idi Amin, Yoweri Museveni, e a formação do Estado ugandense], de Mahmood Mamdani (Belknap Press, 2025).</p>
+
+<p>Nas páginas iniciais de <em>Slow poison</em>, um novo relato sobre o autoritarismo na Uganda pós-colonial, o autor Mahmood Mamdani evoca um mundo de exploração e violência na África do século XIX, centrando-se numa figura conradiana há muito esquecida. Eduard Schnitzer, um médico judeu alemão, foi recrutado para a incursão anglo-otomana no que é hoje o Sudão do Sul, onde se converteu ao Islã e adotou o nome de Emin Pasha. Ele fundou um exército mercenário privado, cujos vários milhares de membros ficaram conhecidos como os Nubi.</p>
+<p>Estudiosos sugeriram que suas ações controversas podem ter inspirado Kurtz, a figura central da novela <em>Coração das trevas</em> (1899), de Joseph Conrad, que, como comerciante de marfim nas regiões mais altas do rio Congo, “se aculturou”, com o personagem Charles Marlow sendo enviado para resgatá-lo. De maneira semelhante, a Expedição de Resgate de Emin Pasha (1887-1889), liderada pelo explorador britânico-estadunidense Henry Morton Stanley, foi organizada para resgatar a figura que lhe dá nome, o que acabou acontecendo.</p>
+<p>O que interessa a Mamdani, no entanto, não é a história da conversão e eventual retorno de Emin Pasha. Em vez disso, ele se preocupa com a forma como esse médico europeu criou inadvertidamente os Nubi (não confundir com os núbios), um grupo guerreiro e uma identidade que perdura até os dias atuais. O infame terceiro presidente de Uganda, Idi Amin — figura central em <em>Slow Poison</em> e um caso emblemático de autoritarismo pós-colonial, popularizado em melodramas de Hollywood como <em>O último rei da Escócia”</em> — era um Nubi.</p>
+<p>O exemplo incomum de Schnitzer persiste em <em>Slow Poison</em>, não por fornecer uma distante história de origem para Amin, mas pelo arquétipo de assimilação cultural e crioulização colonial que ele representava. O novo livro de Mamdani é repleto de temas como deslocamento, alienação e autoconhecimento por meio da experiência estrangeira, seja das figuras envolvidas, Schnitzer e Amin, ou o próprio Mamdani. Em estrutura e narrativa, <em>Slow Poison</em> é uma composição improvável de elementos literários díspares, através do entrelaçamento de memórias, história colonial e pós-colonial e teoria política em um todo singular, ainda que irregular.</p>
+<p>“A abordagem de Mamdani se fundamenta tanto em uma teoria do poder na África quanto, de maneira mais importante, em uma teoria sobre como conviver com o poder, especialmente em suas expressões mais autoritárias.”</p>
+<p>Dessa forma, <em>Slow Poison</em> contrasta com os escritos anteriores do autor. Professor de estudos africanos na Universidade Columbia (e, notavelmente, pai do prefeito de Nova York, Zohran Mamdani), seu trabalho tem se concentrado amplamente em delinear os efeitos sistêmicos de longo prazo do colonialismo. Embora os legados coloniais, tanto em nível pessoal quanto social, estejam longe de estar ausentes, <em>Slow Poison</em> retrata as consequências menos estruturadas e não intencionais do império, seja a ascensão política imprevista de Amin ou a própria jornada peripatética de Mamdani da Índia colonial para a Tanzânia, Uganda e, finalmente, os Estados Unidos. A abordagem de Mamdani se fundamenta tanto uma teoria do poder na África quanto, de maneira mais importante, em uma teoria sobre como conviver com o poder, especialmente em suas expressões mais autoritárias.</p>
+<p></p>
+<h2>Cidadãos e súditos</h2>
+<p>Em 1996, Mamdani publicou uma obra inovadora, <em>Citizen and subject</em> [Cidadão e súdito]. Anteriormente, ele havia publicado uma série de estudos sobre Uganda, incluindo um breve relato do período de Amin intitulado <em>Imperialism and fascism</em> (1984) e o livro semi-pessoal <em>From citizen to refugee: Uganda asians come to Britain</em> [De cidadão a refugiado: Asiáticos ugandenses chegam à Grã-Bretanha] (1973). Em 1972, Mamdani foi expulso de Uganda por pertencer à população indiana e paquistanesa (aproximadamente sessenta a oitenta mil pessoas) após um decreto emitido por Amin que visava restaurar o poder econômico e o status dos ugandenses negros. Influenciado por essa experiência, ambos os livros lançaram as bases para <em>Slow poison</em>, embora o impacto da chamada expulsão asiática seja igualmente sentido em seus trabalhos intermediários.</p>
+<p>Refletindo os pontos de referência intelectuais de sua geração, <em>Citizen and subject</em> integrou a análise de classe marxista com um maniqueísmo fanoniano para argumentar que os problemas da África pós-colonial resultaram da persistência das práticas coloniais de domínio. Mais especificamente, o padrão de “despotismo” (termo preferido por Mamdani) que emergiu em diferentes países após a independência marcou uma continuação da centralização do Estado colonial de várias maneiras, desde a Uganda de Amin até o Zaire de Mobutu Sese Seko (atual República Democrática do Congo). Nessa centralização do poder havia frequentemente uma aparência oposta de descentralização — o empoderamento das autoridades étnicas locais e do direito consuetudinário de tal forma que o domínio colonial estrangeiro não parecesse tão estrangeiro. Conhecida como “governo indireto”, embora Mamdani a denomine “despotismo descentralizado”, essa política comum também fez com que o autoritarismo pós-colonial parecesse tolerável.</p>
+<p>Contudo, sob essas condições de camuflagem política, os direitos dos governados permaneceram codificados. Durante o período colonial, existia uma dicotomia entre aqueles relegados à condição de súditos étnicos sob o direito consuetudinário e aqueles definidos como cidadãos sob o direito civil colonial ou imperial. Essa distinção era, previsivelmente, racializada. Essa diferença legal, porém, também persistiu no período pós-independência, reconfigurada em categorias de nativos e não nativos. Os africanos indígenas “nativos” (anteriormente súditos coloniais) foram empoderados, e os “não nativos”, como os colonizadores brancos, foram repentinamente desempoderados, pelo menos politicamente.</p>
+<p>Essa estrutura de confronto em <em>Citizen and subject</em>, que evocava o topos de colonizador e colonizado de Fanon em <em>Os condenados da Terra</em>, norteou os trabalhos subsequentes de Mamdani. Seu estudo sobre o genocídio ruandês de 1994, <em>When victims become killers</em> [Quando as vítimas se tornam assassinas] (2001), argumentou que a violência em massa se concentrava na percepção da maioria hutu sobre a minoria tutsi, relativamente privilegiada, como colonos não nativos — o efeito de uma hierarquia étnica estabelecida pelo domínio belga. Outras obras, como <em>Good muslim, bad muslim</em> [Bom muçulmano, mau muçulmano] (2004), resposta de Mamdani ao 11 de setembro, e <em>Saviors and survivors</em> [Salvadores e sobreviventes] (2009), sua análise da violência em Darfur, empregaram dualismos comparáveis ​​e suas dialéticas para abordar situações de conflito no presente global.</p>
+<p>“Em 1972, Mamdani foi expulso de Uganda por pertencer à população indiana e paquistanesa após um decreto emitido por Idi Amin que visava restaurar o poder econômico e o status dos ugandenses negros.”</p>
+<p>De fato, uma crítica à obra de Mamdani é que ela pode simplificar demais as condições políticas, reduzindo-as a oposições simplistas. Outros estudiosos sugerem que ele superestima o impacto de longo prazo do colonialismo a ponto de absolver o comportamento imoral e corrupto de líderes e partidos contemporâneos. O poder estatal centralizado sob o domínio colonial torna-se, aparentemente, um álibi para o autoritarismo pós-colonial. Nesse sentido, <em>Slow poison</em> serve como resposta a essas críticas.</p>
+<p>No entanto, a convincente teoria do poder estatal que permeia seus livros é a de que o autoritarismo, seja colonial ou pós-colonial, africano ou europeu, passado ou presente, depende de uma política de legibilidade. Pessoas e comunidades que não se encaixam nas ideias de colônia ou nação são propensas a serem marginalizadas politicamente ou eliminadas por completo, sejam judeus na Alemanha nazista ou palestinos em Israel. Ambos os casos são abordados naquela que é, possivelmente, sua obra-prima, <em>Neither settler nor native</em> [Nem colono nem nativo] (2020). Para Mamdani, essa violência e essas tentativas de “limpeza” de comunidades políticas têm sido parte integrante da modernidade política, com a tolerância sendo apenas uma reflexão tardia.</p>
+<p></p>
+<h2>Filho da meia-noite</h2>
+<p><em>Slow Poison</em> é simultaneamente um resumo e uma revisão das posições anteriores de Mamdani, oferecendo uma nova abordagem narrativa. Uma inovação fundamental reside no método biográfico do autor, que se concentra não apenas em Amin e no atual presidente Yoweri Museveni (no poder desde 1986), mas também em si próprio. De forma incomum, <em>Slow Poison</em> configura-se como uma espécie de biografia tripla. Apresenta, portanto, uma história fragmentada do pessoal e do político, simultaneamente genealógica e com uma perspectiva social. Diversas das seções pessoais foram publicadas originalmente na <em>London Review of Books</em>, o que explica, em parte, sua natureza fragmentada e frequentemente digressiva.</p>
+<p>No entanto, <em>Slow Poison</em> também oferece um argumento tácito sobre como o indivíduo se encaixa no contexto histórico, ou seja, sua inseparabilidade dos rumos políticos de sua pátria, seja ela real ou adotada. Essa mesma ideia é encontrada em <em>Fora do lugar</em> (1999), de Edward Said, e <em>Familiar stranger</em> [Estranho familiar] (2017), de Stuart Hall. Esses intelectuais nasceram em tempos de profunda transição, quando seus respectivos países vivenciaram rupturas tanto de morte quanto de renascimento. Said, Hall e Mamdani estavam destinados a lidar com as questões mais importantes de seus países sobre as conexões entre passado e presente, e se um senso de justiça histórica poderia algum dia ser alcançado.</p>
+<p>Nascido em Mumbai, em 1946, como súdito colonial, Mamdani mudou-se para a África Oriental com sua família ainda criança, primeiro para a Tanzânia e depois para Uganda. Seu nascimento na Índia foi contingente (seus pais eram originários da Tanzânia), e sua identidade foi firmemente alinhada à África desde cedo. Isso não significa que tenha sido fácil ou prontamente aceito. Os imigrantes indianos, conhecidos localmente como Bayindi, ocupavam uma posição intermediária entre os colonos e funcionários britânicos e a maioria africana. Em alguns casos, havia convivência, como entre os soldados coloniais indianos que viviam em alojamentos com as tropas coloniais africanas. No entanto, muitos Bayindi eram comerciantes e lojistas que buscavam manter sua posição de classe e um certo distanciamento racial. Recorrendo ao seu esquema predileto, Mamdani descreve a situação como um mundo de “asiáticos bons” e “asiáticos maus”.</p>
+<p>Essas seções pessoais de <em>Slow Poison</em> são repletas de detalhes evocativos. Mamdani relembra a relativa pobreza de sua infância em Kampala, onde seu pai inicialmente trabalhou como escriturário e mais tarde tornou-se coproprietário de uma casa de leilões local. Itens como Coca-Cola e uma fatia de bolo aos domingos eram luxos. A segregação era a norma, com a família de Mamdani vivendo em uma área residencial “exclusivamente asiática” conhecida como Madras Gardens.</p>
+<p>Aluno brilhante, Mamdani recebeu uma bolsa de estudos na Universidade de Pittsburgh, que se revelou seu passaporte para um mundo mais amplo. Sua matrícula coincidiu com o movimento pelos direitos civis nos EUA, e ele se envolveu com o Comitê Coordenador Estudantil Não Violento (SNCC), viajando de ônibus para Montgomery, Alabama, em 1965, onde foi preso e posteriormente libertado — uma experiência que o politizou. Uma outra viagem de ônibus pelos Estados Unidos o apresentou ao resto do país, incluindo paradas em Chicago, Las Vegas, São Francisco, Los Angeles e Nova Orleans. Há um momento comovente no Novo México, quando Mamdani, um muçulmano, pediu ao motorista do ônibus que parasse para que ele pudesse orar ao meio-dia. Depois que o motorista anunciou uma votação, os demais passageiros votaram unanimemente a favor da parada; então, o ônibus parou e os passageiros formaram um círculo ao redor de Mamdani enquanto ele orava.</p>
+<p>Inicialmente com a intenção de seguir a carreira da engenharia, Mamdani mudou de rumo para a teoria política em Pittsburgh, eventualmente ingressando na Universidade Tufts e depois em Harvard, onde seu orientador foi o eminente estudioso de relações internacionais Karl Deutsch. Seu retorno a Uganda em agosto de 1972 para realizar seu trabalho de campo de doutorado ocorreu no mesmo mês da expulsão dos asiáticos. Mamdani retrata a situação como de um desespero nervoso, mas também de uma festividade sinistra — os ugandenses de origem asiática tinham uma quantidade drasticamente limitada de dinheiro que podiam levar consigo (50 libras por pessoa), então qualquer riqueza restante era gasta em refeições suntuosas e eventos de despedida.</p>
+<p>“Alguns estudiosos sugeriram que Mamdani superestima o impacto a longo prazo do colonialismo a ponto de absolver o comportamento imoral e corrupto dos líderes atuais. <em>Slow poison</em> serve como resposta a essas críticas.”</p>
+<p>Com seus planos frustrados, Mamdani voltou-se para a Universidade de Dar es Salaam, onde ingressou em um ambiente vibrante de estudiosos pós-coloniais. Na época, Walter Rodney, Ali Mazrui e Issa Shivji debatiam vigorosamente o alvo apropriado da atenção política: os resquícios do colonialismo e a ameaça neocolonialista externa, ou os problemas internos das políticas de exclusão que o nacionalismo pós-colonial estava gradualmente impondo. Como observa Mamdani, havia entusiasmo porque a descolonização finalmente estava chegando aos currículos e aos estudantes. A descolonização havia se tornado um projeto intelectual, e não apenas diplomático ou político.</p>
+<p>Esses encontros anedóticos, intercalados ao longo de <em>Slow Poison</em>, proporcionam uma visão rica da vida de Mamdani, bem como da vida acadêmica na África da época. Ele descreve como um curso de último ano que ministrou em 1984 sobre “Marxismo e o Terceiro Mundo” na Universidade Makerere formou três alunos que se tornaram comandantes militares em Ruanda e Uganda; quase metade deles ingressou no Exército de Resistência Nacional, a força guerrilheira rebelde que levou Museveni ao poder em 1986. Ensinar a filosofia da luta armada teve efeitos tangíveis.</p>
+<p>Há também histórias paralelas sobre a criação de periódicos acadêmicos e revistas literárias, como a <em>Transition</em>, de Rajat Neogy, bem como momentos de lazer em saguões de hotéis ou clubes de professores com figuras como o poeta ugandense Okot p’Bitek e o então pouco conhecido militante congolês Joseph Kabila, que mais tarde se tornaria presidente da República Democrática do Congo. Essas cenas passageiras ressaltam o impacto da vida acadêmica, para além dos pequenos círculos e das lutas cotidianas envolvidas na criação de um santuário intelectual autônomo. Embora não seja seu foco principal, <em>Slow poison</em> retrata como o comprometimento com o árduo trabalho da pedagogia e da construção de programas, e não apenas com ideias e desobediência civil, é uma maneira vital de resistir ao autoritarismo.</p>
+<p></p>
+<h2>Convivendo com o poder</h2>
+<p>Mamdani conheceu Museveni pela primeira vez na Universidade de Dar es Salaam, na década de 1970. Ele relata como Museveni o convidou para jantar em casa com sua esposa e filhos, percebendo em retrospectiva que talvez tenha sido uma tentativa de recrutá-lo para a Frente de Salvação Nacional (FRONASA), um grupo rebelde fundado com o objetivo de derrubar Amin. De fato, as intimidades do poder estatal retratadas em <em>Slow poison</em> frequentemente atingem o âmbito interpessoal, o que explica, em parte, por que Mamdani recorre à narrativa autobiográfica para abordar as principais questões políticas que norteiam o livro.</p>
+<p>Amin e Museveni ocupam o centro de <em>Slow poison</em>, embora, como já foi sugerido, Mamdani se afaste de uma leitura convencional desses dois líderes. Amin recebeu muito mais atenção — dois livros recentes incluem <em>A popular history of Idi Amin’s Uganda</em> [Uma história popular da Uganda de Idi Amin] (2025), de Derek R. Peterson, e <em>Insecurities of expulsion</em> [Inseguranças da expulsão] (2025), de Anneeth Kaur Hundle — e o caráter inovador da obra de Mamdani está em abordar ambos simultaneamente.</p>
+<p>Embora Amin tenha simbolizado por muito tempo o arquétipo do déspota pós-colonial caprichoso, propenso a aprisionar seus oponentes e a privilegiar o uso da violência, Mamdani argumenta que Museveni é o pior dos dois. Essa avaliação se deve principalmente a dois fatores: primeiro, a compreensão de como os não-ugandenses (e especialmente os ocidentais) viram e apoiaram ambos os líderes; e segundo, a compreensão de como cada um buscou reimaginar Uganda.</p>
+<p>Nascido em um quartel da polícia colonial em 1928, Amin iniciou sua carreira militar como criança-soldado nos Rifles Africanos do Rei, trabalhando na cozinha de um navio da marinha aos onze anos de idade. Ele galgou posições e juntou-se às operações britânicas de contra-insurgência para combater os rebeldes Mau Mau do Quênia. Na época da independência de Uganda, em 1962, Amin foi nomeado chefe do Estado-Maior das Forças Armadas do país. Apesar de suas credenciais anticoloniais posteriores, Amin era um produto do exército britânico em todos os sentidos.</p>
+<p>A ascensão de Amin à presidência em 1971 foi resultado de um golpe de Estado apoiado tanto pela Grã-Bretanha quanto por Israel. Através de novas evidências de arquivo, Mamdani argumenta que Israel desempenhou um papel mais importante do que se supunha anteriormente. A ligação israelense com Uganda pode parecer estranha — o fato de os britânicos terem imaginado Uganda como uma possível pátria para os judeus antes da Declaração Balfour não a torna menos estranha —, mas Uganda se conformava a uma política da era David Ben-Gurion conhecida como “doutrina da periferia”, pela qual Israel buscava estabelecer relações com países árabes vizinhos. Militares israelenses e outros conselheiros foram posteriormente enviados a Uganda, além de venderem armas, e o próprio Amin recebeu treinamento de paraquedista em Israel.</p>
+<p>Israel e a Grã-Bretanha, consequentemente, viam Amin como um parceiro, numa época em que as rivalidades da Guerra Fria cruzavam a África. A África do Sul do apartheid, amiga de Londres e Tel Aviv, também precisava de aliados africanos, e Amin era visto como receptivo à ideia de fazer de Uganda um desses candidatos. Esses planos imaginados a longo prazo não se concretizaram. Como escreve Mamdani, “Amin realizou três expulsões: primeiro os israelenses, depois os ugandenses de origem asiática e, por fim, os britânicos”. A segunda é a mais reconhecida, mas as outras duas permanecem importantes para o que Mamdani considera a magnitude das ambições de Amin: reimaginar radicalmente o Estado ugandense, africanizando-o e dispensando seus benfeitores estrangeiros. Por essas razões, <em>Slow poison</em> demonstra uma certa admiração cautelosa por Amin.</p>
+<p>O mesmo não se pode dizer de Museveni. Antagonista de longa data de Amin, como já mencionado, Museveni chegou ao poder em 1986, após a queda de Milton Obote, que, coincidentemente, havia sido deposto por Amin em 1971. Ao contrário de Amin, Museveni buscou investimentos internacionais durante toda a sua presidência, seja do Banco Mundial, de ONGs ou de entidades privadas, tornando Uganda um parceiro privilegiado aos olhos do Ocidente. Como descreve Mamdani, Museveni priorizou clientes em vez de cidadãos e não possui uma base popular, diferentemente de Amin. Acompanhando essa adesão ao neoliberalismo ocidental, houve a criação de dezenas de distritos étnicos — na prática, uma retribalização de Uganda — que encobriu a centralização do poder de Museveni.</p>
+<p>“O regime de Amin tem sido frequentemente mitificado com imagens grotescas, a ponto de líderes como Yoweri Museveni serem percebidos como benignos em contraste.”</p>
+<p>Em resumo, Mamdani se mostra mais crítico de Museveni por restabelecer a dependência estrangeira e restaurar um método colonial de governança por meio de um sistema indireto reformulado, descartando a reimaginação radical de Uganda proposta por Amin. Apesar de suas falhas e notoriedade, Mamdani reconhece, com ressalvas, a visão de Amin de uma Uganda totalmente africanizada e, portanto, totalmente descolonizada — um senso de justiça histórica ativamente buscado, ainda que a um alto custo.</p>
+<p>Essa posição final deixa Mamdani vulnerável à crítica de que ele está privilegiando objetivos políticos abstratos em detrimento da experiência vivida. A questão incontornável da violência estatal persiste: para ambos, o terror tem sido uma ferramenta política contra opositores. Museveni se beneficiou dos recursos fornecidos pela guerra ao terror dos EUA, cometendo atrocidades contra o povo Acholi e seu Exército de Resistência do Senhor (LRA), que se insurgiu contra o regime. Contudo, o histórico de violência de Amin contra cidadãos comuns de Uganda também é amplamente documentado e não deve ser minimizado por meio de comparações.</p>
+<p>Em última análise, <em>Slow poison</em> busca um delicado reequilíbrio de perspectivas. O regime de Amin tem sido frequentemente mitificado com imagens grotescas, a ponto de líderes como Museveni serem percebidos como benignos em contraste. Mamdani critica financiadores e diplomatas ocidentais, entre outros não-ugandeses, por essa persistente percepção equivocada, por ignorarem a realidade. Além dessa correção, a solução proposta por Mamdani para Uganda é superar uma política atávica de etnia e identidade indígena, rumo a uma definição de cidadania que dispense tais identidades e se baseie, em vez disso, no princípio da (em suas palavras) “residência comum”. É uma perspectiva surpreendentemente simples, que, no entanto, permanece difícil de ser adotada como ideia dominante na África pós-colonial.</p>
+<p></p>
+<h2>Inimigos do fascismo</h2>
+<p>Por fim, talvez valha a pena abordar uma questão que esta resenha evitou até agora: será que <em>Slow poison</em> nos revela algo relevante sobre a política de Zohran Mamdani ou sobre a autocracia trumpista? A eleição para prefeito de Nova York e a publicação deste livro são pura coincidência, embora alguns leitores possam ter essa pergunta em mente. Aqui, podemos oferecer algumas respostas provisórias.</p>
+<p>Quando Zohran Mamdani chamou Donald Trump de fascista cara a cara no Salão Oval em novembro passado, a declaração soou previsível, até mesmo inofensiva, um termo que perdeu sua força pelo uso excessivo; o próprio Trump se mostrou indiferente, até mesmo encorajador. As ações do Serviço de Imigração e Alfândega (ICE, na sigla em inglês), no entanto, contam outra história, por meio do aumento das prisões e expulsões, principalmente de pessoas não brancas — uma narrativa de exclusão que se alinha com o trabalho de Mamdani.</p>
+<p>A pesquisa de Mahmood Mamdani se concentra na política de classificação de populações: tanto o autoritarismo colonial quanto o pós-colonial dependem dessa legibilidade, e para atingir esse objetivo, líderes e Estados frequentemente recorrem à violência. Para Mamdani, a própria modernidade política foi fundamentalmente moldada por esses elementos de clarificação e posterior eliminação.</p>
+<p>Com a mesma abordagem, <em>Slow poison</em> implicitamente apresenta o contra-argumento de que a diversidade é a antagonista dos autocratas e que o pluralismo é o inimigo do fascismo. A reinvenção de Uganda por Amin exigiu uma purificação da própria população. A Uganda de Museveni tem administrado publicamente sua diversidade étnica enquanto persegue supostos adversários, incluindo indivíduos LGBTQ+, que não se conformam à sua visão. Diante de tais medidas, promover o princípio do pluralismo é, em si, um meio de resistência.</p>
+<p>Essa tática também se aplica às atividades atuais do ICE e às políticas do governo Trump. Embora a política identitária nos Estados Unidos tenha sido alvo de críticas por parte da esquerda, de fato por razões válidas, a diversidade étnica e racial permanece um fato social e um meio significativo de organização contra o poder injustificado, seja em Nova York, Minneapolis ou em qualquer outro lugar.</p>
+<p>O “veneno lento” do título do livro refere-se, em parte, ao impacto duradouro do colonialismo por meio de seus legados estruturais e categóricos. Refere-se também ao trauma mais recente da violência patrocinada pelo Estado em Uganda e à erosão das normas por meio da corrupção institucionalizada. Dessa forma, essa metáfora da contaminação também se aplica aos Estados Unidos, uma antiga pós-colônia que ainda hoje luta contra os efeitos de seu passado.</p>
+<p><em>Slow poison</em> destaca que esse tipo de política está sempre em aberto. No entanto, em meio a tanta incerteza, Mamdani valida a importância contínua do testemunho histórico e sua obrigação moral de relatar o poder da maneira como o percebem.</p>
+<p></p>
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/analisando-o-autoritarismo-em-uganda/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

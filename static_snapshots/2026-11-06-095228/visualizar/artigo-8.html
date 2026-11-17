@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convenience is a hot commodity. Here’s how to decide when it’s actually worth it. - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Convenience is a hot commodity. Here’s how to decide when it’s actually worth it.</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/advice/508283/gabe-bullard-questions-to-ask-convenience" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/Vox_HattyStaniforth_Convenience.jpg?quality=90&strip=all&crop=0%2C10.723165084465%2C100%2C78.55366983107&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Convenience is a hot commodity. Here’s how to decide when it’s actually worth it.
+                            </p>
+                            <p><a href="https://www.pewresearch.org/internet/2026/06/17/americans-and-ai-2026-chatbots-smart-devices-and-views-on-impact/" rel="noopener noreferrer" target="_blank">According to the Pew Research Center</a>, about half of American adults have used a chatbot, and around a quarter do so daily. By multiple measurements, the public has adopted AI faster than they did home computers or the internet. I’m seeing it more and more in my personal life: On video calls, I notice the Claude app in the menu bar of shared screens. An ad on Instagram pushing me to use Meta’s AI assistant revealed which of my friends had already begun doing so (something that <a href="https://www.inc.com/jason-aten/metas-strategy-to-get-you-to-use-muse-is-to-lie-about-your-friends/91411779" rel="noopener noreferrer" target="_blank">might not even be true</a>).</p><p>Still, many of the people who are using AI have mixed feelings about it. Pew notes that of the chatbot adopters they surveyed, 40 percent believe AI will have a more negative than positive effect on society; a <a href="https://www.gallup.com/analytics/651674/gen-z-research.aspx" rel="noopener noreferrer" target="_blank">2026 Gallup poll of more than 1,500 14‑ to 29‑year‑olds came to a similar conclusion</a>. No one I talk to about their personal AI use seems to particularly like it, but they accept it. In some cases, it’s the least-bad option; asking a chatbot a question is easier than searching, especially as search engines become so enshittified they’re unusable. In other cases, the tech just seems inevitable. Articles, analysts, and executives insist this is the future. Might as well get on board.</p><p>This is a familiar story. New technology moves from novelty to necessity in very little time, and adoption continues even though the future this tech promised isn’t as utopian as the marketing made it seem. Eighteen years ago, only early adopters had smartphones; then suddenly everyone had one, and we were all using them to stream, to stay in touch, and to alleviate boredom at every turn.</p><p>Plenty of people seem to regret this adoption. You see it in efforts to limit screen time and in the regular waves of nostalgia for physical media. It’s even in the first few paragraphs of this article — as terms like “slop,” “enshittification,” and “brainrot” enter common parlance. We’ve coined and redefined words to describe a future we didn’t imagine and don’t seem to want.</p><p>But while we may now have shorthand to describe the problem, solving it takes something more; nostalgia and anger can only go so far. The devices, apps, and tools that are easy to adopt are hard to give up, especially as the world is increasingly oriented around them. In just a few years, the smartphone became a replacement for everything from cash to car keys. Many workplaces assume their employees will be able to read email anywhere and that they will install productivity apps on their personal device (I have a folder with Airtable, Asana, Slack, Teams, Zoom, and other apps I wish I could delete). And new accessories and subscriptions come along constantly to wring functionality and durability out of our phones — wireless headphones, cases, extra batteries, cloud storage. As much as <a href="https://www.vox.com/technology/502000/phones-meta-facebook-instagram-smartphones-screens" rel="noopener noreferrer" target="_blank">we may dream of living without a smartphone</a>, the most that many of us can do is delete some apps or <a href="https://www.vox.com/technology/467598/brick-month-offline-digital-detox" rel="noopener noreferrer" target="_blank">use a Brick</a> (yet another accessory) to limit our use.</p><p>Look around your neighborhood, and you’ll see how this pattern has played out with other conveniences: streets full of Amazon vans, DoorDash bikes, and Ubers; doorbell cameras to track the theft of those deliveries; abandoned electric scooters on sidewalks; cities built for private cars more than for people.</p><p>It’s easy to imagine AI following a similar path — fulfilling some simple desires for convenience at first, then overtaking the alternatives, and fitting into our lives in ways we can’t yet imagine and might not want, but accept because it just seems like this is the natural path of technology.</p><p>There are, of course, advantages to new technology, but these wane over time as the downsides become clearer. On the personal side, there’s the frustration of stalled advancement: Each new phone upgrade seems to do less while requiring a costly purchase; ride-hailing services, streaming, and delivery costs climb, and the services don’t get better or more reliable; data breaches are a near-daily headline; and scam attempts fill our email apps, DMs, and any other inbox we have. It’s hard to avoid seeing the public consequences of this convenience, too: the exploitation of workers and the planet required to mine the minerals for batteries and other components, then the labor it takes to put those components into new devices; the allegations of <a href="https://www.nyc.gov/mayors-office/news/2026/09/mayor-mamdani-wins-record--131-5-million-from-doordash-for-deliv" rel="noopener noreferrer" target="_blank">wage theft</a>, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11148221/" rel="noopener noreferrer" target="_blank">algorithmic discrimination</a>, and workdays so grueling <a href="https://www.bbc.com/news/world-us-canada-56628745" rel="noopener noreferrer" target="_blank">drivers have to urinate in bottles</a>; the <a href="https://sites.lsa.umich.edu/mje/2026/04/13/the-k-shaped-economy-a-nations-diverging-fortune/" rel="noopener noreferrer" target="_blank">K-shaped economy</a> that gig work is built on and perpetuates.</p><p>This makes it all the more essential to approach any offer of improved convenience with skepticism, and with a doubtfulness learned by unfulfilled promises and bad design. No technology is truly inevitable, no matter how much pressure we may feel to adopt it from our peers and from the corporate buzz that insists this is the future.</p><p><h2>How to identify false conveniences</h2></p><p>So how do we avoid welcoming these false conveniences into our lives? It starts with recognizing them for what they are. In 1987, Wendell Berry caused a minor kerfuffle in the pages of Harper’s magazine with his essay, “<a href="https://classes.matthewjbrown.net/teaching-files/philtech/berry-computer.pdf" rel="noopener noreferrer" target="_blank">Why I Am Not Going to Buy a Computer</a>.” In the short piece, Berry explained his reasoning behind the title. The computer could do his work faster, but speed wasn’t his concern. He also knew a computer would be expensive and isolating (Berry’s wife worked with him typing manuscripts). He ends the essay with a list of criteria for adopting a new tool, among them that a new tool should be less expensive than what it replaces, and it should be repairable and available at a local shop. He closes his list by writing that a new tool “should not replace or disrupt anything good that already exists.”</p><p>This last one is tough. How do we decide what’s good and not worth disrupting? And on the other side, how do we decide whether the device or convenience that disrupts something we want disrupted — chores, for instance — is worth it?</p><p>Here, another list can help. In his <a href="https://ifdesign.com/en/if-magazine/dieter-rams-10-principles-for-good-design" rel="noopener noreferrer" target="_blank">10 principles of good design</a>, the legendary industrial designer Dieter Rams wrote that good design is honest about what it does, and is environmentally friendly, long-lasting, and makes a product useful. The utility of many new devices, tools, and apps may be clear, but often the design is dishonest. It hides the real costs of the convenience, like the environmental waste and lost dollars that come with replacing our phones every couple of years, or the privacy sacrifices inherent in many digital services. Or the design obscures the ways the tech might disrupt something good, like the way social media seemed to connect us with our friends, but now exposes us to scammers and to strangers who post rage bait and gets in the way of staying in touch with the people we actually care about.</p><p>As I was writing my book, <a href="https://www.harpercollins.com/products/against-convenience-gabe-bullard?variant=44551348748322" rel="noopener noreferrer" target="_blank"><em>Against Convenience</em></a>, I kept turning to these two lists. How should I assess a promised convenience and avoid the early adaptation that leads to reliance on a technology I don’t really like? I came up with my own list for the book: questions that could keep me from being too eager for new tech, and less prone to fall into a cycle of increasingly worse design. It’s more than just saying no or resisting tech to preserve some nostalgic ideal — it’s a way to question what we really get from a new device or app, and what that tech might grow into if the pattern continues.</p><p><strong>What does this save me? </strong>Does this convenience save me time, money, or effort? If it’s time, what will I use that time for? If it’s money, why has the price dropped? If it’s effort, who is doing the work instead?</p><p><strong>What does this cost me?</strong> What do I have to give up for this convenience? Will I have to pay in perpetuity?</p><p><strong>What does this replace?</strong> What is the old process for doing the same task? Is there anything I like about that task? Will I lose something I enjoy? How will I replace that enjoyment?</p><p><strong>What problem does this solve? </strong>What is the cause of the problem in the first place? Will this solve the problem entirely?</p><p><strong>Will I be able to stop using this convenience if I don’t like it?</strong> How long will I wait to decide?</p><p><strong>Who is making this possible?</strong> Do I trust them? Is anyone’s work eliminated in this process, besides my own? Have any workers who make this convenience possible made statements about their working conditions? What is the environmental toll?</p><p><strong>Is this necessary?</strong> Is this getting rid of something that’s difficult, expensive, or time-­consuming? Is there some other way to achieve these savings without this particular convenience?</p><p>The list is inconvenient by design. It pushes me to slow down, to consider costs before they’re sunk. And to ask if this is really the direction I want to go in. Most of the time, it isn’t, and I say no. The worst that can happen is life goes on as usual, while a few of my friends have something new to complain about.</p><p>I built this list around my experiences of <a href="https://frinkiac.com/bettergif/S05E02/921087/926509?b=AQFwEA4AATL0AcoDAAAAADUM" rel="noopener noreferrer" target="_blank">stepping on the rake</a> of tech that overpromises and underdelivers, around many instances of believing hype and holding onto a device in the hope that it will one day work like it’s supposed to. I unraveled all the old cables I’ve kept in a drawer for years, trying to remember what each one was for, and what happened to the device. I went through folders on my phone looking for apps I could do without. I walked around my neighborhood looking at the signs of the digital world’s encroachment on the physical.</p><p>My answers to each question are my own. You’ll have your answers, around your own experiences, and this is the point: As new tech twists its way toward profitability, it requires mass adoption, prescriptive uses, and conformity to design. A patchwork of answers — people who resist at different stages — hampers not only tech’s invasiveness, but the very model of how it spreads.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/advice/508283/gabe-bullard-questions-to-ask-convenience" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

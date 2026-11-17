@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Microsoft é grande demais para existir - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A Microsoft é grande demais para existir</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Nucleo Jornalismo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://nucleo.jor.br/ensaio/2026/11/14/a-microsoft-e-grande-demais-para-existir/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://nucleo.jor.br/content/images/2026/11/13Nov2026.jpg.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A Microsoft é grande demais para existir
+                            </p>
+                            
+<p><em>Ensaio</em> é uma editoria que explora temas complexos sobre tecnologia digital e inteligência artificial e pode conter opiniões</p>
+<i><em>Artigo publicado originalmente no site Pluralistic, em inglês. Traduzido e republicado pelo </em></i><i><b><strong>Núcleo</strong></b></i><i><em> sob licença Creative Commons, com concordância do autor. O texto manteve sua formatação original. Notas do editor estão entre [ ].</em></i><a href="https://pluralistic.net/2026/11/13/outlookpocalypse/?ref=nucleo.jor.br#bright-line-test" rel="noopener noreferrer" target="_blank"><i><em>&gt;&gt; Acesse o artigo original aqui.</em></i></a><p>Eis aqui um truque esquisito que permitiu aos monopólios conquistarem o mundo: as regras sobre concorrência foram mudadas de tal forma que se tornou impossível provar que uma empresa tenha formado um monopólio ilegal. Sob essas regras, os monopólios quase nunca foram contestados, e as poucas contestações que surgiam em geral fracassavam. Até os processos vitoriosos terminavam em "punições" sem sentido, que deixavam os monopolistas intactos.</p><p>Toda política pública tem três dimensões importantes: substância, escopo e administrabilidade:</p><ul><li>"Substância" é o que a política de fato diz. Por exemplo, a substância básica da lei de direitos autorais é: "Você não pode exibir, transmitir ou reproduzir uma obra protegida sem permissão."</li><li>"Escopo" é quando a política se aplica. Quando a lei de direitos autorais foi formulada, as atividades que ela regulava exigiam todas um monte de equipamento industrial caro. Todo livro pressupunha uma gráfica, todo disco uma fábrica de prensagem, todo filme um laboratório de duplicação. Ou seja, na prática, quem precisava se preocupar com o que a lei de direitos autorais dizia eram só atores industriais — empresas que, em tese, também teriam acesso a um advogado. Isso pesa muito na administrabilidade.</li><li>"Administrabilidade" é o que é preciso pra de fato aplicar a política. Dá pra detectar possíveis violações? E, quando se detecta uma, quão difícil é descobrir se a regra foi mesmo quebrada? De novo: na era pré-digital, era bem fácil identificar violações de direitos autorais: livros, discos e filmes piratas são objetos físicos e tangíveis, e distribuí-los exige divulgação, entrega e pagamento.</li></ul><p>Depois de detectar uma infração, quem fiscaliza os direitos autorais ainda precisa resolver outra questão: se a exibição, transmissão ou cópia se enquadra em "uso justo" (<em>fair use</em>). O uso justo é uma regra que "depende dos fatos": exige muita prova e muito argumento pra ser julgada. É quase impossível classificar de antemão um uso específico como "justo" ou "não justo":</p><p><a href="https://pluralistic.net/2024/06/27/nuke-first/?ref=nucleo.jor.br#ask-questions-never" rel="noopener noreferrer" target="_blank">https://pluralistic.net/2024/06/27/nuke-first/#ask-questions-never</a></p><p>Apesar da complexidade e do custo de decidir o que é uso justo, o direito autoral pré-digital ainda era relativamente administrável, porque essas questões eram raras. A maioria dos usos justos (tipo tirar xerox de um trecho de livro pra usar em sala de aula) ficava abaixo do limite de detecção dos detentores de direitos, logo quase nunca chegava aos tribunais. As questões de uso justo que de fato chegavam ao judiciário eram casos grandes e barulhentos, como saber se é OK reescrever um famoso romance pró-escravidão do ponto de vista dos personagens escravizados (é sim!):</p><p><a href="https://en.wikipedia.org/wiki/The_Wind_Done_Gone?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://en.wikipedia.org/wiki/The_Wind_Done_Gone</a></p><p>Existem muitas questões jurídicas que exigem nuance, apuração de fatos e argumentação pra serem resolvidas, e isso não é necessariamente um problema. Tudo bem aplicar esses processos longos e complicados a coisas que só acontecem de vez em quando. Veja o caso do inventário: a maioria de nós só morre uma vez ou menos, então não é pedir demais que a decisão do destino dos nossos bens envolva alguma complexidade jurídica.</p><p>Mas, com a digitalização da mídia, o escopo do direito autoral se expandiu de forma dramática. "Fazer ou manipular cópias de obras protegidas" deixou de ser uma atividade industrial, que pressupunha uma operação complexa e acesso a assessoria jurídica. A única coisa que um computador digital faz é produzir e gerenciar cópias, então, a cada clique de mouse de uma pessoa comum, surgem dezenas de questões espinhosas de direito autoral. E mais: essas questões acontecem na internet pública, o que faz o número de possíveis infrações que um detentor de direitos consegue detectar (e contra as quais pode tentar buscar reparação judicial) pular de dezenas pra milhões.</p><p>Quase todas essas possíveis infrações são usos justos, mas o uso justo é uma doutrina que depende dos fatos, feita pra resolver disputas ocasionais entre grandes empresas. Ela é totalmente inadequada pra resolver questões que surgem centenas de vezes por dia pra praticamente todo mundo no planeta, inclusive crianças pequenas e outras pessoas que dificilmente teriam acesso a orientações jurídicas:</p><p><a href="https://locusmag.com/feature/cory-doctorow-a-new-deal-for-copyright/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://locusmag.com/feature/cory-doctorow-a-new-deal-for-copyright/</a></p><p>Foi assim que o direito autoral quebrou: uma nova tecnologia (o computador digital) ampliou radicalmente seu escopo e enlaçou todo mundo, na marra, num arcabouço usado em atividades cotidianas que nada tinham a ver com a cadeia produtiva da indústria de mídia. Esse arcabouço foi desenhado pra atores industriais com acesso a advogados, e seu aspecto mais importante (o uso justo) é uma doutrina que depende dos fatos e dá trabalho pra resolver — mas agora ela precisava ser enfrentada várias vezes por dia por cada pessoa. O direito autoral, então, tornou-se inadministrável: não dá pra aplicar uma doutrina que depende tão pesadamente de fatos a atividades cotidianas de gente comum. Se você tentar, transformará todo mundo em criminoso. Seria literalmente impossível ter advogados de direitos autorais suficientes pra orientar cada pessoa toda vez que usa um computador pra fazer algo que possa violar a lei.</p><p>Voltando ao antitruste: quando os partidários pró-monopólio do movimento <em>law and economics</em> decidiram neutralizar a legislação antitruste, criaram de propósito uma série de obstáculos pensados pra tornar impossível a aplicação da lei de concorrência.</p><p>Primeiro, introduziram um padrão de "intenção": já não bastava a empresa ter um monopólio, era preciso que ela tivesse a intenção de obtê-lo e mantê-lo. Se você quer ter certeza de que uma lei não vai ser aplicada, esse é um padrão fantástico. Afinal, como alguém pode saber o que outra pessoa pretendia? Pergunte a qualquer antropólogo: a única forma de descobrir a intenção por trás das ações de alguém é perguntando, e mesmo isso só funciona se você puder confiar que a pessoa vai responder com sinceridade:</p><p><a href="https://en.wikipedia.org/wiki/Thick_description?ref=nucleo.jor.br#Clifford_Geertz" rel="noopener noreferrer" target="_blank">https://en.wikipedia.org/wiki/Thick_description#Clifford_Geertz</a></p><p>Se a lei antitruste só pode ser aplicada por leitores de mentes e filósofos avançados que resolveram o problema da intersubjetividade, então ela simplesmente não pode ser aplicada:</p><p><a href="https://en.wikipedia.org/wiki/Intersubjective_verifiability?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://en.wikipedia.org/wiki/Intersubjective_verifiability</a></p><p>Mas não parou por aí! Os inimigos das regras antitruste insistiram em outra questão que depende intensivamente de fatos: a "definição de mercado". Argumentaram (com ar de bom senso) que, se dizem que uma empresa é acusada de ter um monopólio, primeiro é preciso determinar o que, exatamente, ela monopolizou. Parece óbvio, mas na prática é um jeito de enfiar discussões intransponíveis, capazes de travar tudo, em qualquer ação antitruste.</p><p>Veja o caso da Amazon: o monopólio da empresa no e-commerce é evidente pra qualquer um que não esteja em coma há 15 anos. Mas, quando a Amazon é investigada por esse monopólio, ela insiste que não atua na economia do "e-commerce", e sim na "compra e venda de coisas em geral". Eles fazem questão de lembrar que as pessoas ainda vão ao mercadinho da esquina comprar uma caixinha de leite, ainda compram chiclete na banca da estação de trem e ainda compram um gel de cabelo na barbearia depois do corte — e que, portanto, não tem como a Amazon ter monopólio nenhum.</p><p>A "definição de mercado" é um parque de diversões pra semânticos de má-fé. Pra sorte dos monopolistas do mundo, a mera existência dessa doutrina jurídica criou um exército de tais semânticos, a maioria com diplomas caros de economia em universidades de ponta nos EUA, que ganham milhões inventando argumentos bizarros de definição de mercado capazes de arrastar qualquer processo por anos — muitas vezes até o ponto em que o governo muda e os procuradores federais simplesmente abandonam o caso.</p><p>Juntas, essas questões impossíveis e dependentes dos fatos já bastariam pra enterrar o jogo antitruste, mas daí vem o golpe final: a frequência. Depois que o capital venceu a batalha de atolar os casos antitruste em questões que levam anos e milhões de dólares pra serem resolvidas, ele partiu para uma onda <em>frenética</em> de fusões monopolistas. Isso fez com que as questões antitruste, que antes surgiam a cada poucos anos, passassem a aparecer várias vezes por mês. Era a combinação mortal: transformar o antitruste num debate pé-de-lama, cheio de dilemas filosóficos e técnicos espinhosos, e depois manipular o sistema pra que essas questões aparecessem sem parar, numa enxurrada. Assim, o fracasso do antitruste estava garantido.</p><p>Foi o que aconteceu com a Microsoft. A empresa tinha 95% do mercado de sistemas operacionais de desktop quando os caça-trustes de [Bill] Clinton [ex-presidente dos EUA] a levaram aos tribunais. Mesmo assim, ela fez todo tipo de jogo de "definição de mercado" pra arrastar o caso por anos. Também insistiu que nunca teve a intenção de formar um monopólio, apesar de memorandos reveladores sobre "sugar todo o oxigênio do mercado":</p><p><a href="https://web.archive.org/web/20190717023522/https://www.justice.gov/atr/department-justice-7" rel="noopener noreferrer" target="_blank">https://web.archive.org/web/20190717023522/https://www.justice.gov/atr/department-justice-7</a></p><p>O caso se arrastou tanto que, mesmo depois de a Microsoft perder, o recurso seguiu até depois de George W. Bush roubar a presidência — e então o Departamento de Justiça dele abandonou o caso, deixando a Microsoft continuar aproveitando (e ampliando) seu monopólio:</p><p><a href="https://www.nytimes.com/2001/09/07/business/us-vs-microsoft-overview-us-abandoning-its-effort-break-apart-microsoft-saying.html?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.nytimes.com/2001/09/07/business/us-vs-microsoft-overview-us-abandoning-its-effort-break-apart-microsoft-saying.html</a></p><p>O que veio depois não deveria surpreender ninguém. A Microsoft foi condenada por ter deliberadamente tentado criar um monopólio e não pagou preço nenhum. Depois de um breve período de bom comportamento pós-traumático, a Microsoft voltou aos velhos hábitos monopolistas. Pelo caminho, bajulou uma sucessão de governos, até se tornar, na prática, uma ala <em>de facto</em> do regime Trump. O CEO da Microsoft pagou US$ 1 milhão pra ficar no palanque da posse, depois mandou a companhia doar milhões para Epstein Ballroom, e acabou fornecendo os serviços de TI pros agentes de limpeza étnica do ICE [política de imigração dos EUA]:</p><p><a href="https://www.datacenterdynamics.com/en/news/us-ice-triples-use-of-microsoft-cloud-in-six-months/?ref=nucleo.jor.br#:~:text=ICE%20has%20been,first%20presidential%20term." rel="noopener noreferrer" target="_blank">https://www.datacenterdynamics.com/en/news/us-ice-triples-use-of-microsoft-cloud-in-six-months/#:~:text=ICE%20has%20been,first%20presidential%20term.</a></p><p>A Microsoft não é só o departamento de TI interno da agenda doméstica de Trump: ela também transformou em arma a dependência estrangeira dos aplicativos de nuvem da Microsoft e pune autoridades de outros países que contrariam Trump no exterior:</p><p><a href="https://www.theregister.com/off-prem/2026/02/18/microsoft-throws-spox-under-the-bus-in-icc-email-flap/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.theregister.com/off-prem/2026/02/18/microsoft-throws-spox-under-the-bus-in-icc-email-flap/</a></p><p>Quando pressionada, a Microsoft admite sem rodeios que, não importa em que lugar do mundo seus dados estejam armazenados, quando se trata de empresas e governos estrangeiros, ela dará acesso a esses dados aos comparsas de Trump de forma secreta e sem mandado:</p><p><a href="https://www.theregister.com/off-prem/2025/07/25/microsoft-exec-admits-it-cannot-guarantee-data-sovereignty/458553?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.theregister.com/off-prem/2025/07/25/microsoft-exec-admits-it-cannot-guarantee-data-sovereignty/458553</a></p><p>Tudo isso levanta uma questão urgente de soberania digital: e se a Microsoft (uma monopolista que depende inteiramente do favor de Trump pra se manter livre de problemas jurídicos existenciais) cortar o acesso do seu país ao Office 365? Foi a pergunta que levantei no fim do ano passado na minha palestra no CCC sobre a "Internet pós-americana":</p><p><a href="https://pluralistic.net/2026/01/01/39c3/?ref=nucleo.jor.br#the-new-coalition" rel="noopener noreferrer" target="_blank">https://pluralistic.net/2026/01/01/39c3/#the-new-coalition</a></p><p>(Em breve, em versão ampliada, numa livraria perto de você:)</p><p><a href="https://us.macmillan.com/books/9780374623845/thepostamericaninternet/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://us.macmillan.com/books/9780374623845/thepostamericaninternet/</a></p><p>E agora a Microsoft deu ao mundo inteiro uma prévia de como isso pode acontecer, porque os servidores dela colapsaram e deixaram o planeta sem Outlook, nuvem Azure, Copilot, Teams e outros serviços essenciais:</p><p><a href="https://www.bbc.com/news/live/cq5y10ge3dp3t?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.bbc.com/news/live/cq5y10ge3dp3t</a></p><p>A pane durou cerca de dois dias e, no mundo todo, órgãos públicos e empresas, grandes e pequenas, simplesmente pararam. Sem Office 365, Outlook e Teams, muitas organizações não conseguiram nem marcar uma reunião ou montar um plano pra lidar com o problema.</p><p>Tudo isso levanta uma pergunta importante: a Microsoft foi negligente? E, se foi, o que fazer a respeito? Minha resposta: sim, a Microsoft é presumivelmente culpada de negligência, e qualquer resposta <em>precisa</em> incluir o desmembramento da empresa por meio do antitruste.</p><p>Eis por que penso assim. A Microsoft comprovadamente investiu pouco na estabilidade da própria infraestrutura de TI. Qualquer plano de TI que resulte numa pane global de vários dias é, <em>por definição</em>, inadequado. Pouco importante se o problema poderia ter sido resolvido comprando mais servidores, contratando mais gente ou mudando a gerência de áreas importantes. Todas essas medidas — todas as medidas que poderiam ter evitado isso — custam dinheiro. Ao não gastar esse dinheiro, a Microsoft subinvestiu, <em>definitivamente</em>, nos próprios produtos.</p><p>Mas dinheiro não falta pra Microsoft! Ela é uma monopolista condenada, e tem as margens pra provar. Em 2025-2026, a empresa torrou mais de US$ 30 bilhões em recompra de ações, uma forma de manipulação de mercado que já foi ilegal (e continua contestável). No mesmo período, perdeu quase US$ 200 bilhões em apostas de IA que agora admite que não vão se pagar:</p><p><a href="https://www.cnbc.com/2025/02/24/microsoft-reiterates-plan-to-invest-80-billion-in-ai-.html?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.cnbc.com/2025/02/24/microsoft-reiterates-plan-to-invest-80-billion-in-ai-.html</a></p><p>Ainda tem as demissões. Em 2026, a Microsoft fez o primeiro programa de aposentadoria voluntária da sua história, que serviu de abertura para um ano que terminou com corte de 25% do quadro — 60 mil funcionários marcados para destruição:</p><p><a href="https://www.theguardian.com/technology/2026/oct/26/microsoft-buyout-offers-ai-cuts?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.theguardian.com/technology/2026/oct/26/microsoft-buyout-offers-ai-cuts</a></p><p>Você já teve um chefe que te flagrou tomando fôlego, enfiou uma vassoura na sua mão e berrou "se tem tempo pra se encostar, tem tempo pra limpar"? Isso vale cinco vezes mais pra monopolistas condenados que param a economia global com uma pane de vários dias. Se você não consegue manter seus servidores no ar, não tem o direito de queimar dezenas de bilhões em recompra de ações, muito menos centenas de bilhões pra alimentar a fornalha de queimar dinheiro da IA. A Microsoft precisava das dezenas de milhares de trabalhadores que jogou fora? Demonstrativamente sim: quando eles estavam na folha de pagamento, os servidores da Microsoft funcionavam. Agora eles se foram, assim como os servidores. Não importa como esses trabalhadores se relacionavam com essa pane específica: se você não consegue manter os servidores online, ou não tem engenheiros de confiabilidade suficientes, ou não tem gerentes suficientes pra alocá-los direito, ou não tem gerentes suficientes pra contratar os gerentes e engenheiros dos quais precisa.</p><p>Q.E.D. [<em>quod erat demonstrandum</em>, expressão latina que significa "o que era para ser demonstrado" ou "como se queria demonstrar"]</p><p>Tudo isso é típico da patologia do monopolista. O problema dos monopolistas é que eles têm poder de preço e poder de mercado: o poder de empurrar produtos inferiores pros clientes, condições de trabalho degradadas pros funcionários e termos injustos pros fornecedores. As centenas de bilhões desperdiçados e as dezenas de milhares de demissões da Microsoft são uma <em>enorme</em> transferência de valor de clientes, trabalhadores e fornecedores para os investidores. O fato de a empresa ter julgado (corretamente, ao que parece) que podia nos fazer engolir merda e a gente ainda pediria repeteco é uma prova limpa e clara de poder monopolista.</p><p>Aqui vai, a meu ver, um bom teste objetivo e <em>administrável</em> sobre poder de monopólio. Se a sua empresa tem posição dominante, se destina o excedente de capital aos investidores e se isso é seguido por uma degradação significativa dos seus produtos, <em>então</em> você tem um monopólio ilegal e deve ser desmembrada. Não precisamos investigar se você tem um coração perverso que se propôs a criar um monopólio de propósito, nem ficar discutindo o sexo dos anjos na sua definição de mercado. Se você acha que é tão poderosa que pode foder seus produtos sem sofrer as consequências, então <em>você é grande demais pra se importar</em>, ou simplesmente <em>grande demais</em>.</p><p>Essa não é a única correção que a lei antitruste precisa, mas é uma que nos permitiria mirar especificamente as Big Techs. A Microsoft é a refutação viva (mancando e arfando) da tese de que monopólios são eficientes e de que, se os deixarmos acumularem participação de mercado e lucros sem limite, vão usar suas "economias de escala" pra entregar produtos superiores. Não que economias de escala não existam, mas, pra aproveitá-las, as empresas precisam ter motivação pra investir seu capital nisso. Quanto mais poderosa uma empresa, menos disposta ela ficará a destinar capital a trabalhadores, fornecedores e consumidores, e mais ela nos lesará pra enriquecer seus acionistas.</p><p>Não podemos deixar essa crise passar em branco. O Google foi condenado por criar e manter um monopólio <em>três vezes</em> nos últimos anos e, <em>todas as vezes</em>, o juiz decidiu que a empresa não deveria sofrer punição de verdade, sob o argumento de que o monopólio é justamente o que permite ao Google nos entregar tanta excelência.</p><p>Alguém ainda acha o Google excelente? E a Apple? O Google paga à Apple uma propina anual de mais de US$ 20 bilhões pra ela ficar fora do mercado de buscas. O juiz Amit Mehta decidiu deixar o Google continuar pagando essa propina pra que a Apple tivesse o capital necessário pra entregar produtos excelentes. A Apple emendou uma série de lançamentos catastróficos de produtos [<em>Nota do editor: produtos como Vision Pro e Apple Intelligence fracassaram em anos recentes</em>] — enquanto jogava fora US$ 170 bilhões manipulando o preço das ações com recompras:</p><p><a href="https://finance.yahoo.com/news/apple-dodged-a-20-billion-hit-thanks-to-google-antitrust-ruling-163056806.html?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://finance.yahoo.com/news/apple-dodged-a-20-billion-hit-thanks-to-google-antitrust-ruling-163056806.html</a></p><p>As duas empresas estão, comprovadamente, investindo pouco em qualidade pra desviar capital de P&amp;D [Pesquisa e Desenvolvimento] e de manutenção de produtos pros acionistas. São grandes demais pra se importar. Nesta era de fusões e aquisições sem fim, não podemos nos dar ao luxo de condicionar a aprovação de fusões a questões que dependem intensivamente de fatos, mas podemos, com toda certeza, criar esse teste objetivo e administrável pra decidir se uma fusão deve ser desfeita depois de consumada. Sua empresa comprou outra e depois enshittificou os dois produtos? Ótimo: agora você vai ser desmembrada, e seus investidores vão se <em>foder</em>. Quem sabe da próxima vez eles mandam o conselho embora quando anunciarem mais uma fusão idiota e anticompetitiva.</p><p>A Microsoft é grande demais em todos os sentidos. Grande demais pra quebrar, grande demais pra ser presa, grande demais pra se importar. Grande demais pra confiar. Grande demais pra depender dela. Grande demais pra cultivar uma cultura corporativa que se preocupe com confiabilidade, com um ambiente de trabalho decente ou com a qualidade dos produtos. Há uma linha reta entre a decisão de George W. Bush de deixar a Microsoft se safar em 2001 e a situação, um quarto de século depois, em que a Microsoft é peça estrutural de algumas das empresas e órgãos públicos mais importantes do mundo — o que significa que ela sabe que pode jogar fora dezenas de milhares de trabalhadores e centenas de bilhões de dólares, derrubar o planeta e acordar amanhã ilesa, pronta pra fazer tudo de novo.</p><i><em>Este texto foi traduzido do inglês com auxílio de inteligência artificial e integralmente revisado e editado por editores humanos, seguindo nossa </em></i><a href="https://nucleo.jor.br/politica-ia/" rel="noopener noreferrer" target="_blank"><i><em>política aberta</em></i></a><i><em> de uso de inteligência artificial.</em></i><i><em>&gt;&gt; Tradução revisada e editada por </em></i><a href="https://nucleo.jor.br/equipe/sergio" rel="noopener noreferrer" target="_blank"><i><em>Sérgio Spagnuolo</em></i></a>
+
+<p>Apoie o jornalismo independente do Núcleo</p>
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/comunidade-nucleo.png?v=qclCYJkMSegKKOEr"/>
+
+<strong>Comunidade Núcleo</strong>
+<p>Assinatura cheia de coisa legal. Ideal pra quem quer apoiar por um valor camarada e mesmo assim receber vários benefícios.</p>
+
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/apoie-nossa-missao-2.png?v=4SmHzh8eQPpy2d4B"/>
+
+<strong>Apoie nosso futuro</strong>
+<p>Esse plano é pra quem realmente vai além. De quebra, ainda está recheado com benefícios fenomenais.</p>
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://nucleo.jor.br/ensaio/2026/11/14/a-microsoft-e-grande-demais-para-existir/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nvidia e o preço de um monopólio opaco - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Nvidia e o preço de um monopólio opaco</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/tecnologiaemdisputa/nvidia-e-o-preco-de-um-monopolio-opaco/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5177007670429420870_x.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Nvidia e o preÃ§o de um monopÃ³lio opaco
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5177007670429420870_x.jpg"/>Foto: Evelyn Hockstein/Reuters
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>A renÃºncia de Jensen Huang ao comando da Nvidia, <a href="https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000082/nvidiaannouncesceotransiti.htm" rel="noopener noreferrer" target="_blank">anunciada em 12 de novembro</a>, vem sendo tratada como mais um caso de executivo derrubado por relacionamentos extraconjugais. A leitura Ã© estreita demais para o tamanho do episÃ³dio. Uma das mulheres envolvidas, Alice Huang, ajudou a estruturar a Megaspeed, empresa de Singapura que <a href="https://aljazeera.com/news/2026/11/8/us-chipmaker-nvidia-investigates-ceo-jensen-huang-over-affair" rel="noopener noreferrer" target="_blank">comprou mais de US$ 4,8 bilhÃµes em chips da Nvidia em 2 anos</a> e que autoridades estadunidenses suspeitam ter servido de ponte para levar processadores avanÃ§ados Ã  China. <a href="https://www.implicator.ai/nvidia-board-investigates-jensen-huang-megaspeed-tie/" rel="noopener noreferrer" target="_blank">Um memorando</a> que circulou no governo de Donald Trump no primeiro semestre a identifica como recrutada pelo MinistÃ©rio de SeguranÃ§a do Estado chinÃªs, acusaÃ§Ã£o que Pequim classifica como difamaÃ§Ã£o. Qualquer que seja o desfecho das investigaÃ§Ãµes, o caso mostra que a valorizaÃ§Ã£o da empresa mais importante da economia da IA repousa sobre um controle de exportaÃ§Ãµes poroso, sobre clientes pouco transparentes e sobre um argumento tÃ©cnico que a prÃ³pria Nvidia desmentia em conversas reservadas.</p>
+<h3><strong>A rota do desvio</strong></h3>
+<p>A Megaspeed surgiu em 2023, quando a 7Road, empresa chinesa de jogos e computaÃ§Ã£o em nuvem com investidores ligados ao Estado, <a href="https://www.cotton.senate.gov/news/press-releases/cotton-to-lutnick-investigate-chinese-government-spin-off-megaspeed-for-skirting-us-export-laws" rel="noopener noreferrer" target="_blank">separou sua operaÃ§Ã£o internacional</a> e a rebatizou em Singapura. Em 2024, fiscais do Bureau of Industry and Security (BIS), braÃ§o do Departamento de ComÃ©rcio que administra os controles de exportaÃ§Ã£o, visitaram o data center da empresa na MalÃ¡sia e <a href="https://www.sovereignmagazine.com/article/commerce-department-megaspeed-lutnick" rel="noopener noreferrer" target="_blank">encontraram equipamentos da Nvidia ainda encaixotados</a>. A companhia alugava capacidade computacional a grupos chineses como a Alibaba. Em 2025, o governo de Singapura <a href="https://thenextweb.com/news/nvidia-megaspeed-ban-gb300-imports-bloomberg" rel="noopener noreferrer" target="_blank">reteve o passaporte de Alice Huang</a> e a interrogou numa apuraÃ§Ã£o sobre declaraÃ§Ãµes falsas de importaÃ§Ã£o, arquivada por falta de provas. A retenÃ§Ã£o ocorreu meses antes de Trump ser informado de que ela era suspeita de espionagem. Agora a cidade-Estado <a href="https://www.estadao.com.br/internacional/alice-huang-investigada-por-suspeitas-de-espionagem-proibida-de-voltar-a-singapura-npr/" rel="noopener noreferrer" target="_blank">proibiu seu retorno ao paÃ­s</a> e <a href="https://www.theguardian.com/technology/2026/nov/13/nvidia-scandal-sparks-us-national-security-concerns-china" rel="noopener noreferrer" target="_blank">critica a falta de cooperaÃ§Ã£o </a>de Washington na investigaÃ§Ã£o. AtÃ© onde se sabe, Alice Huang estÃ¡ hoje na China.</p>
+<p>A Nvidia afirma ter rompido com a Megaspeed em 2025. <a href="https://thenextweb.com/news/nvidia-megaspeed-ban-gb300-imports-bloomberg" rel="noopener noreferrer" target="_blank">A Bloomberg encontrou importaÃ§Ãµes posteriores</a>, uma diferenÃ§a de 50 mil chips na contagem da empresa e <a href="https://www.bloomberg.com/news/articles/2026-11-13/banned-nvidia-chips-installed-at-china-data-center-linked-to-alice-huang" rel="noopener noreferrer" target="_blank">processadores H800</a>, proibidos para a China, instalados num data center chinÃªs ligado a Alice Huang. <a href="https://thenextweb.com/news/megaspeed-probe-commerce-nvidia-lawyer-justice-department-nyt" rel="noopener noreferrer" target="_blank">Segundo o New York Times</a>, em agosto de 2025 o conselheiro-geral da Nvidia, Tim Teter, escreveu aos agentes que investigavam o caso dizendo ter autorizaÃ§Ã£o de Jeffrey Kessler, subsecretÃ¡rio responsÃ¡vel pelos controles de exportaÃ§Ã£o, para tratar do assunto. A apuraÃ§Ã£o no Departamento de ComÃ©rcio parou e o caso migrou para o Departamento de JustiÃ§a, onde hoje corre como inquÃ©rito criminal. O modelo de negÃ³cios explora uma brecha legal dos controles estadunidenses, que permite instalar chips no Sudeste AsiÃ¡tico e vender capacidade a clientes chineses, enquanto o contrabando para a China Ã© objeto de investigaÃ§Ã£o separada.</p>
+<h3><strong>Risco concentrado</strong></h3>
+<p>A Nvidia valia <a href="https://decrypt.co/382838/nvidias-350-billion-scare-what-happens-if-jensen-huang-leaves?amp=1" rel="noopener noreferrer" target="_blank">US$ 5,78 trilhÃµes em 6 de outubro</a> e US$ 4,51 trilhÃµes um mÃªs depois, antes mesmo de o conselho anunciar a investigaÃ§Ã£o interna. A empresa responde por quase 7% do S&amp;P 500, o que transfere o risco para fundos de pensÃ£o e carteiras passivas no mundo inteiro. Em 9 de novembro, <a href="https://www.mitrade.com/insights/news/live-news/article-8-2246254-20261111" rel="noopener noreferrer" target="_blank">a aÃ§Ã£o caiu 4,3%</a> e perdeu US$ 192 bilhÃµes em valor de mercado, no mesmo pregÃ£o em que a Nasdaq subiu 2,7% e o Ã­ndice de semicondutores da FiladÃ©lfia avanÃ§ou 6,8%. Parte dos analistas leu o movimento como um desconto de governanÃ§a restrito Ã  companhia, jÃ¡ que concorrentes se valorizaram no mesmo dia.</p>
+<p>Essa leitura subestima o problema. Huang comandou a Nvidia por 33 anos com uma cadeia de comando de <a href="https://fortune.com/2026/11/09/nvidia-power-built-around-jensen-huang-scandal-testing-formula/" rel="noopener noreferrer" target="_blank">60 subordinados diretos</a> e sem diretor de operaÃ§Ãµes, numa estrutura que concentrava nele as decisÃµes estratÃ©gicas e a narrativa de demanda que sustenta a avaliaÃ§Ã£o da empresa. Entre as denÃºncias e a renÃºncia, a Nvidia <a href="https://finance.yahoo.com/markets/stocks/articles/nvidia-sheds-600-billion-jensen-141916678.html" rel="noopener noreferrer" target="_blank">perdeu cerca de US$ 600 bilhÃµes</a> em valor de mercado em uma semana. A aÃ§Ã£o chegou a cair mais de 10% no prÃ©-mercado depois do anÃºncio da saÃ­da. A CEO interina, Colette Kress, assumiu Ã s vÃ©speras do balanÃ§o de 17 de novembro, para o qual a companhia projetou <a href="https://tech-insider.org/nvidia-succession-plan-earnings-call-nov-17-108-billion-guidance-2026/" rel="noopener noreferrer" target="_blank">receita trimestral de US$ 108 bilhÃµes</a>. <a href="https://www.wired.com/story/nvidia-was-already-in-trouble-before-the-jensen-huang-mess/" rel="noopener noreferrer" target="_blank">Analistas do setor jÃ¡ comparam a transiÃ§Ã£o</a> Ã  da Intel em 2018, quando o engenheiro Brian Krzanich deixou o comando apÃ³s um relacionamento com uma funcionÃ¡ria e o diretor financeiro Bob Swan assumiu. Sob Swan, a empresa priorizou vendas em detrimento do avanÃ§o tÃ©cnico e perdeu receita.</p>
+<p>Pelo que se vÃª, a<a href="https://www.wired.com/story/nvidia-was-already-in-trouble-before-the-jensen-huang-mess/" rel="noopener noreferrer" target="_blank"> pressÃ£o competitiva antecede o escÃ¢ndalo</a>. A Nvidia concentra 80% das vendas de aceleradores de IA, segundo a Silicon Analysis, mas a AMD passou de 2% desse mercado em 2022 para algo entre 7% e 10% em 2026, enquanto Google, Amazon e Microsoft desenvolvem chips prÃ³prios para reduzir custos e dependÃªncia. A migraÃ§Ã£o da demanda do treinamento para a inferÃªncia, impulsionada pelos agentes de IA, favorece esses concorrentes. O CUDA, ecossistema de software que prendia os desenvolvedores Ã  Nvidia, tambÃ©m perde eficÃ¡cia quando modelos de IA reescrevem em poucas horas o cÃ³digo necessÃ¡rio para rodar em chips da AMD com pelo menos 80% da eficiÃªncia original. Uma avaliaÃ§Ã£o construÃ­da sobre a premissa de monopÃ³lio fica mais exposta quando a barreira tÃ©cnica que o sustentava se torna transponÃ­vel.</p>
+<p>O ponto mais sensÃ­vel para a tese da bolha de IA estÃ¡ na qualidade da demanda. As compras da Megaspeed representam menos de 2% da receita da Nvidia no perÃ­odo, mas indicam que uma fatia do crescimento contabilizado como expansÃ£o de nuvens independentes e de projetos de IA soberana pode ter origem em intermediÃ¡rios cujo cliente final Ã© justamente aquele que as regras estadunidenses querem bloquear. O New York Times encontrou pouca evidÃªncia de que a <a href="https://www.sovereignmagazine.com/article/commerce-department-megaspeed-lutnick" rel="noopener noreferrer" target="_blank">New Matrix</a>, uma das empresas licenciadas para receber chips H200, exista de fato. <a href="https://www.nytimes.com/2026/11/13/business/economy/bessent-commerce-megaspeed-lutnick.html" rel="noopener noreferrer" target="_blank">O prÃ³prio secretÃ¡rio do Tesouro</a> passou a questionar se a Nvidia conhecia seus clientes e se vendia a intermediÃ¡rios que eram evidentemente empresas de fachada, defendendo a responsabilizaÃ§Ã£o de quem na companhia tenha ignorado o problema. Se o rastreamento se tornar obrigatÃ³rio, essa parcela da demanda desaparece ou passa a ser precificada com outro risco. Some-se a isso a reaÃ§Ã£o dos papÃ©is de IA Ã  derrota republicana nas eleiÃ§Ãµes de meio de mandato, quando a Nvidia chegou a perder <a href="https://aljazeera.com/news/2026/11/8/us-chipmaker-nvidia-investigates-ceo-jensen-huang-over-affair" rel="noopener noreferrer" target="_blank">US$ 450 bilhÃµes em um Ãºnico pregÃ£o</a>. O mercado passou a precificar que a valorizaÃ§Ã£o do setor depende de proteÃ§Ã£o polÃ­tica, agora mais incerta.</p>
+<h3><strong>A disputa pela caneta</strong></h3>
+<p><a href="https://www.cnbc.com/2026/11/13/us-inflation-outlook-federal-reserve-rate-hike.html" rel="noopener noreferrer" target="_blank">Em entrevista Ã  CNBC</a> em 13 de novembro, o secretÃ¡rio do Tesouro, Scott Bessent, afirmou que Tesouro, PentÃ¡gono, Representante Comercial e Departamento de Estado defendiam havia meses a inclusÃ£o da Megaspeed na lista de entidades sob restriÃ§Ã£o, mas que o Departamento de ComÃ©rcio “tem a caneta”. <a href="https://aiweekly.co/alerts/commerce-delays-entity-list-additions-megaspeed-stays-off" rel="noopener noreferrer" target="_blank">Segundo o Financial Times</a>, a pasta chefiada por Howard Lutnick adiou por dois meses um pacote de novas inclusÃµes. <a href="https://www.nytimes.com/2026/11/13/business/economy/bessent-commerce-megaspeed-lutnick.html" rel="noopener noreferrer" target="_blank">Segundo o New York Times</a>, a inclusÃ£o jÃ¡ havia sido discutida numa reuniÃ£o de vice-ministros, em que Kessler remeteu a decisÃ£o a Lutnick. O secretÃ¡rio vinha defendendo restriÃ§Ãµes pontuais e acumulava acusaÃ§Ãµes de proximidade excessiva com a Nvidia e com Huang. <a href="https://www.axios.com/2026/11/13/bessent-lutnick-megaspeed-nvidia" rel="noopener noreferrer" target="_blank">CNN, Axios e New York Times relataram</a> um confronto entre os dois secretÃ¡rios na Sala de SituaÃ§Ã£o da Casa Branca, que o ComÃ©rcio nega, alegando que a inclusÃ£o na lista Ã© decisÃ£o de todo o governo. A Casa Branca mantÃ©m apoio pÃºblico a Lutnick enquanto assessores discutem sua saÃ­da. O senador republicano <a href="https://www.washingtonpost.com/business/2026/11/13/treasury-secretary-points-commerce-secretary-failure-restrict-nvidia-customer/" rel="noopener noreferrer" target="_blank">John Curtis questionou</a> se o ComÃ©rcio agiu no interesse nacional. Lutnick aceitou <a href="https://www.yahoo.com/news/politics/articles/lutnick-agrees-testify-bessent-blames-151300528.html" rel="noopener noreferrer" target="_blank">depor no ComitÃª BancÃ¡rio do Senado</a> em 10 de dezembro.</p>
+<p>A troca de acusaÃ§Ãµes esconde uma contradiÃ§Ã£o de origem. Em agosto de 2025, o mesmo governo fechou com Nvidia e AMD um acordo pelo qual Washington ficaria com <a href="https://fortune.com/2025/08/13/bessent-nvidia-amd-china-deal-model-beta-test-other-industries/" rel="noopener noreferrer" target="_blank">15% das vendas</a> de determinados chips Ã  China, arranjo que Bessent chamou de modelo a ser estendido a outros setores. Em dezembro de 2025, Trump elevou a cota para 25% ao liberar o H200, embora nenhum pagamento tenha sido registrado atÃ© meados de 2026. Huang foi um dos principais defensores do afrouxamento das restriÃ§Ãµes. Quando o controle de exportaÃ§Ãµes vira fonte de arrecadaÃ§Ã£o e moeda de barganha comercial, sob a guarda do departamento que conduz as negociaÃ§Ãµes tarifÃ¡rias, a fronteira entre seguranÃ§a nacional e meta de vendas se dissolve.</p>
+<h3><strong>Inviabilidade viÃ¡vel</strong></h3>
+<p>Em marÃ§o de 2026, a Semiconductor Industry Association, entidade que reÃºne Nvidia e AMD, classificou como “novas, nÃ£o testadas e potencialmente inviÃ¡veis” as exigÃªncias de verificaÃ§Ã£o de localizaÃ§Ã£o previstas no Chip Security Act, projeto apresentado em maio de 2025 e <a href="https://www.webpronews.com/chip-security-act-how-location-tracking-on-ai-chips-could-reshape-u-s-export-controls-and-the-race-with-china/" rel="noopener noreferrer" target="_blank">aprovado por 42 votos a 0</a> na ComissÃ£o de RelaÃ§Ãµes Exteriores da CÃ¢mara. Em 12 de novembro, o deputado Bill Foster, coautor do texto, <a href="https://www.technologyreview.com/2026/11/12/1148483/nvidia-chip-tracking/" rel="noopener noreferrer" target="_blank">disse Ã  MIT Technology Review</a> que representantes da Nvidia lhe garantiram em reuniÃµes tÃ©cnicas, nunca por escrito, que a implementaÃ§Ã£o era possÃ­vel. A empresa jÃ¡ oferece desde dezembro de 2025 a ferramenta Fleet Intelligence, capaz de indicar em que paÃ­s os chips de um cliente estÃ£o operando.</p>
+<p>A distÃ¢ncia entre a posiÃ§Ã£o pÃºblica e a conversa reservada repete um padrÃ£o conhecido no debate brasileiro sobre plataformas, em que a alegaÃ§Ã£o de impossibilidade tÃ©cnica funcionou como barreira regulatÃ³ria atÃ© ser contrariada por soluÃ§Ãµes que as prÃ³prias empresas jÃ¡ ofereciam a anunciantes mas eram desconhecidas dos Ã³rgÃ£os reguladores. Foster anunciou que pretende apresentar em 2027 um projeto mais duro, que exigiria licenÃ§a para operar processadores avanÃ§ados, verificada antes de cada chip se conectar Ã  rede.</p>
+<h3><strong>O chip que sabe onde estÃ¡</strong></h3>
+<p>O rastreamento desloca o poder sobre a infraestrutura de IA para quem controla a verificaÃ§Ã£o. Um processador que informa sua localizaÃ§Ã£o e depende de licenÃ§a para funcionar passa a operar sob autorizaÃ§Ã£o permanente do paÃ­s exportador. Em 2025, a AdministraÃ§Ã£o do CiberespaÃ§o da China <a href="https://www.bankinfosecurity.com/nvidia-pushes-back-on-chinese-kill-switch-claims-a-29146" rel="noopener noreferrer" target="_blank">convocou a Nvidia</a> para explicar riscos de seguranÃ§a do chip H20. O chefe de seguranÃ§a da empresa respondeu publicamente que suas GPUs nÃ£o tÃªm nem devem ter mecanismos de desligamento remoto. O escÃ¢ndalo fortalece o argumento de Pequim a favor da substituiÃ§Ã£o por fornecedores nacionais. A China, que respondia por 20% da receita da Nvidia em 2024, <a href="https://www.wired.com/story/nvidia-was-already-in-trouble-before-the-jensen-huang-mess/" rel="noopener noreferrer" target="_blank">hoje representa 8%</a>. A Huawei desenvolveu supercomputadores que agregam um nÃºmero muito maior de chips e empresas como a Z.ai afirmam ter treinado seus modelos inteiramente nesse hardware. Se os modelos abertos chineses ganharem traÃ§Ã£o em outros paÃ­ses, podem criar mercado para esses chips fora da China. O cenÃ¡rio cria um dilema para paÃ­ses que nÃ£o estÃ£o em nenhum dos dois polos. Comprar a fronteira tecnolÃ³gica estadunidense tende a significar aceitar telemetria contÃ­nua e uma licenÃ§a revogÃ¡vel.</p>
+<h3><strong>O que cabe ao Brasil</strong></h3>
+<p>O Brasil tenta atrair data centers com o Redata, regime sancionado em setembro que desonera tributos federais sobre equipamentos importados. O paÃ­s tambÃ©m prevÃª no Plano Brasileiro de InteligÃªncia Artificial a compra de capacidade de supercomputaÃ§Ã£o. Nenhum desses instrumentos trata das condiÃ§Ãµes de operaÃ§Ã£o dos chips importados. Em 16 de novembro, o Departamento de ComÃ©rcio <a href="https://www.cbsnews.com/news/nvidia-jensen-huang-commerce-department-limit-remote-access-ai-chips/" rel="noopener noreferrer" target="_blank">publicou uma norma provisÃ³ria</a> que passa a exigir licenÃ§a do governo estadunidense para a exportaÃ§Ã£o de chips avanÃ§ados ao Brasil, Ã  IndonÃ©sia, Ã  MalÃ¡sia, a Singapura e Ã  TailÃ¢ndia, paÃ­ses que o texto classifica como de risco de desvio acima do normal. O objetivo declarado Ã© impedir que as restriÃ§Ãµes existentes sejam contornadas por acordos de computaÃ§Ã£o remota em data centers de terceiros. A exigÃªncia entra em vigor em 90 dias e isenta compradores com sede nos Estados Unidos que cumpram novas regras de reporte.</p>
+<p>A mesma norma <a href="https://huggingnews.com/ai/us-ai-chip-rule-imposes-licenses-on-five-countries-and-rescinds-diffusio-ef5b2572" rel="noopener noreferrer" target="_blank">revoga formalmente a regra de difusÃ£o de IA</a> do governo Biden, que nunca chegou a ser aplicada e dividia o mundo em 3 faixas, com o Brasil no grupo intermediÃ¡rio sujeito a cotas de importaÃ§Ã£o. O paÃ­s passa de um regime de cotas para outro de licenÃ§a prÃ©via, que torna explÃ­cito o <a href="https://jornalggn.com.br/artigos/soberania-em-silicio-da-asfixia-geoeconomica-a-um-projeto-para-o-brasil-por-gorgen-bampi/" rel="noopener noreferrer" target="_blank">poder de veto de Washington sobre a fila de acesso aos chips</a>. O Brasil foi colocado na mesma lista dos paÃ­ses de passagem do caso Megaspeed. Os investimentos que o Redata pretende atrair passam a depender de autorizaÃ§Ã£o de Washington. A exceÃ§Ã£o para empresas sediadas nos Estados Unidos cria uma assimetria que favorece as grandes nuvens estadunidenses em relaÃ§Ã£o a operadores nacionais.</p>
+<p>Contratos pÃºblicos de capacidade computacional e incentivos fiscais a data centers deveriam exigir transparÃªncia sobre telemetria, sobre acesso remoto do fabricante e sobre as hipÃ³teses em que um equipamento pode ser bloqueado por decisÃ£o de outro governo. A mesma exigÃªncia caberia nas negociaÃ§Ãµes do paÃ­s com fornecedores americanos e chineses, para que a regra de verificaÃ§Ã£o seja conhecida antes da compra e nÃ£o descoberta depois da instalaÃ§Ã£o. A erosÃ£o da barreira do CUDA torna a diversificaÃ§Ã£o de fornecedores tecnicamente mais viÃ¡vel do que era hÃ¡ 2 anos, o que amplia a margem de negociaÃ§Ã£o de quem compra. O caso Nvidia mostrou que essa regra jÃ¡ existe na prÃ¡tica e que atÃ© agora foi negociada sem a participaÃ§Ã£o de quem compra. O caso da dupla Huang trouxe Ã  tona um alerta que cabe a todos os paÃ­ses administrarem.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/tecnologiaemdisputa/nvidia-e-o-preco-de-um-monopolio-opaco/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

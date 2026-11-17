@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O que é isso, companheiro? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O que é isso, companheiro?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Brasil 247</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.brasil247.com/blog/o-que-e-isso-companheiro-2/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.brasil247.com/wp-content/uploads/2026/11/photo-desk-1794173430626.jpg?w=1200&quality=88&strip=all" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O que é isso, companheiro?
+                            </p>
+                            <p>Os heróis da virada histórica do presidente Lula no segundo turno são os mais de 64 milhões de brasileiros que foram às urnas no dia 25 de outubro para defender a democracia. Entre os protagonistas dessa história, merece destaque a cidade de Niterói.</p>
+<p>Foi numa noite chuvosa, no dia seguinte à eleição do primeiro turno, que estudantes da Universidade Federal Fluminense deram um dos primeiros sinais de reação ao cenário desolador que se apresentava ao campo progressista.</p>
+<p>Flávio Bolsonaro havia terminado a primeira etapa da disputa com 47,03% dos votos, contra 45,16% de Lula. A vantagem da extrema direita parecia anunciar uma batalha quase impossível.</p>
+<p>No Rio de Janeiro, o quadro era agravado pela força de Douglas Ruas, cuja eleição para o governo estadual no primeiro turno seria confirmada mais tarde pela Justiça Eleitoral.</p>
+<p>Enquanto o desânimo tomava conta de muita gente, estudantes da Faculdade de Direito da UFF se reuniram com professores e representantes de entidades para discutir o que fazer. Daquela conversa nasceu uma manifestação que ganhou as ruas de Niterói em defesa da democracia e contra o retrocesso que representaria uma vitória de Flávio Bolsonaro.</p>
+<p>A mobilização cresceu nos dias seguintes. Outros atos vieram, incluindo uma grande manifestação na Praia de Icaraí que reuniu o prefeito Rodrigo Neves, do PDT, e lideranças de diferentes partidos em apoio a Lula.</p>
+<p>Rodrigo teve papel importante na articulação dessa campanha no Rio, num esforço coletivo que ajudou a sustentar a virada nacional. A lição é que, com unidade, foco e uma capacidade extraordinária de mobilização, a esquerda pode vencer até as batalhas que parecem impossíveis.</p>
+<p>O campo progressista não pode se desmobilizar depois da vitória. Precisa preservar essa unidade, enfrentar os problemas reais da população e começar desde já a se preparar para as eleições municipais de 2028.</p>
+<p>O próximo desafio da esquerda e de toda a frente ampla democrática será justamente a disputa pelas prefeituras e câmaras municipais. No estado do Rio de Janeiro, essa batalha será ainda mais difícil com Douglas Ruas no governo estadual e Carlos Jordy no Senado.</p>
+<p>Nascido em Niterói e ex-vereador da cidade, Jordy terá uma posição de força para atuar na disputa municipal. Diante desse cenário, a unidade do campo democrático em torno de um projeto progressista para Niterói será ainda mais importante.</p>
+<p>O desequilíbrio também aparecerá na disputa pelos recursos de campanha. O PL elegeu 121 deputados federais em 2026, contra apenas seis do PDT, partido de Rodrigo Neves.</p>
+<p>A representação na Câmara é um dos principais critérios de distribuição do fundo eleitoral. A diferença entre as bancadas aponta, portanto, para uma vantagem financeira expressiva do PL em 2028, embora ainda não seja possível determinar os valores ou quanto chegará a cada cidade.</p>
+<p>O PDT trava uma batalha pela própria sobrevivência partidária. Para superar os efeitos da cláusula de desempenho e preservar acesso ao Fundo Partidário e à propaganda, aprovou seu ingresso numa federação com Solidariedade, PRD e Avante.</p>
+<p>A ampliação da federação ainda depende da Justiça Eleitoral. É nesse quadro de desigualdade de forças que o campo democrático precisará defender Niterói.</p>
+<p>É por isso que causa perplexidade a iniciativa do vereador Professor Túlio, do PSOL, de liderar um pedido de CPI da Educação em Niterói com o apoio de parlamentares de direita.</p>
+<p>Para a CPI ser aberta, são necessárias sete assinaturas. O requerimento reúne seis vereadores bolsonaristas e o vereador Professor Túlio, do PSOL, cuja adesão permite alcançar o número necessário.</p>
+<p>A assinatura de Túlio é, portanto, decisiva para que a comissão possa se materializar, caso esse conjunto de apoios seja mantido. Ao se juntar aos parlamentares bolsonaristas, o vereador dá viabilidade à iniciativa.</p>
+<p>Segundo reportagem de O Globo, a sétima assinatura veio do vereador Fabiano Gonçalves, do Republicanos. Túlio afirmou ao jornal que o pedido seria protocolado, mas que ainda não havia sido registrado no sistema digital da Câmara.</p>
+<p>A discussão sobre a CPI antecede a eleição. Os defensores da comissão citam denúncias de famílias, fiscalizações nas escolas e falta de respostas da Secretaria Municipal de Educação e da Fundação Municipal de Educação a ofícios enviados pelos vereadores.</p>
+<p>Essas questões merecem resposta e fiscalização séria, como qualquer problema na rede pública. O direito de fiscalizar não está em discussão.</p>
+<p>O que precisa ser debatido é a escolha política de abrir uma comissão de inquérito nessa conjuntura e o espaço que ela pode oferecer para uma ofensiva da extrema direita contra uma administração do campo democrático.</p>
+<p>Críticas à prefeitura são legítimas. O PSOL não é obrigado a concordar com o PDT, nem com todas as decisões de Rodrigo Neves.</p>
+<p>Mas divergência não pode significar falta de discernimento sobre o momento político. Poucos dias depois de uma eleição que exigiu uma mobilização extraordinária do campo democrático para impedir o retorno do bolsonarismo ao Palácio do Planalto, é preciso avaliar as consequências de cada movimento.</p>
+<p>Nesse cenário, enfraquecer o campo progressista em uma de suas principais cidades seria um presente para os adversários. Niterói tem uma trajetória de políticas públicas, universidades e mobilização democrática que precisa ser defendida e aperfeiçoada.</p>
+<p>Isso inclui cobrar melhorias na educação, ouvir famílias e professores e exigir transparência da prefeitura. Também exige responsabilidade para não transformar uma divergência entre aliados em palanque para quem quer derrotar esse projeto de cidade.</p>
+<p>Professor Túlio e o PSOL têm todo o direito de fazer oposição, apresentar críticas e cobrar respostas. O apelo é para que reflitam sobre a conveniência dessa CPI e procurem caminhos que preservem a fiscalização sem abrir uma crise política de consequências imprevisíveis.</p>
+<p>Niterói ajudou a mostrar ao Brasil que o desânimo podia ser vencido. Não é hora de entregar à extrema direita, por desunião, aquilo que tanta gente foi às ruas defender.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.brasil247.com/blog/o-que-e-isso-companheiro-2/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The decency was the point - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The decency was the point</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/politics/509733/cruelty-decency-midterms-maga-trump-vivek-trans-bullying-talarico-hamilton" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/Vox_Decency.jpg?quality=90&strip=all&crop=0%2C10.738793882735%2C100%2C78.522412234531&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: MAGA chose cruelty. Midterm voters chose decency.
+                            </p>
+                            <p>As various factions try to make the case about what won the midterms — moderation or progressivism, populism or the establishment — perhaps the easiest and most universal way to describe 2026 was as a contest between decency and cruelty.</p><p>For nearly a decade, bullying, scape-goating, and just plain meanness have been the dominant tone of Republican politics. From Donald Trump relentlessly picking on minority groups in the 2016 campaign, through family separations in 2018 — all while demeaning political rivals and journalists and anyone who criticized him — a generation of Republican politicians have seen the president reach new levels of nastiness in politics and be <a href="https://nymag.com/intelligencer/article/inauguration-trump-supporters-conservative-movement-post-maga.html" rel="noopener noreferrer" target="_blank">rewarded</a> for it. Other candidates picked up on it, often attempting their own imitations: Vice President JD Vance mocked <a href="https://www.npr.org/2024/07/29/nx-s1-5055616/jd-vance-childless-cat-lady-history" rel="noopener noreferrer" target="_blank">“childless cat ladies” in 2021</a>, while other Republicans joked about <a href="https://www.cnn.com/2022/11/02/politics/glenn-youngkin-kari-lake-paul-pelosi/index.html" rel="noopener noreferrer" target="_blank">political violence</a> against <a href="https://abcnews.com/Politics/michigan-governor-hopeful-jokes-whitmer-kidnapping-plot/story?id=90434370" rel="noopener noreferrer" target="_blank">Democrats</a> or <a href="https://www.washingtonexaminer.com/policy/healthcare/2597134/desantis-calls-fauci-a-little-elf-who-should-be-chucked-across-the-potomac/" rel="noopener noreferrer" target="_blank">critics</a>, their <a href="https://www.salon.com/2022/07/24/matt-gaetz-says-women-look-like-a-thumb-shouldnt-complain-about-abortion-rights" rel="noopener noreferrer" target="_blank">physical appearances</a>, or <a href="https://abcnews.com/Politics/georgia-sen-david-perdues-mispronunciation-kamala-harris-draws/story?id=73666422" rel="noopener noreferrer" target="_blank">their</a> <a href="https://abc17news.com/politics/national-politics/cnn-us-politics/2021/11/30/another-video-shows-lauren-boebert-suggesting-ilhan-omar-was-terrorist" rel="noopener noreferrer" target="_blank">ethnicities</a>.</p><p>And yet somehow, in the 2026 midterm campaigns, the MAGA right went even harder on cruelty up and down the ballot. Pivotal campaign moments, particularly in the closing weeks of the cycle, weren’t just about bare-knuckle politics and nasty campaigning, but actually punching down at the weak and vulnerable. Republican Ohio gubernatorial candidate Vivek Ramaswamy trotted out his opponent’s estranged mother to suggest the candidate was lying about childhood abuse. Trump and <a href="https://x.com/atrupar/status/2114817978189672565?a=o5DSpX0wxL4z76Smgiw&amp;s=20" rel="noopener noreferrer" target="_blank">GOP Sen. Tim Scott</a> used a <a href="https://x.com/cspan/status/2115866501639000537?s=20" rel="noopener noreferrer" target="_blank">transphobic slur to to mock a candidate while campaigning for Darline Graham</a>. Michigan GOP senatorial candidate Mike Rogers fanned the flames of Islamophobia, accusing his opponent of “<a href="https://www.washingtonpost.com/politics/2026/10/23/examining-muslim-brotherhood-claims-michigans-senate-race/" rel="noopener noreferrer" target="_blank">pledging</a>” his support to Islamist extremism, something <a href="https://ca.news.yahoo.com/defeat-islamist-ted-cruz-goes-224640340.html" rel="noopener noreferrer" target="_blank">other Republicans echoed</a>. And in Texas, a statewide candidate doubled down on <a href="https://www.texastribune.org/2026/09/14/bo-french-post-ut-ohio-football-game/" rel="noopener noreferrer" target="_blank">racist anti-Indian-American tweets</a>.</p><p>In 2018, the writer Adam Serwer coined the phrase, and concept, that “<a href="https://www.theatlantic.com/ideas/archive/2018/10/the-cruelty-is-the-point/572104/" rel="noopener noreferrer" target="_blank">the cruelty is the point</a>” — that the easiest way to understand the MAGA movement was as a desire to inflict pain and suffering on marginalized people, specific minorities, and political opponents through political power. Cruelty wasn’t incidental; it was intentional.</p><p>For Republican candidates and campaigners this cycle, cruelty became almost a central campaign tactic. Many of them struggled to mount a serious policy case, and found themselves stuck with a historically unpopular president as party leader, so they fell back on the tried-and-true maneuver of beating up on the weak, hoping it would work as well as it seemed to throughout the Trump era.</p><p>Yet on Tuesday night, voters delivered a verdict: They were fed up with that cruelty in both the administration and Republican campaigns. Instead, decency — or, at least, voters’ impression of it — won.</p><p>Even some conservatives, as they try to sort through the wreckage and blame game post-Election Day, made that case. The Christian broadcaster Erick Erickson noted that in addition to the Iran war and affordability crisis, Republicans lost because of “the impression of cruelty. The overly aggressive deportations. The accidental arrests of American citizens who were Hispanic. The arrogance.”</p><p>And, of course, many Democrats agreed, too.</p><p>“The American people were loud and clear [Tuesday] night that they want to like their neighbor, that their neighbor is not the enemy from within, and even if they disagree politically with their neighbor, they want them to do well and they want their kids to do very well,” Kentucky Gov. Andy Beshear, who led the party’s efforts to elect Democratic governors around the country, told me. “People [Tuesday] night showed us that they want decency in the White House and they want decency in Congress.”</p><p>All the Republicans above lost their races. The set of people who won — and especially those who flipped seats from red to blue – noticeably embraced a more compassionate tone of politics.</p><p><h2>Republicans centered cruelty; Democratic candidates chose decency and won</h2></p><p>It’s hard to summarize just how nasty the 2026 GOP campaign strategy was. Hate, racism, and xenophobia were the go-to tools used on the right this cycle — on top of a year of hardline immigration policies and spending cuts pushed by the Trump administration. And it all came up short, Joe Walsh, the former GOP member of Congress and current anti-Trump activist, told me.</p><p>Kansas Democratic Sen.-elect Adam Hamilton wears a “Love One Another” pin during a November 20206 campaign event in Wichita, Kansas. Nick Oxford/Bloomberg via Getty Images</p><p>“Republicans tried to win again this year by being as cruel and fearful and divisive as they could. That’s generally worked in the past, but there were extenuating circumstances this year,” Walsh said. “People [on the trail] would tell me, ‘This is not the kind of country we are. This is not who we are.’” They were referring, he said, to masked ICE agents, the targeting of Black and brown people, and talk of white Christian nationalism.</p><p>“There was something more profound at stake here,” Walsh continued. “And I think it was the American people recoiling against the cruelty they’ve seen.”</p><p>It was all a sharp contrast to the way Democrats talked and the policies they supported on the trail. Take Texas Sen.-elect James Talarico’s words in his Tuesday night victory speech:</p><blockquote><p>We didn’t win by alienating our neighbors, or by shaming our neighbors, or by ridiculing our neighbors. We embodied a new kind of politics. A politics rooted in a deep love — for our state, for our country, and for all of our neighbors. My faith teaches me that love is the strongest force in the universe…love requires that we stand between the bullies and the bullied. Love requires that we look evil in the eye and not blink.</p></blockquote><p>Beshear told me that beyond concerns about gas prices, the Iran war, and tariffs, voters’ frustrations reflected a rejection of the fear and divisiveness that Trump embodies. He said he saw this rejection of cruelty while stumping for candidates in red states, and he saw the opposite coming from the Democratic candidates who won.</p><p>“Everywhere I traveled, our gubernatorial candidates were talking about being a good neighbor,” he said. “[Iowa Gov.-elect] Rob Sand talked about it at every one of his town halls, and you could see people nodding about it. [Ohio Gov.-elect] Amy Acton talked about it in each of her speeches. People are craving decency, especially given the cruelty that this president governs with.”</p><p>This contrast was apparent in some data and focus group research, too. In polling conducted by The Argument before the election, Democrats had a 20-point advantage when <a href="https://www.theargumentmag.com/p/the-4-biggest-surprises-from-our" rel="noopener noreferrer" target="_blank">voters were asked which party they thought was more “compassionate,”</a> a 12-point lead when they were asked which party “cared” for voters, and a 10-point lead when they were asked which party was more moderate.</p><p>“The party of compassion won,” the writer Jerusalem Demsas <a href="https://www.theargumentmag.com/p/9-short-takes-on-the-2026-midterms" rel="noopener noreferrer" target="_blank">wrote for The Argument</a>. Republicans just couldn’t shake the association, their polling showed, with “words like ‘bold,’ “strong,’ and ‘extreme.’”</p><p>And in Ohio, perhaps the most obvious example of cruelty becoming the closing message of a Republican campaign, focus groups conducted by the political strategist Sarah Longwell for The Bulwark before the election showed how quickly the infamous ad became <a href="https://www.vox.com/america-actually/504619/sarah-longwell-tribune-festival-book-average-voter" rel="noopener noreferrer" target="_blank">associated with the Republican brand</a>. Longwell <a href="https://www.thebulwark.com/p/how-ohio-trump-voters-reacted-to-vivek-ramaswamy-attack-ad-amy-acton-smear" rel="noopener noreferrer" target="_blank">wrote</a> about the session:</p><blockquote><p>The first thing to note is that everyone in the group had heard about Ramaswamy’s ad already. The second thing to note is that several of the Ramaswamy-curious voters in the group said it was pushing them toward either supporting a third-party candidate or sitting out the election altogether. The fact that everyone had heard of or seen the ad and the universal revulsion to it suggest that this could be an all-time backfire for Ramaswamy — and it raises the possibility that Trump and Vance will also suffer politically for rushing to defend it.</p></blockquote><p>In follow-up focus group conversations on Wednesday, the day after the election, voters told Longwell they wanted a hard break from this era of politics.</p><p>This rejection of cruelty was also most evident in backlash to the Trump administration’s immigration policies — in places that saw ICE raids or which saw stricter enforcement in heavily Hispanic areas of Florida, Kansas, and Texas, voters swung hard against the GOP.</p><p>“These are voters who were very supportive of securing the border, very supportive of Border Patrol, which is a huge employer down there,” the Democratic strategist Lis Smith told me. “But the cruelty of what ICE was doing, tearing apart families and communities was just a bridge too far. That’s in part why you saw a big backlash in the Hispanic community because there’s a huge element of racial profiling with it.”</p><p>Federal agents walk near the scene where an ICE office shot a man in New York City on October 8, 2026. Charly Triballeau/AFP via Getty Images</p><p>In contrast, the most successful candidates this week were not the ones that tried to match Republicans by being more combative or extreme. They were those who embraced themes of decency and compassion. They seemed to offer an antidote, Smith said.</p><p>“There’s sometimes this idea, a theory in the Democratic Party, that to <em>beat</em> Trump, you need to <em>be</em> Trump,” Smith said. “And so you see Democrats going out on Twitter and calling Republicans cucks and engaging in the same sort of race to the bottom of name-calling that Trump and the Republicans do. But if you look at the top Democratic over-performers, people like [Sen.-elect] Adam Hamilton in Kansas, like Rob Sand in Iowa, like James Talarico in Texas, these were people who were going out and preaching love.” Smith pointed to a Talarico interview where he called his opponent, Texas Attorney General Ken Paxton, a “<a href="https://www.youtube.com/watch?v=YbATdCoYZcc" rel="noopener noreferrer" target="_blank">child of God</a>.”</p><p></p><p>“Yes, Americans were fed up with corruption, et cetera, but you can’t watch those candidates and say the defining feature of these campaigns was anger.”</p>— Michael Wear, Center for Christianity and Public Life who once advised the Obama administration on faith outreach<p>A kind of broad-based compassion was specifically a hallmark of some more explicitly religious campaigns, said Michael Wear, the head of the Center for Christianity and Public Life who once advised the Obama administration on faith outreach. He pointed to Talarico in Texas, and Hamilton, a megachurch pastor poised to become Kansas’s first Democratic senator in nearly a century.</p><p>To Wear, that should offer some lessons for other Democrats as they think about preserving and expanding the new national coalition they built as they move into the 2028 election cycle.</p><p>“Yes, Americans were fed up with corruption, et cetera, but you can’t watch those candidates and say the defining feature of these campaigns was anger,” Wear said.</p><p>And that’s also how they talked about <em>voters</em> themselves, Smith said: trying to expand the tent by welcoming Republicans or even former Trump supporters who were fed up with this style of politics.</p><p>“They explicitly asked for their vote and said that, ‘We don’t judge you. I’m not going to judge you for how you voted in the past. And you’re welcome in my tent, you’re welcome in my coalition,’” Smith said. “That’s a different tone than you hear from a lot of Democrats.”</p><p>Smith said it was a risk — the most liberal of the Democratic base might enjoy “the sick warfare,” she said, “but most other people are really exhausted by it. … They’re really exhausted by just seeing neighbors turn against neighbors and find this approach of turning the temperature down refreshing.”</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/politics/509733/cruelty-decency-midterms-maga-trump-vivek-trans-bullying-talarico-hamilton" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

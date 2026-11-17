@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A economia do "dedo gordo" na era da IA - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A economia do "dedo gordo" na era da IA</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Nucleo Jornalismo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://nucleo.jor.br/ensaio/2026/11/04/a-economia-do-dedo-gordo-na-era-da-ia/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://nucleo.jor.br/content/images/2026/11/04Nov2026.jpg.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A economia do "dedo gordo" na era da IA
+                            </p>
+                            
+<p><em>Ensaio</em> é uma editoria que explora temas complexos sobre tecnologia digital e inteligência artificial e pode conter opiniões</p>
+<i><em>Artigo publicado originalmente no site Pluralistic, em inglês. Traduzido e republicado pelo </em></i><i><b><strong>Núcleo</strong></b></i><i><em> sob licença Creative Commons, com concordância do autor. O texto manteve sua formatação original.</em></i><i><em>&gt;&gt; </em></i><a href="https://pluralistic.net/2026/11/04/genius-scan-is-neither/?ref=nucleo.jor.br#x-marked-the-spot" rel="noopener noreferrer" target="_blank"><i><em>Acesse o artigo original aqui.</em></i></a><p>A frase "IA está sendo enfiada goela abaixo" pode significar muitas coisas. Pode significar que nossos chefes estão exigindo que utilizemos IA de forma imprudente ou sem sentido em nossos trabalhos: </p><p><a href="https://www.404media.co/manifestos-fear-and-loser-thinking-inside-protons-ai-reckoning/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.404media.co/manifestos-fear-and-loser-thinking-inside-protons-ai-reckoning/</a></p><p>Pode significar que Elon Musk e o índice NASDAQ entraram em conluio para forçar pessoas que estão economizando para suas aposentadorias a resgatarem seus amigos árabe-emiradenses ou oligarcas da tecnologia: </p><p><a href="https://www.nytimes.com/2026/06/05/technology/spacex-indexes-401k.html?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.nytimes.com/2026/06/05/technology/spacex-indexes-401k.html</a></p><p>Essas são, possivelmente, as principais formas como a IA é enfiada goela abaixo na gente, mas a forma mais visível de recrutamento compulsório para impulsionar o uso de IA acontece na camada da interface do usuário. Esse tipo de sacanagem em interfaces é anterior à IA. Há mais de uma década, empresas de tecnologia e seus executivos combinam entre si para enganar, coagir e forçar você a usar novos recursos que eles querem vender aos investidores como o futuro da empresa.</p><p>Lembra do Google Plus, a camada social que ia matar o Facebook e dar ao Google acesso a um mercado novo de trilhões de dólares? Bradley Horowitz, então um vice-presidente do Google, mandou todas as equipes de produto enfiarem o G+ em seus serviços e atrelou seus bônus ao uso do G+ (em empresas como o Google, o bônus pode ser maior que o salário-base).</p>
+
+
+
+
+<p>Jornalismo crítico sobre tecnologia acontece com o apoio de pessoas como você. <b><strong>Apoie o Núcleo e construa com a gente um futuro mais humano.</strong></b></p>
+
+<a href="https://nucleo.jor.br/assine/" rel="noopener noreferrer" target="_blank">
+                            Quero apoiar o Núcleo
+                        </a>
+
+
+
+<p>Os googlers são gente inteligente e cheia de recursos, e se você disser a eles que podem dobrar seus ganhos fazendo usuários clicarem em botões do Google Plus, eles vão inventar todo tipo de artimanha para fazer isso acontecer. Alguns desses lances são parte do que Horowitz sem dúvida esperava: formas inovadoras e criativas de agregar valor aos produtos centrais do Google com recursos do G+.</p><p>Mas quando o que está em jogo é tão alto, a Lei de Goodhart inevitavelmente entra em cena: “Quando uma medida vira meta, ela deixa de ser uma boa medida”:</p><p><a href="https://en.wikipedia.org/wiki/Goodhart%27s_law?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://en.wikipedia.org/wiki/Goodhart%27s_law</a></p><p>O jeito mais fácil de fazer um usuário clicar num botão do G+ é trocar o botão que ele mais clica por uma versão com G+. Em vez de apresentar o Google Plus de um jeito que transforme usuários em fãs, você só os frustra, enganando-os a clicar num botão inútil.</p><p>Do ponto de vista de um gerente de produto, qualquer mudança é válida para garantir que seu salário seja dobrado porque você atingiu o principal indicador de desempenho (KPI, na sigla em inglês), mesmo às custas da lealdade dos usuários ao produto. Preservar a lealdade do usuário ao custo de metade da sua renda é um mau negócio.</p><p>Quando um sistema de aprendizado de máquina faz isso, chamamos de “reward hacking”. Programadores de IA criam uma “função objetivo” para o sistema, um único número que ele vai tentar de tudo para aumentar; frequentemente, o programa encontra atalhos perversos pra fazer o número subir, independentemente de cumprir o objetivo do programador:</p><p><a href="https://en.wikipedia.org/wiki/Reward_hacking?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://en.wikipedia.org/wiki/Reward_hacking</a></p>
+
+
+
+<p>O <b><strong>Atelier Núcleo</strong></b> é um estúdio de newsletters que desenha e opera newsletters de ponta a ponta — estratégia, texto, design, envio e análise — transformando listas de e-mail em canais de conteúdo original, distribuição e comunidade.</p>
+
+<a href="https://ateliernucleo.com/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">
+                            Saiba mais
+                        </a>
+
+
+<p>Por exemplo, se você pede pra uma IA achar o caminho mais curto pra zerar um videogame, ela pode muito bem descobrir um bug que a torna imune aos ataques dos inimigos ou que simplesmente a teletransporta pro fim do jogo. Pra evitar esses resultados perversos, os programadores precisam deixar as funções objetivo cada vez mais específicas: “zere o jogo o mais rápido possível, sem teletransporte e sem descobrir hacks de imortalidade.”</p><p>Não por acaso, muitos autores de ficção científica (eu incluso) já notaram que o medo que os chefes de tecnologia têm de seus próprios sistemas de IA é uma espécie de contaminação emocional de suas frustrações em relação às corporações que dirigem, nas quais subordinados praticam o mesmo tipo de reward hacking que vemos nos chatbots:</p><p><a href="https://pluralistic.net/2025/04/14/timmy-share/?ref=nucleo.jor.br#a-superior-moral-justification-for-selfishness" rel="noopener noreferrer" target="_blank">https://pluralistic.net/2025/04/14/timmy-share/#a-superior-moral-justification-for-selfishness</a></p><p>Apesar da facilidade com que métricas podem ser manipuladas, os chefes de tecnologia seguem comprometidos com o uso de KPIs para mudar as prioridades de suas organizações, e eles usam a mesma técnica de refinamento de função objetiva que os programadores aplicam em IAs que fazem reward hacking, a fim de tentar impedir que os funcionários trapaceiem batendo os KPIs de qualquer jeito.</p><p>Isso explica <em>muito</em> da experiência de assistir a um vídeo no celular. Toda vez que você abre um programa numa plataforma de streaming, você é forçado a segurar o aparelho com a delicadeza de quem manuseia um negativo fotográfico. Se qualquer parte da sua mão encostar em qualquer parte da tela, você será imediatamente transportado do vídeo que estava vendo pra outro completamente diferente:</p><p><a href="https://pluralistic.net/2022/05/15/the-fatfinger-economy/?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://pluralistic.net/2022/05/15/the-fatfinger-economy/</a></p><p>Pior: depois que o seu episódio for substituído por um novo, não existe um jeito óbvio de voltar ao que você estava vendo. Isso é bem estranho, considerando que o “botão de voltar” faz parte das interfaces de computador desde 1981:</p><p><a href="https://www.merriam-webster.com/dictionary/back%20button?ref=nucleo.jor.br" rel="noopener noreferrer" target="_blank">https://www.merriam-webster.com/dictionary/back%20button</a></p><p>O motivo de não haver botão de voltar é reward hacking. As plataformas de streaming sofrem uma pressão enorme para recomendar o catálogo antigo aos usuários, porque a alternativa (encomendar ou comprar um fluxo constante de séries novas e populares) é muito cara. Os investidores dão muito peso à taxa de “recomendação bem-sucedida” dos serviços de streaming.</p>
+<p>Dessa forma, os chefes dos streamings encarregam as equipes de produto de garantir “recomendações bem-sucedidas”. O jeito mais fácil de “recomendar uma série” é encher de armadilhas a interface do serviço, de modo que tocar em qualquer parte da tela leve você a um vídeo que você nunca pediu pra ver.</p><p>Esse é um reward hacking óbvio, então os chefes do streaming refinaram a função objetiva: passaram a condicionar os bônus das equipes a fazer você assistir ao novo vídeo por um tempo mínimo. Isso, por sua vez, gerou a rodada seguinte das guerras de reward hacking, em que as equipes de produto tiraram o botão de voltar. Isso dá a usuários uma porção de recursos que os levam embora pra um vídeo novo. Pra voltar ao vídeo antigo, são obrigados a se virarem com os botões.</p><p>Essa é a chamada 'economia do dedo gordo' (<em>fatfinger economy</em>): criada nos anos 2010 por equipes de grandes empresas de tecnologia com chefes obcecados por KPIs; refinada nos anos 2020 por equipes de empresas de streaming obcecadas com o resultado financeiro; e agora aperfeiçoada por equipes encarregadas de enfiar IA em cada canto das nossas vidas:</p><p><a href="https://pluralistic.net/2025/05/02/kpis-off/?ref=nucleo.jor.br#principal-agentic-ai-problem" rel="noopener noreferrer" target="_blank">https://pluralistic.net/2025/05/02/kpis-off/#principal-agentic-ai-problem</a></p><p>A economia do dedo gordo é uma beneficiária extraordinária da corrida pra adicionar “telemetria” em todos os nossos apps. Hoje, o desenvolvedor de um app abre um painel e descobre quais botões, campos e sliders são mais usados, e usa essa lista pra decidir quais botões trocar por cópias que acionam sua IA, ajudando as equipes de produto a “provarem” aos seus chefes que “integraram IA com sucesso”, e permitindo que os chefes provem aos investidores que “os usuários valorizam recursos de IA”.</p><p>Recentemente troquei o Android pelo Graphene, um sistema operacional de celular sem Google. Os mantenedores do Graphene vivem livres da obrigação de mostrar que “os usuários valorizam recursos de IA”, e é por isso que nunca invoquei sem querer uma IA forçada ao tocar num elemento da interface do Graphene.</p><p>A história é diferente quando se trata de apps. O Graphene tem várias formas de instalar apps, incluindo pela Google Play (a loja padrão do Android). Isso é útil porque deixa você instalar seus antigos apps de Android depois da troca para o Graphene, mas também te deixa exposto à economia do dedo gordo.</p><p>Semana passada, levei um lembrete doloroso do avanço da economia do dedo gordo fora do universo utópico do Graphene. Eu uso muito um app chamado “Genius Scanner”, que me deixa escanear recibos e mandar por e-mail pra mim mesmo (faço isso o tempo todo porque, como freelancer, preciso controlar um monte de despesas diferentes). Comprei uma assinatura vitalícia do Genius Scanner em 2023, depois de me queimar com o Camscanner (meu app de escaneamento anterior, hoje merdificado [<em>enshittified</em>]), e estava perfeitamente feliz… até agora.</p><p>O Genius Scanner está claramente sob pressão pra impulsionar a adoção de IA. Dá pra notar porque removeram o elemento de interface mais importante e botaram no lugar um botão de IA pior que inútil.</p><p>Eu uso o Genius Scanner assim: aperto o botão “novo scan” e enquadro o recibo na tela. Depois aperto o botão “renomear”, que abre um campo preenchido com a data e a hora atuais (16 caracteres no total). Esse texto vinha selecionado, de modo que tocar no “x” ao lado dele apagava tudo, facilitando dar um título ao novo ao documento escaneado. Depois era só mandar por e-mail pra mim mesmo.</p><p>Só que, desde a semana passada, não existe mais botão pra apagar a data e a hora e digitar um título útil. Aquele pequeno “x” foi substituído por um botão que abre um anúncio das novas ferramentas de IA da empresa, que custam US$ 40 por ano. Não há como avisar ao sistema que não você não tem interesse em comprar uma nova assinatura de uma ferramenta pela qual já pagou uma assinatura vitalícia, e não há como trazer o pequeno “x” de volta.</p><p>Deixando claro: aquele “x” representa um quarto do meu fluxo de escaneamento de recibos. Trocaram por um anúncio de um recurso de IA com assinatura nova e me deram 16 toques extras no backspace pra substituir um único toque no “x”. Já vi esse anúncio umas 100 vezes até agora, porque continuo tocando no lugar onde ficava o “x”.</p><p>Tenho certeza de que a empresa sabia que seus clientes pagantes dependiam do “x” pra realizar uma função vital em qualquer app de escaneamento (dar bons títulos descritivos aos scans). Eles precisam que o número de usuários de IA cresça, então trocaram o “x” pelo anúncio de IA, o que vai permitir que digam aos investidores que há “forte interesse dos consumidores em seus recursos de IA”.</p><p>Enquanto isso, eles já receberam meu dinheiro, então não tenho como puni-los por terem me ferrado pra maquiar uma estatística sem sentido. É um exemplo tão claro (e deprimente) do princípio que diz “mesmo pagando pelo produto, você continua sendo o produto”.</p><p>É também uma lição perfeita de como as empresas conseguem reportar interesse e uso crescentes de IA sem gerar interesse nem uso nenhum. Na economia do dedo gordo, toda métrica vira meta e, por isso, torna-se sem sentido.</p><i><em>Este texto foi traduzido do inglês com auxílio de inteligência artificial e integralmente revisado e editado por editores humanos, seguindo nossa </em></i><a href="https://nucleo.jor.br/politica-ia/" rel="noopener noreferrer" target="_blank"><i><em>política aberta</em></i></a><i><em> de uso de inteligência artificial.</em></i><i><em>Editado por Sérgio Spagnuolo</em></i>
+
+<p>Apoie o jornalismo independente do Núcleo</p>
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/comunidade-nucleo.png?v=qclCYJkMSegKKOEr"/>
+
+<strong>Comunidade Núcleo</strong>
+<p>Assinatura cheia de coisa legal. Ideal pra quem quer apoiar por um valor camarada e mesmo assim receber vários benefícios.</p>
+
+
+
+<img alt="" src="https://nucleo.jor.br/assets/images/tiers/apoie-nossa-missao-2.png?v=4SmHzh8eQPpy2d4B"/>
+
+<strong>Apoie nosso futuro</strong>
+<p>Esse plano é pra quem realmente vai além. De quebra, ainda está recheado com benefícios fenomenais.</p>
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://nucleo.jor.br/ensaio/2026/11/04/a-economia-do-dedo-gordo-na-era-da-ia/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

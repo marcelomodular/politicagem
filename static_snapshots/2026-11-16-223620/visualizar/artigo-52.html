@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deu a louca nos bots - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Deu a louca nos bots</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Agencia Publica</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://apublica.org/2026/11/deu-a-louca-nos-bots/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/Thumb-Deu-a-louca-nos-bots.jpg?fit=1200%2C627&ssl=1" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Deu a louca nos bots
+                            </p>
+                            
+<blockquote>
+<p><em>Quer receber os textos desta coluna em primeira mão no seu e-mail? Assine a newsletter Xeque na Democracia, enviada toda segunda-feira, 12h. Para receber as próximas edições, </em><a href="https://agen.pub/xequenademocracia" rel="noopener noreferrer" target="_blank"><em>inscreva-se aqui.</em></a></p>
+</blockquote>
+<p>Outro dia estava em Santiago do Chile, e quis compartilhar com os colegas chilenos <a href="https://apublica.org/2026/08/os-eua-ja-estao-interferindo-nas-eleicoes-brasileiras/" rel="noopener noreferrer" target="_blank">este artigo</a>, no qual listo as maneiras como os EUA intervieram nas eleições brasileiras e, portanto, pedi ao Deepseek para traduzi-lo para o espanhol. </p>
+<p>O robozinho chinês realizou meu comando com presteza, mas foi além. Abaixo da tradução, após um emoji de alerta, ele avisou: “Nota importante: Se trata de um artigo de opinião/denúncia jornalística com uma linha editorial muito definida, não de um relato neutro”. Prosseguiu, dizendo que as afirmações eram interpretações, “não fatos confirmados independentemente”. E terminava: “Se você necessita deste resumo para um trabalho acadêmico ou uma decisão importante, convém contrastá-lo com outras fontes”. </p>
+<p>Não fiquei ofendida com a interpretação do robozinho, mas pasma – assustada é a palavra – com o fato de que <strong>ele não se limitou a cumprir o meu</strong> <strong><em>prompt</em></strong><strong>, mas decidiu me alertar sobre o conteúdo do material</strong> que eu forneci a ele. </p>
+<p>As implicações disso são tremendas. Se você está acompanhando as notícias recentes sobre desenvolvimentos da IA, está pelo menos um pouco alarmado. </p>
+<p>Esta escapadela do Deepseek funciona mais como uma anedota interessante – não é o caso de que o robô decidiu agir sozinho, deve ser alguma nova atualização do chatbot que pretende ajudar a alertar sobre desinformação – e como um ponto de partida para uma reflexão sobre as consequências da adoção de tecnologias que evoluem rapidamente, são obstinadas e, falando em bom português, <strong>ninguém sabe bem como funcionam</strong>: nem seus criadores, nem seus engenheiros, nem seus donos. </p>
+<p>A consequência do que fez o Deepseek é exatamente o que os <em>tech bros</em> fingiram não querer por tanto tempo: eis que o robozinho agora se arvora em dizer o que é verdade e o que não é. Isso, em um contexto privado, em uma relação desigual, onde uma pessoa/humana se volta para um robô/ferramenta em busca de conhecimento, ou seja, se portando como aprendiz. <strong>Nós, diante dos chatbots, estamos vulneráveis. E é perigosíssimo que eles façam um juízo de valor – sem serem requisitados a isso – sobre a informação que consumimos.</strong> </p>
+<p>Na mesma semana em que o Deepseek me dizia que minha coluna é enviesada, jornais <a href="https://g1.globo.com/tecnologia/ciberseguranca/noticia/2026/11/15/hackers-invadem-subsidiaria-dos-correios-da-franca-e-expoem-dados-de-22-milhoes.ghtml" rel="noopener noreferrer" target="_blank">publicam</a> que o correio da França foi hackeado e os dados de 22 milhões de franceses – um terço da população – foi comprometido. </p>
+<p><strong>Apertem os cintos, essas notícias serão cada vez mais comuns. </strong></p>
+<p>A verdade é que chegamos a novembro com um novo paradigma do desenvolvimento da IA, no qual agora somos obrigados a lidar com as consequências de termos jogado no mundo essas ferramentas que tomam decisões por si sós e que portanto, por princípio, não temos como controlar ou prever totalmente. Mudou de vez o paradigma da segurança digital. Tudo está sob ameaça. As câmeras do Smart Sampa. O Tinder. O E-gov. Os alertas da Defesa Civil. Tudo. </p>
+<p>Na imprensa internacional, os eventos de quebra de segurança recentes foram chamados de “outubro sombrio”. </p>
+<p>Um dos mais graves foi a descoberta de vulnerabilidades na linguagem de programação chamada PHP, amplamente usada por sites que vemos todos os dias, o que <a href="https://www.theguardian.com/technology/2026/oct/22/websites-across-world-hit-by-millions-of-attempts-to-exploit-php-code-flaw" rel="noopener noreferrer" target="_blank">pode ter deixado</a> 70% de todos os sites na internet sob risco de serem invadidos – <strong>pessoas (ou robôs) poderiam assumir controle dos servidores, roubar dados, tirar os sites do ar.</strong> Antes do anúncio da vulnerabilidade, <em>experts</em> em cibersegurança já estavam detectando um aumento de ataques tentando explorar a falha em todo o mundo. Em resposta, a NSA (de triste memória) do governo dos EUA emitiu um alerta e diversos sites governamentais saíram do ar para implementar as correções. </p>
+<p>Um <a href="https://www.halcyon.ai/ransomware-evolution-report/q3-2026" rel="noopener noreferrer" target="_blank">relatório</a> do centro Halcyon, especializado em sequestro de dados digital, detectou um aumento de 40% de ataques do tipo entre julho e setembro deste ano, se comparado com os meses anteriores. É só um exemplo; diversos especialistas estão alertando para o fato de que <strong>estamos vivendo uma onda sem precedentes de ataques de segurança a sites do mundo todo. </strong></p>
+<p>Jason Clinton, vice-diretor de segurança da informação da Anthropic, <a href="https://x.com/JasonDClinton/status/2113325263157395456" rel="noopener noreferrer" target="_blank">chamou</a> de desastre o que o que estamos começando a vislumbrar. “O tsunami de vulnerabilidades está chegando em apenas alguns meses e não haverá tempo suficiente para corrigir a infraestrutura crítica”, escreveu no X.</p>
+<p><strong>Criminosos, agências de inteligência e segurança, governos autoritários, empresas corruptas, todos estão testando o que pode ser feito com os LLMs (Large Language Models)</strong> <strong></strong><strong>disponíveis no mercado.</strong> </p>
+<p>E em termos de explorar falhas em segurança na arquitetura do mundo digital, eles são imbatíveis. </p>
+<p>Uma reportagem recente da <a href="https://www.reuters.com/legal/government/how-one-hacker-used-ai-agents-few-thousand-dollars-break-into-scores-sites-2026-10-19/" rel="noopener noreferrer" target="_blank">Reuters</a>, que tem como fonte o especialista em segurança Snorre Fagerland, traz com muita clareza como funciona este novo mundo. Ele conta que conseguiu mapear a ação de um cibercriminoso chinês que usou agentes para invadir sites de mais de 100 empresas, incluindo uma fabricante de eletrodomésticos e uma de motores da China. </p>
+<p>Segundo a Reuters, o que ele fez foi definir os alvos e passar aos seus agentes de IA uma instrução concisa – “invada” – e uma lista das suas táticas de intrusão preferidas. Incansáveis, os robozinhos passaram horas a fio em busca de vulnerabilidades em diferentes sites. Quando não encontraram, eles passaram a explorar vulnerabilidades em outros provedores de serviços ou infraestrutura associada. </p>
+<p>A busca pode ser infinita. </p>
+<p>Alguma vulnerabilidade, haverá.  </p>
+<p>O <em>expert</em> entrevistado pela Reuters se disse “impressionado” pela capacidade dos agentes de resolver problemas complexos como esses. Ele diz ter comprovado que os agentes de IA que já existem no mercado podem fazer invasões complexas sem intervenção humana. </p>
+<p>Como sabemos, <strong>é bem difícil estabelecer limites para a IA.</strong> Se os robôs recebem uma ordem, vão buscar obstinadamente encontrar a solução. Não têm sono, não têm sede, não têm problemas familiares com que se preocupar; e são baratos. </p>
+<p>Fagerland estimou que a atividade do hacker chinês usava uma combinação do DeepSeek com o Claude Code, da Anthropic, e gastou apenas US$ 5.000 em tokens.</p>
+<p>Os robôs, ainda por cima, não têm bom senso, apenas lógica. </p>
+<p>Assim como na emergência climática, à qual fomos jogados pela ganância de gerações de homens no poder, é este o mundo em que vivemos agora. </p>
+<p><strong>Se os robôs só têm a lógica, seria bom que pelos menos os homens que comandam essas empresas – e os governos – tivessem algum bom senso e se unissem para regular de uma vez essa tecnologia</strong>, decretando uma moratória imediata. <a href="https://apublica.org/autor/natalia-viana/" rel="noopener noreferrer" target="_blank">Como comentei na semana passada</a>, é o que estão pedindo os votos nas urnas. </p>
+<p>Não me parece que é o que vai acontecer, infelizmente.  </p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://apublica.org/2026/11/deu-a-louca-nos-bots/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

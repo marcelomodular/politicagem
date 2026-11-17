@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eleições: a arquitetura da virada - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Eleições: a arquitetura da virada</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/movimentoserebeldias/eleicoes-a-arquitetura-da-virada/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5159062833210265445_w.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: EleiÃ§Ãµes: a arquitetura da virada
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_5159062833210265445_w.jpg"/>Imagem: ReproduÃ§Ã£o/Harvard Gazette
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>A reta final das eleiÃ§Ãµes presidenciais no Brasil evidenciou uma transformaÃ§Ã£o profunda nas dinÃ¢micas de engajamento polÃ­tico e campanha eleitoral. Longe de se restringir a um modelo puramente hierÃ¡rquico â ditado centralmente por marqueteiros â ou a uma mobilizaÃ§Ã£o 100% espontÃ¢nea e pulverizada, a militÃ¢ncia digital operou em uma arquitetura mista. Pela primeira vez em uma campanha eleitoral, combinamos de forma exemplar aÃ§Ãµes verticalizadas com aÃ§Ãµes horizontalizadas. Utilizando os termos de Rodrigo Nunes, o fenÃ´meno do segundo turno nÃ£o foi puramente vertical nem estritamente horizontal, mas sim a combinaÃ§Ã£o sinÃ©rgica de ambos os vetores, capaz de espalhar mensagens e mobilizar eleitores em uma velocidade inÃ©dita nas redes sociais e fora delas.</p>
+<p>A vitÃ³ria quase impossÃ­vel de Lula neste segundo turno tambÃ©m se deve Ã  combinaÃ§Ã£o entre redes, ruas e o poder do boca a boca. Essa mobilizaÃ§Ã£o ganhou forÃ§a justamente porque as estratÃ©gias de comunicaÃ§Ã£o nÃ£o ficaram restritas Ã s estruturas organizadas da campanha, mas foram apropriadas e transformadas pelos prÃ³prios eleitores, que passaram a produzir conteÃºdos, compartilhar informaÃ§Ãµes e mobilizar suas redes de contatos. O que comeÃ§ava como uma orientaÃ§Ã£o em um grupo de WhatsApp podia ganhar novos formatos no Instagram ou no TikTok, chegar Ã s ruas e se transformar em uma conversa entre familiares, amigos ou colegas de trabalho.</p>
+<p>Nesse processo, trÃªs mecanismos se articularam: a coordenaÃ§Ã£o das estratÃ©gias de comunicaÃ§Ã£o, a apropriaÃ§Ã£o dessas orientaÃ§Ãµes por influenciadores, coletivos e usuÃ¡rios comuns e a mediaÃ§Ã£o interpessoal, que levou a disputa eleitoral para as relaÃ§Ãµes cotidianas. A forÃ§a dessa dinÃ¢mica esteve justamente na circulaÃ§Ã£o contÃ­nua entre essas diferentes formas de atuaÃ§Ã£o, em que iniciativas organizadas por coletivos e experiÃªncias individuais se alimentavam mutuamente, ampliando o alcance da mobilizaÃ§Ã£o dentro e fora das plataformas digitais.</p>
+<h3><strong>A RetroalimentaÃ§Ã£o: Redes, Ruas e o Poder do Boca a Boca</strong></h3>
+<p>Muitas anÃ¡lises sobre os 20 dias que separaram o primeiro do segundo turno tÃªm focado na complementaridade entre “rede e rua”. Ã inegÃ¡vel o esforÃ§o do movimento estudantil da UFF em NiterÃ³i no primeiro dia apÃ³s o segundo turno. Eles foram os madrugadores dos protestos nas ruas que, a cada dia, conquistaram outras cidades e movimentos. InegÃ¡vel tambÃ©m a convocaÃ§Ã£o da deputada federal Ana Elisa, em seu discurso de vitÃ³ria, ao convocar o PT para ir para as redes sociais fazer campanha. Os jovens foram os madrugadores deste segundo turno da campanha, convocando todos nÃ³s Ã s redes e Ã s ruas.</p>
+<p>Contudo, o grande diferencial que garantiu eficÃ¡cia ao ativismo no segundo turno foi uma trÃ­plice retroalimentaÃ§Ã£o: a conexÃ£o contÃ­nua entre o ambiente digital, as manifestaÃ§Ãµes fÃ­sicas e o velho e bom boca a boca. A dinÃ¢mica funcionou como um ecossistema vivo: um estÃ­mulo nas redes alimentava aÃ§Ãµes em praÃ§a pÃºblica, que por sua vez geravam conversas individuais entre conhecidos e desconhecidos e aÃ§Ãµes tanto individuais como coletivas feitas por movimentos e partidos em feiras, transportes pÃºblicos e reuniÃµes familiares.</p>
+<p>Essa validaÃ§Ã£o interpessoal mostrou-se decisiva. O convencimento direto â quando uma pessoa comum dialoga com um parente ou com um colega de trabalho em uma chamada telefÃ´nica, um papo presencial ou com panfletos e banquinhas nas ruas â ganhava fÃ´lego extra abastecido pelas pautas, dados e narrativas que circulavam diariamente nas plataformas de mensagem e redes sociais.</p>
+<p>Ao mesmo tempo, as redes sociais tambÃ©m foram o ambiente em que as conexÃµes interpessoais se mostraram uma estratÃ©gia de diÃ¡logo e convencimento, trazendo o boca a boca para uma nova dimensÃ£o. Diversas publicaÃ§Ãµes foram republicadas e compartilhadas em stories do Instagram e do WhatsApp chamando as pessoas que as vissem para o diÃ¡logo, como, por exemplo, algumas que diziam âSe vocÃª votou em [nome de algum candidato que disputou o primeiro turno], vamos conversar.â AlÃ©m disso, a publicaÃ§Ã£o de mensagens sobre o segundo turno nos <em>status</em> do WhatsApp reforÃ§a a importÃ¢ncia das relaÃ§Ãµes interpessoais como espaÃ§os de diÃ¡logo e mobilizaÃ§Ã£o polÃ­tica. Diferentemente do Instagram, em que as publicaÃ§Ãµes podem alcanÃ§ar pÃºblicos desconhecidos, os <em>status</em> do WhatsApp circulam, em geral, entre contatos jÃ¡ estabelecidos, favorecendo a disseminaÃ§Ã£o de conteÃºdos polÃ­ticos em redes de sociabilidade preexistentes e abrindo possibilidades de conversa e convencimento entre pessoas que jÃ¡ mantÃªm algum vÃ­nculo.</p>
+<h3><strong>O “ExÃ©rcito do Zap” e a TÃ¡tica da Luta Aberta</strong></h3>
+<p>No topo do vetor vertical e diretivo, destaca-se a atuaÃ§Ã£o do deputado AndrÃ© Janones e a estruturaÃ§Ã£o do que se convencionou chamar de “ExÃ©rcito do Lula”. Utilizando uma linguagem abertamente bÃ©lica, Janones estabeleceu um canal direto com apoiadores por meio de missÃµes diÃ¡rias de engajamento, em uma estratÃ©gia de gamificaÃ§Ã£o da militÃ¢ncia. A estratÃ©gia contornava os filtros algorÃ­tmicos das redes abertas, descentralizando a distribuiÃ§Ã£o do conteÃºdo para milhares de grupos privados. O objetivo central era claro: armar o militante com narrativas instantÃ¢neas para disputar a atenÃ§Ã£o, responder a ataques e convencer outras pessoas a replicarem a mensagem em suas prÃ³prias redes de contatos.</p>
+<p>Essa estratÃ©gia de organizar a militÃ¢ncia a partir de grupos de WhatsApp se assemelha Ã  de 2018 em favor de Jair Bolsonaro, em que grupos de apoio ao entÃ£o candidato serviam como base de atuaÃ§Ã£o da militÃ¢ncia digital e forneciam conteÃºdos falsos para serem publicados nas mÃ­dias sociais e compartilhados pelos usuÃ¡rios em outros grupos ou conversas pessoais, o que David Nemer chama de âInfraestrutura Humana da DesinformaÃ§Ã£o”, funcionando como um esquema de pirÃ¢mide em que os influenciadores estariam no topo, produzindo as narrativas e conteÃºdos a serem compartilhados, e os usuÃ¡rios comuns na base, atuando na difusÃ£o das mensagens.</p>
+<p>Diferentemente dos grupos analisados por Nemer, nos quais a desinformaÃ§Ã£o desempenhava um papel central, as orientaÃ§Ãµes difundidas pelo âExÃ©rcito do Lulaâ enfatizavam o compartilhamento de informaÃ§Ãµes factuais e o combate Ã s notÃ­cias falsas. O General Janones enviava mensagens enÃ©rgicas e com alto senso de urgÃªncia, instigando os militantes a publicarem memes e trends como fator para prender a atenÃ§Ã£o e aumentar a circulaÃ§Ã£o do conteÃºdo, alÃ©m de orientar os participantes a nÃ£o difundirem notÃ­cias falsas, mas fatos. Ao utilizar o WhatsApp, cuja circulaÃ§Ã£o de conteÃºdos depende menos de algoritmos de recomendaÃ§Ã£o, as missÃµes propostas pelo âGeneralâ nÃ£o ficavam restritas aos grupos de mensagens, mas eram tambÃ©m replicadas em outras redes sociais, especialmente no Instagram. Nessa plataforma, a disputa por visibilidade era desigual, como relata a prÃ³pria Meta ao admitir que as contas de Lula foram prejudicadas por restriÃ§Ãµes, enquanto o conteÃºdo de perfis apoiadores do adversÃ¡rio batia recordes de visualizaÃ§Ãµes, dando indÃ­cios de favorecimento que nÃ£o puderam ser comprovados.</p>
+<h3><strong>Tecnologia cÃ­vica e produÃ§Ã£o de conhecimento novo e aplicado: Aplicativos e OrganizaÃ§Ã£o de Base</strong></h3>
+<p>Mas nem tudo foi vertical nas redes. No plano do ativismo eleitoral digital, ocorreram outras iniciativas menos visÃ­veis. O desenvolvimento e uso de aplicativos especÃ­ficos cumpriram papel estratÃ©gico na logÃ­stica eleitoral. Ferramentas digitais foram desenhadas para identificar regiÃµes com maior potencial de virada de votos, organizar a panfletagem de rua, monitorar os temas que estavam em alta nas diferentes redes sociais tanto do campo de Lula quanto do campo da extrema direita, coordenar a logÃ­stica de caronas para eleitores no dia da votaÃ§Ã£o e analisar dados eleitorais em tempo real. Essa camada de tecnologia cÃ­vica permitiu que a energia do ativismo virtual fosse canalizada de maneira pragmÃ¡tica para a aÃ§Ã£o territorial direta.</p>
+<p>Essas iniciativas tambÃ©m possibilitaram a produÃ§Ã£o de novos conhecimentos sobre a disputa eleitoral. A combinaÃ§Ã£o entre dados eleitorais e experiÃªncias de militantes e organizaÃ§Ãµes locais ajudou a identificar prioridades e orientar estratÃ©gias de convencimento, considerando o histÃ³rico de votaÃ§Ã£o, as caracterÃ­sticas de cada regiÃ£o e as condiÃ§Ãµes concretas de organizaÃ§Ã£o da militÃ¢ncia.</p>
+<p>As informaÃ§Ãµes produzidas tambÃ©m circulavam entre diferentes grupos e plataformas, alimentando as aÃ§Ãµes de mobilizaÃ§Ã£o. OrientaÃ§Ãµes compartilhadas pelo WhatsApp podiam se transformar em atividades presenciais, enquanto as experiÃªncias nas ruas forneciam novos elementos para avaliar e ajustar as estratÃ©gias. Esse processo permitiu que o conhecimento produzido coletivamente fosse continuamente atualizado a partir da prÃ³pria atuaÃ§Ã£o dos militantes.</p>
+<h3><strong>Microinfluenciadores, imprensa alternativa e a guerra dos cortes</strong></h3>
+<p>Na camada horizontal, a atuaÃ§Ã£o de micro e nanoinfluenciadores digitais provou que a autoridade de fala nÃ£o pertencia mais apenas Ã s grandes personalidades. Perfis de pequeno e mÃ©dio porte geraram identificaÃ§Ã£o e confianÃ§a em nichos especÃ­ficos. Ao mesmo tempo, veÃ­culos da imprensa alternativa (tais como Revelando, AgÃªncia PÃºblica, Intercept, MÃ­dia Ninja, ICL, entre outros) produziram reportagens e checagens aprofundadas que foram desmembradas em “cortes” curtos e dinÃ¢micos para circulaÃ§Ã£o rÃ¡pida. A alianÃ§a informal com artistas de grande visibilidade ajudou a amplificar essas produÃ§Ãµes, dando escala e alcance massivo Ã s denÃºncias e propostas.</p>
+<p>A circulaÃ§Ã£o desses conteÃºdos tambÃ©m contou com a participaÃ§Ã£o de usuÃ¡rios comuns, que compartilhavam, comentavam e adaptavam as publicaÃ§Ãµes Ã s suas prÃ³prias redes de contatos, alÃ©m de produzirem conteÃºdos prÃ³prios como imagens ou vÃ­deos curtos para serem republicados tambÃ©m. Nesse processo, uma mesma informaÃ§Ã£o podia assumir diferentes formatos e linguagens, circulando entre grupos de WhatsApp, <em>stories</em> ou<em> reels </em>do Instagram, vÃ­deos do TikTok e outras plataformas. Os cortes de entrevistas, debates e reportagens ganharam especial importÃ¢ncia nessa dinÃ¢mica, permitindo que trechos especÃ­ficos fossem destacados, editados e compartilhados de acordo com os acontecimentos e as disputas polÃ­ticas de cada momento.</p>
+<p>Essa circulaÃ§Ã£o tambÃ©m envolveu uma disputa pela interpretaÃ§Ã£o dos acontecimentos. Falas de candidatos, declaraÃ§Ãµes de apoiadores e episÃ³dios da campanha eram rapidamente transformados em vÃ­deos curtos, acompanhados de legendas, mÃºsicas e comentÃ¡rios que orientavam sua recepÃ§Ã£o. A velocidade de produÃ§Ã£o e compartilhamento desses materiais permitia que diferentes atores participassem da construÃ§Ã£o das narrativas sobre a eleiÃ§Ã£o, muitas vezes antecipando debates que posteriormente ganhariam espaÃ§o na imprensa tradicional.</p>
+<p>A atuaÃ§Ã£o dos microinfluenciadores foi importante nesse processo pela proximidade que mantinham com seus pÃºblicos. Criadores de conteÃºdo ligados a diferentes Ã¡reas, como cultura, entretenimento, educaÃ§Ã£o e cotidiano, passaram a incorporar a disputa eleitoral Ã s suas publicaÃ§Ãµes, utilizando linguagens familiares aos seus seguidores. Essa diversidade de perfis contribuiu para que os conteÃºdos polÃ­ticos circulassem em espaÃ§os que nem sempre estavam diretamente associados ao debate eleitoral, alcanÃ§ando pÃºblicos com diferentes interesses e nÃ­veis de engajamento.</p>
+<h3><strong>EmoÃ§Ãµes, repertÃ³rios culturais e mobilizaÃ§Ã£o polÃ­tica</strong></h3>
+<p>Outro elemento importante para compreender a mobilizaÃ§Ã£o no segundo turno foi o papel das emoÃ§Ãµes, especialmente o medo, a raiva e a esperanÃ§a. O resultado do primeiro turno produziu um senso de urgÃªncia, mas a indignaÃ§Ã£o jÃ¡ vinha sendo acumulada ao longo dos anos anteriores, especialmente durante a pandemia de Covid-19. O luto pelas mortes e a revolta diante da atuaÃ§Ã£o de Bolsonaro na crise sanitÃ¡ria jÃ¡ haviam ganhado expressÃ£o polÃ­tica em manifestaÃ§Ãµes nas quais pessoas vestidas com roupas de proteÃ§Ã£o biolÃ³gica carregavam representaÃ§Ãµes de cadÃ¡veres. A possibilidade de continuidade do bolsonarismo parece ter reativado esses sentimentos, articulando a memÃ³ria das perdas ao medo do futuro e Ã  esperanÃ§a de mudanÃ§a. A expressÃ£o “psicose polÃ­tica”, ressignificada por militantes que se afirmavam “lÃºcidos de raiva”, sintetiza bem como a indignaÃ§Ã£o tambÃ©m se transformou em uma forma de engajamento polÃ­tico.</p>
+<p>A mobilizaÃ§Ã£o dessas emoÃ§Ãµes tambÃ©m passou pela apropriaÃ§Ã£o de repertÃ³rios culturais. MÃºsicas como <em>Vermelho</em>, <em>Ele Investiu em Vc</em>, funks autorais e sucessos internacionais foram incorporados a vÃ­deos, memes e publicaÃ§Ãµes, combinando indignaÃ§Ã£o, humor e esperanÃ§a. Um exemplo marcante foi o uso de <em>Under Pressure</em>, da banda Queen, cujo verso <em>“This is our last dance”</em> ganhou um novo significado diante da possibilidade de aquela ser a Ãºltima eleiÃ§Ã£o disputada por Lula. Essas mÃºsicas circularam em diferentes plataformas, sendo utilizadas pelos prÃ³prios eleitores para produzir conteÃºdos e expressar os sentimentos que atravessavam a campanha.</p>
+<p>Essa dimensÃ£o tambÃ©m ajuda a compreender a retroalimentaÃ§Ã£o entre redes e ruas. Os vÃ­deos das manifestaÃ§Ãµes, frequentemente editados com mÃºsicas e referÃªncias culturais compartilhadas, voltavam a circular nas plataformas digitais, ampliando a visibilidade dos atos e potencialmente incentivando novas formas de participaÃ§Ã£o. Imagens de multidÃµes, bandeiras e pessoas cantando nÃ£o apenas registravam os acontecimentos, mas tambÃ©m demonstravam a forÃ§a, a unidade e o comprometimento dos participantes. A circulaÃ§Ã£o desses registros ajudava a alimentar o entusiasmo da militÃ¢ncia e a manter a mobilizaÃ§Ã£o ativa ao longo do segundo turno.</p>
+<h3><strong>ApropriaÃ§Ã£o Cultural, trends e gamificaÃ§Ã£o</strong></h3>
+<p>Outro ponto marcante foi o rÃ¡pido aprendizado dos eleitores sobre o funcionamento dos algoritmos. UsuÃ¡rios aprenderam, na prÃ¡tica, a importÃ¢ncia de curtir, compartilhar e nÃ£o engajar com conteÃºdos adversÃ¡rios para nÃ£o impulsionar postagens da oposiÃ§Ã£o. No TikTok e no Instagram, o uso de <em>trends</em>, memes e formatos como o “chÃ¡ revelaÃ§Ã£o de voto” ganharam as redes. Mesmo quando diretrizes ou sugestÃµes vinham “de cima”, a populaÃ§Ã£o se apropriou dos conceitos de forma autÃªntica â ressignificando elementos como o verde e amarelo em fotos de perfil e vÃ­deos de reaÃ§Ã£o instantÃ¢nea Ã s notÃ­cias diÃ¡rias.</p>
+<p>A criatividade militante tambÃ©m abraÃ§ou a gamificaÃ§Ã£o polÃ­tica. Um exemplo marcante foi o lanÃ§amento do jogo estilo arcade, baseado no tradicional jogo Mario Bros., em que cada fase correspondia a um escÃ¢ndalo do candidato opositor de Lula. AlÃ©m dele, merece destaque ainda a “Crimeta Russa”, site focado em expor escÃ¢ndalos atribuÃ­dos ao candidato da oposiÃ§Ã£o que eram revelados a partir do resultado de uma roleta. Essas aÃ§Ãµes trouxeram uma linguagem lÃºdica e acessÃ­vel para o embate. Esse tipo de recurso engajou o pÃºblico mais jovem de forma descontraÃ­da, transformando a disputa polÃ­tica em uma experiÃªncia interativa.</p>
+<h3><strong>Aprendizagens para o futuro</strong></h3>
+<p><br/>Mesmo diante de episÃ³dios controversos, como eventuais falhas ou restriÃ§Ãµes de moderaÃ§Ã£o admitidas por grandes plataformas de tecnologia (como a Meta), o ecossistema de ativismo mostrou resiliÃªncia. Parte do eleitorado – para alÃ©m dos coletivos e frentes que jÃ¡ tinham hÃ¡ muito tempo percebido isso – sabe que fazer a regulaÃ§Ã£o das Big Techs serÃ¡ extremamente necessÃ¡rio para garantir a democracia.</p>
+<p>Mas essa eleiÃ§Ã£o tambÃ©m ensinou pelo menos trÃªs liÃ§Ãµes.</p>
+<p>Primeiro, que nÃ£o Ã© possÃ­vel esperar a regulaÃ§Ã£o. Ã possÃ­vel usar as plataformas, explorÃ¡-las, encontrar brechas. A permanÃªncia em massa dos usuÃ¡rios no WhatsApp e no Instagram demonstrou que a urgÃªncia polÃ­tica superou as crÃ­ticas Ã s plataformas, consolidando o segundo turno como um marco na integraÃ§Ã£o entre estratÃ©gias digitais, ferramentas cÃ­vicas e a incontornÃ¡vel forÃ§a do diÃ¡logo humano presencial.</p>
+<p>Segundo, que Ã© possÃ­vel argumentar e convencer. Por incrÃ­vel que pareÃ§a, com a ascensÃ£o da extrema direita, parte da esquerda tinha perdido a fÃ© de que Ã© possÃ­vel dialogar. Em um ambiente marcado pela desinformaÃ§Ã£o e pela disputa permanente pela atenÃ§Ã£o, as conversas entre familiares, amigos, colegas de trabalho e conhecidos ganharam forÃ§a como espaÃ§os de convencimento. As redes digitais forneceram conteÃºdos, argumentos e estratÃ©gias que alimentaram essas conversas, enquanto as relaÃ§Ãµes pessoais contribuÃ­ram para ampliar sua circulaÃ§Ã£o e alcanÃ§ar pessoas que dificilmente seriam mobilizadas apenas pelas campanhas oficiais.<br/><br/>Terceiro, que Ã© possÃ­vel e desejÃ¡vel combinar aÃ§Ãµes horizontais e verticais, tanto nas redes sociais quanto nas ruas e em outros espaÃ§os de participaÃ§Ã£o polÃ­tica. NÃ£o precisamos escolher entre coordenaÃ§Ã£o centralizada e mobilizaÃ§Ã£o descentralizada, como se uma fosse necessariamente melhor que a outra. A experiÃªncia do segundo turno mostrou que essas formas de organizaÃ§Ã£o podem se complementar e se fortalecer mutuamente. As orientaÃ§Ãµes das campanhas ganharam novos formatos e alcances quando apropriadas pelos militantes, que alÃ©m de compartilharem conteÃºdos, tambÃ©m produziram conhecimentos, desenvolveram ferramentas e criaram suas prÃ³prias estratÃ©gias de mobilizaÃ§Ã£o. Essa inteligÃªncia coletiva mostrou que a capacidade de inovaÃ§Ã£o polÃ­tica nÃ£o estÃ¡ restrita Ã s direÃ§Ãµes partidÃ¡rias ou Ã s equipes profissionais de campanha, mas tambÃ©m emerge da experiÃªncia e da criatividade dos prÃ³prios participantes.</p>
+<p>As experiÃªncias acumuladas durante a campanha deixam questÃµes para os prÃ³ximos anos. Como preservar as redes de colaboraÃ§Ã£o construÃ­das durante o perÃ­odo eleitoral? Como transformar o engajamento mobilizado em torno de uma candidatura em formas permanentes de participaÃ§Ã£o polÃ­tica? E como ampliar a capacidade de organizaÃ§Ã£o popular em um ambiente digital controlado por empresas privadas, cujas regras de funcionamento e distribuiÃ§Ã£o de conteÃºdos podem mudar a qualquer momento?</p>
+<p></p>
+<p></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/movimentoserebeldias/eleicoes-a-arquitetura-da-virada/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

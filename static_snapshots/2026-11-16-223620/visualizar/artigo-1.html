@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O custo de viver com o carvão - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O custo de viver com o carvão</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Brasil 247</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.brasil247.com/sul-global/o-custo-de-viver-com-o-carvao/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.brasil247.com/wp-content/uploads/2026/11/2ARTPZMQ3JNDFHKJAWPHNOWAAM.jpg?w=1200&quality=88&strip=all" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O custo de viver com o carvão
+                            </p>
+                            
+<p><strong>Por Sello Lentsoane (<a href="https://nnatvplus.com/news/3007/the-cost-of-living-with-coal" rel="noopener noreferrer" target="_blank">NNA News</a>) – </strong>O fim da tarde chega a eMalahleni e, à medida que a luz muda, os campos de carvão também se transformam. A poeira sobe das estradas de cascalho e dança no ar enquanto caminhões carregados de carvão atravessam os assentamentos. No horizonte, minas e usinas termelétricas se destacam contra um céu alaranjado, formando silhuetas sob a luz do pôr do sol.</p>
+<p>As pessoas cobrem o nariz e a boca enquanto caminham, apertando e piscando os olhos avermelhados e lacrimejantes. O ar é denso e irritante. Ao lado de uma pequena lagoa, o vento transporta o cheiro de esgoto em direção a um pequeno conjunto de casas nos arredores de Vosman.</p>
+<p>Uma explosão estronda ao longe e, por um instante, silencia os sons da comunidade, lançando uma grande nuvem de poeira e uma revoada de pássaros ao céu. Os moradores do assentamento, no entanto, sequer se sobressaltam. Para eles, isso faz parte da paisagem industrial que molda a vida cotidiana.</p>
+<p>Uma máscara médica cobre a boca e o nariz de Princess Mathebula, enquanto um tubo fino a conecta ao nebulizador compacto ao seu lado. Ela está deitada do lado de fora de casa, enquanto o aparelho emite um zumbido suave, misturado aos sons de crianças brincando a poucos passos dali e levantando poeira do chão seco.</p>
+<p>Princess observa a mãe, Mbali, enquanto se recupera após o tratamento. Mbali retira a máscara e coloca o nebulizador de lado, aliviada.</p>
+<p>Princess tinha quatro anos quando recebeu o diagnóstico de asma. Seu médico apontou diretamente para as condições ambientais secas de eMalahleni, onde a poeira se espalha pelas estradas e se acumula ao redor das casas.</p>
+<p>Dentro da residência, a máquina de lavar terminou de limpar os uniformes. Mbali recolhe as roupas e sai para estendê-las no varal, acompanhada por Princess. Ela prende as peças ao fio, mas a brisa as movimenta e deposita poeira cinzenta sobre as roupas limpas antes mesmo que sequem.</p>
+<p>As duas deixam o quintal e atravessam a rua em direção a uma pequena mercearia. Princess recebeu a promessa de ganhar doces por ter permanecido quieta durante o tratamento. Dentro do estabelecimento, uma pequena recompensa a espera nas prateleiras, proporcionando um breve momento de conforto infantil.</p>
+<p>Outras crianças retomam suas brincadeiras enquanto mãe e filha caminham até a loja. Suas vozes as acompanham pela estrada, misturando-se aos sons do assentamento.</p>
+<p>Mais adiante, pela estrada empoeirada, Promise Mabilo caminha acompanhada por duas mulheres do Movimento Ambiental Vukani. Elas param diante dos portões das casas para ouvir os moradores e compartilhar informações sobre saúde.</p>
+<p>O escritório da organização funciona em uma garagem residencial adaptada, pintada de amarelo. No interior, fotografias de manifestações estão expostas nas paredes, enquanto cartazes de protesto permanecem apoiados em faixas.</p>
+<p>Um telefone emite uma notificação. Mabilo desliza o dedo pela tela para conferir a mensagem: são atualizações enviadas pelos advogados. Suas colegas anotam os encaminhamentos necessários. A porta da garagem abre e fecha enquanto as anotações são recolhidas.</p>
+<p>As mulheres voltam às ruas, batendo de porta em porta. É assim que o trabalho vem sendo realizado nas regiões carboníferas: preocupações compartilhadas de uma residência para outra.</p>
+<p>“O Vukani foi registrado em 2016, e os moradores manifestaram preocupações com a poluição e seus efeitos sobre nossas comunidades”, afirma Mabilo.</p>
+<p>Mabilo participou de uma manifestação em Bloemfontein, ao lado de outros ativistas, em 19 de agosto de 2026, quando o Supremo Tribunal de Apelação da África do Sul ouviu argumentos sobre o futuro da construção de novas usinas a carvão.</p>
+<p>A disputa judicial envolve uma proposta de ampliação da capacidade de geração de eletricidade a carvão em 1.500 megawatts (MW).</p>
+<p>O processo decorre de uma decisão do Tribunal Superior, proferida em 2024, que considerou ilegais e inválidas as autorizações para a instalação dessa capacidade adicional.</p>
+<p>O governo recorreu da decisão, alegando preocupações com a segurança energética e a estabilidade econômica. As organizações ambientalistas, por sua vez, sustentam que os impactos sobre a saúde das comunidades e os direitos das crianças não foram devidamente considerados.</p>
+<p>Cartazes de protesto foram erguidos diante do tribunal. As regiões carboníferas estavam a cerca de 500 quilômetros dali, mas a disputa judicial refletia, de certa forma, o conflito vivido dentro das casas de eMalahleni: até que ponto um país pode depender do carvão e quem paga o preço dessa dependência em sua própria saúde?</p>
+<p>O debate chega a um momento particularmente complexo. Segundo o gabinete do governo sul-africano, o país havia completado 467 dias sem cortes programados de energia elétrica até o fim de agosto.</p>
+<p>A estatal de eletricidade Eskom havia recuperado 6.100 megawatts de capacidade para o sistema elétrico, enquanto as interrupções não planejadas haviam diminuído quase 40% em relação ao ano anterior.</p>
+<p>Em 2024, o carvão respondeu por 83% da eletricidade produzida na África do Sul, enquanto as fontes renováveis representaram apenas 9%, segundo dados da Statistics South Africa, o órgão nacional de estatísticas.</p>
+<p>Em eMalahleni, essa contradição está longe de ser abstrata.</p>
+<p>Ela se manifesta na pequena distância física entre as minas e as residências, onde os empregos oferecidos pela mineração coexistem com a poeira que se acumula ao redor das casas.</p>
+<p>O mesmo ar que circula por essas comunidades acompanha os moradores até os consultórios médicos da região, onde procuram atendimento.</p>
+<p>No centro da cidade, as ruas são mais movimentadas e a poeira é menos visível. Uma porta deslizante dá acesso ao Amigo Medical Centre, onde o cheiro clínico de antisséptico substitui o ar pesado do lado de fora.</p>
+<p>No interior do estabelecimento, o médico Mandlakayise Mthethwa atende em um consultório à esquerda, com um estetoscópio pendurado no pescoço. Há seis anos, ele trabalha com as comunidades da região.</p>
+<p>“É uma doença multifatorial”, explica Mthethwa.</p>
+<p>O médico defende que a África do Sul continue investindo na exploração de fontes como a energia solar, a eólica e outras alternativas, em vez de construir novas unidades de geração a carvão.</p>
+<p>Do lado de fora de sua sala, uma campainha automática anuncia a chegada de outro paciente.</p>
+<p>Na estrada em direção a Middelburg, a qualidade do ar parece um pouco melhor, mas as minas nunca estão muito distantes.</p>
+<p>Nos escritórios da Liberty Coal, homens e mulheres se aproximam de uma grande caixa instalada na entrada e depositam seus currículos por uma abertura.</p>
+<p>O porta-voz da empresa, Mpumelelo Mashifane, está sentado em uma sala de reuniões silenciosa. Para ele, as regiões de mineração de carvão são fundamentais para a manutenção dos empregos.</p>
+<p>A Liberty Coal adquiriu a Optimum Coal em fevereiro de 2024, retirando a empresa de um processo de recuperação judicial, com o objetivo de gerar empregos para moradores das comunidades próximas a Hendrina e Pullenshope.</p>
+<p>Atualmente, mais de 160 minas estão em operação na região carbonífera de Witbank, e o carvão continua sendo a principal base econômica local, afirma Mashifane.</p>
+<p>Segundo a Liberty Coal, a companhia investiu aproximadamente 3 bilhões de rands nos últimos dois anos e está reformando uma escavadeira de arrasto Marion, equipamento de grande porte utilizado na mineração.</p>
+<p>O carvão extraído dessas operações é destinado à geração de eletricidade, à produção de aço e a outros processos industriais.</p>
+<p>O carvão “ainda não é fácil de descartar”, afirma Mashifane.</p>
+<p>Segundo ele, as pressões ambientais são enfrentadas por meio de uma fiscalização rigorosa das explosões, da poeira, dos recursos hídricos e da recuperação das áreas degradadas, conduzida pelas autoridades competentes.</p>
+<p>Os currículos depositados nos portões da Liberty fazem parte da mesma economia que Mabilo deseja transformar e cujos efeitos sobre a saúde Mthethwa trata diariamente.</p>
+<p>Nos arredores de eMalahleni, o carvão assume diferentes significados.</p>
+<p>Para Princess, ele está associado à máscara do nebulizador. Para Mabilo, representa a poeira e os problemas enfrentados pela comunidade. Para a Liberty Coal, traduz-se em investimentos, capacidade de geração elétrica e pedidos de emprego.</p>
+<p>O debate vai além da extração mineral.</p>
+<p>Mabilo ressalta que a campanha #CancelCoal não reivindica o fechamento imediato de todas as operações de carvão. Sua contestação se dirige especificamente à proposta de acrescentar 1.500 MW à capacidade de geração de eletricidade por meio de novas termelétricas a carvão.</p>
+<p>Mthethwa também argumenta que a África do Sul precisa avançar na substituição do carvão por fontes renováveis de energia.</p>
+<p>Uma transição energética justa não pode se limitar à troca de uma fonte de eletricidade por outra. Ela precisa considerar os trabalhadores, as famílias e as comunidades que suportam os impactos ambientais da atividade.</p>
+<p>Para Princess, nada disso representa um debate sobre políticas públicas.</p>
+<p>As crianças voltaram a brincar do lado de fora, correndo pelo quintal.</p>
+<p>Perto dali, permanece silencioso o nebulizador deixado por Mbali.</p>
+<p>Promise continua caminhando de casa em casa, enquanto Mthethwa aguarda seu próximo paciente no centro da cidade.</p>
+<p>Fora dos assentamentos, os caminhões de carvão continuam passando, produzindo seu ruído característico.</p>
+<p>A Justiça determinará o futuro da ampliação da capacidade de geração a carvão, mas as atividades nas regiões carboníferas prosseguem.</p>
+<p>Entre a mina, o consultório médico, a garagem transformada em sede de uma organização ambientalista e a criança que inspira e expira com dificuldade, a África do Sul enfrenta sua questão mais difícil: como avançar em direção a um futuro energético diferente sem abandonar as pessoas que construíram suas vidas em torno do carvão?</p>
+<h3>Assista ao documentário completo</h3>
+<p>
+</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.brasil247.com/sul-global/o-custo-de-viver-com-o-carvao/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

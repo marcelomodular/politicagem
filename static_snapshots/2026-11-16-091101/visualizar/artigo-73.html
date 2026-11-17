@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The EU’s First AI Summit - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The EU’s First AI Summit</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/13/eu-ai-summit-semiconductor-chips-russia-ukraine-peace-talks-nvidia/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/EUAI-GettyImages-2304377246.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: EU Holds First AI Summit, but Russia-Ukraine Talks Risk Derailing the Agenda
+                            </p>
+                            
+<p>Welcome back to World Brief, where we’re looking at the <strong>European Union</strong>’s artificial intelligence ambitions, dual car bombings in <strong>Russia</strong>, and an alleged <strong>Iranian </strong>strike on a <strong>U.S.</strong> radar system.</p>
+
+<h3><strong>AI’s Future in Europe</strong></h3>
+<p>European Union leaders convened in Dublin on Friday for the bloc’s first-ever summit on artificial intelligence. With the continent expected to fall short of its chip-manufacturing goals, the conference may be a pivotal opportunity for the EU to develop a unified policy that aims to catch up with the world’s <a href="https://foreignpolicy.com/2025/05/05/china-artificial-intellligence-ai-technology-us-chip-restrictions-nvidia/" rel="noopener noreferrer" target="_blank">AI powerhouses</a>: the United States and China.</p> 
+
+<p>Welcome back to World Brief, where we’re looking at the <strong>European Union</strong>’s artificial intelligence ambitions, dual car bombings in <strong>Russia</strong>, and an alleged <strong>Iranian </strong>strike on a <strong>U.S.</strong> radar system.</p>
+<p>
+</p>
+
+<h3><strong>AI’s Future in Europe</strong></h3>
+<p>European Union leaders convened in Dublin on Friday for the bloc’s first-ever summit on artificial intelligence. With the continent expected to fall short of its chip-manufacturing goals, the conference may be a pivotal opportunity for the EU to develop a unified policy that aims to catch up with the world’s <a href="https://foreignpolicy.com/2025/05/05/china-artificial-intellligence-ai-technology-us-chip-restrictions-nvidia/" rel="noopener noreferrer" target="_blank">AI powerhouses</a>: the United States and China.</p>
+<p>The 2023 European Chips Act sought to double the continent’s semiconductor production global market share from roughly 10 percent to 20 percent by 2030 and attract billions of dollars in foreign tech investment. This legislation was a way for Europeans to say, “we want to be serious about this, and the only way to be competitive is to engage in the same practices, because otherwise you’re just never going to get manufacturing back to your shores,” Bruce Andrews, then-Intel’s corporate vice president, <a href="https://foreignpolicy.com/2024/02/08/chips-act-us-eu-ttc-china-japan-germany-tsmc-intel/" rel="noopener noreferrer" target="_blank">told</a> FP’s Rishi Iyengar in 2024.</p>
+<p>Since then, though, the EU has emerged as a <a href="https://www.ft.com/content/7ed32b6b-1e32-4046-88b6-f026339bdef4?syn-25a6b1a6=1" rel="noopener noreferrer" target="_blank">more passive actor</a> in AI’s advancement. A March report by <a href="https://ec.europa.eu/eurostat/web/products-statistical-reports/w/ks-01-26-009" rel="noopener noreferrer" target="_blank">Eurostat</a>, the bloc’s statistics office, found that 1 in 5 EU enterprises used at least one AI technology in 2025, compared to less than 1 in 10 businesses a few years ago. Yet, in installed <a href="https://foreignpolicy.com/2026/10/28/data-centers-locations-world-global-ai-construction/" rel="noopener noreferrer" target="_blank">data center capacity</a> alone, the bloc, with its 11.92 gigawatts, remains double-digits behind the United States (53.73 gigawatts) and China (31.9 gigawatts).</p>
+<p>Such stagnation has EU leaders concerned that the continent is being left behind. “AI is the most important technology of our time,” European Council ‌President António Costa <a href="https://x.com/eucopresident/status/2121265166520054139" rel="noopener noreferrer" target="_blank">wrote</a> on X on Friday. “Europe must make the most of its benefits, from higher productivity to better public services. We must also manage the risks and changes it will bring—and help set global standards for responsible governance and safe, human-centric AI.”</p>
+<p>Yet the summit’s AI agenda may be derailed by other <a href="https://www.nytimes.com/2026/11/13/world/europe/europe-ukraine-talks-russia.html" rel="noopener noreferrer" target="_blank">issues</a>—particularly, who will represent European interests in future Russia-Ukraine peace talks.</p>
+<p>On Thursday, Russian President Vladimir Putin told U.S. special envoys Steve Witkoff and Jared Kushner that he would allow European officials to join the next round of negotiations. Ukrainian President Volodymyr Zelensky, who is also in Dublin this week for talks with EU leadership, applauded Putin’s concession. However, who will represent the <a href="https://www.politico.eu/article/estonia-antonio-costa-kaja-kallas-europe-ukraine-peace-talks/" rel="noopener noreferrer" target="_blank">continent’s delegation</a> remains unclear.</p>
+<p>“If Europe could identify one person to speak on their behalf, that would be a bigger achievement than getting the Russians to include them in the negotiation,” Kushner said on Thursday. Among the names floated as <a href="https://english.radio.cz/babis-wants-meloni-tusk-or-costa-speak-europe-talks-russia-8902435" rel="noopener noreferrer" target="_blank">possible options</a> are Costa, EU foreign-policy chief Kaja Kallas, Polish Prime Minister Donald Tusk, and Italian Prime Minister Giorgia Meloni.</p>
+<p>The resignation of Nvidia CEO <a href="https://foreignpolicy.com/2026/11/12/nvidia-jensen-huang-resigns-ai-china-spy-megaspeed-extramarital-affairs/" rel="noopener noreferrer" target="_blank">Jensen Huang</a> is also likely to steal the summit’s attention. Huang stepped down on Thursday over his alleged extramarital affairs, including one that he admitted to with a suspected Chinese spy. Nvidia is the world’s leading producer of the <a href="https://foreignpolicy.com/2026/11/09/jensen-huang-spy-scandal-alice-nvidia-trump-china/" rel="noopener noreferrer" target="_blank">advanced semiconductor chips</a> used to power AI and data centers.</p>
+
+<h3><strong>Today’s Most Read</strong></h3>
+
+<h3><strong>What We’re Following</strong></h3>
+<p><strong>Assassination attempts. </strong>Russian authorities are investigating a series of <a href="https://www.bbc.com/news/articles/c5gm3gnwl42eo" rel="noopener noreferrer" target="_blank">assassination attempts</a> this week, after two separate car bombings in as many days targeted senior pro-Kremlin officials. It is unclear who was responsible for the incidents; however, Ukraine’s intelligence agency has previously used similar operations to attack dozens of Russian officers and operatives. Kyiv has claimed responsibility for a few of these operations, including the killing of Lt. Gen. <a href="https://foreignpolicy.com/2024/12/17/russia-igor-kirillov-assassination-scooter-ukraine-sbu-chloropicrin/" rel="noopener noreferrer" target="_blank">Igor Kirillov</a> in December 2024, but it has not commented on this week’s bombings.</p>
+<p>On Thursday, local media <a href="https://www.fontanka.ru/2026/11/12/76760547/" rel="noopener noreferrer" target="_blank">reported</a> an explosion in St. Petersburg’s Pushkinsky District, an area known for housing Russian military personnel. The attack killed a senior Russian military official believed to be a colonel in the country’s air force. The following day, a car bomb in Moscow <a href="https://www.theguardian.com/world/2026/nov/13/car-bomb-attack-moscow-russia" rel="noopener noreferrer" target="_blank">severely wounded</a> Sergei Zavorotniy, a former senior aide to exiled former Ukrainian Prime Minister Mykola Azarov, who fled Kyiv in 2014 after Ukraine’s Maidan revolution toppled the country’s pro-Russian president.</p>
+<p>Both attacks occurred following a new round of U.S.-mediated Russia-Ukraine peace talks in Abu Dhabi, United Arab Emirates. Those negotiations made <a href="https://foreignpolicy.com/2026/11/10/us-russia-ukraine-peace-talks-progress-cease-fire-donbas/" rel="noopener noreferrer" target="_blank">little headway</a>, apart from an agreement to exchange prisoners. However, Putin later expressed his willingness to hold a future round of dialogue with European representatives present.</p>
+<p><strong>Alleged U.S.-Iran strikes. </strong>Iran’s Islamic Revolutionary Guard Corps (IRGC) <a href="https://www.theguardian.com/world/2026/nov/13/iran-us-radar-bahrain-sirik-hormuz" rel="noopener noreferrer" target="_blank">claimed</a> on Friday to have destroyed a U.S. early-warning radar system in Bahrain in what would be Tehran’s first direct attack on a U.S. military installation in months. The IRGC said the operation was in retaliation for a recent U.S. airstrike on an Iranian communications tower overlooking the Strait of Hormuz. U.S. Central Command, however, <a href="https://x.com/CENTCOM/status/2121225254446018729" rel="noopener noreferrer" target="_blank">denied</a> that its radar system was damaged, instead claiming to have intercepted two Iranian drones that were heading toward Bahrain.</p>
+<p>The alleged radar system strike came the same day that a tanker carrying liquified natural gas (LNG) reportedly <a href="https://www.reuters.com/world/iran-says-tanker-carrying-lng-hit-mine-suffered-explosion-hormuz-2026-11-13/" rel="noopener noreferrer" target="_blank">hit</a> a naval mine in the strait. The IRGC navy told state media that the ship was using an “unauthorized and dangerous route” when it came into contact with the underwater explosive and that it had ignored <a href="https://apnews.com/article/iran-us-bahrain-radar-strait-hormuz-5d73a23b5b8647d2515c35b267b36c08" rel="noopener noreferrer" target="_blank">repeated warnings</a> to avoid the area.</p>
+<p>As traffic through the critical passageway has started to return, the number of maritime incidents has also climbed. October was the <a href="https://www.reuters.com/world/middle-east/hormuz-traffic-is-up-so-are-attacks-2026-11-11/" rel="noopener noreferrer" target="_blank">busiest month</a> for LNG exports from the Persian Gulf region since war first broke out in late February. According to the Washington Institute for Near East Policy, though, last month also saw the highest number of attacks on ships in the strait.</p>
+<p><strong>Vance’s new mandate. </strong>U.S. President Donald Trump <a href="https://www.reuters.com/world/us/trump-says-vance-should-focus-domestic-corruption-we-dont-need-deal-with-iran-2026-11-12/" rel="noopener noreferrer" target="_blank">directed</a> Vice President J.D. Vance to move off the Iran portfolio on Thursday and instead focus his “complete and total attention” on alleged corruption in Democratic Party-run states and cities. The shift comes after Vance <a href="https://foreignpolicy.com/2026/11/04/vance-midterms-blames-iran-war-trump-republicans/" rel="noopener noreferrer" target="_blank">blamed</a> the administration’s handling of the Iran war for <a href="https://foreignpolicy.com/2026/11/11/democratic-congress-foreign-policy-priorities-jason-crow-working-class-americans/" rel="noopener noreferrer" target="_blank">Democrats’ sweeping wins</a> in recent midterm elections.</p>
+<p>Vance has long had a heavy hand in U.S.-Iran negotiations. Despite being a skeptic of the war, the vice president has helped shape the <a href="https://foreignpolicy.com/2026/08/18/vance-iran-war-objectives-gas-prices/" rel="noopener noreferrer" target="_blank">conflict’s objectives</a>, led the charge for a precarious <a href="https://foreignpolicy.com/2026/06/18/vance-peace-deal-trump-iran-israel-lebanon-nuclear-mou/" rel="noopener noreferrer" target="_blank">memorandum of understanding</a>, and engaged with <a href="https://www.wsj.com/world/middle-east/vance-reaches-out-to-iranian-hard-liner-in-bid-to-restart-peace-talks-2c8a2ab8" rel="noopener noreferrer" target="_blank">top Iranian hard-liners</a> to try to revive peace talks. Moving him off the Iran agenda therefore marks a significant shift in how Trump appears to want to handle the conflict.</p>
+<p>“We don’t need a deal with Iran,” Trump <a href="https://truthsocial.com/@realDonaldTrump/posts/117603621591099598" rel="noopener noreferrer" target="_blank">wrote</a> on Truth Social on Thursday. “Those days have long since passed. We’ve got their money, Hundreds of Billions of Dollars, and we’ve got their Strait!”</p>
+<p>The change-up also signals the White House’s concerns about a looming Democrat-run Congress. Incoming Democratic lawmakers have <a href="https://foreignpolicy.com/2026/11/10/democrats-republicans-elections-corruption-campaign-finance-trump/" rel="noopener noreferrer" target="_blank">vowed to investigate</a> Trump’s business dealings and other potential avenues of corruption when they take power in January. In response on Thursday, Trump accused Democratic Party leadership—particularly in the states of California, Illinois, and Minnesota—of stealing billions of dollars every month, without citing evidence.</p>
+
+<h3><strong>What in the World?</strong></h3>
+<p>On Sunday, South African authorities announced the results from Nov. 4 local elections. Why was the election a historic one for the African National Congress party?</p>
+<p>A. The party won a majority in every province except one.<br/>
+B. It marked the party’s worst-ever results.<br/>
+C. The party won a majority in the Western Cape province for the first time.<br/>
+D. Two-thirds of the party’s election winners were women.</p>
+
+<h3><strong>Odds and Ends</strong></h3>
+<p>Finland already has a reputation for being the <a href="https://www.worldhappiness.report/ed/2026/executive-summary-happiness-and-social-media/" rel="noopener noreferrer" target="_blank">happiest country</a> in the world. Now, Helsinki is hoping to share that wealth with 16 lucky singles from around the world. In February, Finland will host a four-day, <a href="https://www.visitfinland.com/en/have-some-finnish/?fbclid=IwY2xjawVayUFleHRuA2FlbQIxMABwZG9mAWJyaWQRMW1YQjhsUURucUF2S3ZLcUtzcnRjBmFwcF9pZBAyMjIwMzkxNzg4MjAwODkyAAEfIoO3eB6XnJlhaOjbVmPQz3moA4ss3JMTwBPp0B3wkcESA4DyoC173tlIJNY_aem_wEkseTJP2NJY6XN2R-cLQA" rel="noopener noreferrer" target="_blank">food-oriented group date</a> alongside local Finnish residents also looking for love. Participants will taste some of the country’s most iconic dishes, from sautéed reindeer to bread cheese; relax in traditional saunas; and explore the Nordic nation’s cultural landmarks.</p>
+<p>FP’s World Brief writer can personally attest that the <a href="https://foreignpolicy.com/2023/04/04/finland-diplomatic-sauna-society-soft-power/" rel="noopener noreferrer" target="_blank">Finnish sauna experience</a> alone provides an almost unparalleled level of relaxation. Just follow the golden rule: What is said in the sauna stays in the sauna.</p>
+
+<h3><strong>And the Answer Is…</strong></h3>
+<p>B. It marked the party’s worst-ever results.</p>
+<p>No party won an outright majority, a further sign that South Africa’s political landscape is fragmenting, FP’s Nosmot Gbadamosi <a href="https://foreignpolicy.com/2026/11/11/tanzania-samia-hassan-lissu-chadema-sentence/" rel="noopener noreferrer" target="_blank">reports</a> in Africa Brief.</p>
+<p>To take the rest of FP’s weekly international news quiz, <a href="https://foreignpolicy.com/2026/11/13/foreign-policy-news-quiz-nvidia-huang-resignation-pope-leo-cop31/" rel="noopener noreferrer" target="_blank">click here</a>, or <a href="https://foreignpolicy.com/alerts/" rel="noopener noreferrer" target="_blank">sign up</a> to be alerted when a new one is published.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/13/eu-ai-summit-semiconductor-chips-russia-ukraine-peace-talks-nvidia/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
