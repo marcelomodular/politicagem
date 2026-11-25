@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turino: Por que revisar os editais da cultura? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Turino: Por que revisar os editais da cultura?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/descolonizacoes/turino-por-que-revisar-os-editais-da-cultura/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-17-at-17-42-10-Creators-face-projected-global-revenue-losses-of-up-to-24-by-2028.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Turino: Por que revisar os editais da cultura?
+                            </p>
+                            
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-17-at-17-42-10-Creators-face-projected-global-revenue-losses-of-up-to-24-by-2028-1.png"/>Arte de Diana Ejaita | Reproduzida no portal da <a href="https://www.unesco.org/en/articles/creators-face-projected-global-revenue-losses-24-2028-new-unesco-report-shows" rel="noopener noreferrer" target="_blank">UNESCO</a>
+
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Esta Ã© uma sÃ©rie de dez textos que apresentam pistas para a reconstruÃ§Ã£o de polÃ­ticas culturais no governo Lula 4. <strong><a href="https://outraspalavras.net/tag/sementeiracultural/" rel="noopener noreferrer" target="_blank">Leia aqui.</a></strong></p>
+<p>Para revisitar os editais Ã© preciso antes fazer uma observaÃ§Ã£o. Deslocar uma porcentagem dos valores totais das Leis Paulo Gustavo e Aldir Blanc 2, por menor que seja, para gestÃ£o e seleÃ§Ã£o de projetos Ã© um equÃ­voco. Mais que um equÃ­voco, engano ou interpretaÃ§Ã£o ambÃ­gua, Ã© um grande erro. Erro que jÃ¡ estÃ¡ produzindo distorÃ§Ãµes e que serÃ£o ainda maiores na medida em que se mantiverem; como em um pequeno desvio de Ã¢ngulo, que no inÃ­cio pode parecer imperceptÃ­vel, mas que projetado no tempo e no espaÃ§o causa um grande desvio de rota. Com a Lei Aldir Blanc, em plena pandemia, houve proposta para deslocar entre 5% e 15% para gestÃ£o dos Editais. TÃ£o logo eu soube da proposta vinda de gestores pÃºblicos, lancei um apelo e fiz uma gravaÃ§Ã£o que foi distribuÃ­da pelas redes sociais, demonstrando que alÃ©m de ilegal essa medida seria profundamente injusta, por retirar recursos da ponta, deslocando-os para atividade meio. Ainda mais sob as condiÃ§Ãµes especÃ­ficas da pandemia, em que os recursos eram escassos e deveriam chegar em quem realmente necessitava. Isso trouxe um grande desgaste pessoal e polÃ­tico para mim (em relaÃ§Ã£o aos poderes constituÃ­dos), mas nÃ£o me arrependo. Com esse meu protesto, inicialmente solitÃ¡rio, houve um recuo na intenÃ§Ã£o e foi possÃ­vel manter entre R$ 150 a 450 milhÃµes para serem distribuÃ­dos na atividade finalÃ­stica, para artistas e profissionais da cultura e nÃ£o em atividades meio. AtÃ© porque os governos estaduais e municipais estariam recebendo o recurso sem necessidade de aporte em contrapartida, sendo justo que assumissem as despesas de gestÃ£o.</p>
+<p>Com a Lei Paulo Gustavo, jÃ¡ sob um MinistÃ©rio da Cultura (MinC) reorganizado, fiz o mesmo alerta, mas nÃ£o obtive a mesma escuta e sucesso. Destinou-se 5% do total da LPG via regulamentaÃ§Ã£o interna do ministÃ©rio. Primeiro erro, isso jamais poderia ter acontecido dessa forma, porque Ã© ilegal, uma regulamentaÃ§Ã£o por decreto jamais pode incluir despesas nÃ£o previstas na lei; 5% de R$ 3,8 bilhÃµes (total da LPG) representou R$ 190 milhÃµes retirados da ponta. Mesmo em havendo um teto de R$ 4 milhÃµes por ente federado, o valor total deslocado da atividade finalÃ­stica foi superior a R$ 170 milhÃµes; a tÃ­tulo comparativo, significou menos 10 mil projetos contemplados ao valor de R$ 17 mil cada, uma perda significativa. Alertei que o artigo 17 da regulamentaÃ§Ã£o da LPG era flagrantemente ilegal, me espanta que a Advocacia Geral da UniÃ£o tenha permitido. Em algum momento Tribunais de Contas levantarÃ£o Ã³bice, e gestores municipais e estaduais estarÃ£o diante de um grande problema por terem sido induzidos a erro. NÃ£o hÃ¡ demÃ©rito em corrigir falhas a tempo, ao contrÃ¡rio. Ou nÃ£o, afinal, quando Ã© para retirar do povo a jurisprudÃªncia Ã© sempre muito conveniente ao poder. Mesmo que alguÃ©m encontre uma filigrana jurÃ­dica a justificar a medida, ela Ã© errada no mÃ©rito. Enfim…</p>
+<p>Ocorre que o problema maior nem Ã© a diminuiÃ§Ã£o de recurso na ponta, apesar de significativo. Apontar esse problema e os riscos decorrentes nÃ£o significa nÃ£o compreensÃ£o sobre a necessidade de despesas operacionais, capacitaÃ§Ã£o, preparaÃ§Ã£o dos processos. Pode haver contrataÃ§Ã£o de consultorias para auxiliar a administraÃ§Ã£o pÃºblica, dando suporte tecnolÃ³gico, conceitual e de formaÃ§Ã£o dos proponentes, mas com despesa assumida pela administraÃ§Ã£o que recebeu os recursos; e que seja momentÃ¢nea pois hÃ¡ que formar expertise nos governos, do contrÃ¡rio vira terceirizaÃ§Ã£o de polÃ­tica cultural estratÃ©gica. Da forma prevista, os 5% vem como um valor âcarimbadoâ viraram indutor de contrataÃ§Ã£o; isso vai criando um negÃ³cio (e com montante em valor considerÃ¡vel se somado todo o paÃ­s). Empresas e organizaÃ§Ãµes sociais foram empacotando propostas para inscriÃ§Ã£o e seleÃ§Ã£o, formulÃ¡rios padrÃ£o, equipes uniformes de pareceristas, critÃ©rios. Esse Ã© o maior problema. Primeiro porque desloca a gestÃ£o da polÃ­tica cultural da esfera pÃºblica para a gestÃ£o privada. Por vezes se protesta contra a terceirizaÃ§Ã£o para OrganizaÃ§Ãµes Sociais em relaÃ§Ã£o a equipamentos pÃºblicos, como orquestras, museus ou centros culturais, que houve com a gestÃ£o da execuÃ§Ã£o da LPG e que pode vir a acontecer com a PNAB Ã© muito pior. Tudo fica pasteurizado, uniforme. A aleatoriedade, elemento fundamental para a composiÃ§Ã£o de pontuaÃ§Ã£o em processos seletivos, deixa de existir quando comissÃµes julgadoras sÃ£o contratadas em bloco; mesmo quando hÃ¡ boa intenÃ§Ã£o e qualificaÃ§Ã£o, o olhar vai ficando viciado. NÃ£o Ã  toa tanta frustraÃ§Ã£o com os resultados. Afora o estÃ­mulo a esquemas dirigidos para contrataÃ§Ã£o, mas sobre isso prefiro nem entrar, por amargo e triste, a questÃ£o Ã© de princÃ­pio, de conceito e filosofia: polÃ­tica pÃºblica tem que ser decidida e executada na esfera pÃºblica.</p>
+<p>Ademais, Fundos tÃªm finalidade especÃ­fica e a aplicaÃ§Ã£o de recursos, nÃ£o sÃ³ em Fundos de Cultura, mas em todos os Fundos, nÃ£o pode ser desviada para cobrir despesas da administraÃ§Ã£o direta. Lamento ter que dizer o Ã³bvio. Desse erro, outros problemas vÃ£o surgindo. A eles.</p>
+<p><em>Pareceristas nÃ£o devem ter a decisÃ£o final sobre o resultado de um edital</em>, eles emitem opiniÃ£o abalizada na tÃ©cnica (um parecer), podem apontar uma nota de orientaÃ§Ã£o, mas ela jamais pode ser absoluta e final. HÃ¡ um conjunto de outros fatores que devem orientar uma decisÃ£o sobre financiamento de projeto, atÃ© porque hÃ¡ uma grande carga de subjetividade na definiÃ§Ã£o de notas aparentemente tÃ©cnicas. JÃ¡ participei de mais de uma centena de comissÃµes julgadoras, presidindo a maioria delas, hÃ¡ pareceristas que sÃ£o mais condescendentes na anÃ¡lise, outros mais crÃ­ticos e exigentes, normalmente os primeiros projetos analisados ganham nota mais elevada que os Ãºltimos, preferÃªncias subjetivas, Ãªnfases. Ã da natureza humana; que algoritmos de IA tambÃ©m irÃ£o reproduzir, antes que alguÃ©m faÃ§a a sugestÃ£o. Ou alguÃ©m considera que um projeto que recebeu nota 8,75 Ã© inferior Ã quele que recebeu 8,90? A forma para corrigir distorÃ§Ãµes seria uma anÃ¡lise final de conjunto, em comissÃ£o julgadora diferente da composiÃ§Ã£o de pareceristas iniciais.</p>
+<p><em>Segundo problema: fase recursal precisa ser para valer.</em> Para escrever esse texto eu procurei exemplos em estados e municÃ­pios em que houve uma grande aceitaÃ§Ã£o de recursos, alterando ou ampliando a composiÃ§Ã£o de selecionados. NÃ£o encontrei. Fase recursal nÃ£o Ã© medida âpro formaâ, tem que ser para valer, do contrÃ¡rio Ã© uma falÃ¡cia. Houve editais que, por mal redigidos, 45% do total dos inscritos foram desclassificados, sequer encaminhados Ã  seleÃ§Ã£o. Evidente o erro de gestÃ£o. Mesmo com algo tÃ£o evidente os recursos nÃ£o foram acatados. Importante: sempre reservem orÃ§amento para acatar recursos de mÃ©rito, sem a necessidade de excluir os jÃ¡ contemplados.</p>
+<p><em>Terceiro problema: Falta aleatoriedade nas composiÃ§Ãµes de pareceristas e comissÃµes julgadoras</em>. Esse Ã© um princÃ­pio bÃ¡sico. Na JustiÃ§a, Tribunal de Juri Ã© por sorteio, e depois do sorteio hÃ¡ o questionamento quanto a outros quesitos para medir imparcialidade. ComissÃµes uniformes (mesmo quando essa uniformidade Ã© diversa em aparÃªncia), por mais bem preparadas e intencionadas, distorcem processos de avaliaÃ§Ã£o. Como haverÃ¡ muitos editais e chamadas pÃºblicas pelos prÃ³ximos anos, um bom caminho seria o credenciamento de pareceristas e composiÃ§Ã£o de comissÃµes julgadoras apÃ³s processo formativo e aleatoriedade, chamando individualmente os pareceristas, e nÃ£o por contrataÃ§Ã£o em bloco, mormente via terceirizaÃ§Ã£o. DaÃ­ vai se realizado a composiÃ§Ã£o, sem que advinda de grupos fechados previamente.</p>
+<p><em>Quarto problema: negÃ³cio</em>. NÃ£o transformem, nÃ£o permitam, que leis e ideias tÃ£o bonitas e generosas, fruto de tanta mobilizaÃ§Ã£o voluntÃ¡ria e desprendida, sejam transformadas em negÃ³cio. Todo mundo tem direito a trabalho, hÃ¡ pessoas que ajudam muito com sua experiÃªncia, atuando como consultores independentes, a todas essas hÃ¡ espaÃ§o e necessidade. Mas lembrem-se, quando o dinheiro fica muito concentrado, permitindo escala repetitiva, ambiÃ§Ãµes se sobrepÃµem a ideais e razÃ£o. Pulverizem, desconcentrem. Essa histÃ³ria de uma empresa ou organizaÃ§Ã£o da sociedade civil sair vendendo soluÃ§Ãµes milagrosas e padronizadas pelo paÃ­s afora, na cultura ou qualquer outra Ã¡rea, nunca deu bom resultado. Quando o negÃ³cio entra por uma porta o bem comum Ã© afastado por outra. PolÃ­tica pÃºblica tem que ser gerida na esfera pÃºblica, a aÃ§Ã£o privada, quando acionada, Ã© para apoio, jamais para fim em si.</p>
+<p>Antes que seja tarde, por favor (aqui peÃ§o em apelo), tenham sabedoria e coragem para reverter desvios de rota antes que provoquem retrocessos. Com a Lei Aldir Blanc 2 nÃ£o hÃ¡ o problema da ilegalidade na aplicaÃ§Ã£o dos 5% para gestÃ£o, porque hÃ¡ previsÃ£o no corpo da lei. Mas continuo considerando um equÃ­voco, aqui Ã© de mÃ©rito, essa clÃ¡usula deveria ser revogada via emenda Ã  lei. Enquanto nÃ£o for, seria muito bom se gestores aplicassem a integralidade dos recursos nas atividades finalÃ­sticas. Estariam dando um bom exemplo de compromisso com a atividade fim da cultura, e evitando aborrecimentos futuros, registro. Os movimentos culturais dos estados e municÃ­pios tambÃ©m poderiam se mobilizar, afinal, 5% nÃ£o Ã© um percentual desprezÃ­vel para a atividade finalÃ­stica, ainda mais quando tantos ficam âde foraâ. O problema Ã© de sentido, de falta de clareza conceitual, filosÃ³fica e ideolÃ³gica. Quando isso acontece, sem querer ou refletir, sucumbe-se Ã  ideologia dominante, neoliberal, competitiva, individualista, agressiva, predadora. E quando isso acontece, a reversÃ£o fica cada vez mais difÃ­cil, por impregnada no imaginÃ¡rio e rede de arranjos e interesses.</p>
+
+<p><strong>Notas</strong></p>
+<p> Total da Lei Aldir Blanc: R$ 3 bilhÃµes â entre 5% e 15%: entre R$ 150/450 milhÃµes</p>
+<p> A quem for gestor pÃºblico envolvido na situaÃ§Ã£o: hÃ¡ tempo para corrigir, restituam esse valor ao montante das premiaÃ§Ãµes, chamando mais projetos na lista de espera ou aqueles que apresentaram recurso quanto aos resultados. A quem quiser ouvir fica o meu conselho de gestor pÃºblico aposentado, com 40 anos de atuaÃ§Ã£o.</p>
+<p> Por conta disso sempre orientei a leitura total dos projetos para sÃ³ depois, em releitura, se atribuir nota</p>
+<p> Nas seleÃ§Ãµes do programa Cultura Viva, enquanto estive como secretÃ¡rio da cidadania cultural, avaliar com justiÃ§a os recursos Ã s nossas decisÃµes era sagrado. Gestor que se considera onipotente e Ã  prova de questionamento nÃ£o serve para ser gestor pÃºblico. Sempre busquei ampliar recursos para o atendimento da fase recursal, por vezes conseguindo atÃ© mais orÃ§amento que para a primeira fase. No primeiro edital para seleÃ§Ã£o de Pontos de Cultura, em 2004, estavam previstos 100, selecionamos 272. SÃ³ assim foi possÃ­vel chegar a 3.500 Pontos de Cultura em 1.100 municÃ­pios do paÃ­s no curto espaÃ§o de 6 anos.</p>
+<p> Vide a fundaÃ§Ã£o da Lava-Jato, que promotores pretendiam criar para combater a corrupÃ§Ã£o, e receber R$ 2,5 bilhÃµes da PetrobrÃ¡s, e logo jÃ¡ estavam abrindo empresas de palestras para a venda de serviÃ§os e conhecimentos de seu ofÃ­cio como servidores pÃºblicos.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/descolonizacoes/turino-por-que-revisar-os-editais-da-cultura/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

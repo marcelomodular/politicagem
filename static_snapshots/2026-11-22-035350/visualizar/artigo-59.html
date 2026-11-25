@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop Culture Still Can’t Figure Out Drone Warfare - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Pop Culture Still Can’t Figure Out Drone Warfare</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/20/drone-warfare-movies-tv-culture-video-games-ukraine-war/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/Lioness-season3-episode1-military-explosion-tv.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Hollywood Is Oblivious to the New Reality of War
+                            </p>
+                            
+<p>Military experts don’t really talk much about a “front line” in the war in Ukraine anymore. They prefer the term “<a href="https://www.reuters.com/graphics/UKRAINE-CRISIS/KILL-ZONE/znpnojmknvl/" rel="noopener noreferrer" target="_blank">kill zone</a>,” used to describe the 10- to 20-mile-wide <a href="https://www.npr.org/2026/10/23/nx-s1-6014741/drones-make-the-russia-ukraine-war-front-line-a-kill-zone" rel="noopener noreferrer" target="_blank">no-man’s-land</a> between the two armies. The reason for this conceptual shift is simple: Omnipresent drone surveillance has made it nearly impossible for anyone to get close to enemy-controlled territory without being detected.</p>
+<p>Hollywood doesn’t seem to have gotten the memo. In a recent episode of the hit TV show <em>Lioness</em>, Zoe Saldaña’s character leads a small group of U.S. covert operators on a secret mission to capture an enemy spy who is hanging out with Russian forces in Ukraine. To do so, the Americans have to cross from the Ukrainian side to the Russian one—which they do by simply walking across, in broad daylight, tightly bunched together. In the real world, they would have been shredded by kamikaze drones or artillery as soon as they started their stroll. Plus, the sky above them is filled with so many drones that it calls to mind one of those <a href="https://www.guinnessworldrecords.com/news/2025/7/spectacular-light-show-featuring-11000-drones-creates-record-breaking-image-in-the-sky" rel="noopener noreferrer" target="_blank">spectacular drone light shows</a>. But that’s far from the modus operandi in Ukraine: You don’t need mega-swarms to keep a large area under surveillance; a bunch of individual operators searching in assigned sectors is enough. Compounding the absurdity, Saldaña’s character and her team only get attacked on their way back from their mission. Did it really take that long for the Russians to notice them?</p> 
+
+
+<p>Military experts don’t really talk much about a “front line” in the war in Ukraine anymore. They prefer the term “<a href="https://www.reuters.com/graphics/UKRAINE-CRISIS/KILL-ZONE/znpnojmknvl/" rel="noopener noreferrer" target="_blank">kill zone</a>,” used to describe the 10- to 20-mile-wide <a href="https://www.npr.org/2026/10/23/nx-s1-6014741/drones-make-the-russia-ukraine-war-front-line-a-kill-zone" rel="noopener noreferrer" target="_blank">no-man’s-land</a> between the two armies. The reason for this conceptual shift is simple: Omnipresent drone surveillance has made it nearly impossible for anyone to get close to enemy-controlled territory without being detected.</p>
+
+<p>Hollywood doesn’t seem to have gotten the memo. In a recent episode of the hit TV show <em>Lioness</em>, Zoe Saldaña’s character leads a small group of U.S. covert operators on a secret mission to capture an enemy spy who is hanging out with Russian forces in Ukraine. To do so, the Americans have to cross from the Ukrainian side to the Russian one—which they do by simply walking across, in broad daylight, tightly bunched together. In the real world, they would have been shredded by kamikaze drones or artillery as soon as they started their stroll. Plus, the sky above them is filled with so many drones that it calls to mind one of those <a href="https://www.guinnessworldrecords.com/news/2025/7/spectacular-light-show-featuring-11000-drones-creates-record-breaking-image-in-the-sky" rel="noopener noreferrer" target="_blank">spectacular drone light shows</a>. But that’s far from the modus operandi in Ukraine: You don’t need mega-swarms to keep a large area under surveillance; a bunch of individual operators searching in assigned sectors is enough. Compounding the absurdity, Saldaña’s character and her team only get attacked on their way back from their mission. Did it really take that long for the Russians to notice them?</p>
+<p>But perhaps the makers of <em>Lioness</em> deserve some credit simply for tackling the subject. Four and a half years after the start of Russia’s full-scale invasion, cultural depictions of how the war is actually being fought are strikingly thin on the ground. A few journalists have written solid first-person accounts of the conflict, and documentary filmmakers, many of them Ukrainian, have explored it <a href="https://foreignpolicy.com/2025/12/19/2000-meters-andriivka-documentary-film-review-ukraine-russia-war-drones-military-battlefield/" rel="noopener noreferrer" target="_blank">with astonishing intimacy</a>. Yet their works have reached relatively small audiences. Where are the gripping stories for the broader public?</p>
+<p>Combat drones have certainly made a mark on the broader culture. You see them everywhere, from movies like <em>The Terminal List: Dark Wolf</em> , where an assassin <a href="https://www.youtube.com/shorts/hnO0AZy9SBk" rel="noopener noreferrer" target="_blank">uses a drone to blow up a car</a>, to the BBC’s police procedural Vigil, which includes <a href="https://www.youtube.com/watch" rel="noopener noreferrer" target="_blank">a sequence</a> in which military drones are turned against their own side by a hostile hacker. It’s striking how often drones turn up in dystopian science fiction films—such as <em><a href="https://www.imdb.com/title/tt13654226/" rel="noopener noreferrer" target="_blank">The Gorge</a></em>, where two snipers fight off autonomous drones, and <em><a href="https://www.rottentomatoes.com/m/the_outer_threat" rel="noopener noreferrer" target="_blank">The Outer Threat</a></em>, in which a man with a dramatic secret has to protect his family from a hostile government equipped with drone swarms. A few years ago, the drone designs in these films probably would have resembled the exquisitely engineered aircraft of the so-called global war on terror. Now, even sci-fi creators seem to be favoring small quadcopters like the ones used by Ukrainians in their fight against Russia. But few of these cultural references involve depictions of war.</p>
+<p>Retired Australian Army Maj. Gen. Mick Ryan, who has carefully tracked the war in Ukraine, argues that pop culture can be a useful way of helping politicians and the public stay abreast of developments on the battlefield. “Military doctrine is inaccessible to most people, including a lot of people in the military,” he said. “Whether it’s movies, television, books, or podcasts, [pop culture] can be an excellent way of making complex military and technological intersections accessible to a broader range of people.” Ryan practices what he preaches: He’s written an excellent speculative novel, <a href="https://www.amazon.com/dp/1636242502" rel="noopener noreferrer" target="_blank"><em>White Sun War</em></a>, about a hypothetical conflict over Taiwan, which includes detailed scenes of Chinese and U.S. forces fighting with the help of autonomous unmanned ground vehicles. Ryan’s fictional technology is ahead of what the Russians and Ukrainians have developed in their war—but only slightly.</p>
+ 
+<img alt="Side profile of a soldier in camouflage gear aiming a rifle upward as a drone flies overhead." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Ukraine-Russia-war-drone-military-operations-GettyImages-2304156946.jpg?w=800"/>
+
+Side profile of a soldier in camouflage gear aiming a rifle upward as a drone flies overhead.
+<p>A Ukrainian soldier fires at a drone flying overhead in Kramatorsk, Ukraine, on Nov. 11. Kostiantyn Liberov/Libkos/Getty Images </p>
+<p>Could it be that drone warfare is just too complicated for compelling storytelling? By now, both sides in the Russia-Ukraine war have deployed a wide variety of drones on land, at sea, and in the air. None of these machines exists in isolation. They’re part of complex battlefield ecosystems that encompass reconnaissance, strike, and (increasingly) supply. Lately the Ukrainians have even been using ground drones <a href="https://www.reuters.com/world/ukrainian-army-unit-pioneered-drone-evacuations-now-its-scaling-up-2026-11-12/" rel="noopener noreferrer" target="_blank">to evacuate wounded soldiers</a>. The intensity of the conflict has driven an astonishing pace of innovation, often involving the intricacies of maintaining reliable communications and targeting in environments saturated with electronic warfare measures. Responses have included drones controlled by fiber-optic cables (which can’t be jammed, unlike radio signals) and increasing reliance on artificial intelligence systems that can keep drones on target even when their links with operators go down.</p>
+<p>Perhaps it’s no surprise that outsiders have a hard time keeping up. In October, video game publisher Activision released <em><a href="https://foreignpolicy.com/2026/11/06/call-of-duty-modern-warfare-review-video-game-us-military-hegseth/" rel="noopener noreferrer" target="_blank">Call of Duty: Modern Warfare 4</a></em>, the latest installment of its long-running franchise. (A reminder: The global gaming industry is <a href="https://www.fastcompany.com/91221416/the-booming-gaming-industry-a-200-billion-powerhouse-overtaking-hollywood" rel="noopener noreferrer" target="_blank">way bigger</a> than the movie industry.) The story revolves around an imagined North Korean invasion of South Korea, and its depiction of the intense combat that such a conflict would entail is amazingly convincing. The game’s creators have put a huge amount of effort into getting the details right (even extending to hiring a dialect coach to consult on the different forms of Korean spoken by the characters).</p>
+<p>Seeing the effort the game’s designers put into verisimilitude, it’s all the more surprising that drones have a very limited role. This omission is especially odd given that North Korea has dispatched large numbers of troops to help Russia in the war against Ukraine—in part so that Kim Jong Un’s forces could <a href="https://www.nationaldefensemagazine.org/articles/2026/7/9/just-in-north-korea-learning-drone-uav-lessons-from-russias-war-in-ukraine-experts-say" rel="noopener noreferrer" target="_blank">learn about the intricacies of drone warfare</a>. The game’s creators seem to have been oblivious to this. When a joint South Korean-U.S. force counters the invasion with an amphibious counterattack, the intensity of the combat recalls the opening scenes of <em>Saving Private Ryan</em>. Yet neither side in the fight deploys drones on land or in the sky—although this is exactly the sort of combat in which modern militaries are already working frantically to incorporate the lessons of Ukraine.</p>
+
+
+
+
+<h2>Read More</h2>
+<ul>
+<li>
+
+
+<a href="https://foreignpolicy.com/2026/10/04/wargames-hollywood-movies-national-security/" rel="noopener noreferrer" target="_blank">
+
+<img alt='A black and white photograph of actors Dabney Coleman (from left), Duncan Wilmore and Juanin Clay as they stand infant of the ‘NORAD’ control center, a military AI-powered supercomputer in "WarGames,“ 1983.' src="https://foreignpolicy.com/wp-content/uploads/2026/09/Zelizer-WarGames-GettyImages-502877315.png?w=150&amp;quality=80"/>
+
+A black and white photograph of actors Dabney Coleman (from left), Duncan Wilmore and Juanin Clay as they stand infant of the ‘NORAD’ control center, a military AI-powered supercomputer in "WarGames,“ 1983.
+</a>
+A black and white photograph of actors Dabney Coleman (from left), Duncan Wilmore and Juanin Clay as they stand infant of the ‘NORAD’ control center, a military AI-powered supercomputer in "WarGames,“ 1983.
+
+
+<a href="https://foreignpolicy.com/2026/10/04/wargames-hollywood-movies-national-security/" rel="noopener noreferrer" target="_blank">
+<h3>
+                The Year Hollywood Changed the National Security Debate            </h3>
+</a>
+
+<p>
+    	In 1983, two movies sought to educate and alarm the public about the risks of new technologies.    	        <img alt="This article has an audio recording" src="https://foreignpolicy.com/wp-content/themes/foreign-policy-2017/assets/src/images/icons/audio.svg"/>
+</p>
+
+
+
+</li>
+<li>
+
+
+<a href="https://foreignpolicy.com/2026/03/31/drones-cyberwar-technology-china-russia-united-states-security-threat-counterdrone-cyberdefense/" rel="noopener noreferrer" target="_blank">
+
+<img alt="Iranian President Masoud Pezeshkian (right) and military officials look on as Iran&amp;apos;s new Shahed 136-B drone is displayed during a military parade in Tehran on Sept. 21, 2024." src="https://foreignpolicy.com/wp-content/uploads/2026/03/shahed-drones-iran-russia-GettyImages-2172512422-e1774956439734.jpg?w=150&amp;quality=80"/>
+
+Iranian President Masoud Pezeshkian (right) and military officials look on as Iran&amp;apos;s new Shahed 136-B drone is displayed during a military parade in Tehran on Sept. 21, 2024.
+</a>
+Iranian President Masoud Pezeshkian (right) and military officials look on as Iran's new Shahed 136-B drone is displayed during a military parade in Tehran on Sept. 21, 2024.
+
+
+<a href="https://foreignpolicy.com/2026/03/31/drones-cyberwar-technology-china-russia-united-states-security-threat-counterdrone-cyberdefense/" rel="noopener noreferrer" target="_blank">
+<h3>
+                A Complacent America Shrugs Off New War Technologies            </h3>
+</a>
+
+<p>
+    	From the president on down, many Americans still do not grasp the implications of drones and other threats.    	    </p>
+
+
+
+</li>
+</ul>
+
+
+
+
+<p>Part of the problem is surely that the remote-controlled, seemingly anonymous nature of modern drones diminishes their narrative potential. Real-life drone operations often involve long and meticulous searches and extended loitering—not exactly the stuff of high drama. Those brutal Ukrainian drone attack videos that now populate social media show only the climactic moments that follow hours and hours of painstaking preparation and reconnaissance. This could be why we see some video game designers creating <a href="https://youtube.com/shorts/7EYvYDXrowQ" rel="noopener noreferrer" target="_blank">drones with machine guns on them</a>; in real life, that’s a generally useless approach, since the recoil from the guns would destabilize the drone, perhaps fatally. But shooting feels a lot more satisfying than hitting a distant target that you can only see on a screen.</p>
+<p>That video games present such a distorted vision of contemporary war is especially ironic considering that the gaming industry <a href="https://economist.com/the-economist-explains/2025/07/08/how-drones-and-video-game-techniques-are-coming-together-in-ukraines-war" rel="noopener noreferrer" target="_blank">has significantly shaped drone warfare</a>. Military drone controllers are often modeled on the ones used by gamers, which hugely simplifies training.</p>
+<p>Ukrainian filmmakers have found themselves confronting similar narrative challenges. The fascinating new movie <em><a href="https://www.youtube.com/watch?v=FGLnjGa32hw" rel="noopener noreferrer" target="_blank">Killhouse</a></em>, which was shot in close cooperation with the Ukrainian military, features plenty of scenes that convey a vivid sense of the peculiarities of drone warfare. The film turns on the fate of a civilian couple who are lured into the gray zone between the front lines by Russian gangsters who are holding their daughter for ransom. Unlike the blissful U.S. soldiers in <em>Lioness</em>, the desperate mother and father are immediately detected by both the Russians and Ukrainians as soon as they enter the area. The Russians quickly shell them, while the Ukrainians devise a complicated, drone-assisted plan for their rescue—and, ultimately, the daughter’s. One particularly nail-biting sequence depicts an operator trying to use a drone to guide a character through a minefield, even though he has no clear way of communicating with her.</p>
+<p>
+</p>
+<p>The movie’s creators would have done well to stop there, after showing us real-life drones in real-life situations. Unfortunately, even they apparently felt the need to juice up their story by introducing a set of as-yet-non-existent drones that use facial recognition systems for their targets. (That capability is pretty useful for the Chinese surveillance state; why you would need it on a battlefield without expansive access to a database of enemy faces remains unclear.) At the moment of a critical showdown, these ultra-high-tech drones are used simply as brute force to knock out several Russian soldiers—all that fancy equipment ends up effectively serving the same purpose as a couple of big rocks.</p>
+<p>Perhaps the shortcomings of movies and video games aren’t worth taking so seriously. There’s no requirement for ultra-realism, and no one should exaggerate the extent to which popular culture drives the decisions of policymakers. But is it just a coincidence that Western militaries, policymakers, and politicians are still failing to learn from the war in Ukraine after all these years?</p>
+ 
+<img alt="Aerial view of a quadcopter drone flying low over a grassy field toward a tan armored military vehicle." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Killhouse-Ukraine-film-drones-warfare.jpg?w=800"/>
+
+Aerial view of a quadcopter drone flying low over a grassy field toward a tan armored military vehicle.
+<p>A still from <em>Killhouse</em>. Ukrainian Film Division </p>
+<p>U.S. and other Western military bases are still plagued by drone incursions of unknown provenance; the one thing that’s clear is that many of these drones, which are equipped to resist powerful jamming, aren’t operated by hobbyists. In recent weeks, the U.S. Air Force has cited the threat of drone attacks in connection with at least two major alerts at air bases in Britain. Decision-makers were apparently reacting to fears that Iran might launch an attack emulating Kyiv’s stunning<a href="https://foreignpolicy.com/2025/06/10/operation-spiderweb-ukraine-russia-future-of-war/" rel="noopener noreferrer" target="_blank"> Operation Spiderw</a><a href="https://foreignpolicy.com/2025/06/10/operation-spiderweb-ukraine-russia-future-of-war/" rel="noopener noreferrer" target="_blank">eb</a>, when Ukraine managed to destroy a number of Russian strategic bombers by launching drones that were smuggled into Russia on freight trucks. European NATO members have experienced various drone incursions, as well as confronting actual attacks. Even the Australians have had to deal with mysterious drone sightings near their bases. The technology is proliferating; the problem can no longer be written off.</p>
+<p>We’re still waiting for the Hollywood blockbuster that brings home the impact of drone warfare to ordinary voters—something like the 1927 film <em><a href="https://www.imdb.com/title/tt0018578/" rel="noopener noreferrer" target="_blank">Wings</a></em>, one of the first to familiarize a broad audience with the significance of military aircraft. But the lack of popular familiarity with the changed nature of war is no excuse for the complacency of Western leaders.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/20/drone-warfare-movies-tv-culture-video-games-ukraine-war/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

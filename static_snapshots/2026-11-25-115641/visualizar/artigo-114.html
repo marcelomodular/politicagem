@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Em greve por uma Espanha diferente - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Em greve por uma Espanha diferente</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/em-greve-por-uma-espanha-diferente/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/182382392397.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Em greve por uma Espanha diferente
+                            </p>
+                            
+<p>UMA ENTREVISTA DE</p><p>
+
+			Chris Mills Rodrigo		</p>
+<p>As ruas e praças da cidade de Madri foram tomadas por manifestantes este ano, desde o despejo brutal e subsequente morte de María del Carmen Abascal, de 87 anos, conhecida como Maricarmen. Em setembro, ela foi expulsa de seu apartamento em Madri, onde morava há cerca de 70 anos, depois que um fundo de investimento quintuplicou o valor de seu aluguel.</p>
+<p>As marchas e acampamentos, inicialmente convocados pelo sindicato dos inquilinos de Madri, têm se concentrado principalmente na crise habitacional da Espanha. A situação se intensificou na última década, com os aluguéis quase dobrando enquanto os salários permaneceram praticamente estagnados. Os protestos já desencadearam uma greve geral em 11 de novembro e eleições antecipadas convocadas pelo Partido Socialista Operário Espanhol (PSOE), de centro-esquerda, de Pedro Sánchez, para 29 de novembro.</p>
+<p>A greve e a promessa de eleições não acalmou os protestos. O acampamento na Puerta del Sol, em Madri, que deu início a esse ciclo, permaneceu ativo até <a href="https://es.euronews.com/2026/11/03/desalojo-acampada-puerta-del-sol-madrid-protesta-vivienda" rel="noopener noreferrer" target="_blank">ser desmantelado</a> pela polícia no início de novembro. Greves paralelas, focadas no desinvestimento na educação pública, <a href="https://elpais.com/espana/madrid/2026-10-19/un-grupo-de-200-profesores-corta-la-autovia-a-3-en-el-inicio-del-cuarto-dia-de-huelga-educativa-de-madrid.html" rel="noopener noreferrer" target="_blank">bloquearam</a> importantes rodovias.</p>
+<p>As comparações com os protestos dos Indignados (também conhecidos como 15-M) de 2011 são inevitáveis. Ambos começaram com acampamentos no centro de Madri e se concentraram na questão da acessibilidade à moradia. No entanto, desta vez as coisas são marcadamente <a href="https://newleftreview.org/sidecar/posts/fifteen-years-later" rel="noopener noreferrer" target="_blank">diferentes</a>. Enquanto o 15-M visava incluir todos, independentemente da classe social, e era organizacionalmente anárquico, os manifestantes de hoje falam muito mais <a href="https://jacobin.com/2026/10/spain-housing-protests-sanchez-class" rel="noopener noreferrer" target="_blank">abertamente</a> sobre luta de classes e se organizam em assembleias populares.</p>
+<p>A presença marcante da Coordenadora Juvenil Socialista (CJS) no atual movimento de protesto é emblemática dessas mudanças e fundamental para compreendê-las. A CJS é uma organização revolucionária marxista e parte do Movimiento Socialista (MS), uma corrente comunista que surgiu no País Basco em 2018, a partir de uma cisão com a frente nacionalista de esquerda local. Desde sua criação em âmbito nacional, em 2024, a CJS cresceu e conta com mais de mil membros em toda a Espanha. Tem sido a organização mais <a href="https://www.eldiario.es/madrid/somos/coordinadora-juvenil-socialista-tine-rojo-acampada-sol-peso-fascistas-no-cobertura-mediatica_1_13572941.html" rel="noopener noreferrer" target="_blank">visível</a> nos protestos recentes, além dos sindicatos de inquilinos, e representa uma ala militante de esquerda que não se contenta em deixar que este momento de convulsão seja tranquilizado por eleições ou greves tímidas.</p>
+<p>Antes de 11 de novembro, a CJS organizou mais de cem comitês de greve juvenil com o objetivo de garantir que a manifestação seja uma ação de classe que desafie os que buscam manter privilégios, o governo atual e o próprio capitalismo. Em entrevista para a <em>Jacobin</em>, Chris Mills Rodrigo conversou com um membro da CJS, Mario Aguiriano, sobre o papel da organização nos protestos recentes e como ela espera direcionar a raiva e a energia do público espanhol para a conquista de mudanças estruturais.</p>
+
+<p>CHRIS MILLS RODRIGO</p>
+<p><strong>Comecemos pelo contexto imediato do que está acontecendo na Espanha. Quem foi Maricarmen?</strong></p>
+<p>MARIO AGUIRIANO</p>
+<p>Maricarmen era uma senhora doente de oitenta e sete anos que alugava um apartamento no centro de Madrid havia setenta anos. Há pouco tempo, o apartamento foi comprado por uma empresa espanhola chamada Urbagestión, que basicamente queria expulsá-la para lucrar mais.</p>
+<p>Tentaram aumentar o aluguel em 500%, o que ela não podia pagar vivendo com sua modesta pensão, e um juiz ordenou o despejo. O despejo de Maricarmen foi brutal e contou com a participação de mais de duzentos policiais. Houve muita violência contra as pessoas que a defendiam.</p>
+<p>Faz sentido que Maricarmen tenha se tornado um símbolo de uma luta que confronta as necessidades do público com as necessidades do mercado imobiliário e da minoria de parasitas que vivem da especulação e da exploração cada vez maior dos salários dos trabalhadores.</p>
+<p>CMR</p>
+<p><strong>Por que o despejo dela provocou uma reação tão visceral?</strong></p>
+<p>MA</p>
+<p>Acredito que existe, e vem se formando há anos, na classe trabalhadora, especialmente entre os jovens, uma ampla insatisfação com as condições de moradia, os salários, o aumento dos gastos militares, o genocídio na Palestina, o autoritarismo dos Estados capitalistas e também com o chamado governo progressista de Pedro Sánchez. Essa insatisfação se manifestou de diversas formas em protestos. No ano passado, houve grandes manifestações de solidariedade à Palestina na Espanha.</p>
+<p>Poderíamos chamar o despejo de Maricarmen de a faísca que acendeu a pradaria da insatisfação. Depois disso, foi uma boa decisão direcionar os protestos para uma forma mais permanente, na forma de acampamentos, que permitiram o acúmulo de força e energia no contexto da luta por moradia, que também vai além da moradia, abrangendo uma denúncia mais ampla do sistema.</p>
+<p>CMR</p>
+<p><strong>A questão da habitação tem sido um dos principais focos dos protestos e da cobertura jornalística. Mas parece que sua análise é mais abrangente. Como vocês entendem a conjuntura atual da classe trabalhadora espanhola?</strong></p>
+<p>MA</p>
+<p>Para nós, o problema da habitação é uma expressão tanto do funcionamento do capitalismo quanto da crise deste capitalismo decadente. Temos baixas taxas de lucro, o que cria as condições para a superacumulação de capital, fazendo com que o capital ocioso tenda à especulação em coisas como imóveis. O atual governo “progressista” da Espanha sente-se muito à vontade para atacar os fundos abutres, mas se analisarmos os dados, esses fundos representam uma pequena parcela do mercado imobiliário. O que temos, em vez disso, é uma burguesia, e também uma pequena burguesia, por assim dizer, que descobriu que a habitação é um investimento relativamente lucrativo e uma forma de explorar quem precisa dela.</p>
+<p>O mercado imobiliário sob o capitalismo geralmente apresenta uma tendência inflacionária porque se baseia numa lógica de extração de renda, na qual a melhor maneira de maximizar o lucro é aumentar os preços constantemente. E, sem grandes conflitos históricos, é assim que o mercado normalmente funciona.</p>
+<p>Hoje, o mercado imobiliário é estimulado pelos governos justamente porque oferece oportunidades de negócios para uma parcela do capital que, de outra forma, ficaria ociosa. Atualmente, na Espanha — embora isso aconteça praticamente em todo o mundo —, praticamente qualquer pessoa rica que você possa imaginar possui cinquenta, cem, duzentas casas. Diego “Cholo” Simeone, técnico do Atlético de Madrid, por exemplo, possui <a href="https://www.instagram.com/p/DeH25y9gw2i/" rel="noopener noreferrer" target="_blank">mais de 180</a> apartamentos. Amancio Ortega, o homem mais rico da Espanha, tem um número absurdo de apartamentos. É uma prática generalizada que não pode ser reduzida aos fundos abutres.</p>
+<p>Por outro lado, eu diria que o problema da habitação é também o problema dos salários. Os salários na Espanha estão estagnados há décadas e, na verdade, os baixos salários têm sido um elemento estrutural do modelo capitalista espanhol desde sempre. Um dos principais elementos que a Espanha oferece ao capital internacional, pelo menos desde a época de Franco, é um mercado de trabalho estruturalmente precário com baixos salários. Temos assistido a aumentos intermináveis ​​nos preços da habitação, tal como outros países europeus — especialmente nos últimos oito anos com o governo progressista. Mesmo depois da aprovação de leis de habitação que prometeram serem históricas, nada mudou.</p>
+<p>O problema da habitação é também um problema do caráter autoritário dos Estados capitalistas. Sem entrar em muitos detalhes, o movimento habitacional na Espanha é uma das principais vítimas das leis repressivas aprovadas pelo último governo de direita e mantidas pelo governo progressista. A Lei Mordaza permitiu um aumento do poder policial e das multas. O movimento habitacional teve de pagar milhões e milhões de euros em multas nos últimos dez anos com base nesta lei que os governos do PSOE e do Podemos mantiveram. Portanto, como se pode ver, se começarmos a analisar a questão da habitação, acabamos por chegar a questões mais estruturais.</p>
+<p>Na verdade, em última análise, o problema da habitação é o problema do capitalismo e da forma capitalista de Estado. Um governo operário poderia resolver o problema da habitação rapidamente por meio de medidas como a nacionalização de terras ou outras propostas que apresentamos, como a expropriação de especuladores, a proibição da especulação imobiliária e o planejamento e distribuição de moradias voltados para as necessidades sociais. Isso resolveria o problema da habitação e já aconteceu em outros países, partindo de condições piores. Mas essas soluções não são acessíveis, não são viáveis, pelo menos não totalmente, sob a forma capitalista de Estado.</p>
+<p>É importante lutar por melhorias a curto prazo sem enganar o público e sem fingir que a solução para esses problemas é simples, porque, embora isso possa gerar entusiasmo no curto prazo, a médio prazo pode gerar desmobilização, desinteresse e desencanto.</p>
+<p>“Temos presenciado aumentos intermináveis ​​nos preços dos imóveis, tal como outros países europeus — especialmente nos últimos oito anos, com o governo progressista.”</p>
+<p>CMR</p>
+<p><strong>Gostaria de saber um pouco mais sobre a infraestrutura que a CJS desenvolveu antes dos protestos e como vocês a colocaram em prática.</strong></p>
+<p>MA</p>
+<p>A CJS teve uma existência breve, mas desde o início insistimos que nosso objetivo é gerar uma organização comunista de massas, baseada na militância e na disciplina. Opomo-nos radicalmente a formas de partidos políticos que se opõem ao que a classe trabalhadora precisa, como os partidos que continuam surgindo na Espanha, formados por quatro figuras famosas com ampla presença na mídia, mas sem bases militantes. Portanto, desde cedo deixamos claro que nosso objetivo, e o único caminho que a classe trabalhadora tem para alcançar objetivos revolucionários e construir força estratégica, é o trabalho permanente, disciplinado e constante, longe dos holofotes, longe das tendências corriqueiras. Esse tipo de organização poderá, posteriormente, agir de forma apropriada em momentos de ruptura. Penso que adotamos uma estratégia de paciência e lenta acumulação de força, visando construir um projeto revolucionário.</p>
+<p>Acreditamos que os eventos recentes demonstraram a eficácia do nosso modelo: uma organização com objetivos estratégicos claros, mensagens impactantes e membros dedicados e disciplinados, que se mantêm taticamente flexíveis, pode aproveitar grandes momentos de protesto para disseminar sua mensagem, fortalecer sua organização e consolidar o movimento como um todo. Estamos presentes na maioria das cidades da Espanha e buscamos ampliar nossa atuação nessas cidades e em outras onde ainda não atuamos, em vilarejos e, em última instância, em todos os ambientes e espaços.</p>
+<p>CMR</p>
+<p><strong>Qual é a relação de vocês com os sindicatos de inquilinos, que também desempenharam um papel importante nesses protestos?</strong></p>
+<p>MA</p>
+<p>Foram os sindicatos de inquilinos que se organizaram contra o despejo de Maricarmen, que iniciaram os protestos e até lideraram a criação dos acampamentos. Nunca escondemos que temos divergências estratégicas com os sindicatos de inquilinos, cujo projeto está mais voltado para a reforma do que para a revolução. Insistimos para eles que a reforma é importante e não a rejeitamos, mas é importante estarmos orientados para um projeto revolucionário, emancipatório ou socialista.</p>
+<p>No entanto, é evidente que, apesar dessas diferenças, há espaço para trabalho conjunto e unidade de ação em termos de protesto e mobilização em defesa dos interesses dos trabalhadores. Vimos isso nos últimos dias, e não apenas com os inquilinos, mas também com muitos outros atores. Temos divergências e debates estratégicos, mas podemos e devemos trabalhar em prol de objetivos comuns básicos sem obscurecer essas diferenças, mantendo o debate e com liberdade para que todos apresentem suas próprias análises e defendam seus próprios projetos.</p>
+<p>CMR</p>
+<p><strong>Tenho visto muitas comparações com o 15-M. Em que aspectos essa comparação é precisa e como o movimento atual se distingue?</strong></p>
+<p>MA</p>
+<p>Durante os primeiros dias dos acampamentos, as comparações com o 15-M eram onipresentes, mas com o tempo começaram a desaparecer. Até mesmo a mídia de massa, normalmente um meio de idiotice organizada, percebeu que se tratava de algo diferente, ou pelo menos que havia diferenças importantes.</p>
+<p>Acredito que a principal diferença social e histórica reside no fato de que, nos últimos quinze anos, testemunhamos uma mudança na composição das classes, ou uma mudança nas relações de classe, que tem sido essencialmente um processo de proletarização de um setor da classe média, especialmente no setor que permanece proeminente nos protestos: jovens, normalmente com formação universitária, que fazem parte, em suas condições de trabalho e em suas relações com o capital, da classe trabalhadora.</p>
+<p>Em 2011, embora tenhamos vivenciado uma crise difícil, a geração que liderou o movimento 15-M ainda estava acostumada a um período de expansão da classe média e de ampliação de certas expectativas. A melhor maneira de ilustrar isso é dizer que, durante a crise de 2015, as pessoas protestavam por não conseguirem comprar uma casa, e hoje protestam por não conseguirem alugar um quarto. É normal que essa diferença gere uma consciência política diferente.</p>
+<p>“Durante a crise de 2015, as pessoas protestavam por não conseguirem comprar uma casa, e hoje protestam por não conseguirem alugar um quarto.”</p>
+<p>Assim, nos protestos atuais, vemos uma opinião muito mais positiva em relação à organização, à consciência da classe trabalhadora, ao conceito de classe trabalhadora e ao socialismo. Observamos a normalização de bandeiras vermelhas, cânticos como “Socialismo ou Barbárie” e críticas radicais ao capitalismo. Isso teria sido impensável durante o 15-M. O comunismo era malvisto e havia um amplo ceticismo em relação ao conceito de organização.</p>
+<p>Existia também uma consciência interclassista muito mais apurada e uma consciência politicamente menos desenvolvida, sem querer exagerar a consciência dos atuais acampamentos e protestos — que continuam sendo um espaço pluralista onde coexistem muitos setores, diferentes organizações e diferentes níveis de consciência. Há diferenças notáveis ​​[em relação ao 15-M] que até mesmo os pensadores burgueses mais ilustres estão reconhecendo.</p>
+<p>CMR</p>
+<p><strong>Um dos desdobramentos dos protestos é que agora haverá eleições gerais em novembro. Como o CJS está lidando com isso?</strong></p>
+<p>MA</p>
+<p>Não participaremos das eleições e mantemos uma perspectiva crítica em relação aos partidos existentes. Insistimos na necessidade de continuarmos a construir um partido dos trabalhadores e afirmamos que nenhum dos partidos existentes representa os interesses dos trabalhadores ou está no nível necessário para enfrentar um capitalismo cada vez mais catastrófico, ligado a guerras, genocídios e crises ecológicas.</p>
+<p>CMR</p>
+<p><strong>Antes das eleições, haverá uma greve geral. Como você está se preparando para esse dia e quais são seus objetivos?</strong></p>
+<p>MA</p>
+<p>A greve geral convocada, que apoiaremos com todos os nossos recursos, é marcada pela disputa entre dois modelos de greve. Um deles é a greve do governo, modelo defendido pelas principais centrais sindicais — as Comisiones Obreras (CCOO) e a Unión General de Trabajadores (UGT) —, que atuam como canais de comunicação entre o Estado e o governo. Essa greve é ​​contra a oposição política e faz parte de uma campanha política.</p>
+<p>Acreditamos que esse modelo é uma vergonha, um insulto ao conceito de greve geral. Em vez disso, o que deveria ser criado, por todas as organizações com foco na classe trabalhadora, é uma greve de classe contra o governo capitalista como um todo. As greves são espaços de luta da classe trabalhadora contra o capital e os Estados capitalistas. Isso é uma greve geral. Qualquer modelo que apoie um ou outro governo capitalista é uma farsa e um insulto à classe trabalhadora espanhola. Queremos insistir nisso em todos os espaços. Neste momento, é preciso um grande esforço para impor um mínimo de racionalidade no debate público espanhol, porque estamos vivendo um processo de emburrecimento da população por meio de mentiras grosseiras.</p>
+<p>Maricarmen foi despejada por força de uma lei do PSOE, sob um governo do PSOE, pela polícia do PSOE, e falam como se a oposição [conservadora] a tivesse matado. Isso não é verdade. Qualquer partido no comando do Estado capitalista vai implementar despejos porque todos eles reforçam o modelo de habitação mercadológico, e não vamos deixar nenhum deles impune. Há alguns anos, o Podemos, que agora se apresenta como um partido de esquerda, argumentava que a atual lei da habitação era uma panaceia, que praticamente tinha salvado a classe trabalhadora espanhola. É delirante que agora queiram que nos esqueçamos disso.</p>
+<p>Esta greve, por si só, não imporá grandes reivindicações. Ela deve servir para construir o poder de classe com o objetivo de estabelecer um projeto independente e para estimular lutas por moradia, melhores salários e contra o autoritarismo dos Estados capitalistas.</p>
+<p>Durante a greve, a CJS defenderá a necessidade de construir uma estrutura política alternativa para os trabalhadores — não apenas sindicatos fortes, mas um partido para os trabalhadores. Para alcançar esse objetivo, participaremos de comitês amplos e promoveremos comitês de jovens grevistas abertos a todos.</p>
+<p>CMR</p>
+<p><strong>Qual o papel dos sindicatos na luta da classe trabalhadora espanhola? Entendo que os principais sindicatos estão bastante ligados ao governo, mas existe um futuro em que os sindicatos possam fazer parte da luta que vocês estão iniciando?</strong></p>
+<p>MA</p>
+<p>É claro que existem inúmeros sindicatos na Espanha que têm foco na classe e estão engajados em lutas justas pelos direitos dos trabalhadores. E mesmo entre os membros de grandes sindicatos como a CCOO, há pessoas que lutam diariamente pelos trabalhadores.</p>
+<p>Criticamos a liderança dos sindicatos, que não representa as necessidades dos trabalhadores. Os sindicatos são muito importantes na luta da classe trabalhadora; deveriam ser órgãos para isso e não para a colaboração entre classes. O líder da CCOO, Unai Sordo, escreveu um artigo sobre a greve que é essencialmente uma apologia à política econômica do PSOE. Como é possível entrar em greve para defender o governo e suas políticas econômicas? Não podemos aceitar isso; é, no fundo, um insulto.</p>
+<p>É assim que abordamos a questão dos sindicatos. Não denunciamos nem desconsideramos o trabalho sindical. Na verdade, trabalharemos com sindicatos focados na classe trabalhadora para tentar impulsionar mobilizações distintas daquelas que servem como apologia ao governo, ou que podem até mesmo incluir ministros do governo. A ideia de que ministros possam protestar contra o próprio governo é algo que enlouqueceria qualquer um.</p>
+<p>CMR</p>
+<p><strong>Quando os protestos e os acampamentos terminarem, qual é o plano para manter as críticas que foram feitas?</strong></p>
+<p>MA</p>
+<p>No Movimiento Socialista, planejamos trabalhar em torno de dois eixos. O primeiro é fortalecer o movimento operário, colaborando com outros atores, como sindicatos e associações de inquilinos, em prol de objetivos comuns. Por exemplo, é fundamental para nós criar uma ampla frente de direitos políticos capaz de confrontar o Estado, seu autoritarismo, militarismo e novas leis repressivas.</p>
+<p>Nosso outro eixo de trabalho, complementar ao primeiro, é continuar trabalhando para construir um partido revolucionário de massas, não apenas na Espanha, mas em toda a Europa e, em última instância, em todo o mundo. Isso exige um trabalho diversificado: exposição de estratégias, desenvolvimento de diferentes táticas e a produção de um programa político revolucionário em favor de uma forma diferente de Estado, um modo de produção diferente e uma forma diferente de viver em torno da qual a classe trabalhadora possa se unir. Acreditamos que isso é absolutamente urgente. Temos que lutar em todos os níveis, inclusive no político. Temos que contrapor um programa operário, um programa socialista, ao programa do capital.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Chris Mills Rodrigo				
+</h5>
+</p>
+
+<p>é editor-chefe do Inequality.org no Institute for Policy Studies.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Mario Aguiriano				
+</h5>
+</p>
+
+<p>é membro da Coordinadora Juvenil Socialista de Espanha.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/em-greve-por-uma-espanha-diferente/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

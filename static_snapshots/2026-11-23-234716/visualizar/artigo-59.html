@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tecnologia: há caminho fora da alienação? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Tecnologia: há caminho fora da alienação?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/tecnologiaemdisputa/tecnologia-ha-caminho-fora-da-alienacao/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_4911285031737691531_x.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Tecnologia: hÃ¡ caminho fora da alienaÃ§Ã£o?
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_4911285031737691531_x.jpg"/>Imagem: ReproduÃ§Ã£o/UxmBlog
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>âHÃ¡ alternativas?â Ã© uma aula aberta que encerra o ciclo da disciplina de Estudos CrÃ­ticos de IA e HMC, no <a href="https://www.eca.usp.br/pos/ciencias-da-comunicacao" rel="noopener noreferrer" target="_blank">Programa de PÃ³s-GraduaÃ§Ã£o em ComunicaÃ§Ã£o da ECA-USP</a>, ministrada por mim e por Roseli FÃ­garo, professora titular do Departamento de ComunicaÃ§Ãµes e Artes da ECA e coordenadora do <a href="https://comunicacaoetrabalho.eca.usp.br/" rel="noopener noreferrer" target="_blank">Centro de Pesquisa em ComunicaÃ§Ã£o e Trabalho </a>(CPCT).</p>
+<p>Como professor recÃ©m-chegado a este departamento, Ã  ECA e Ã  USP â entrei em 2025 â, estou encarregado das disciplinas de tecnologias da comunicaÃ§Ã£o, com Ãªnfase em inteligÃªncia artificial. NÃ£o Ã© fÃ¡cil trabalhar esse tema hoje de maneira crÃ­tica. A IA, como se sabe, jÃ¡ entrou na nossa vida cotidiana e no trabalho acadÃªmico em todas as suas fases, empurrada pela novidade, pelas big techs e pelo prÃ³prio capitalismo em sua fase acelerada. Chega pronta, com um nome sÃ³, e com a sugestÃ£o permanente de que recusÃ¡-la Ã© um atraso pessoal.</p>
+<p>TambÃ©m por isso decidi criar, em parceria com a professora Roseli, uma disciplina na pÃ³s-graduaÃ§Ã£o que conseguisse dar conta de uma perspectiva crÃ­tica sobre esse processo. Escolhemos como base dois handbooks sobre â duas coletÃ¢neas grandes, com textos curtos, capazes de reunir perspectivas distintas sobre o tema â que atravessam duas correntes que por vezes dialogam e por vezes nÃ£o: os Estudos de CiÃªncia e Tecnologia (STS), de origem anglo-europeia, atentos a como artefatos tÃ©cnicos sÃ£o construÃ­dos socialmente e carregam polÃ­tica em seu desenho; e a teoria crÃ­tica, de linhagem frankfurtiana, atenta Ã  racionalidade instrumental, Ã  indÃºstria cultural e Ã  economia polÃ­tica que sustenta essas mÃ¡quinas. A fricÃ§Ã£o entre as duas tem sido, atÃ© aqui, parte importante do debate e do que se entende por estudos crÃ­ticos. A ementa completa <a href="https://geia.eca.usp.br/biblioteca/disciplinas/pos-graduacao-estudos-criticos-de-inteligencia-artificial-e-comunicacao-humano-maquina/" rel="noopener noreferrer" target="_blank">estÃ¡ disponÃ­vel aqui</a>, para quem quiser consultar e baixar as obras.</p>
+<p>Para esta aula especial, que encerra o ciclo, estava prevista uma discussÃ£o sobre âHÃ¡ alternativas?â. Quis trazer um pouco da minha trajetÃ³ria de pesquisa em tecnologias alternativas, software livre e ciberativismo para mostrar que, enquanto usamos as IAs das big techs por conveniÃªncia e porque nos sÃ£o empurradas a toda hora, existe tambÃ©m um mundo de possibilidades para alÃ©m dessas opÃ§Ãµes. Mesmo que ainda nÃ£o haja, a rigor, IAs livres no sentido estrito em que falamos de software livre â como jÃ¡ discuti em <a href="https://baixacultura.org/2025/01/29/a-corrida-da-ia-ganha-um-novo-capitulo-chines-e-open-source/" rel="noopener noreferrer" target="_blank">A corrida da IA ganha um novo capÃ­tulo, chinÃªs e open source</a>, BaixaCultura, 2025 -, as opÃ§Ãµes de cÃ³digo aberto, especialmente as chinesas, e a adoÃ§Ã£o de sistemas tÃ©cnicos baseados em IA a partir de outras perspectivas e vivÃªncias, como as trabalhadas pela <a href="https://iafeminista.lat/" rel="noopener noreferrer" target="_blank">Rede Feminista de pesquisa em IA na AmÃ©rica Latina e do Caribe</a>, abrem boas pistas para pensar IAs diferentes, construÃ­das a partir de outros imaginÃ¡rios, para alÃ©m da saÃ­da tecnofÃ³bica de simplesmente nÃ£o usar. Gostamos, no <a href="https://geia.eca.usp.br/" rel="noopener noreferrer" target="_blank">GEIA</a>, grupo de pesquisa que coordeno, desta frase do mestre Paulo Freire: âO que me parece fundamental para nÃ³s Ã© a assunÃ§Ã£o de uma posiÃ§Ã£o crÃ­tica, vigilante, indagadora, em face da tecnologia. Nem, de um lado, demonizÃ¡-la, nem, de outro, divinizÃ¡-laâ (1992).</p>
+<p>Busquei trazer, tambÃ©m na construÃ§Ã£o da ementa e particularmente desta aula, uma aproximaÃ§Ã£o com Mark Fisher e seu âRealismo capitalistaâ, em especial a partir de âDesejo pÃ³s-capitalista: Ãºltimas aulasâ, publicado no Brasil em 2025 pela Autonomia LiterÃ¡ria. Trata-se do curso que Fisher ministrava em Goldsmiths quando morreu, em 2017, e no qual ele tentava responder Ã  prÃ³pria pergunta que havia deixado em aberto: se o realismo capitalista Ã© essa sensaÃ§Ã£o difusa de que nÃ£o hÃ¡ alternativa, como se sai dele? A resposta que ele ensaia nÃ£o passa por denÃºncia nem por abstinÃªncia, mas por desejo e pela construÃ§Ã£o de formas de vida que as pessoas efetivamente queiram habitar. A partir dessas referÃªncias, montamos a aula em torno de uma pergunta simples para discutir algo difÃ­cil: existe um horizonte tecnolÃ³gico fora do pacote que a indÃºstria de tecnologia nos vende como inevitÃ¡vel? A provocaÃ§Ã£o dialoga com o diagnÃ³stico de Fisher sobre a dificuldade, hoje, de imaginar alternativas ao presente, e propÃµe virar essa constataÃ§Ã£o do avesso, procurando pistas de outra relaÃ§Ã£o possÃ­vel com a inteligÃªncia artificial, menos presa ao usuÃ¡rio individual presumido pelo design dominante e mais atenta aos custos materiais e ambientais do solucionismo tecnolÃ³gico.</p>
+<p>A ligaÃ§Ã£o entre Fisher e alternativas tecnolÃ³gicas Ã© algo que tenho tentado fazer nos Ãºltimos anos, como dÃ¡ para ver<a href="https://baixacultura.org/tag/mark-fisher/" rel="noopener noreferrer" target="_blank"> nos Ãºltimos anos no BaixaCultura</a>. O que ele chamava de realismo capitalista opera, no debate sobre IA, de um jeito bem reconhecÃ­vel: toda alternativa Ã© imediatamente medida pela rÃ©gua do concorrente: roda tÃ£o rÃ¡pido quanto? DÃ¡ a mesma resposta? escala? Julgada nesses termos, as alternativas perdem sempre porque muitas vezes nÃ£o foram pensadas para estes parÃ¢metros, que, na minha visÃ£o, Ã© a forma mais eficiente de encerrar a conversa antes que ela comece. Fisher insistia que a disputa nÃ£o Ã© por eficiÃªncia, mas por imaginÃ¡rios: o neoliberalismo venceu menos por convencer e mais por tornar impensÃ¡vel qualquer outra coisa.</p>
+<p>Quando se olha para o campo da IA aberta, o que se vÃª Ã© justamente uma brecha nesse impensÃ¡vel. Modelos como os da chinesa<strong> DeepSeek</strong> (R1 e V3), a famÃ­lia <strong>Qwen</strong>, da Alibaba, os modelos da francesa <strong>Mistral</strong>, o <strong>OLMo</strong>, do Allen Institute, que publica tambÃ©m seus dados de treinamento, ou o esforÃ§o coletivo do <strong>Hugging Face</strong> em replicar o R1 no projeto Open-R1 mostram que Ã© possÃ­vel construir sistemas interessantes fora do punhado de empresas que concentra o setor â e, no caso do OLMo, que Ã© possÃ­vel abrir nÃ£o sÃ³ os pesos, mas o processo inteiro. Nem todos esses modelos sÃ£o abertos no mesmo grau, claro, e aqui hÃ¡ um alerta tambÃ©m: a Meta chama seu Llama de aberto sem liberar dados nem permitir usos irrestritos, prÃ¡tica que o diretor da Open Source Initiative, Stefano Maffulli, classifica como poluiÃ§Ã£o do prÃ³prio termo, um âopen washingâ do qual jÃ¡ comentei no texto acima sobre o DeepSeek. Do outro lado, a crÃ­tica feminista latino-americana â reunida, por exemplo, no livro â<a href="https://iafeminista.lat/publicaciones/inteligencia-artificial-feminista-hacia-una-agenda-de-investigacion-para-america-latina-y-el-caribe/" rel="noopener noreferrer" target="_blank">Inteligencia artificial feminista</a>â, organizado por Paola Ricaurte e Mariel Zasso â lembra que abrir o cÃ³digo nÃ£o basta: Ã© preciso perguntar quem define o problema que o sistema resolve, quem Ã© o usuÃ¡rio presumido no desenho, que trabalho invisÃ­vel sustenta o treinamento e que territÃ³rio paga a conta de energia e Ã¡gua. Abertura sem essa pergunta produz rÃ©plicas mais baratas do mesmo mundo. Juntas, as duas frentes sugerem algo mais interessante: nÃ£o um produto melhor, mas outro arranjo de propriedade, de escala e de coletividade.</p>
+<p>Para isso, nossa aula vai receber duas experiÃªncias concretas que encarnam, de Ã¢ngulos diferentes, essa pergunta por alternativas. <a href="https://www.instagram.com/marielzasso/" rel="noopener noreferrer" target="_blank">Mariel Zasso</a>, doutora em Estudos HumanÃ­sticos pelo Tec de Monterrey e pesquisadora de pÃ³s-doutorado na Universidade de Puebla (MÃ©xico), traz a perspectiva da IA feminista latino-americana, pensada como agenda de pesquisa e de prÃ¡tica situada na regiÃ£o, a partir da experiÃªncia da Rede Feminista de Pesquisa em IA da AmÃ©rica Latina e Caribe, que reÃºne pesquisadoras de vÃ¡rios paÃ­ses e vem se dedicando a repensar, remodelar e propor novas perspectivas sobre a IA a partir de um panorama centrado na comunidade e nos direitos humanos. <a href="https://www.instagram.com/brunosmartin?srtk=MWpsbHJiOWVxMWpqMg==" rel="noopener noreferrer" target="_blank">Bruno Martin</a>, gestor e hacker formado em CiÃªncia da ComputaÃ§Ã£o pela Unicamp, sÃ³cio do <a href="https://hacklab.com.br/" rel="noopener noreferrer" target="_blank">Hacklab</a> e parte da MÃ­dia Ninja e da <a href="https://www.instagram.com/zonadepropulsao/" rel="noopener noreferrer" target="_blank">Zona de PropulsÃ£o</a>, fala a partir da trincheira do cÃ³digo aberto, discutindo o que significa, na prÃ¡tica, trabalhar com LLMs locais, baseados em modelos abertos (sobretudos chineses).</p>
+<p>A mediaÃ§Ã£o e a conduÃ§Ã£o sÃ£o minhas; a proposta Ã© costurar os dois relatos com as leituras do curso: entre elas o prÃ³prio Fisher, Mehta, Arora e Raman (2023) sobre coletivizar pelo design, e Lepere-Schloop e Zook (2023) sobre o engajamento crÃ­tico da sociedade civil com a governanÃ§a de IA â capÃ­tulos dos dois handbooks que servem de base Ã  disciplina. A ideia nÃ£o Ã© uma mesa de apresentaÃ§Ãµes isoladas, mas uma conversa que usa as duas experiÃªncias para pensar, mostrar e dialogar sobre esses modelos e visÃµes de IA e o que eles representam em termos de alternativas, concretas e de imaginÃ¡rio, para esta discussÃ£o hoje.</p>
+<p>âHÃ¡ alternativas? IAs feministas, livres e abertasâ acontece no AuditÃ³rio Lupe Cotrim, no 1Âº andar do PrÃ©dio Central da ECA USP, 25/11 das 19h Ã s 22h, como aula aberta da disciplina Estudos CrÃ­ticos de IA e HMC. Entrada livre para pÃºblico externo interessado no tema. Quem precisar de certificado deve se <a href="https://geia.eca.usp.br/ha-alternativas-ias-feministas-livres-e-abertas/" rel="noopener noreferrer" target="_blank">inscrever aqui</a>. Aos que nÃ£o forem presencialmente, a aula serÃ¡ transmitida no Canal da ECA USP no Youtube <a href="https://www.youtube.com/live/8WmefPecjDo" rel="noopener noreferrer" target="_blank">neste link</a>. O evento Ã© uma realizaÃ§Ã£o do <a href="https://geia.eca.usp.br/" rel="noopener noreferrer" target="_blank">GEIA â grupo de pesquisa em IA e Culturas Digitais</a>, com apoio do Departamento de ComunicaÃ§Ã£o e Artes (CCA), da ECA-USP e do<a href="https://labidecom.eca.usp.br/" rel="noopener noreferrer" target="_blank"> Labidecom</a> (LaboratÃ³rio de InovaÃ§Ã£o, Desenvolvimento e Pesquisas em EducomunicaÃ§Ã£o da ECA-USP).</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/tecnologiaemdisputa/tecnologia-ha-caminho-fora-da-alienacao/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

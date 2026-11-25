@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Genocide - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Spinning Genocide</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/24/israel-gaza-genocide-biden-akbar-ahmed-assal-rad/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/1-Gaza-palestine-genocide-rhetoric-illustration.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Spinning Genocide
+                            </p>
+                            
+
+<p>Over the last few years, some of the most vitriolic debates over Gaza have been about language: the meaning of “intifada,” the implications of “from the river to the sea,” and the importance of using the term “genocide.” Many people criticized protestors for what they believed were extreme or dangerous slogans. Many protestors, in turn, were furious about the shocking chasm between the horrifyingly violent reality they were seeing on social media and the understated, deadening, or deceitful language that political officials and mainstream media were using to describe it.</p>
+
+<p>Two new books offer the opportunity to look back at that surreal period with more certainty. The journalist Akbar Shahid Ahmed’s <a href="https://link.amazon/B048wJC8Q" rel="noopener noreferrer" target="_blank"><em>Crossing the Red Line</em></a> is the first reported account of what actually took place inside President Joe Biden’s administration during Israel’s war in Gaza, revealing the truth behind its often deceptive public statements. Assal Rad’s <a href="https://link.amazon/B0gWYc8B0" rel="noopener noreferrer" target="_blank"><em>Don’t Say Palestine</em> </a>offers a similar dissection of how the media buttressed the government rather than challenged it, clinging to outdated journalistic notions and biases when the horror unfolding before the world demanded something far different.</p>
+<p></p>
+
+
+<p>Rad, a scholar of Middle Eastern history, begins her book before Oct. 7, 2023. In 2021, she saw a <em>New York Times</em> headline so euphemistic as to be mendacious: “Evictions in Jerusalem Become Focus of Israeli-Palestinian Conflict.” Evictions? “As a historian of the region,” Rad writes, “I was not surprised to see the way the media reflected the official account of their country’s foreign policy positions,” but that didn’t make it less infuriating. Rad posted her marked-up version on social media. It now said, “Forced expulsions in Jerusalem Become Focus of Palestinian Struggle.”</p>
+
+<p>To Rad, the word “evictions” made ethnic cleansing sound like a real estate dispute or a municipal procedure, and left out the fact that East Jerusalem, where the events were taking place, “is recognized under international law as occupied Palestinian territory.” She knew that this controversy, which was over the Jerusalem neighborhood of Sheikh Jarrah, was representative of the central storyline in the last 150 years of Palestine’s history—a native people dispossessed of their land—and that without the historical context, or the appropriate framing and language, the present-day event made little sense.</p>
+<p>The 2021 riots that ensued when a Jewish settler group claimed these historical Palestinian homes as their own eventually developed into an 11-day war in Gaza. In retrospect, members of the Biden administration should have noticed how the U.S. public responded to this war, in which the Israeli army killed over 250 Palestinians. The officials might have seen that young Americans fresh from the Black Lives Matter movement saw parallels to the Palestinians’ plight, and that global anger at Israel’s brand of asymmetrical violence was growing.</p>
+<p>Instead, Biden and team forged ahead, blindly supporting Israel after the Hamas attack on Oct. 7, 2023, with stunningly little awareness of how the American people and the whole world would react. Their obliviousness may have stemmed from a variety of factors: isolation in the Washington bubble, the influence of donors, the belief that Israel was a forever-ally, or a deeper racial bias. What Rad suggests in her clinical, clear-eyed book is that the media played a role in their ignorance as well by parroting the euphemistic, contextless, and factually incorrect language of the U.S. and Israeli governments.</p>
+<p>In the aftermath of Oct. 7, Rad began to rewrite headlines more regularly, particularly targeting major outlets such as the<em> New York Times</em>, the BBC, Reuters, the <em>Guardian</em>, and the Associated Press. She makes a persuasive case for why headlines are important, even more so in the age of social media and the internet. “Headlines matter because people often do not read beyond them,” she writes. Their passive consumption becomes the everyday wallpaper of readers’ realities.</p>
+ 
+<img alt="A six-panel grid of screenshots showing news headlines from the New York Times. Each panel features red strikethrough lines crossing out parts of the original black text, alongside edit notes in red, sans-serif text and additions replacing or annotating the headlines." src="https://foreignpolicy.com/wp-content/uploads/2026/11/2-assal-rad-nytimes-israel-gaza-palestine-annotations.jpg"/>
+
+A six-panel grid of screenshots showing news headlines from the New York Times. Each panel features red strikethrough lines crossing out parts of the original black text, alongside edit notes in red, sans-serif text and additions replacing or annotating the headlines.
+<p>A panel of <em>New York Times</em> headlines annotated by Assal Rad. Assal Rad screenshots via Zeteo</p>
+<p>Many readers will be familiar with Rad’s concerns. Critics of the <em>New York Times</em>, for example, have long highlighted the newspaper’s usage of passive voice. Headlines like “Strike on Area Where Displaced Gazans Were Camped Kills Up to 25,” or “Lives Ended in Gaza” also studiously avoid naming the perpetrator. After the shocking killing of the 5-year-old child Hind Rajab—who called for help after the Israeli army fired onto her family’s vehicle, initially killing everyone besides her before fatally shooting her and the emergency workers who came to rescue her—major media outlets such as the BBC, CNN, and the <em>New York Times</em> failed to mention Israel or its army in their headlines. As Rad notes throughout the book, similar headlines about atrocities in Ukraine typically name Russia or Putin. Beyond this, Rad points to the use of chillingly anodyne language that is borrowed from the Israeli or U.S. militaries: “targeted strikes” for “indiscriminate bombings,” or “a humanitarian challenge” for what is in reality “a policy of starvation.”</p>
+<p>In the case of Israel’s wars in the Middle East, Rad exposes how the manipulation of the legal and moral term “self-defense” has come to justify more and more violence. The U.S. and Israeli governments have done this before. What’s been different in recent years, however, is that the reality of Israeli actions  has suddenly become ubiquitous and visible. “For the first time,” Rad writes, “millions around the world watched a genocide unfold live on their phones, uncensored, because of the bravery of Palestinian journalists and the reach of social media.” What Israel was doing—blowing up hospitals, collapsing universities, starving already-food-deprived populations, dropping 2,000-pound bombs on cities, men, women, and children—certainly didn’t look like self-defense.</p>
+<p>Yet even when a hospital or school was bombed, the U.S. media often hedged along with the Biden government. It claimed that events still need to be investigated, leaving what people saw with their own eyes to hover in factual limbo. Worse, it would repeat officials’ assertions that, say, bombing a hospital and killing hundreds of people might have been legal because the Israeli army was “targeting Hamas,” a widely repeated phrase that came to be imbued with as much exonerating power as “self-defense.”</p>
+<p>Some of these decisions are not easy. Newspapers have a responsibility to break news quickly but never make a single factual error. Israel barred Western journalists from entering Gaza, so in the early weeks of the war newspapers might have been even more cautious before issuing blame for bombings. But ultimately, this led to them to give extraordinary weight to the testimonies of the Israeli army in assessing such ambiguities. Beyond individual incidents, Rad argues that Israel’s war on Gaza should have been framed much earlier as a deliberate campaign of annihilation or genocide, not a war between two equal parties. The laws of war might allow for some morally abhorrent actions by all sides, but those actions look different when they are mere aspects of what was (and remains) a wildly disproportionate campaign.</p>
+ 
+<img alt="Military personnel in green fatigues drive in armored vehicles along a dirt path surrounded by piles of dirt and concrete rubble under a partly cloudy sky. Two uniformed individuals wearing helmets walk in the foreground." src="https://foreignpolicy.com/wp-content/uploads/2026/11/3-israel-media-control-gaza-GettyImages-2170940683.jpg"/>
+
+Military personnel in green fatigues drive in armored vehicles along a dirt path surrounded by piles of dirt and concrete rubble under a partly cloudy sky. Two uniformed individuals wearing helmets walk in the foreground.
+<p>A photo taken during a controlled tour and subsequently edited under the supervision of the Israeli military shows Israeli soldiers patrolling a road in Rafah in the Gaza Strip on Sept. 13, 2024.Sharon Aronowicz/AFP via Getty Images</p>
+<p>Indeed, it is worth asking why the mainstream media believed anything Israel’s radical, far-right, wholly corrupt government or military said, whether about specific bombings or larger issues, like the claim it was solely trying to “defeat Hamas.” The tendency to simply relay the arguments of public officials is one of the biggest pitfalls of supposedly objective journalism, especially when it comes to governments that have proven to be autocratic or repressive. I was surprised last year, for example, to see a <em>New York Times</em> headline that said, “Erdogan Calls It an Anticorruption Drive. His Rivals Call It a Political Crackdown.” Erdogan has been a repressive authoritarian leader since 2013; what is the point of putting his propaganda in the headline?</p>
+<p>In <em>Don’t Say Palestine</em>, Rad repeatedly highlights these either/or question headlines. One reason for their popularity may be a boring one: They drive reader engagement. In the case of Gaza, however, it’s possible that the media’s noncommittal headlines betray a deeper, more desperate wish.</p>
+<p>As Rad and Ahmed show, Biden’s foreign policy team also seemed desperate to believe in a fantasy version of Israel. Despite the country’s long history of violence against Palestinians, and despite the repeated genocidal statements from high-level Israeli officials, Biden and his team continued to give Israeli Prime Minister Benjamin Netanyahu and the Israeli army the benefit of the doubt. For Biden and those around him, Israel remained inherently good, a delusion that might have come naturally to Americans because they believe it about themselves.</p>
+
+ 
+<img alt="Two older men in dark business suits embrace outdoors on a paved tarmac. Photographers to the left aim cameras at them while men in suits stand to the right, watching the embrace." src="https://foreignpolicy.com/wp-content/uploads/2026/11/3-biden-netanyahu-gaza-israel-GettyImages-1730514202.jpg"/>
+
+Two older men in dark business suits embrace outdoors on a paved tarmac. Photographers to the left aim cameras at them while men in suits stand to the right, watching the embrace.
+<p>Israeli Prime Minister Benjamin Netanyahu hugs U.S. President Joe Biden upon his arrival at Tel Aviv’s Ben Gurion Airport in Israel on Oct. 18, 2023.Brendan Smiallowski/AFP via Getty Images</p>
+
+<p>Ahmed, one of the few reporters to consistently break news and pursue stories about Biden’s foreign policy advisors, offers a painstaking, chronological account of the administration’s gross failures in <em>Crossing the Red Line</em>. One of the most important throughlines of Ahmed’s book is how the Biden foreign policy team subverted the very traditional processes of U.S. government, all to maintain their secretive stranglehold on this conflict.</p>
+
+<p>According to Ahmed, Biden’s team demonstrated a “disdain” for their fellow Democrats and government colleagues, sometimes acting like intelligence officers running a covert war in Latin America while swatting away annoying moral and legal restrictions. “Twice in December [2023], Blinken invoked emergency powers to ignore the standard procedures for U.S. arms deals—which involved consultation with Congress,” Ahmed writes, “so that Washington could rush equipment to the Israelis.” Uzra Zeya, who oversaw human rights work at the State Department, discouraged “split memos” in which some officials could oppose a policy that others had endorsed because those memos would put Blinken on record for whatever he decided. The resulting “consensus memos” instead created what another official called “herd immunity,” in which no one could be blamed for the policy.</p>
+<p>Members of the Biden foreign policy team had been to law school and they knew how to twist legal logic. “For [Jake] Sullivan to claim that lack of proven intent to violate international law precluded Israel’s having committed war crimes,” Ahmed writes, “suggested that the administration could never acknowledge that that occurred.” Those violations were most visible and obvious when it came to military strikes on sites protected by international law, like medical facilities, schools, and houses of worship—all places that Israel would bomb and destroy over time. During the first bombing of Gaza’s Al-Ahli Hospital, “Biden not only declared Israel’s innocence immediately,” Rad notes, “he defined a norm in which Israel could not be guilty because its moral superiority made it incapable of such breaches … The Al-Ahli hospital episode became the model for how the Biden administration would approach the Gaza Genocide. Israel would be taken at its word, exonerated from guilt, and allowed to act with total impunity, with the backing and corroboration of the United States to provide credibility for its actions at every turn.”</p>
+<p>The conduct of Israel’s bombing campaign was a key element in the International Criminal Court’s case against Prime Minister Netanyahu and former Defense Minister Yoav Gallant. Another was starvation. Using starvation as a method of warfare is a war crime; Human Rights Watch declared that Israel was doing this as early as December 2023. Yet Biden officials publicly doubted humanitarian and intelligence officials, rejecting assessments that would have been taken “as gospel” in other times. When representatives from aid groups met with White House Middle East coordinator Brett McGurk, Ahmed writes, “he surprised them by denying that conditions could worsen.” In a much-talked-about passage, Ahmed writes that both McGurk and Sullivan told others they didn’t think Palestinians were actually starving or looked skinny—something both men deny.</p>
+<p>But the reason this allegation isn’t hard to believe in the context of Ahmed’s book is because an ongoing war with bombing campaigns of stunningly high frequency requires humans to constantly make all kinds of macabre logistical choices and decisions. As long time Middle East hand Aaron David Miller told the<em> New Yorker</em> in 2024, Biden did not have the “same depth of feeling and empathy for the Palestinians of Gaza” as he did for Israel. Indeed, the<em> Jerusalem Post</em> revealed this month that during Biden’s last phone call with Netanyahu before leaving the White House, Biden said, “You’re a good man … I admire you. It took a lot of courage to do what you did.”</p>
+ 
+<img alt="Inside a dim tent, a woman in a headscarf and long-sleeved dress holds a severely emaciated young child against her chest, facing away from the camera with his ribs and spine visible. The woman cradles his head as she holds him." src="https://foreignpolicy.com/wp-content/uploads/2026/11/4-gaza-famine-israel-GettyImages-2225974193.jpg"/>
+
+Inside a dim tent, a woman in a headscarf and long-sleeved dress holds a severely emaciated young child against her chest, facing away from the camera with his ribs and spine visible. The woman cradles his head as she holds him.
+<p>Hidaya, a 31-year-old Palestinian mother, carries her sick and malnourished 18-month-old son Mohammed al-Mutawaq inside their tent at the Al-Shati refugee camp, west of Gaza City, on July 24, 2025.Omar Al-Qattaa/AFP via Getty Images</p>
+<p>The idea that Israel was actively trying to starve Gaza was softened by much of the media too, despite Israeli officials’ open declarations of this intent. Rad notes that in the<em> Economist</em>, a story on the threat of famine in Gaza didn’t even mention Israel. In headlines, the <em>New York Times</em> asked, “Why Isn’t More Aid Getting to Gazans?” and, “What is a Famine and Who Determines that One Exists?” in March and June 2024, respectively. (Israel has long controlled all food that gets into Gaza as part of its decades-long occupation and blockade.) When Israel’s defense minister Israel Katz stated explicitly that no aid would be allowed into Gaza, major outlets like Reuters posted headlines that uncritically echoed Israel’s official statements like: “Israeli Defense Minister Says No Humanitarian Aid to Enter Gaza as Tool of Pressure on Hamas.” As Rad contends, this effectively legitimized the use of hunger as a weapon of war. One BBC article said that over the last two years, Palestinians’ access to food had been “complicated.” “The same article repeatedly stated Israeli denials of any wrongdoing, including the government’s rejection of the [Integrated Food Security Phase Classification] report”—the global gold standard of food security assessments. According to the BBC, Israel denied that Israeli soldiers had shot and killed aid seekers, and Netanyahu denied that starvation was taking place at all.</p>
+<p>With the normal channels blocked, the Biden administration went to embarrassing lengths to get food to Palestinians, such as building a pier in the sea and airdropping food packages, all to avoid doing the obvious, which was forcing the Israelis to allow food into the strip. The Americans also clung to and broadcast the idea that a ceasefire represented the only way to end Gaza’s suffering. No matter how many times Netanyahu rejected ceasefire terms or petulantly sabotaged them, and even after Israeli press reported Netanyahu’s obvious self-interest in prolonging the war, Biden and his team insisted it was the only way out of the unfolding disaster.</p>
+<p>Starting in April 2024, to avoid the ceasefire he never wanted, Netanyahu began targeting people in other countries. First, there was the bombing of the Iranian consulate in Damascus; then, in July, there was the assassination of Ismail Haniyeh inside Iran; and in September, there was the Israeli pager attack on Hezbollah operatives (as well as innocent bystanders) as they went about their daily lives. In rapid succession, the Israelis then killed Hassan Nasrallah and unleashed an astounding bombing campaign on the city of Beirut, as well as a ground invasion into Southern Lebanon. Today, that region has been razed to the ground. Whole villages have been destroyed, 4,300 people <a href="https://www.npr.org/sections/the-picture-show/2026/09/19/g-s1-139752/the-new-lines-of-southern-lebanon" rel="noopener noreferrer" target="_blank">have been killed</a>, and more than 1.2 million displaced.</p>
+<p>At every horrific turn in <em>Crossing the Red Line</em>, Ahmed stops to remind us that the same day, week, or month that another horror or humiliation occurred, the Biden administration would decide to send more weapons to Israel anyway. “Regardless of the gut-wrenching cost and their mutual disdain,” Ahmed writes, “Netanyahu and Biden might still take credit for a new Middle East in which Israel held more sway.”</p>
+
+ 
+<img alt="Viewed from inside a dark staircase, two people are seen from behind as they look down through a large jagged hole in a concrete wall at a dense crowd gathered outdoors below." src="https://foreignpolicy.com/wp-content/uploads/2026/11/4-gaza-palestine-genocide-GettyImages-2214109019.jpg"/>
+
+Viewed from inside a dark staircase, two people are seen from behind as they look down through a large jagged hole in a concrete wall at a dense crowd gathered outdoors below.
+<p>Palestinians bury relatives killed in overnight Israeli strikes on the Fatima Bint Asad school in Jabalia, at a cemetery in the northern Gaza Strip on May 12, 2025. Bashar Taleb/AFP via Getty Images</p>
+
+<p>Ahmed argues that careerism and groupthink fueled a lot of the behavior of the Biden team. But his reporting also suggests that strengthening Israel—ensuring that it wins everything—was a goal in itself. For decades, U.S. policy was for Israel to be the strongest country in the Middle East, and in 2025, a U.S. government at last achieved that goal. Israel became the region’s undeniable military heavyweight.</p>
+
+<p>Thanks to works like Rad’s and Ahmed’s, the human toll of this policy has become clear to most Americans. Increasingly, newspaper headlines have reflected this reality, too. Here’s a recent one from the <em>New York Times</em>: “Israel Has Committed Genocidal Acts in Gaza Since Cease-Fire, U.N. Human Rights Panel Says<em>.</em>” For her part, Rad does not deny that many journalists who have written and reported on the war have done excellent work. The value of her critique is more about these Western publications as a whole – how they often fail to fulfill their most vital professional purpose:  holding the powerful to account.</p>
+<p>For the Biden team, the failure of accountability has continued even after leaving office. Confronted with evidence of their culpability in this nightmare, former officials now use opaque and passive language, as if the people who ran the most powerful country in the world simply had no control of events, no control over Netanyahu and no control over President Biden, that sad prisoner of a 1970s sepia-toned fever dream about Golda Meir. As a result, they end up implying that they were merely shirking their moral responsibility to please their aging leader, as if they were functionaries in an authoritarian regime.</p>
+<p>It’s possible—in the sense that anything is possible—that these officials were ignorant of what kind of country Israel had become in the last 20 years. Ignorance of cultures and history, after all, was a major engine of the Americans’ failed wars in Iraq and Afghanistan. Moments in Ahmed’s book manage to surprise even him, such as when veteran Middle East diplomat Barbara Leaf cries, “Come on, the IDF doesn’t participate in settler violence!” Perhaps Biden’s team were also victims of decades of misleading or understated media headlines and that was why they continued to give Israeli leaders the benefit of the doubt—or take them at their word. But there is another term for consistently giving the benefit of the doubt to people who share your skin color over people who don’t. In <em>Crossing the Red Line</em>, Ahmed argues that the war on terror conditioned most “U.S. foreign policy professionals” to be comfortable “with jaw-dropping atrocities and dehumanizing of people in the region.” Rad goes back further, to the entire history of Palestine. “The horrors that have been normalized in Gaza,” she writes, “are the culmination of this long history of racism and injustice.”</p>
+<p>Today, Republicans, some Democrats, and probably much of the U.S. security state is still responsible for supporting Netanyahu’s government as it works to destroy Gaza. It was Americans’ own corrupted consensus and Israeli’s murderous one that came together to wreck the international legal order, all while Western media organs chronicled the downfall of that order in careful, hedging tones. One of the most accurate headlines about Gaza, Rad writes, came from the satirical newspaper the <em>Onion</em> following the October 2025 ceasefire announcement: “Israel Agrees to Go Back to Killing Palestinians on Less Frequent Basis.” The advantage of fact-based, active-voiced headlines is that they don’t only tell what’s happening in the present. They tell what will still be happening in the future.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/24/israel-gaza-genocide-biden-akbar-ahmed-assal-rad/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

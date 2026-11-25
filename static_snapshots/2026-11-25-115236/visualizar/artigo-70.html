@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badiou e as Jornadas de Outubro - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Badiou e as Jornadas de Outubro</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/movimentoserebeldias/badiou-e-as-jornadas-de-outubro/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-24-at-18-16-55-2016-01-badiou-jpg.webp-imagem-WEBP-960-%C3%97-639-pixels-Redimensionada-93.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Badiou e as Jornadas de Outubro
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-24-at-18-16-55-2016-01-badiou-jpg.webp-imagem-WEBP-960-%C3%97-639-pixels-Redimensionada-93.png"/>Foto: site Albertine
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Alguns acontecimentos podem transformar a vida de pessoas e sociedades – e mudar o rumo da histÃ³ria – de uma hora para outra. Alain Badiou chama de âeventoâ um acontecimento que, alÃ©m de potÃªncia transformadora, tem o condÃ£o de romper a evoluÃ§Ã£o linear e previsÃ­vel de situaÃ§Ãµes que costumamos entender como âa realidadeâ. Outro atributo desse âeventoâ Ã© que ele abre a possibilidade de uma nova verdade (ou de um âprocesso de verdadeâ), dotada de forÃ§a gravitacional capaz de revolucionar a constelaÃ§Ã£o de pressupostos e perspectivas que, atÃ© o advento imprevisto, sustentava o âmundo realâ.</p>
+<p>Usando palavras sem o rigor conceitual dos sistemas filosÃ³ficos, podemos dizer, numa frase, que o evento descrito pelo filÃ³sofo francÃªs Ã© a emergÃªncia disruptiva de uma âverdade mais verdadeiraâ do que aquilo que o saber estabelecido nos apresentava como o real e o possÃ­vel, e que delimitava tambÃ©m a compreensÃ£o que, atÃ© entÃ£o, tÃ­nhamos de nÃ³s mesmos. Algo que, segundo Badiou, pode acontecer nos campos da polÃ­tica, da ciÃªncia, da arte e dos encontros amorosos.</p>
+<p>NÃ£o digo que o movimento responsÃ¡vel pela virada eleitoral que acabamos de realizar e testemunhar no Brasil seja um caso completo nem exemplar dessa concepÃ§Ã£o de evento. Mas considero que as ideias de Badiou podem nos ajudar a entender o carÃ¡ter decisivo da disputa pelo sentido histÃ³rico do acontecimento polÃ­tico inÃ©dito que vivemos – e que surpreendeu o mundo e a muitos de nÃ³s mesmos.</p>
+<h3><strong>De onde veio essa juventude?</strong></h3>
+<p>A emergÃªncia de uma verdade inovadora evidenciou-se na vitÃ³ria de Lula, por exemplo, pela superaÃ§Ã£o do âpesquisismoâ – pensamento excessivamente pautado pela contÃ­nua atualizaÃ§Ã£o do passado por meio de cadeias lineares de causalidade – que vem prevalecendo nas anÃ¡lises polÃ­ticas da imprensa.</p>
+<p>Lembro-me de que, em um dos melhores programas de debate sobre as pesquisas eleitorais, exibido por canais progressistas, uma especialista do ramo expressou a sua frustraÃ§Ã£o com a apatia da juventude. Essa indiferenÃ§a, segundo a pesquisadora, era flagrante na atitude de jovens participantes dos chamados âgrupos de qualiâ, formados pelos institutos para avaliar qualitativamente a reaÃ§Ã£o das pessoas em relaÃ§Ã£o a temas e questÃµes em disputa na batalha eleitoral.</p>
+<p>Hoje, a posteriori, diante da atuaÃ§Ã£o decisiva da juventude na invenÃ§Ã£o e expansÃ£o do movimento da virada, o pensamento tradicional tende a atribuir a contradiÃ§Ã£o entre a percepÃ§Ã£o da apatia e a erupÃ§Ã£o do protagonismo a uma falha da anÃ¡lise, que teria sido incapaz de identificar uma inclinaÃ§Ã£o Ã  participaÃ§Ã£o polÃ­tica apaixonada e persuasiva existente antes do movimento comeÃ§ar. No evento de Badiou, a nova verdade transformadora nÃ£o Ã© algo preexistente que se revela, mas uma <em>criaÃ§Ã£o</em> (no sentido forte dessa palavra) que pode acontecer a partir do prÃ³prio evento, ao ser realizada como mudanÃ§a efetiva do mundo e da vida. Isso nÃ£o quer dizer que a juventude que de repente fez vibrarem as ruas brasileiras tenha surgido do nada. A melhor descriÃ§Ã£o do fenÃ´meno pela Ã³tica de Badiou talvez seja a do âinexistente de um mundoâ: aquilo que estava lÃ¡, mas num modo de manifestaÃ§Ã£o esmaecida, e que o evento acende em plena intensidade.</p>
+<p>NÃ£o proponho aqui uma escolha do tipo âisto ou aquiloâ, entre correntes de pensamento tradicionais e uma formulaÃ§Ã£o filosÃ³fica diferente. Recorro a ideias de Badiou como chaves para pensar, de um modo que me parece menos suscetÃ­vel Ã s armadilhas de reproduÃ§Ã£o da ordem, como muitos de nÃ³s fomos convocados e inspirados pelo movimento da virada, e como agora, para realizÃ¡-la como marco de mudanÃ§a histÃ³rica, somos chamados Ã  disputa pelo significado do que vimos e fizemos acontecer.</p>
+<p>Seria um erro abrir mÃ£o de pesquisas de opiniÃ£o e do esforÃ§o de reconhecimento de cada situaÃ§Ã£o social, com suas caracterÃ­sticas, tendÃªncias e potenciais presentes, observÃ¡veis e mensurÃ¡veis. Mas considero vital a constataÃ§Ã£o de que um realismo encapsulado pelo pensamento linear – sobretudo quando balizado por instrumentos de aferiÃ§Ã£o quantitativa – Ã© um bom sistema auxiliar de orientaÃ§Ã£o que, sobrevalorizado, torna-se obstÃ¡culo e fator de desvitalizaÃ§Ã£o de movimentos capazes de transformaÃ§Ã£o criadora.</p>
+<p>NÃ£o hÃ¡ fÃ³rmula pronta de vitÃ³ria para as boas lutas que temos pela frente. A verdade do Brasil da Virada nÃ£o se realizarÃ¡ sem abertura e disposiÃ§Ã£o para navegar por territÃ³rios de pensamento e aÃ§Ã£o nÃ£o mapeados.</p>
+<h3><strong>A verdade do avesso e o lÃ­der levado no colo</strong></h3>
+<p>Novas verdades transformadoras nÃ£o viram somente eleiÃ§Ãµes – elas tambÃ©m pÃµem do avesso a nossa compreensÃ£o do significado e do potencial de cenÃ¡rios e condicionantes. Logo apÃ³s o resultado adverso do primeiro turno, as precariedades e insuficiÃªncias do governo e da campanha oficial de Lula apresentavam-se para nÃ³s, eleitores dele, como um conjunto de fatores negativos prestes a se tornar corresponsÃ¡vel pela queda do Brasil no abismo do retrocesso generalizado. Dias depois, o big bang da virada comeÃ§ou a transformar essas condiÃ§Ãµes desfavorÃ¡veis em oportunidade de uma vitÃ³ria ainda mais potente. A inversÃ£o de sentido se deu justamente pelo reconhecimento das deficiÃªncias do governo e da campanha nÃ£o mais como condicionantes desmobilizadores, mas como chamado Ã  aÃ§Ã£o direta, Ã  tomada alegremente guerreira das ruas e redes, Ã  conexÃ£o humana capaz de realmente comunicar a verdade urgente daquele momento.</p>
+<p>LimitaÃ§Ãµes do prÃ³prio lÃ­der – esse que jÃ¡ podemos reconhecer como o maior da histÃ³ria brasileira e um dos grandes do mundo contemporÃ¢neo – adquiriram tambÃ©m novo sentido no contexto da virada. Lula Ã© um octogenÃ¡rio de voz rouca, dotado de notÃ¡vel energia e senso de missÃ£o, protagonista de uma trajetÃ³ria que desafia as delimitaÃ§Ãµes do possÃ­vel, capaz de representar como ninguÃ©m tanto a classe trabalhadora quanto a causa da promoÃ§Ã£o dos mais pobres. Mas, dessa vez, faltava-lhe capacidade de projetar uma visÃ£o de futuro clara e inspiradora, Ã  altura das aspiraÃ§Ãµes do povo.</p>
+<p>Como diz meu amigo Vinicius, Lula Ã©, num sentido importante, um lÃ­der matriarcal. Talvez o aposto que melhor o defina seja âfilho de dona Linduâ. Tanto seu discurso quanto as principais marcas histÃ³ricas concretas da sua aÃ§Ã£o polÃ­tica dizem respeito a ideias e atos vinculados a acolhimento, proteÃ§Ã£o, cuidado e nutriÃ§Ã£o. Ao se permitir ser levado no colo e acarinhado como um <a href="https://www.tiktok.com/@valciancalixto/video/7704856984792616213" rel="noopener noreferrer" target="_blank">bebÃª</a> ou um â<a href="https://www.instagram.com/reels/De2AVu-Sypa/" rel="noopener noreferrer" target="_blank">vovÃ´ fofinho</a>â – em vÃ­deos e memes e por multidÃµes nas ruas e praÃ§as do Brasil da Virada -, Lula colaborou para que, do reconhecimento de fragilidades, crescesse a forÃ§a amorosa necessÃ¡ria para a vitÃ³ria eleitoral e para a criaÃ§Ã£o de qualquer futuro desejÃ¡vel.</p>
+<h3><strong>O sujeito do evento e seus opositores</strong></h3>
+<p>Por mais impactante que seja, o evento, por si sÃ³, Ã© efÃªmero, evanescente, uma nota de rodapÃ© na narrativa contÃ­nua de reproduÃ§Ã£o do mundo como ele tem sido. Para que se desdobre numa verdade transformadora, Ã© preciso, segundo Badiou, um sujeito que o reconheÃ§a e lhe seja fiel – adentrando o territÃ³rio das novas possibilidades que o acontecimento extraordinÃ¡rio inaugura, e realizando, na vida e na prÃ¡tica, suas consequÃªncias.</p>
+<p>Comunista de viÃ©s maoÃ­sta, Badiou entende seu prÃ³prio pensamento como compatÃ­vel com o de Marx, ainda que tensione fundamentos do marxismo. Sua convicÃ§Ã£o materialista, mesmo heterodoxa, implica a nÃ£o inclusÃ£o da conversÃ£o religiosa e das experiÃªncias mÃ­sticas entre os territÃ³rios de ocorrÃªncia do evento – uma vez que, para o filÃ³sofo, nÃ£o existem verdades transcendentes. Isso, entretanto, nÃ£o o impede de apontar o apÃ³stolo Paulo como um exemplo de fidelidade a um evento – a ressurreiÃ§Ã£o de Cristo, que Badiou considera uma fÃ¡bula – a partir do episÃ³dio da sua prÃ³pria conversÃ£o, no caminho de Damasco. (Vale a pena ler <em>SÃ£o Paulo: a fundaÃ§Ã£o do universalismo</em>, publicado no Brasil pela Boitempo.)</p>
+<p>Em oposiÃ§Ã£o ao sujeito fiel, Badiou descreve âsujeitos obscurosâ, que buscam anular o evento por meio de negaÃ§Ã£o e apagamento, e âsujeitos reativosâ, que enxergam o acontecimento novo, mas, refratÃ¡rios ao reconhecimento de uma verdade transformadora, o veem e narram de um modo que reproduz a ordem estabelecida.</p>
+<p>No Brasil de hoje, vozes que nos Ãºltimos anos disseminaram a ideia de que o maior problema da polÃ­tica nacional nÃ£o Ã© a ascensÃ£o de uma ultradireita golpista e fascistoide, mas uma tal âpolarizaÃ§Ã£oâ – entre esse extremismo antidemocrÃ¡tico e umaâ¦ vÃ¡ lÃ¡â¦ centro-esquerda tÃ­mida – agora fazem coro para abafar a mensagem transformadora da virada. A liÃ§Ã£o a ser tirada da vitÃ³ria eleitoral de Lula, dizem, Ã© a mesma de sempre: qualquer ambiÃ§Ã£o de mudanÃ§a estrutural Ã© devaneio irresponsÃ¡vel e as forÃ§as que se elegem pendendo Ã  esquerda precisam continuar governando do modo conformado e medroso que, com raras exceÃ§Ãµes, vem prevalecendo no mundo, ao longo das Ãºltimas dÃ©cadas.</p>
+<p>Aceitar essa liÃ§Ã£o de casa, como estamos fartos de saber desde a consolidaÃ§Ã£o da hegemonia neoliberal, no final do sÃ©culo 20, resulta em mais desigualdade, concentraÃ§Ã£o de riqueza e poder, uma vida cada vez mais precÃ¡ria e insegura para os trabalhadores e crescente descrÃ©dito da democracia como governo do povo e para o povo. Desse modo, alÃ©m de nÃ£o avanÃ§armos, continuaremos provendo oportunidades para que os inimigos da democracia, dos direitos humanos e da partilha justa da prosperidade possam voltar ao poder.</p>
+<p>(Outro dia, num grande canal de notÃ­cias, um comentarista crÃ­tico do bolsonarismo e do trumpismo sintetizou bem a visÃ£o <em>mainstream</em> da banda civilizada da mÃ­dia corporativa dizendo que, no passado recente em que prevalecia o chamado Consenso de Washington, âÃ©ramos felizes e nÃ£o sabÃ­amosâ. Uma anÃ¡lise que toma o prÃ³prio meio de cultura que nutriu os novos extremismos de direita por um passado saudoso, ao qual seria bom voltarmos.)</p>
+<h3><strong>Fidelidade criadora</strong></h3>
+<p>Fidelidade ao Brasil da Virada implica o reconhecimento de que a transformaÃ§Ã£o deste paÃ­s numa naÃ§Ã£o realmente digna da sua riqueza humana, cultural e natural Ã© possÃ­vel e necessÃ¡ria. A verdade que comeÃ§a a emergir entre nÃ³s exige a vitalizaÃ§Ã£o da democracia pela participaÃ§Ã£o e decisÃ£o popular. E o evento gerador de um novo mundo que estÃ¡ em disputa, clamando pela nossa adesÃ£o – e pela pressÃ£o necessÃ¡ria para que o governo eleito confirme, na prÃ¡tica, seu compromisso com ele -, requer tambÃ©m clareza de projeto, de visÃ£o de futuro e das lutas polÃ­ticas que precisam comeÃ§ar a ser travadas neste momento (mesmo que nem todas possam ser vencidas a curto prazo).</p>
+<p>O entusiasmo com que testemunho a grandeza da virada nÃ£o implica arroubo voluntarista. A superaÃ§Ã£o de uma ordem reprodutora de privilÃ©gios e exploraÃ§Ã£o tÃ£o arraigada, enredada em sistemas internacionais, gerida por tecnocracias alinhadas a interesses de grupos minoritÃ¡rios poderosos e articulados nÃ£o Ã© missÃ£o trivial. Precisaremos mobilizar e sustentar esforÃ§os e virtudes – incluindo boas doses de realismo duro e penosa paciÃªncia (desde que a serviÃ§o da transformaÃ§Ã£o efetiva). O Brasil vislumbrado no advento da virada serÃ¡ fruto de uma fidelidade criadora na polÃ­tica, mas precisarÃ¡ tambÃ©m de novas verdades nos demais territÃ³rios de criaÃ§Ã£o de mundos de que fala Badiou: a ciÃªncia, a arte e o amor.</p>
+<p><em>Sem publicidade ou patrocÃ­nio, dependemos de vocÃª. FaÃ§a parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/movimentoserebeldias/badiou-e-as-jornadas-de-outubro/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

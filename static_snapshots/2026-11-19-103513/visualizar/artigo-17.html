@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Nvidia’s chaos trickles down to you - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">How Nvidia’s chaos trickles down to you</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/technology/511229/nvidia-ai-jensen-huang-401k-bubble" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/GettyImages-2299712522.jpg?quality=90&strip=all&crop=0%2C10.729462903569%2C100%2C78.541074192862&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Nvidia’s Jensen Huang problem is showing up in your 401(k)
+                            </p>
+                            <p>If you didn’t know a lot about Nvidia a month ago, what you know now is salacious, essential, and probably a little bit misleading.</p><p>The multitrillion-dollar chipmaker has primarily been in the news because its co-founder and CEO Jensen Huang had a few affairs — <a href="https://www.nytimes.com/2026/10/29/us/politics/nvidia-china-jensen-huang-trump.html?unlocked_article_code=1.QFE.nQJR.vyNcWeEWyv8u&amp;smid=url-share" rel="noopener noreferrer" target="_blank">one with a possible spy</a> — and resigned. This has been a huge story, not just because of the sex scandal but also because Nvidia has been propping up the entire AI industry, as its primary chip supplier and frequent financier, and, by proxy, propping up the global economy.</p><p>The downside risk is almost catastrophic: If Huang brings Nvidia down with him, the whole economic house of cards <a href="https://www.axios.com/2026/11/16/nvidia-jensen-huang-ai-bubble" rel="noopener noreferrer" target="_blank">could collapse</a>.</p><p>Don’t freak out. This probably won’t happen. Nvidia just reported its third-quarter earnings and <a href="https://www.wsj.com/tech/ai/nvidia-nvda-3q-2027-earnings-report-stock-6e642303?st=rNwT16&amp;reflink=desktopwebshare_permalink" rel="noopener noreferrer" target="_blank">beat estimates</a>, seemingly setting up interim CEO Colette Kress for success (even if it <a href="https://www.wsj.com/finance/commodities-futures/stock-futures-rally-as-nvidia-earnings-calm-ai-trade-fears-96f51546" rel="noopener noreferrer" target="_blank">ultimately disappointed Wall Street</a>). The company’s board also declared that it <a href="https://www.reuters.com/legal/transactional/nvidia-board-says-it-does-not-intend-reinstate-jensen-huang-ceo-2026-11-17/" rel="noopener noreferrer" target="_blank">would not reinstate Huang</a>, despite <a href="https://www.wsj.com/tech/jensen-huang-statement-nvidia-ceo-9dedca36?st=vtPQs1&amp;reflink=desktopwebshare_permalink" rel="noopener noreferrer" target="_blank">Huang’s very public willingness to be reinstated</a>. So the company isn’t exactly in crisis mode.</p><p>That doesn’t mean it will avoid a reckoning, But the reckoning is much broader than the Huang storyline — and if it comes, might even be beneficial.</p><p>Nvidia is facing a raft of investigations and potential new regulations as a more AI-skeptical Congress <a href="https://theweek.com/tech/ai-defense-after-midterms-democrats-data-centers" rel="noopener noreferrer" target="_blank">prepares to take power</a>, not to mention growing competition from tech giants, <a href="https://gizmodo.com/google-has-two-new-weapons-in-its-fight-against-nvidia-2000837111" rel="noopener noreferrer" target="_blank">like Google</a>, that have started making their own highly advanced chips for AI. There are also signs that the chips that made Nvidia so profitable won’t be as critical in the next chapter of the AI era. So maybe Nvidia was already in trouble before the world learned more than it wanted to <a href="https://www.theverge.com/ai-artificial-intelligence/1029990/jensen-huang-the-spy-who-loved-me" rel="noopener noreferrer" target="_blank">about Jensen Huang’s sex life</a>.</p><p>More broadly, a shakeup in the apparently very precarious AI industry could end up being a good thing. Free market capitalism tends to thrive when there’s more competition. And, just maybe, we stand to benefit from more scrutiny into tech giants like Nvidia and their executives. There’s reason to believe real shakeup at Nvidia — even a fall from its exalted perch and its role as the money factory of the AI world — could turn out to be the right thing for consumers, healthy for the market, and useful in the event of the AI bubble bursting.</p><p><h2><strong>Why Nvidia matters to normies (yes, even you)</strong></h2></p><p>You might be wondering what any of this has to do with you. Nvidia’s top chips <a href="https://www.tomshardware.com/pc-components/gpus/nvidias-next-gen-blackwell-ai-gpus-to-cost-up-to-dollar70000-fully-equipped-servers-range-up-to-dollar3000000-report" rel="noopener noreferrer" target="_blank">can cost more than a car</a>, and precious few humans have ever even seen one. Why should the escapades of a leather jacket-loving tech executive distract you from your hobbies or affect your daily life? For the most part, it won’t. Even if you’re an enthusiastic Claude or ChatGPT user, what happens to Nvidia won’t change the way you use this technology. AI as we know it won’t immediately get better or cheaper if competition heats up in Silicon Valley. The stock market might get shakier, though. In that sense, we’re all in this together.</p><p>“American consumers likely may not feel Nvidia’s pain in their own pocketbook, but they may likely feel it in their 401(k),” said <a href="https://history.washington.edu/people/margaret-omara" rel="noopener noreferrer" target="_blank">Margaret O’Mara</a>, a historian at the University of Washington. “We’re all stockholders, whether we like it or not.”</p><p>If you’re enrolled in your employer’s 401(k), you probably own some Nvidia stock, either directly or through a mutual fund. Even if you don’t, any company as rich and central as Nvidia can cause real shock waves in the economy. The simple explanation for this is that Nvidia and a tiny handful of big tech company stocks make up a massive share of the stock market. The <a href="https://www.fidelity.com/learning-center/smart-money/magnificent-7-stocks" rel="noopener noreferrer" target="_blank">“Magnificent Seven” stocks</a> account for about a third of the entire S&amp;P 500 index — yes, that’s seven out of 500 total companies — and they haven’t been <a href="https://finance.yahoo.com/markets/article/the-magnificent-7-stocks-are-seeing-stunning-declines-092719792.html" rel="noopener noreferrer" target="_blank">doing all that well</a> lately. At its peak in May, Nvidia alone accounted for nearly 9 percent of the S&amp;P 500. (It’s currently around 6 percent.) That meant that when <a href="https://finance.yahoo.com/markets/stocks/articles/nvidias-scandal-knocked-thousands-off-123010108.html" rel="noopener noreferrer" target="_blank">its stock tanked</a> following the Huang scandal, it knocked thousands of dollars off millions of retirement accounts.</p><p>This is not a reason to rebalance your portfolio, and I’m not in the business of giving investment advice. But the panic people might be feeling right now around the future of Nvidia and <a href="https://www.vox.com/politics/511132/anthropic-ipo-ai-bubble-nvidia" rel="noopener noreferrer" target="_blank">the possibility of an AI bubble</a> is a helpful reminder that panicking is almost always a bad idea. An instructive example is <a href="https://home.treasury.gov/about/history/freedmans-bank-building/financial-panic-of-1873" rel="noopener noreferrer" target="_blank">the Panic of 1873</a>, when one dominant company faltered, caused a run on the banks, and pushed the United States into what’s now called the first Great Depression. Plus, because the company is just so big, <a href="https://www.wsj.com/finance/stocks/its-hard-to-protect-your-nest-egg-from-nvidia-2e7419b7?utm_source=chatgpt.com" rel="noopener noreferrer" target="_blank">it’s actually pretty hard</a> to get Nvidia stock out of your retirement accounts completely.</p><p>The good news, on this front, is that Nvidia probably isn’t going anywhere. We learned on Tuesday evening that the company <a href="https://www.nytimes.com/live/2026/11/17/technology/nvidia-earnings-stock-price" rel="noopener noreferrer" target="_blank">continues to make money hand over fist</a>, with $115 billion in revenue in the third quarter of this year, which is up over 100 percent from the same time last year. The advanced graphics chips, or GPUs, that Nvidia makes continue to be the gold standard for AI tasks, and perhaps more importantly, Nvidia has <a href="https://www.nytimes.com/2023/08/21/technology/nvidia-ai-chips-gpu.html" rel="noopener noreferrer" target="_blank">built an impressive moat</a> around its chip business to shield itself from competitors.</p><p>Nevertheless, the competitors have been moving in. AI has gotten so good at writing software, for instance, that <a href="https://www.wired.com/story/nvidia-was-already-in-trouble-before-the-jensen-huang-mess/" rel="noopener noreferrer" target="_blank">it’s possible to rewrite code designed for Nvidia chips</a> to run on those made by competitors like AMD. Google is also making advanced chips called Tensor Processing Units (TPUs) as a challenger to Nvidia’s GPUs. (Google actually <a href="https://www.bloomberg.com/news/articles/2026-11-09/google-escalates-nvidia-rivalry-with-new-versions-of-its-tpu-systems" rel="noopener noreferrer" target="_blank">rolled out a whole new generation</a> of TPUs in early November, just a few days before Jensen Huang resigned.) Amazon has been filling AWS data centers and powering Anthropic’s Claude <a href="https://www.semafor.com/article/10/29/2025/aws-massive-multi-state-ai-data-center-is-powering-anthropics-claude" rel="noopener noreferrer" target="_blank">with its Trainium chips</a>, another competitor to Nvidia GPUs. Microsoft, meanwhile, has its Azure Maia chips and <a href="https://www.bloomberg.com/news/articles/2026-11-17/microsoft-executive-says-nvidia-drama-could-boost-rival-chips" rel="noopener noreferrer" target="_blank">expects higher demand</a> after this Nvidia drama.</p><p>A lot of companies still want to buy Nvidia products, though. Nvidia has been able to pull in 75 percent or more in profits on its chip sales because they’re in such high demand, according to <a href="https://fletcher.tufts.edu/academics/faculty/christopher-miller" rel="noopener noreferrer" target="_blank">Chris Miller</a>, a professor of international history at Tufts and the author of <em>Chip Wars: The Fight for the World’s Most Critical Technology</em>.</p><p>“Nvidia’s argument has always been, ‘Yeah, we charge a pretty thick profit margin on top of our chips, but we give you the best possible outcome,’” Miller said. “But its pricing power would decline if the competition increases.”</p><p>Competition, as any student of capitalism knows, should lead not only to lower prices but also more innovation and better-quality products. It’s still not clear what the downstream effects of cheaper, faster, more powerful AI chips might be, though.</p><p>Most people encounter AI not through any direct contact with Nvidia, which sells its products to other companies. They use ChatGPT or Claude, and they may even pay a subscription fee for access to better models. There’s no guarantee that OpenAI and Anthropic spending less on training and running their models would lead to lower prices or even better models for consumers to use. It might just mean more profit for OpenAI and Anthropic.</p><p><h2><strong>Shakeups are good, actually</strong></h2></p><p>To the casual observer, the Nvidia shakeup looks quite scary. Again, this is one of the most valuable companies in the world, and <a href="https://www.vanityfair.com/story/jensen-huang-nvidia-blip" rel="noopener noreferrer" target="_blank">it’s only ever had one CEO, Jensen Huang</a>, who’s steered the company to unprecedented levels of success and dominance in his 33 years at the helm. And then the scandal that brings him down not only involves extramarital affairs — with two Nvidia employees as well as an alleged Chinese spy — <a href="https://www.atlanticcouncil.org/content-series/fastthinking/what-jensen-huangs-nvidia-exit-means-for-washington-wall-street-and-beijing/" rel="noopener noreferrer" target="_blank">but also geopolitical consequences</a> and <a href="https://www.nytimes.com/2026/11/13/us/politics/trump-putin-xi-china-nuclear-proliferation.html?unlocked_article_code=1.RVE.eO2E.JBrbWVqdcBcA&amp;smid=url-share" rel="noopener noreferrer" target="_blank">national security threats</a>.</p><p>Then there’s the AI bubble of it all. Anxiety around an AI bubble has been simmering <a href="https://www.vox.com/podcasts/466649/ai-bubble-burst-data-centers-economy" rel="noopener noreferrer" target="_blank">for a couple of years</a> as the level of spending on the AI buildout has hit sky-high levels along with valuations of AI companies, <a href="https://www.theatlantic.com/ideas/2026/07/ai-economy-stock-market/688004/" rel="noopener noreferrer" target="_blank">many of which are not yet profitable</a>. In fact, under Huang’s leadership, Nvidia <a href="https://www.cnbc.com/2026/09/04/nvidia-ai-investments-99-billion.html" rel="noopener noreferrer" target="_blank">has invested nearly $100 billion</a> in AI companies, including OpenAI, making it one of the biggest financial backers in the sector. Continued chaos at Nvidia could upset the already fragile AI ecosystem, which <a href="https://www.bloomberg.com/news/articles/2026-10-28/how-much-does-the-us-economy-depend-on-ai" rel="noopener noreferrer" target="_blank">is propping up the US economy</a>. The bubble could burst. According to former SEC chair Gary Gensler, in fact, <a href="https://www.cnn.com/2026/11/16/economy/ai-bubble-anthropic-ipo-recession" rel="noopener noreferrer" target="_blank">it <em>will</em> burst by 2028</a>, sending the country into a recession.</p><p>On the other hand, all the renewed interest in the possibility of an AI bubble and its imminent bursting is a good thing. Jensen Huang’s affairs have directed a lot of attention and reporting resources to the state of the AI industry. <a href="https://www.hbs.edu/faculty/Pages/profile.aspx?facId=718917" rel="noopener noreferrer" target="_blank">Shane Greenstein</a>, a professor at Harvard Business School, says that previous bubbles — such as the dot-com boom — were more opaque, and would have benefited from more scrutiny. He thinks we’ll know in the next one to three years what will happen with the apparent AI bubble, and he says it doesn’t matter if Jensen Huang is around for it or not.</p><p>“We’re already over our skis, as it were,” Greenstein said. “We’ve already spent hundreds of billions of dollars on data centers, so there’s no way to pay those back unless we get both productivity advance in a range of industries beyond just coding assistance, and widespread consumer adoption with some revenue-generating activity attached to it — which at the moment ChatGPT is the only successful consumer-oriented thing with any kind of revenue, and it’s still a pittance.”</p><p>In the worst-case scenario, however, the scrutiny is what might save us. The dot-com boom was propped up on more hype and less reliable data than the AI boom, according to Greenstein, which led some companies to do some shady reporting. When it went bust, the financial reckoning was worse because of that bad reporting.</p><p>“By comparison, whatever downturn we get isn’t going to be as bad as it would’ve been had things been a bit more obscure,” Greenstein said. “Now, that doesn’t make anybody feel better, but I think it’s interesting to live through this where both the skeptics and the cheerleaders are going at it all the time in public, which is quite different from the dot-com boom, where only the cheerleaders were given the microphone.”</p><p>It doesn’t make anyone feel better, and it doesn’t necessarily protect your 401(k) from some ups and downs in the years to come. Think of what you’re feeling as a productive sort of anxiety. You’re worried, but you’re paying attention, which is inevitably better than the opposite.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/technology/511229/nvidia-ai-jensen-huang-401k-bubble" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

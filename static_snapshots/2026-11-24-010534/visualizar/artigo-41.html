@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nvidia Is Now Too Big to Hold to Account - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Nvidia Is Now Too Big to Hold to Account</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/23/nvidia-jensen-huang-return-us-china-ai-risk/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/Nvidia-Jensen-Huang-GettyImages-2266457818.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Jensen Huang's Return: Nvidia Is Now Too Big to Hold to Account
+                            </p>
+                            
+<p>Put out of mind the scenes of cheering you may have seen of Jensen Huang’s return to the headquarters of perhaps the world’s most important company, Nvidia, marking his personally triumphant comeback from being unanimously ousted by his board.</p>
+<p>Get out of your thoughts any happy notions that you have reason to celebrate just because your money, like the money of so many millions of Americans and people well beyond the country’s borders, is tied up in the U.S. stock market, which soared at this surprising turn in the news after slumping badly in response to the scandals that had swirled around Huang.</p> 
+
+<p>Put out of mind the scenes of cheering you may have seen of Jensen Huang’s return to the headquarters of perhaps the world’s most important company, Nvidia, marking his personally triumphant comeback from being unanimously ousted by his board.</p>
+<p>Get out of your thoughts any happy notions that you have reason to celebrate just because your money, like the money of so many millions of Americans and people well beyond the country’s borders, is tied up in the U.S. stock market, which soared at this surprising turn in the news after slumping badly in response to the scandals that had swirled around Huang.</p>
+<p>What has happened in recent days, culminating in Huang’s return in the face of allegations he sustained a secret affair with a woman who was in touch with China’s spy agencies, is bad news for an economy that has grown increasingly imbalanced with the enormous growth of artificial intelligence. Far better for the U.S. economy and for everyone who has a stake in it would have been a reckoning for Nvidia that forced it to undertake the hard work of corporate reform and rebuilding trust.</p>
+<p>Nvidia, for those who have not been paying attention, makes the most indispensable product in the world of AI: graphics processing units, a specialized type of chip, so capable and advanced that it has few real competitors, including, crucially, among well-funded Chinese companies. Nvidia, however, is much more than even this. As I have <a href="https://foreignpolicy.com/2026/10/23/musk-starlink-big-tech-dangers-ultrarich-us-democracy/" rel="noopener noreferrer" target="_blank">written before</a>, it sits at the center of a highly incestuous economy of AI companies, including most of the big service providers, which it funds to keep purchasing its chips. The circular funding arrangements that Nvidia sustains with its largest customers—companies with extraordinary financial leverage and seemingly bottomless capital needs—is what keeps the AI economy’s party going. Without this, the merry-go-round of this new sector would grind to a halt and make what many thought looked like a bursting bubble in recent days seem like a minor blip.</p>
+<p>Add to this the fact that the U.S. government and President Donald Trump have seemingly become convinced that everything and anything must be permitted with Nvidia, and with AI in general, or else China will overtake the United States in the most important technology of the near future. What this gives you is something more frightening than too big to fail: a company declared too strategically important to question or to hold to account.</p>
+<p>The reality is that almost everything about the present picture is messed up and deeply worrisome. Let’s start with the fact that Trump, who already leads a government largely unconstrained by Congress and with wildly inflated executive powers, has taken so freely to intervening in the running of major companies. In Huang’s case, he played a central role in his reinstatement, as Monday’s news revealed.</p>
+<p>There is nothing reassuring about this, but it gets worse. There is no reason to believe that Trump has an even remotely sophisticated grasp of the technologies at the heart of Nvidia’s business or its race against competitors. What we do know is that Trump has a weakness for very powerful and wealthy men, and Huang fits this billing. In the president’s universe, he is a winner, and Trump loves to associate himself with anyone invested with such an aura. Trump even <a href="https://www.independent.co.uk/bulletin/news/jensen-huang-truth-social-red-bra-nvidia-trump-b3090156.html" rel="noopener noreferrer" target="_blank">posted</a> an AI-generated photo of Huang intended to mirror a famous image of himself after surviving an assassination attempt, with the big difference that Huang was shown hoisting a red bra.</p>
+<p>Trump, furthermore, is not known for a deep concern about ethics, and that is putting things gently. Where do ethics enter into this? Everywhere, from Huang’s honesty and the extent to which he was forthcoming about his affair with the suspicious Chinese national and shadowy customer, Alice Huang, as well as with at least one other woman who was his direct subordinate at Nvidia, in violation of corporate rules. Ethics are also involved in the way Huang ran his company, with a historically supine board, minimal internal controls on his behavior and oversight, and the way he promoted his family members. What matters is that nothing, inside the company or outside it, checked him. In fact, it seems likely that Trump, with his own record of serial marriages, rumored affairs, and children on the make, can relate.</p>
+<p>But even these are mere starters. If competition with China deserves inclusion in any serious conversation about the future of AI, Trump’s treatment of Huang’s situation at Nvidia has been a running chronicle of flagrant disregard for national security. Let’s count the ways. First, when the U.S. government began to look into Alice Huang’s behavior on the suspicion that she might be a spy, it never informed Jensen Huang or gave him what would have been typical: a so-called defensive briefing so that he would know what to look out for and avoid giving away valuable trade secrets or selling his company’s most advanced chips without adequate controls preventing them from being shipped onward to China.</p>
+<p>More broadly, historians may come to see Trump’s casual disregard for normal considerations of national security to be one of the most important and unusual hallmarks of his time in power. The examples are numerous. When shown evidence that Russia or China or some other powerful adversary is conducting secret operations against U.S. interests, Trump has often waved away concerns—in effect saying, well, we do that to them, too.</p>
+<p>Last week offered the spectacle of Trump mugging in China with that country’s leader and Russia’s Vladimir Putin, with no hint that he had complained to them about offering targeting information to Iran that has enabled that country to attack U.S. bases in the Middle East, killing U.S. troops, as is the case with Russia, or supplying drone components to Iran, as with China. Trump went yet further, though, looking like a kid in a candy shop as he entered a room to greet an awaiting Putin and exclaiming, “He’s my friend.” Lest the message be lost on anyone, he later posted a picture of the meeting with this same message on social media.</p>
+<p>Second, there is further reason to distrust the judgment of the U.S. government in the unfolding Nvidia saga. It lies in the vague and unforthcoming way its officials have spoken about Huang and his erstwhile Chinese mistress since their affair became public knowledge, always carefully avoiding clarity about whether or not she might have been a spy or whether his behavior damaged U.S. national security interests.</p>
+<p>In fairness, the question of whether she was a spy involves some nuance. Alice Huang could very well have compromised U.S. national security without being a member or agent of any Chinese intelligence service in a formal sense. The lack of openness and straight language about the other question leaves little wiggle room, though. Through the Singapore-based company she worked for, Alice Huang was purchasing Nvidia’s most advanced chips, which fall under explicit U.S. export controls to China. This puts the public in a bewildering place. On the one hand, people are asked to believe that the United States must beat China in a zero-sum race toward the AI future. On the other, given the lack of candor about these Nvidia sales and the damage they may have caused to U.S. interests, we are being told, in effect, one of Trump’s favorite messages: Smile, and be happy. Lots of money was being made.</p>
+<p>Taken together, Nvidia and Jensen Huang seem to concentrate enormous and growing risk for the entire public, as does the broader AI sector. Remember that Anthropic, the leading AI provider that went public recently, has warned of the potential power of its systems becoming so awesome as to having the potential to lead us all to an extinction-level event. And when the world’s top AI power is led by someone with such a casual disregard for safeguards, for strong governance, for ethics and for transparency, a company too important to question invites a peril that risks falling on us all.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/23/nvidia-jensen-huang-return-us-china-ai-risk/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

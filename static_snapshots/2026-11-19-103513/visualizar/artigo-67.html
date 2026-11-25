@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Israel depois das urnas - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Israel depois das urnas</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/geopoliticaeguerra/israel-depois-das-urnas/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/apostas.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Israel depois das urnas
+                            </p>
+                            
+<p>Netanyahu sai derrotado do pleito e, agora, terá de enfrentar oposição no parlamento, que pretende cercá-lo com inquérito sobre o 7 de outubro. Quais coalizões poderão ser formadas? O que planeja o Partido Árabe? Por que o sionismo perde cadeiras – mas não a força?</p>
+
+
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/apostas-1500x844.jpg"/>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p><strong>MAIS</strong>:<br/>O texto a seguir integra o número 20 (novembro de 2026) do boletim do <strong>Observatório do Século XXI, </strong>parceiro editorial de <em>Outras Palavras.</em> A edição, na íntegra, pode ser baixada aqui</p>
+<p>As eleições de 27 de outubro de 2026 foram as primeiras desde o ataque do Hamas de 7 de outubro de 2023 e ocorreram sob o peso da guerra em Gaza, do conflito com o Irã e do colapso da coalizão de Benjamin Netanyahu em torno da isenção militar dos ultraortodoxos. A participação, perto de 78%, foi a maior desde 1999. </p>
+<p>O bloco de Netanyahu, formado pelo Likud, pelos partidos religiosos e pela extrema-direita, caiu de 68 para 53 cadeiras e perdeu a maioria no Knesset, de 120 assentos. Mas a oposição “sionista”, liderada pelo ex-chefe do Estado-Maior Gadi Eisenkot e seu partido Yashar, avançou pouco: de 46 para 48. Quem mais cresceu foram os partidos árabes, Lista Conjunta e Ra’am, que passaram de 10 para um recorde de 19 cadeiras ao mobilizar seu eleitorado contra a extrema-direita. O Likud segue como maior partido individual, e o Shas encolheu de 11 para 6. A direita perdeu, a oposição judaica não ganhou, e nenhum campo chega aos 61 votos.</p>
+<p>Netanyahu e o Likud passaram a insinuar que a eleição foi “roubada” no voto árabe, talvez com interferência estrangeira. A Comissão Central de Eleições não encontrou irregularidades que afetassem o resultado e o presidente Isaac Herzog aceitou a conclusão em 4 de novembro, condenando a retórica racista contra os cidadãos palestinos de Israel, cerca de 20% da população. A estratégia tem lógica política: deslegitimar o voto árabe encarece, para os aliados de direita de Eisenkot, qualquer acordo com essas legendas.</p>
+<p>Em 7 de novembro, Herzog rompeu com a expectativa de que o mandato ficasse com o líder do maior partido e encarregou Eisenkot de formar o governo. Foram 67 recomendações a ele, incluindo as dos partidos árabes, contra 46 a Netanyahu, cujo campo nem reuniu seus 53 votos. Ao receber o mandato, Eisenkot disse estar aberto a incluir o Likud, de Netanyahu e o extremista Partido Sionista Religioso, de Bezalel Smotrich num governo sob sua liderança, mas reafirmou que exclui os partidos árabes. Netanyahu respondeu que um governo aliado a partidos árabes “desmantelaria Israel por dentro”. O partido árabe A Lista Conjunta, por sua vez, prevê um governo minoritário com apoio externo árabe.</p>
+<p>Eisenkot tem 28 dias, prorrogáveis por 14. Se falhar, Herzog indica outro nome; se este também falhar, 61 deputados podem indicar um terceiro, com 14 dias finais. Esgotadas as etapas, o Knesset é dissolvido e a eleição ocorre em até 90 dias, com Netanyahu como premiê interino. </p>
+<p>Sem os árabes, o caminho passa pelos ultraortodoxos: os 48 deputados do bloco oposicionista mais os 13 do Judaísmo Unido da Torá e do Shas dariam exatamente 61. Avigdor Liberman, que já descartou coalizão com legendas árabes, diz a Eisenkot que, se abrir mão do apoio delas, ele trará os partidos religiosos, e afirma não ter ambição de ser premiê. As conversas com o Judaísmo Unido da Torá ((UTJ, na sigla em inglês) avançam, e o deputado Yitzhak Goldknopf, líder UTJ, defende entrar no governo. O Shas segue com Netanyahu, e o gabinete do premiê têm pressionado deputados do Judaísmo Unido da Torá para barrar o acordo com Eisenkot, até aqui sem êxito.</p>
+<p>O obstáculo central é o alistamento militar. O UTJ exige a continuidade de isenção de alistamento para os estudantes de yeshivá, além de preservar o financiamento das escolas religiosas e o status quo entre religião e Estado, e quer salvaguardas contra a Suprema Corte. Eisenkot diz que não arriará a bandeira do serviço universal, e Naftali Bennett, embora evasivo, citou a sobrecarga dos reservistas. O ministro Bezalel Smotrich pede aos ultraortodoxos que não negociem com Eisenkot. </p>
+<p>O novo Knesset tomou posse em 10 de novembro, sem um novo governo definido. No mesmo dia, 67 deputados pediram formalmente a eleição de um novo presidente da Casa, e Amir Ohana, do Likud, que se opõe ao plano mas diz respeitar a vontade da maioria, marcou a votação para terça-feira, 17 de novembro. O bloco de oposição a Netanyahu indicou o ex-ministro Matan Kahana, do Yashar, de Gadi Eisenkot, que com  Avigdor Liberman, líder do Yisrael Beiteinu, partido parceiro na coalizão oposicionista,  acertou este nome. O objetivo é controlar a pauta legislativa antes de haver governo: criar uma comissão de inquérito sobre o 7 de outubro, ponto de maior vulnerabilidade de Netanyahu, e revogar leis do governo anterior.</p>
+<p>Netanyahu segue como premiê interino, com incentivo para esticar o jogo. Pede um governo de união, o que Eisenkot rejeita, e seu campo tenta atrair desertores. Um governo minoritário de Eisenkot será provavelmente frágil, refém de apoios que Netanyahu ataca como “traição” da identidade judaica do país e de ultraortodoxos, que cobrarão a conta na manutenção da não obrigatoriedade do alistamento militar. O país pode ver sua sétima eleição desde 2019, no início de 2027. </p>
+<p>O contexto externo agrava o quadro: permanece a instabilidade política que pode levar a uma retomada do conflito entre EUA e Israel com o Irã, crescem as restrições europeias ligadas às colônias na Cisjordânia e a vitória democrata no Congresso norte-americano tende a endurecer a relação com Washington. Este é o impasse: a política israelense gira há muito tempo em torno de Netanyahu e da exclusão dos partidos árabes. Romper o ciclo exigirá que Eisenkot governe com apoio árabe ou ceda aos ultraortodoxos, ambas opções difíceis no contexto político radicalizado do país.</p>
+<p><em>Sem publicidade ou patrocínio, dependemos de você. Faça parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/geopoliticaeguerra/israel-depois-das-urnas/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

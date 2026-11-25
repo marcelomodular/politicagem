@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Um exército que marcha para trás? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Um exército que marcha para trás?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/leia-tambem/o-exercito-que-marcha-para-tras/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2024/12/opzinho.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Um exÃ©rcito que marcha para trÃ¡s?
+                            </p>
+                            
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>O deslocamento do debate sobre o ajuste fiscal para uma guerra de acusaÃ§Ãµes personalistas Ã© um sintoma tanto da arquitetura algorÃ­tmica das redes como de uma forma militarizada de organizaÃ§Ã£o digital. Ao tentar driblar os algoritmos, parte da esquerda intensifica a lÃ³gica maniqueÃ­sta que as plataformas recompensam e, com isso, impede o debate, consolidando uma posiÃ§Ã£o acrÃ­tica e despolitizada tÃ­pica de âsoldadosâ.</p>
+<p>ComentÃ¡rios como âdeixem de seguir e engajar a esquerda oportunista, vejam apenas o exÃ©rcito do Lulaâ se multiplicaram nas redes nas Ãºltimas semanas, expondo a reproduÃ§Ã£o de uma tÃ¡tica janonista bastante acionada durante o segundo turno, agora estendida aos novos âinimigosâ. Ignorar sistematicamente as postagens de determinado grupo polÃ­tico Ã© uma artimanha de fato eficaz para minar o alcance de suas publicaÃ§Ãµes. Bastou estourar o primeiro conflito interno da base governista, no entanto, para que qualquer dissenso entrasse na mira.</p>
+<p>NÃ£o por acaso, o exÃ©rcito do Lula foi desde o princÃ­pio organizado de forma centralizada na figura do seu âgeneralâ. Diante da urgÃªncia eleitoral, nÃ£o havia tempo para deliberaÃ§Ãµes e discussÃµes internas, o que trouxe uma aparÃªncia de unidade para um campo polÃ­tico bastante heterogÃªneo.</p>
+<p>Passada a eleiÃ§Ã£o, Janones pareceu adotar, num primeiro momento, uma postura mais cautelosa. Em entrevista ao FantÃ¡stico, disse que o ExÃ©rcito sÃ³ havia tomado esse formato hierÃ¡rquico por ter sido uma medida emergencial, e que a longo prazo a organizaÃ§Ã£o teria que ser pensada de modo menos ortodoxo, dando maior protagonismo Ã  base.</p>
+<p>Bom, passaram-se alguns dias e as primeiras cobranÃ§as da esquerda ao governo Lula voltaram a aparecer, primeiro com a mobilizaÃ§Ã£o em defesa dos povos indÃ­genas diante da calamidade da revolta agro-bolsonarista, e logo depois com a cobranÃ§a pela demarcaÃ§Ã£o das mais de 70 terras indÃ­genas aptas Ã  assinatura do presidente. A estratÃ©gia janonista foi cultivar o silÃªncio, enquanto grupos de mobilizaÃ§Ã£o eram criados espontaneamente, inspirados na tendÃªncia do conceito militar.</p>
+<p>Naquele momento, o sucesso da empreitada digital (e presencial) do segundo turno ainda parecia encher os olhos de grande parte da esquerda com uma esperanÃ§a que hÃ¡ muito tempo nÃ£o se vislumbrava no lado de cÃ¡, uma expectativa de manutenÃ§Ã£o da ofensiva e, ainda, de uma inflexÃ£o democrÃ¡tica-popular a partir da organizaÃ§Ã£o hÃ­brida entre ruas e redes (com o duro condicionante da regulaÃ§Ã£o das plataformas digitais). Um passo importante em direÃ§Ã£o a uma democracia mais participativa e menos dependente das pressÃµes do mercado e das conciliaÃ§Ãµes com o Congresso. Ã o que sinalizou (e ainda sinaliza) o presidente ao repetir que pretende criar mecanismos polÃ­ticos para maior participaÃ§Ã£o do povo. Junto ao concomitante sucesso da PEC que extingue a escala 6×1, pairava no ar a possibilidade real de construir governabilidade pela pressÃ£o popular.</p>
+<p>SÃ³ que a expectativa foi logo sobrepujada e por ora suspensa pela primeira polÃªmica do ainda vindouro Lula 4. O modelo centralizador de organizaÃ§Ã£o e comunicaÃ§Ã£o, que foi de fato efetivo nas eleiÃ§Ãµes, deixou efeitos colaterais. O fetiche na execuÃ§Ã£o acrÃ­tica de tarefas demandadas por um lÃ­der supremo nÃ£o Ã  toa trouxe comparaÃ§Ãµes Ã  lÃ³gica de seita do bolsonarismo. Ao contrÃ¡rio do que indicou no pÃ³s-eleiÃ§Ã£o, Janones nÃ£o recuou do papel de ditar ordens maniqueÃ­stas de cima para baixo. Inclusive se utilizou do canal de 10 milhÃµes e das suas redes para inflamar os âsoldadosâ diante dos âinimigosâ de âextrema-esquerdaâ, fazendo a velha e falsa equivalÃªncia da teoria da ferradura.</p>
+<p>As controvÃ©rsias em torno do obscuro PLP do ajuste fiscal tomaram um rumo paranoico de ataques pessoais, ao mesmo tempo que elucidante daquilo que talvez nÃ£o tÃ­nhamos dimensionado: hÃ¡ uma ala significativa do campo âprogressistaâ disposta Ã  lÃ³gica messiÃ¢nica que normalmente atribuÃ­mos ao bolsonarismo. Uma lÃ³gica que estÃ¡ se intensificando a partir da conjugaÃ§Ã£o entre arquitetura de algoritmos e orientaÃ§Ãµes polÃ­ticas pautadas pelo engajamento, ou seja, por uma problemÃ¡tica estratÃ©gia de interaÃ§Ã£o digital num ambiente que jÃ¡ tende a fechar as pessoas em uma caixa confortÃ¡vel de reiteraÃ§Ã£o e repetiÃ§Ã£o. Se o algoritmo jÃ¡ cria barreiras Ã  deliberaÃ§Ã£o coletiva, a recente orientaÃ§Ã£o que circulou no exÃ©rcito do Lula Ã© a de bloquear qualquer pessoa ou pÃ¡gina que critique o governo, sob o risco constante de um ânovo 2013â ou um novo golpe â o que sÃ³ demonstra desconhecimento sobre os prÃ³prios balanÃ§os feitos pelo PT e pela Dilma para tentar explicar esses acontecimentos. Ao mesmo tempo, se por um lado hÃ¡ uma guinada do discurso que responsabiliza a esquerda nÃ£o petista pela ascensÃ£o da direita, por outro, tambÃ©m hÃ¡ aqueles da esquerda autointitulada radical que nÃ£o deixam de produzir alegaÃ§Ãµes sensacionalistas ao tentar preservar a âpurezaâ de uma esquerda supostamente imaculada.</p>
+<p>O problema nÃ£o Ã©, portanto, a existÃªncia do conflito por si sÃ³, mas a forma que o discurso conflitivo toma quando mediado por uma gramÃ¡tica algorÃ­tmica pautada pelo engajamento. Fica mais fÃ¡cil que qualquer crÃ­tica seja simplesmente rotulada de traiÃ§Ã£o e sectarismo. SÃ£o palavras antigas no vocabulÃ¡rio polÃ­tico, de fato; no entanto, a questÃ£o nÃ£o Ã© a emergÃªncia de um novo fenÃ´meno, mas a intensificaÃ§Ã£o de uma lÃ³gica jÃ¡ presente no ambiente digital arquitetado pelas big techs, onde as acusaÃ§Ãµes reducionistas sÃ£o recompensadas e a tentativa de ter qualquer tipo de troca Ã© minada. A chamada modulaÃ§Ã£o algorÃ­tmica estreita o campo do possÃ­vel ao criar bolhas informacionais (<em>echo chambers</em>), que sÃ£o espaÃ§os homogÃªneos.</p>
+<p>Isso funciona especialmente no contexto de um espaÃ§o-tempo neoliberal, em que as emoÃ§Ãµes se tornaram uma fonte valiosa de exploraÃ§Ã£o. O popular Byung-Chul Han (2015) afirma que, diferente da forÃ§a de trabalho, que precisa ser vendida como mercadoria, e diferente da matÃ©ria, que precisa ser transformada, as emoÃ§Ãµes podem ser exploradas sem restriÃ§Ãµes. Pois ao mesmo tempo que as extrai, o capitalismo tambÃ©m as transforma. Ã nesse sentido que os algoritmos podem ser vistos como meios de efetivar a exploraÃ§Ã£o econÃ´mica atravÃ©s da exploraÃ§Ã£o emocional. Os estudos de Bruno, Bentes e Faltay (2019) mostram como os algoritmos estÃ£o amparados por correntes de pensamento que supÃµem usuÃ¡rios âcompulsivos e previsivelmente irracionaisâ, formando uma espÃ©cie de economia psÃ­quica. Ao invÃ©s de sujeitos que se politizam ao participarem do debate polÃ­tico, e a partir dele se singularizam, o que estamos vendo sÃ£o pessoas que nÃ£o estÃ£o dispostas ao conflito, no sentido producente da palavra, mas ao engajamento prÃ©-reflexivo. O formato imediatista e de tonalidades emocionais dos vÃ­deos, imagens e interfaces acaba gerando um circuito de Ã³dio e medo, uma lÃ³gica de circulaÃ§Ã£o de imagens em que as emoÃ§Ãµes podem facilmente grudar, como defende a Sara Ahmed (2014).</p>
+<p>O exÃ©rcito digital nÃ£o mobiliza as pessoas para refletirem, mas apenas para curtir, compartilhar, comentar, repostar em determinado horÃ¡rio, bloquear etc., criando hÃ¡bitos quase automÃ¡ticos. Confunde-se o que Ã© fazer polÃ­tica e o que Ã© apenas alimentar a circulaÃ§Ã£o de conteÃºdo. Se essas estratÃ©gias, que nÃ£o deixam de ter impacto a curto prazo, se perpetuam, tambÃ©m se perpetua determinada temporalidade. Nesse caso, a urgÃªncia eleitoral vira um estado de alerta permanente, que, como todo estado de alerta, impÃµe barreiras Ã  deliberaÃ§Ã£o coletiva e pede a execuÃ§Ã£o acrÃ­tica das ordens. A ameaÃ§a do outro (fascismo) fica sempre no porvir como um horizonte permanente que justifica toda âpassada de panoâ, recusando a crÃ­tica e a prÃ³pria construÃ§Ã£o de saÃ­das polÃ­ticas para alÃ©m dos gabinetes e acordos institucionais.</p>
+<p>Isso nÃ£o quer dizer que precisamos buscar um tipo de unidade que nunca houve nem haverÃ¡, a nÃ£o ser contingencialmente, num campo com muitas dissidÃªncias. Mas justamente pensar como criar ambientes que impulsionem a imaginaÃ§Ã£o polÃ­tica para alÃ©m da posiÃ§Ã£o defensiva de uma esquerda que age a partir do medo de um cenÃ¡rio pior. Ou seja, um ambiente que nÃ£o ignore nem achate a pluralidade; que se ancore em problemas concretos; que pense a polÃ­tica para alÃ©m do personalismo que neutraliza os agenciamentos coletivos.</p>
+<p>Sem dÃºvida existem empecilhos estruturais. As plataformas hegemÃ´nicas sÃ£o construÃ­das a partir da lÃ³gica capitalista e colonial das big techs, otimizadas para o engajamento emocional negativo â e por isso a necessidade de pressionar por regulaÃ§Ã£o e por governanÃ§a democrÃ¡tica das infraestruturas digitais, alÃ©m de investir em plataformas alternativas â mas nÃ£o podemos simplesmente recusar a ocupaÃ§Ã£o de espaÃ§os que, apesar de terem um formato banalizante, podem ser parcialmente dobrados Ã s nossas estratÃ©gias, mesmo que como contradiÃ§Ãµes produtivas. O que a controvÃ©rsia da vez expÃµe, no entanto, Ã© o movimento contrÃ¡rio: as novas estratÃ©gias âmilitaresâ de organizaÃ§Ã£o da esquerda parecem estar agravando a produÃ§Ã£o de comportamentos caricaturais e despolitizando os debates e as pautas que afetam a classe trabalhadora.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/leia-tambem/o-exercito-que-marcha-para-tras/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

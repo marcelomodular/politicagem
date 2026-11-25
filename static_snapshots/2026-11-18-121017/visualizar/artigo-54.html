@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“Pelo menos o banco fez dinheiro”: vazamento expõe bastidores do Deutsche Bank no Brasil - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">“Pelo menos o banco fez dinheiro”: vazamento expõe bastidores do Deutsche Bank no Brasil</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Agencia Publica</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://apublica.org/2026/11/vazamento-do-deutsche-bank-as-entranhas-do-banco-no-brasil/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://apublica.org/wp-content/uploads/2026/11/THUMB_REPORTAGEM-58.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: as entranhas do banco no Brasil
+                            </p>
+                            
+
+
+<blockquote>
+<p>Vazamento mostra escândalos de um dos maiores bancos do mundo. A<strong> Pública</strong> é o único parceiro no Brasil. Leia o especial <strong>Inside Deutsche Bank</strong> <a href="https://apublica.org/especial/inside-deutsche-bank-vazamento-revela-escandalos-financeiros/" rel="noopener noreferrer" target="_blank">aqui.</a></p>
+</blockquote>
+
+
+
+
+<blockquote>
+<p></p>
+<p>Vazamento mostra escândalos de um dos maiores bancos do mundo. A<strong> Pública</strong> é o único parceiro no Brasil. Leia o especial <strong>Inside Deutsche Bank</strong> <a href="https://apublica.org/especial/inside-deutsche-bank-vazamento-revela-escandalos-financeiros/" rel="noopener noreferrer" target="_blank">aqui.</a></p>
+<p></p>
+</blockquote>
+
+
+<p>O que a mineradora Vale, o banco Safra, a petroquímica Braskem e a construtora Andrade Gutierrez têm em comum? Além da origem brasileira, de negócios bilionários e da atuação que transcende os limites do território nacional, as quatro empresas foram clientes de um banco que teve funcionários relativizando acusações ou tentando contornar mecanismos internos em prol do lucro.</p>
+<p>Isso é o que apontam documentos sigilosos acessados pela <strong>Agência Pública</strong>, que incluem e-mails, relatórios e planilhas internas do Deutsche Bank (DB), um dos maiores bancos do mundo, presente no Brasil há mais de um século.</p>
+<p>O material é parte do <em>Inside Deutsche Bank</em>, investigação transnacional da qual a <strong>Pública</strong> faz parte, baseada no vazamento de mais de 15 milhões de documentos do banco, obtido pelo jornalista indiano Josy Joseph e por Khadija Sharife, jornalista investigativa sul-africana. O projeto tem coordenação global da Barracuda Media e do Centro Latinoamericano de Periodismo de Investigación (CLIP) na região.</p>
+<p>Os documentos do projeto mostram, entre outras coisas, como o banco descumpriu suas próprias regras para clientes poderosos e repetidamente ignorou sinais de alerta, inclusive no Brasil. As questões não se limitaram às quatro empresas citadas nesta reportagem. A primeira <a href="https://apublica.org/2026/11/picaretas-nao-melhoram-disse-executivo-do-deutsche-bank-sobre-andre-esteves-do-btg/" rel="noopener noreferrer" target="_blank">reportagem</a> da série detalhou uma grande controvérsia em torno do BTG Pactual, de André Esteves. Nos próximos dias, reportagens mostrarão a conduta do Deutsche Bank frente a acusações contra as gigantes da proteína animal BRF e JBS e também contra a Cutrale, uma das campeãs globais na produção de suco de laranja.</p>
+<h3><strong>Vale: Executiva do Deutsche Bank ressaltou “compromisso com sustentabilidade”</strong></h3>
+<p>Em 25 de janeiro de 2019, a cidade de Brumadinho (MG) virou lama. O rompimento da barragem da mina de ferro Córrego do Feijão matou 272 pessoas e lançou milhões de toneladas de rejeitos na bacia do rio Paraopeba. A tragédia foi o maior acidente de trabalho da história do Brasil em vidas humanas perdidas e um dos maiores desastres ambientais já registrados no país.</p>
+<p>Na época, Minas Gerais ainda se recuperava do <a href="https://apublica.org/2019/09/proposta-de-desapropriacao-surpreende-moradores-de-mariana/" rel="noopener noreferrer" target="_blank">rompimento de uma barragem</a> da mineradora Samarco, na cidade de Mariana, em 2015. O que ambas tinham em comum? A Vale. No primeiro desastre, a empresa responsável pela barragem era uma <em>joint venture</em> entre a Vale e a australiana BHP (o conselho de administração era formado por representantes de ambas, com 50% do controle cada). No caso do segundo, a Vale era a única operadora da mina.</p>
+<img alt=" Mariana (MG) devastada pela lama, em tragédia ocorrida em 2015" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/01_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.webp?resize=640%2C383&amp;ssl=1"/> Mariana (MG) devastada pela lama, em tragédia ocorrida em 2015
+<p>De acordo com os emails analisados pela <strong>Pública</strong>, três dias depois da tragédia de Brumadinho, a funcionária responsável pela chefia da cobertura de Corporate Banking (voltada ao atendimento de empresas) do Deutsche Bank no Brasil enviou um email para colegas estrangeiros, com as primeiras informações sobre a situação. Na mensagem, Luciana Novaes informava que a equipe brasileira vinha acompanhando as notícias, faria uma reunião sobre o assunto naquele mesmo dia e estava em contato com o Grupo Global de Sustentabilidade do DB.</p>
+<p>O que chama a atenção, porém, é o email que Novaes envia horas depois, para compartilhar o posicionamento da equipe brasileira sobre o episódio após a reunião.</p>
+<p>“Nossa opinião é que a situação ainda é muito instável e é prematuro chegar a qualquer conclusão sobre as causas do rompimento da barragem”, afirma a funcionária do banco. Ela também recomenda que o Deutsche Bank continuasse a monitorar a situação de perto e mantivesse contato próximo com a Vale para obter informações sobre relatórios técnicos, além de acompanhar as contas da mineradora e conversar com outros bancos para saber suas visões quanto ao episódio.</p>
+<p>Depois das atualizações iniciais, o resto do email é ocupado por uma exaltação das qualidades da Vale.</p>
+<p>“A Vale é uma empresa reconhecida pelo seu compromisso com a sustentabilidade”, disse a funcionária do banco. Para fundamentar seu ponto de vista, em seguida, ela apontou no email a presença da mineradora em rankings de respeito aos direitos humanos e sustentabilidade, como o World Corporate Human Rights Benchmark, o Global Compact LEAD da ONU e o Índice de Sustentabilidade Empresarial da Bolsa de Valores brasileira (B3).</p>
+
+<img alt="Email de Luciana Novaes, do Deutsche Bank, que fala sobre o ponto de vista do banco sobre a Vale após o desastre de Brumadinho." src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/01_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C775&amp;ssl=1"/>
+<img alt="Email de Luciana Novaes, do Deutsche Bank, que fala sobre o ponto de vista do banco sobre a Vale após o desastre de Brumadinho." src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/01B_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C782&amp;ssl=1"/>
+Qualidades da Vale foram enumeradas em email logo após Brumadinho
+<p>Novaes destaca ainda que a mineradora brasileira era uma das maiores do mundo, ressaltando os baixos custos de produção graças a “reservas de alta qualidade, integração vertical, operações eficientes e logística integrada”. Ressalta o grau de investimento positivo da Vale em todas as agências de classificação de risco, sua melhora no perfil de crédito e nos números financeiros e seu acesso a mercados de capital globais.</p>
+<p>A funcionária do Deutsche Bank também destacou a relação próxima do banco alemão com a mineradora, citando uma linha de crédito de mais de 2 bilhões de dólares e o apoio à companhia em um programa de contas a receber que reduzia o risco para a Vale em litígios comerciais. Além disso, Novaes minimiza o impacto operacional do rompimento da barragem, ressaltando que o complexo de Brumadinho representava uma parcela “cada vez menor” do portfólio da Vale.</p>
+<p>O email, porém, não envelheceu bem. Já no dia seguinte, três funcionários da mineradora e dois engenheiros que atestaram a segurança da barragem <a href="https://g1.globo.com/sp/sao-paulo/noticia/2019/01/29/engenheiros-que-prestaram-servico-a-vale-sao-presos-em-sp-apos-tragedia-em-brumadinho.ghtml" rel="noopener noreferrer" target="_blank">foram presos</a> pela Polícia Civil. Ao longo das semanas subsequentes, vieram a público <a href="https://g1.globo.com/mg/minas-gerais/noticia/2019/02/12/documentos-indicam-que-vale-sabia-das-chances-de-rompimento-da-barragem-da-brumadinho-desde-2017.ghtml" rel="noopener noreferrer" target="_blank">documentos</a> demonstrando que a Vale <a href="https://g1.globo.com/mg/minas-gerais/noticia/2019/02/12/documentos-indicam-que-vale-sabia-das-chances-de-rompimento-da-barragem-da-brumadinho-desde-2017.ghtml" rel="noopener noreferrer" target="_blank">sabia dos riscos</a> de rompimento pelo menos desde 2017.</p>
+<p>Contatada pela reportagem, a Vale preferiu não se manifestar.</p>
+<h3><strong>Safra: Deutsche Bank pediu exceção para banco brasileiro </strong></h3>
+<p>Por anos, o banqueiro Joseph Safra viu seu nome nas manchetes especialmente associado à sua fortuna, que chegou a superar R$ 119 bilhões em 2020, sempre aparecendo entre os três mais ricos do Brasil e os mais ricos do planeta. Em 2015, porém, o Banco Safra e seu dono estamparam as capas de jornais por outro motivo. </p>
+<p>Em março daquele ano, a Polícia Federal deflagrou a Operação Zelotes, que implicou grandes grupos empresariais do Brasil em uma acusação de corrupção junto ao Conselho de Administração de Recursos Fiscais (Carf), órgão responsável por julgar autuações por sonegação de impostos.</p>
+<p>Um dos nomes centrais do caso era a JS Administração de Recursos, empresa do grupo do Banco Safra que tinha multas bilionárias no Carf. A partir de telefonemas interceptados, a PF concluiu que João Inácio Puga, um dos <a href="https://braziljournal.com/com-os-safra-seu-jose-finalmente-ganha-uma-biografia/" rel="noopener noreferrer" target="_blank">homens de confiança</a> de Joseph Safra, além de membro do Conselho de Administração do banco na época, teria negociado a reversão de multas em troca de R$ 15,3 milhões em propina.</p>
+<p>O caso teve uma série de idas e vindas. O próprio Joseph Safra chegou a <a href="https://oglobo.globo.com/economia/mp-denuncia-dono-do-safra-mais-cinco-por-acao-ilegal-no-carf-18990895" rel="noopener noreferrer" target="_blank">ser denunciado</a> pelo Ministério Público Federal (MPF) por envolvimento no caso, mas a denúncia foi <a href="https://www.infomoney.com.br/mercados/justica-encerra-acao-contra-joseph-safra-na-operacao-zelotes/" rel="noopener noreferrer" target="_blank">encerrada</a> em 2016. Depois, foi incluído numa ação por improbidade administrativa e teve R$ 1 milhão bloqueado. Já Inácio Puga faleceu antes do julgamento da ação por improbidade em que ex-auditores acusados de favorecer o Banco <a href="https://oglobo.globo.com/economia/justica-condena-ex-auditores-da-receita-pagar-multa-de-1-milhao-por-irregularidades-apontadas-na-operacao-zelotes-24803662" rel="noopener noreferrer" target="_blank">foram condenados</a> em primeira instância</p>
+<p>Nos meses em que o nome de Joseph Safra esteve envolvido na Operação Zelotes, as menções negativas acionaram o alerta nos setores de <em>compliance</em> e anticorrupção do Deutsche Bank. Por conta disso, o grau de risco do Banco Safra acabou elevado para alto e transações com a instituição financeira tiveram que passar por filtros mais rigorosos.</p>
+<img alt="Funcionário da Deutsche Bank avisando sobre riscos relacionados ao Banco Safra." src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/07_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C861&amp;ssl=1"/>Envolvimento de funcionários do Safra em escândalo no Brasil acionou alertas do Deutsche Bank
+<p>O que os documentos vazados do projeto <em>Inside Deutsche Bank</em> revelam, porém, é como um executivo do DB no Brasil tentou driblar as camadas de proteção em nome dos negócios – e como sua iniciativa conseguiu prevalecer no final.</p>
+<p>A história começa no final de 2016, quando funcionários brasileiros e estrangeiros do Deutsche Bank trocaram emails sobre uma revisão de informações relacionadas ao Banco Safra. O que inicialmente se tratava de mera formalidade, porém, acabou se prolongando, e o caso subiu para uma instância mais alta, a divisão Anti-Crimes Financeiros (AFC) do banco alemão em Londres. </p>
+<p>No email em que comunicou à equipe brasileira sobre a decisão de escalar o caso, um funcionário do DB na Índia pediu confirmações sobre como a relação entre os bancos havia sido estabelecida. O questionamento, porém, desagradou Ricardo Cunha, diretor do Deutsche Bank no Brasil.</p>
+<p>“A relação entre o Safra e o DB já dura 20 anos e foi feita diretamente, sem intermediários. Para você e o resto da equipe, está claro que se trata de uma relação já existente e muito ativa dentro da área de Mercados Globais? Às vezes, tenho a impressão de que vocês estão tratando isso como uma relação totalmente nova, em vez de uma já existente que estamos apenas revisando”, afirmou o brasileiro.</p>
+<p>O funcionário baseado na Índia replicou, dizendo que eles sabiam que o cliente não era novo, mas que “algumas perguntas específicas precisam ser feitas”, segundo as políticas do banco.</p>
+
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/02_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C644&amp;ssl=1"/>
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/03_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C614&amp;ssl=1"/>
+Queda de braço entre executivo brasileiro do Deutsche Bank e funcionário baseado na Índia
+<p>Em 28 de dezembro, após dias em compasso de espera na divisão de AFC de Londres, a equipe brasileira recebeu a informação de que a revisão havia sido remetida ao Comitê de Alto Risco da capital inglesa – justamente por conta das denúncias relacionadas à Operação Zelotes –, que se reuniria para discutir o assunto. O problema é que isso só aconteceria em oito dias, já em janeiro de 2017, o que fez com que outros funcionários do banco alemão se mobilizassem para tentar acelerar o processo.</p>
+<p>Em resposta aos pedidos, um funcionário da equipe Anti-Lavagem de Dinheiro (AML, na sigla em inglês) alertou os colegas de que existiam “algumas preocupações em relação a esse nome [o Banco Safra]”. Apesar disso, a divisão de AFC aprovou o acordo demandado, ressaltando, porém, que “nenhuma outra transação” deveria ser feita “até que a administração da AFC no Reino Unido conclu[ísse] sua análise do relacionamento com o cliente”.</p>
+<p>Logo no início de 2017, no entanto, quando os responsáveis pela conta do Safra tentaram aprovar uma nova transação e souberam que o Comitê de Alto Risco ainda não havia analisado o caso, a resposta descontentou a equipe brasileira, que tentou conseguir uma exceção.</p>
+<p>“Entendo que a administração da AFC no Reino Unido [UK AFC] deverá discutir em breve as notícias negativas envolvendo o Sr. Joseph Safra, mas gostaria de entender se realmente precisamos suspender todas as operações com o cliente até lá”, disse Ricardo Cunha, sugerindo que seria “mais apropriado (e muito menos disruptivo) aguardar a decisão da UK AFC e agir, se necessário, somente após a decisão ser tomada”.</p>
+<p>Em 5 de janeiro, um funcionário da equipe da AFC informou que a direção sênior do setor tinha constatado que as acusações contra Joseph Safra haviam sido suspensas e que, após isso, tinha repassado as informações para diferentes equipes, que deveriam fazer um parecer conjunto liberando as operações com o banco brasileiro.</p>
+<p>Seis dias depois, após ser informado de que o caso ainda estava em análise, Cunha tentou contornar a restrição: “Podemos ao menos abrir uma exceção para negócios com entrega contra pagamento com o Banco Safra? Abster-se de fazer QUALQUER negócio com eles parece uma decisão drástica, especialmente após o Tribunal ter rejeitado as acusações contra Joseph Safra. Estamos correndo um enorme risco de prejudicar permanentemente esse importante relacionamento, o que, sem dúvida, terá repercussões na rede global do Safra na Europa, nos EUA e na Ásia”.</p>
+<img alt="E-mail de Ricardo Cunha, funcionário do Deutsche Bank pedindo exceção para cliente lucrativo" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/05_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C839&amp;ssl=1"/>Para evitar atritos com cliente lucrativo, funcionário do DB pediu para que fosse aberta uma “exceção” – apesar dos problemas de compliance que o Safra enfrentava
+<p>Depois de uma troca de mensagens entre Cunha e uma funcionária do time Anti-Suborno e Corrupção (ABC, na sigla em inglês), que buscava esclarecer alguns aspectos relacionados às acusações contra o Safra, o setor afirmou estar “confortável em manter o relacionamento” com o banco brasileiro. Estabeleceu, no entanto, uma série de condicionantes, incluindo a necessidade de aprovação prévia de qualquer transação pela equipe de ABC.</p>
+<p>A condição também não agradou a Cunha: “Solicitar a aprovação da ABC para QUALQUER transação em potencial é simplesmente inviável. Como já mencionei algumas vezes, o Banco Safra mantém um extenso relacionamento comercial com o DB. Não temos capacidade para submeter todas as transações à aprovação da ABC. Essa solução intermediária simplesmente não funciona”.</p>
+<p>Depois de mais algumas trocas de emails, revela o vazamento, Cunha venceu a batalha e conseguiu que a equipe de ABC apenas precisasse aprovar novas transações que fugissem “do fluxo normal de negócios”.</p>
+<p>Contatado, o Banco Safra não respondeu até a publicação.</p>
+<p>Leia outros e-mails sobre o episódio <a href="https://apublica.org/wp-content/uploads/2026/11/emails_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.pdf" rel="noopener noreferrer" target="_blank">aqui</a>.</p>
+<h3><strong>Braskem: Confiança inabalável mesmo após afundamento em Maceió</strong></h3>
+<p>Em fevereiro de 2018, o Deutsche Bank estava prestes a encerrar o relacionamento (<em>offboard</em>, no jargão em inglês) com a brasileira Braskem, uma das maiores empresas petroquímicas do mundo. Na época, apesar de registrar um faturamento bilionário, a companhia enfrentava problemas.</p>
+<p>Para começar, era controlada por Odebrecht e Petrobras, as duas empresas mais afetadas pela Operação Lava Jato, que naquele momento ainda estava a todo vapor. Mas não era só isso: a própria petroquímica também estava diretamente envolvida no escândalo. Altos executivos da empresa haviam criado um fundo secreto milionário (<a href="https://g1.globo.com/pr/parana/noticia/delacoes-da-odebrecht-braskem-destinou-r-450-milhoes-para-caixa-2-durante-oito-anos-diz-ex-diretor-presidente-da-empresa.ghtml" rel="noopener noreferrer" target="_blank">caixa 2</a>, em bom português) com colegas da Odebrecht, destinado ao pagamento de propina para funcionários públicos e políticos. O objetivo central era ganhar contratos com a Petrobras e outros órgãos.</p>
+<p>Por conta de seu envolvimento no caso, a Braskem firmou acordos de leniência com autoridades brasileiras, suíças e americanas. Ao todo, o valor foi calculado em mais de <a href="https://g1.globo.com/economia/negocios/noticia/braskem-firma-acordo-de-leniencia-com-mpf-e-deve-pagar-multa-de-r-31-bilhoes.ghtml" rel="noopener noreferrer" target="_blank">R$ 3,1 bilhões</a>, sendo cerca de R$ 2,3 bilhões para órgãos brasileiros (posteriormente <a href="https://veja.abril.com.br/economia/acordo-de-leniencia-da-braskem-chega-a-r-28-bi/" rel="noopener noreferrer" target="_blank">recalculado</a> para R$ 2,87 bilhões).</p>
+<p>Apesar do envolvimento da Braskem no esquema de corrupção e da disposição de executivos do Deutsche Bank em encerrar o relacionamento com a empresa, o desligamento acabou não ocorrendo graças à intervenção de um funcionário brasileiro, como indicam os documentos vazados.</p>
+<p>No início de fevereiro, dias antes da reunião do Comitê Executivo da divisão de Transações Globais (GTB, na sigla em inglês) que poderia sacramentar o fim da relação, João Galvão, chefe do setor de Finanças da Cadeia de Suprimento para as Américas, enviou um email para Daniel Schmand, que comandava globalmente o setor de Financiamento de Comércio Exterior do banco alemão. Ele queria justificar a manutenção da Braskem como cliente.</p>
+<p>Além de trazer destaques financeiros da companhia e apresentar valores relacionados a negócios entre Braskem e Deutsche Bank, o email exaltava o acordo de leniência assinado pela petroquímica e listava uma série de mudanças internas que a Braskem tinha desenvolvido em governança e <em>compliance</em>.</p>
+
+<img alt="" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/08_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C1003&amp;ssl=1"/>
+<img alt="Trecho de e-mail assinado por João Galvão, do Deutsche Bank, sobre medidas de compliance, treinamento de gestores e a estrutura de governança da empresa, considerada independente do Grupo Odebrecht por agências de classificação de risco." src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/08B_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C620&amp;ssl=1"/>
+Funcionário do DB em Nova York trabalhou para evitar fim de relacionamento entre DB e Braskem
+<p>O apelo deu certo e o Deutsche Bank seguiu fazendo negócios com a petroquímica, contando inclusive com o apoio de funcionários brasileiros – mesmo quando havia alertas de potenciais riscos.</p>
+<p>É o que mostra uma outra troca de emails em dezembro daquele mesmo ano, por exemplo, quando a então chefe do setor de Corporate Banking (voltado ao atendimento de empresas) do DB no Brasil, Luciana Novaes, tentou evitar que uma transação com a Braskem escalasse para um setor superior.</p>
+<p>“Eu estou tentando entender a preocupação de GTB [a divisão de Transações Globais] com essa operação tão convencional [<em>plain vanilla</em>, no original]”, começou Novaes. “Esta é uma transação lucrativa que podemos começar a fechar imediatamente, com receitas reconhecidas ainda em 2018. Além disso, como você sabe, a Braskem é um dos nossos principais clientes, que tem sido monitorada pelo DB em termos de AFC/Compliance“, completou.</p>
+<img alt="E-mail de Luciana Novaes, enviado em 13 de dezembro de 2018, sobre uma operação financeira envolvendo a Braskem e a Sonatrach. Trecho destacado menciona a rentabilidade da transação e o apoio da área global de compliance do Deutsche Bank." src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/09_Pelo-menos-o-banco-fez-dinheiro-vazamento-expoe-bastidores-do-Deutsche-Bank-no-Brasil.jpg?resize=640%2C1122&amp;ssl=1"/>Executiva brasileira do DB tentou evitar que transação com a Braskem fosse escalada
+<p>A despeito do otimismo e do empenho de funcionários brasileiros do Deutsche Bank em manter negócios com a petroquímica mesmo após seu envolvimento na Lava Jato, os meses e anos seguintes mostraram uma deterioração contínua da imagem e das finanças da Braskem.</p>
+<p>Naquele mesmo 2018, dias após a troca de emails que evitou o desligamento da companhia, o solo de bairros de Maceió (AL) <a href="https://apublica.org/2023/12/chuvas-fortes-podem-aumentar-risco-de-desabamento-causado-pela-braskem-em-maceio/#_" rel="noopener noreferrer" target="_blank">começou a afundar</a>. Meses depois, em maio – antes, portanto, da negociação que Luciana Novaes tentou evitar que fosse escalada –, o Ministério Público Federal <a href="https://www.mpf.mp.br/atuacao/grandes-casos/caso-pinheiro-braskem/linha-do-tempo?utm_source=chatgpt.com" rel="noopener noreferrer" target="_blank">começou a investigar</a> uma possibilidade que já era aventada por pesquisadores locais pelo menos desde 2010: a culpa dos afundamentos ser da exploração de sal-gema (um tipo de mineral usado na indústria petroquímica) realizada pela Braskem.</p>
+<img alt="Ruínas de casas em bairros com risco de ceder em Maceió" src="https://i0.wp.com/apublica.org/wp-content/uploads/2023/12/CAPA-Chuvas-fortes-podem-aumentar-risco-de-desabamento-causado-pela-Braskem-em-Maceio.jpg?resize=640%2C383&amp;ssl=1"/>Casas interditadas e solo comprometido na capital alagoana
+<p>A suspeita se comprovou em maio do ano seguinte, quando o Serviço Geológico do Brasil <a href="https://g1.globo.com/al/alagoas/arquivo/noticia/2019/05/08/cprm-confirma-relacao-das-acoes-da-braskem-com-as-rachaduras-no-pinheiro-mutange-e-bebedouro.ghtml" rel="noopener noreferrer" target="_blank">confirmou</a> a responsabilidade da petroquímica. Por conta da extração feita de maneira inadequada, mais de 60 mil pessoas tiveram que deixar suas casas e áreas inteiras foram condenadas, virando <a href="https://apublica.org/2023/12/a-igreja-dos-ultimos-dias-da-braskem-em-maceio/" rel="noopener noreferrer" target="_blank">bairros-fantasma</a>. A empresa foi obrigada a cessar a extração, processada civil e criminalmente (inclusive no <a href="https://g1.globo.com/al/alagoas/arquivo/noticia/2024/07/26/justica-da-holanda-condena-braskem-pelo-afundamento-do-solo-em-maceio-e-determina-pagamento-de-indenizacao.ghtml" rel="noopener noreferrer" target="_blank">exterior</a>) e teve que fechar uma série de acordos de indenização.</p>
+<p>A combinação entre custos relacionados ao desastre geológico na capital alagoana e um cenário desfavorável para a empresa no mercado internacional fez com que o endividamento da petroquímica crescesse descontroladamente e a situação ficasse insustentável.</p>
+<p>Em agosto de 2026, a Braskem entrou com pedido de recuperação extrajudicial, na <a href="https://g1.globo.com/economia/noticia/2026/08/24/braskem-protocola-pedido-de-recuperacao-extrajudicial-para-reestruturar-divida-de-r-56-bilhoes.ghtml" rel="noopener noreferrer" target="_blank">tentativa de reestruturar</a> mais de R$ 56 bilhões em dívidas. A estratégia repete o que a Braskem Idesa, subsidiária mexicana da empresa brasileira, já havia feito em março, quando iniciou processo de recuperação judicial nos Estados Unidos, depois de <a href="https://www.seudinheiro.com/2026/empresas/braskem-brkm5-da-calote-nas-dividas-e-fitch-rebaixa-rating-de-credito-o-que-muda-para-a-companhia-e-para-os-investidores-mlim/" rel="noopener noreferrer" target="_blank">dar calote</a> em investidores.</p>
+<p>Em nota enviada à reportagem, a Braskem afirmou que “conduz suas relações com instituições financeiras em conformidade com a legislação aplicável, seus procedimentos de governança e de compliance”.</p>
+<h3><strong>Andrade Gutierrez: uma reação “estranha e fascinante”</strong></h3>
+<p>Os documentos vazados revelam ainda um outro episódio envolvendo o Deutsche Bank e uma empresa implicada na Operação Lava Jato. Trata-se da Andrade Gutierrez, uma das construtoras que, como mostrou a operação, desenvolveu uma estratégia de negócios baseada no pagamento de propinas para conseguir contratos – parte deles, superfaturados – com a Petrobras e outros entes públicos e privados.</p>
+<p>O envolvimento em esquemas de corrupção fez com que, a exemplo de outras empresas que foram alvo da Lava Jato, a Andrade Gutierrez fosse obrigada a assinar acordos de leniência bilionários, tivesse executivos presos (e transformados em delatores) e passasse a enfrentar dificuldades financeiras. Nos últimos cinco anos, a empresa recorreu duas vezes ao mecanismo de recuperação judicial, <a href="https://www.poder360.com.br/poder-economia/andrade-gutierrez-pede-recuperacao-extrajudicial-por-divida-de-r-34-bi/" rel="noopener noreferrer" target="_blank">a mais recente</a> delas em maio de 2026.</p>
+<p>Os casos de corrupção, inclusive, não ficaram limitados à operação da construtora no Brasil. Fundada nos anos 1940, ela começou a ampliar sua atuação ainda nos anos 1980, o que incluiu a aquisição da portuguesa Zagope, que passou a ser seu principal braço no exterior. A Zagope, que já havia sido <a href="https://oglobo.globo.com/politica/andrade-gutierrez-usou-empresa-na-europa-para-repassar-propinas-diz-investigacao-da-lava-jato-16498088" rel="noopener noreferrer" target="_blank">apontada como parte</a> do esquema de fraudes na Petrobras em 2015, teria pago 72 milhões de euros (mais de R$ 430 milhões) em suborno para Teodoro Nguema, filho do ditador de Guiné-Equatorial e vice-presidente do país, em troca de contratos em obras públicas, como <a href="https://piaui.uol.com.br/web/as-estripulias-de-um-oligarca/" rel="noopener noreferrer" target="_blank">revelou</a> a revista piauí em 2025.</p>
+<p>Em 2019, depois de um período em que o DB botou um freio nas negociações com o grupo Andrade Gutierrez na esteira da Lava Jato, as portas voltaram a ser abertas para a construtora dentro do banco, conforme indicam documentos do vazamento.</p>
+<p>Em um email enviado no final de fevereiro daquele ano, um representante da Zagope, Naim Danji, contatou o chefe Global de Financiamento Estruturado de Comércio e Exportação do Deutsche Bank, Simon Sayer. A intenção de Danji era prospectar a possibilidade de novos negócios entre a construtora e o banco alemão, depois de um período em que, como ele próprio aponta, o DB “tinha reservas” quanto à empresa.</p>
+<p>“Na semana passada, nós fechamos com sucesso uma operação importante com o DB em Frankfurt, no valor de 23 milhões de euros, o que pode ser considerado um passo relevante para a retomada do nosso relacionamento em operações de financiamento à exportação”, disse Danji, apontando que a Zagope estava estruturando mais de 1 bilhão de dólares em projetos na África e estava “muito interessada” em contar com o banco alemão em alguns deles.</p>
+<p>Como o Deutsche Bank havia passado um período sem negociar com a Andrade Gutierrez e suas subsidiárias, Simon Sayer buscou seus colegas na filial brasileira do banco, questionando se “eles estavam abertos a negócios” com a construtora e seus braços internacionais novamente.</p>
+<p>Quem respondeu foi Ricardo Cunha, diretor do DB no Brasil. Na mensagem, Cunha defendeu que o banco deveria “considerar novas oportunidades de negócios com eles [AG/Zagope] e discutir isso caso a caso”. Cunha relatou que, depois de passar por várias áreas internas de avaliação de risco, o banco tinha fechado, fazia pouco tempo, um negócio que envolvia o grupo Andrade Gutierrez. Tratava-se da compra secundária de uma dívida do governo de Angola com a Zagope, relacionada à ampliação do aeroporto de Dundo, no nordeste do país.</p>
+<p>A informação chamou a atenção de Simon Sayer, que encaminhou a troca de emails para Daniel Schmand (chefe do setor de Financiamento de Comércio Exterior) e Michael Spiegel (que meses depois viraria presidente de Network Banking, após liderar a área na Alemanha).</p>
+<p>“Acho que isso vai interessar a vocês dois. Quase três anos e meio depois de desistirmos do nosso mandato na transação do aeroporto Dundo da Andrade Gutierrez [no contexto da Lava Jato], a equipe de EM Debt [Dívida de Mercados Emergentes] comprou o ativo da AG no mercado secundário! Dizer que é irônico é pouco. Às vezes, este banco age de formas estranhas e fascinantes”, disse Sayer.</p>
+<p>A resposta de Spiegel talvez seja um resumo do que o projeto <em>Inside Deutsche Bank</em> encontrou sobre a conduta do banco alemão frente a clientes controversos: “Bem, pelo menos o banco fez algum dinheiro depois de tudo ;)”.</p>
+<p>Até a publicação, nem Andrade Gutierrez e nem Zagope responderam ao pedido de posicionamento da <strong>Pública</strong>.</p>
+<h3><strong>A resposta do Deutsche Bank</strong></h3>
+<p>A <strong>Pública</strong> enviou uma série de perguntas relacionadas ao comportamento do Deutsche Bank e de seus funcionários em casos relativos às empresas citadas nesta e nas demais reportagens do especial, tanto para a sede global do banco alemão quanto para a filial brasileira, que respondeu em nota.</p>
+<p>“Não comentamos sobre relacionamentos potenciais, anteriores ou atuais com clientes. Temos políticas e controles estabelecidos para garantir o cumprimento dos requisitos legais, regulatórios e internos aplicáveis. O modelo de Três Linhas de Defesa do banco foi concebido para garantir que as avaliações de risco sejam submetidas à revisão e contestação independentes pelas áreas de controle, independentemente da relevância comercial das relações com os clientes.”</p>
+<p>Em resposta aos assuntos levantados pelo conjunto de reportagens feitas a partir do vazamento, o Deutsche Bank afirmou que as questões apresentadas pelos jornalistas “remontam a muitos anos atrás, em alguns casos, décadas. Quando pertinente, essas questões foram analisadas na época e discutidas com órgãos reguladores e autoridades competentes, conforme necessário”, afirmou o banco.</p>
+<p>“Hoje somos um banco diferente”, acrescentou a instituição. A reportagem contatou ainda individualmente todos os funcionários do Deutsche Bank citados ao longo do texto, mas não obteve retorno até a publicação. O espaço segue aberto.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://apublica.org/2026/11/vazamento-do-deutsche-bank-as-entranhas-do-banco-no-brasil/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

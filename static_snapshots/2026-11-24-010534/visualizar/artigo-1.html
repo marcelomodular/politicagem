@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lula 4 começa ganhando - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Lula 4 começa ganhando</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/blogs/o-cafezinho/lula-4-comeca-ganhando/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/11/lula-levanta-o-polegar-diante-de-um-microfone-com-vegetacao.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Lula 4 começa ganhando
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+ <p>Lula chega à transição para o quarto mandato com uma vitória no Congresso. Depois de o Senado aprovar o pacote fiscal, a Câmara aprovou nesta segunda-feira (23) o texto-base do PLP 299/2026 por 353 votos a 128, com cinco abstenções. A vitória veio depois de a Casa aprovar a urgência por 318 a 135, com seis abstenções.</p><p>
+</p>
+<p>O projeto foi apresentado pelo senador Jaques Wagner (PT-BA). O Senado aprovou o texto-base por 45 a 31 em 12 de novembro e concluiu a votação no dia 18. Na Câmara, o relator Mauro Benevides Filho (União-CE) defendeu manter a redação dos senadores. Se a Câmara concluir a votação sem mudar o texto do Senado, o projeto segue para sanção.</p><p>
+</p>
+<h2>O centro fez a diferença</h2>
+<p>Dos 318 votos pela urgência, 205 saíram do bloco que reúne União Brasil, PP, PSD, Republicanos, MDB, a federação PSDB-Cidadania e Podemos. Foram 40 votos do PSD, 39 do União Brasil, 34 do Republicanos, 29 do MDB e 27 do PP.</p><p>
+</p>
+<p>No texto-base, esse mesmo bloco passou de 205 a 228 votos a favor. O saldo respondeu por 23 dos 35 votos que se somaram ao placar da urgência. O União Brasil deu 44 votos, o PSD 42 e o Republicanos 36. O MDB e o PP deram 33 cada. A federação PT-PCdoB-PV entregou 79 votos favoráveis, enquanto o PL registrou 86 votos contra e sete a favor. Entre os sete do PL, Cezinha de Madureira, Detinha, Josimar Maranhãozinho e Vinicius Carvalho votaram a favor do texto-base sem terem votado a favor da urgência.</p>
+<p></p>
+<p>Na esquerda, Lindbergh Farias (PT-RJ) e Natália Bonavides (PT-RN) se abstiveram no mérito. Kiko Celeguim (PT-SP) e Orlando Silva (PCdoB-SP) não registraram voto. Nenhum deputado do PSOL votou a favor, ao passo que os três da Rede que votaram apoiaram o texto.</p>
+<p>A resistência ao ajuste, portanto, veio de lados diferentes. O PL concentrou os votos contrários, enquanto parte da esquerda questionou a contenção de gastos.</p>
+<p>O principal bloco da Câmara orientou pelo sim, assim como o governo, a federação PT-PCdoB-PV, o PSB, o PDT e o Avante. A federação governista entregou 74 votos a favor e teve duas abstenções, ambas no PT.</p>
+<p>O PL deu 85 dos 135 votos contrários à urgência. João Carlos Bacelar, Marcelo Álvaro Antônio e Vinicius Gurgel foram os três deputados do partido que votaram a favor. O Novo também orientou contra.</p>
+<p>A federação PSOL-Rede orientou a obstrução, mas seus partidos se dividiram. Três deputados da Rede votaram a favor. No PSOL, foram oito obstruções, três abstenções e dois votos contra.</p>
+<p>Os 127 votos correspondem a outra disputa. Foi o número de deputados que apoiaram o pedido de Sóstenes Cavalcante (PL-RJ) para adiar a discussão por uma sessão. Desses, 86 eram do PL, 13 do PP e seis do PSD. A Câmara rejeitou o adiamento por 347 votos, com sete abstenções.</p>
+<p>O governo reuniu uma maioria que vai muito além da esquerda. O centro não aderiu por isso ao programa de Lula. Mas, diante de uma decisão concreta, o presidente mostrou força para montar uma maioria e impedir que a oposição ditasse o calendário.</p>
+<h2>Do Orçamento ao projeto de país</h2>
+<p>Desde a redemocratização, é comum que a transição para um novo mandato no Brasil comece com uma sinalização fiscal ao país e ao mundo. O próprio calendário explica por quê. É no fim do ano que o Congresso discute o Orçamento do exercício seguinte.</p>
+<p>O projeto dá ao Executivo margem para bloquear mais despesas se os relatórios fiscais indicarem que isso é necessário para cumprir a meta. Nos anos em que recorrer ao mecanismo, o limite de crescimento real das despesas do Executivo pode cair de 2,5% para 2%. O texto também mexe nos repasses da Lei Kandir aos estados e abre espaço fiscal para parte da subvenção ao diesel em 2026.</p>
+<p>O primeiro grande teste político de Lula com o novo Congresso será a eleição das presidências das duas Casas. A Câmara marca a escolha para 1º de fevereiro de 2027. No Senado, as sessões de posse e eleição da Mesa começam a partir dessa mesma data.</p>
+<p>Com os ministérios montados e passada essa primeira disputa, a expectativa é que o governo apresente um projeto nacional de desenvolvimento. A prioridade deve ser ampliar o investimento público, fortalecer a produção e criar empregos de qualidade.</p>
+<p>Fontes: <a href="https://www.camara.leg.br/presenca-comissoes/votacao-portal?reuniao=83419&amp;itemVotacao=14015" rel="noopener noreferrer" target="_blank">Câmara: votação do texto-base</a> · <a href="https://www.camara.leg.br/internet/votacao/mostraVotacao.asp?ideVotacao=14012" rel="noopener noreferrer" target="_blank">Câmara: votação da urgência</a> · <a href="https://www.camara.leg.br/internet/votacao/mostraVotacao.asp?ideVotacao=14013" rel="noopener noreferrer" target="_blank">Câmara: votação do adiamento</a> · <a href="https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=2655570" rel="noopener noreferrer" target="_blank">Câmara: tramitação do PLP 299/2026</a> · <a href="https://www12.senado.leg.br/noticias/materias/2026/11/18/senado-completa-votacao-e-ajuste-fiscal-segue-para-a-camara" rel="noopener noreferrer" target="_blank">Senado: conclusão da votação</a> · Eixo Político: votação por partido · <a href="https://especial.camara.leg.br/posse2027/calendario/" rel="noopener noreferrer" target="_blank">Câmara: calendário de posse e eleição da Mesa</a> · <a href="https://www25.senado.leg.br/web/senadores/posse" rel="noopener noreferrer" target="_blank">Senado: sessões preparatórias</a></p>
+<p>Publicado originalmente em <a href="https://www.ocafezinho.com/2026-11-23/lula-4-comeca-ganhando/" rel="noopener noreferrer" target="_blank">O Cafezinho</a>.</p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/blogs/o-cafezinho/lula-4-comeca-ganhando/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

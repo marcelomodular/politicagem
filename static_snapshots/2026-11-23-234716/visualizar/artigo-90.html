@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to talk to kids, according to kids - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">How to talk to kids, according to kids</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/advice/511543/talking-to-kids-advice-from-children" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/GettyImages-152405781.jpg?quality=90&strip=all&crop=0%2C21.663111628208%2C100%2C56.673776743585&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: How to talk to kids, according to kids
+                            </p>
+                            <p>Nine-year-old Leo is attempting to share his screen with me over FaceTime for a very important reason: I <em>must</em> hear an extremely funny sound — <a href="https://www.youtube.com/watch?v=iDLmYZ5HqgM" rel="noopener noreferrer" target="_blank">the clang of a metal pipe hitting the ground</a>. The mere act of pulling up the YouTube video causes our call to glitch and we’re forced to reconnect. With the technical difficulties sorted, I do admit the sound is funny in an exaggerated, cartoonish way. But why does this crash in particular, this specific clip, tickle his funny bone?</p><p>“Because if it annoys mommy enough, it’s funny,” Leo told me.</p><p>This conversation with Leo was one of several I had recently with kids between the ages of 6 and 11 where I asked them on how they like to have fun and with whom. I don’t consider myself <a href="https://www.vox.com/even-better/24083942/master-small-talk-interesting-conversation-strangers" rel="noopener noreferrer" target="_blank">adept at making small talk</a> with anyone under the age of 20, mainly because I’m hardly around any such people. Most of my friends don’t have little ones and at family parties, I smile politely at my cousins’ kids from afar. My attempts at conversation with the youth feel strained and awkward opposed to snappy and light, so I figured this assignment would be good practice. Chances are, you know some kids — a friend’s toddler, a relative’s tween — and might need a little guidance, too.</p><p>When I asked Leo whether the adults in his life could be better at interacting with children, he cut me off. “This adult particularly?” he said, gesturing to his mother, just off camera. “No, she is perfect. Other adults in general, maybe.”</p><p>As more adults <a href="https://www.vox.com/life/502272/strange-grief-not-wanting-kids-ambiguous-loss-disenfranchised-grief" rel="noopener noreferrer" target="_blank">choose not to have kids</a>, or <a href="https://www.cdc.gov/nchs/blog/posts/2025/06/the-rising-age-of-motherhood-in-the-united-states.html" rel="noopener noreferrer" target="_blank">wait later in life to do so</a>, it’s entirely possible you, like me, don’t spend a ton of time with small humans and can’t remember what it was like to be one. What do they even like? How do you keep their attention? How do you avoid saying the wrong thing?</p><p>Figuring this out is important given that intergenerational relationships are a net positive for <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12989032/" rel="noopener noreferrer" target="_blank">both adults and kids</a>: Grown-ups get the chance to learn from the young people in their lives and, in turn, children soak in older generations’ knowledge and wisdom. Plus, if most of us agree “it takes a village” when it comes to raising kids, it’s worth trying to be good villagers.</p><p>So I decided to ask the experts: Kids themselves. From my conversations, I’ve distilled a few do’s and don’ts for how to have better conversations with kids.</p><p><h2>Find some common ground (animals are a safe bet)</h2></p><p>In nearly every one of my conversations, children mentioned caring about, thinking about, or being interested in, animals. “If [grown-ups] just want to be my friend, maybe they could introduce them[selves] to me and tell [me] what their favorite animal is, and then maybe I’ll get used to them and then I start liking them better,” Logan, 9, told me.</p><p>Kids seem especially primed to enjoy wildlife. In one study, when children were presented with the option of interacting with toys or animals, they <a href="https://pubmed.ncbi.nlm.nih.gov/23331106/" rel="noopener noreferrer" target="_blank">consistently chose animals.</a> Animals are <a href="https://www.youtube.com/watch?v=1vqwzuVN0ac" rel="noopener noreferrer" target="_blank">varied and visually engaging</a>, giving kids plenty to be fascinated with.</p><p>Logan and her 6-year-old sister Apple play a 20 questions-style game called “guess the animal.” The trickiest animal she’s offered clues for was a gila monster. “It’s kind of like a lizard and it’s flat. It’s like a reptile and it’s orange and black,” Logan said.</p><p>Even if you don’t have a lot to say in the creature department, try to find some commonality. The key is to pay attention to what kids seem genuinely curious about and to invite them into your world — or to try to get an invite to theirs. Eleven-year-old Eli’s interests range from history and war reenactments to Legos and Call of Duty. Some of the adults in his life leveraged these subject areas and have found common ground: He connects with his uncle over a shared love of outdoorsy adventures, and a few neighbors over their historic cars and the military.</p><p>It should come as no surprise that kids like to <em>do </em>stuff, as opposed to boring adults who mostly like to talk. Seven-year-old Winona introduced herself as “a kid with a lot of energy,” which means she loves to play tag and hide-and-seek — an activity one of her aunts is happy to partake in whenever she visits. “If I had a world and it was called Winnieland, every adult would play with me,” Winona told me. “We would ride roller coasters. We would play tag. And what’s my favorite thing? My favorite thing is, oh, I know: obstacle courses and haunted houses.”</p><p>Leo, too, thinks it’s easier to connect with adults when you’re doing something together, like playing a video game. His tia is one of the best Mario Kart players he’s ever seen.</p><p>Nothing lights up 8-year-old Hugo quite like soccer. I sensed some initial hesitation when we spoke, but any time our meandering chat came back to the sport, he suddenly had much more to say. (He’s on three teams, according to his mom.) Kicking around a ball is a great way to bond with him.</p><p>Adults could be more interesting to kids, Hugo said, if they didn’t work so much, if they didn’t have so much to do. “My friends are always active, and my parents are always doing stuff,” he said.</p><p>Activity-based bonding, like singing, telling stories, and reading to children, promotes <a href="https://onlinelibrary.wiley.com/doi/10.1111/chso.12974" rel="noopener noreferrer" target="_blank">positive social-emotional development in kids</a>, according to research. Families with school-aged kids who <a href="https://onlinelibrary.wiley.com/doi/10.1111/famp.12864" rel="noopener noreferrer" target="_blank">engage in physical activity together</a> had improved cohesion, per another study. Doing an activity or playing a game removes the pressure to keep the conversation going — you can simply talk about the thing in front of you, and it’s okay to sit in silence for a couple minutes while you color if you can’t think of anything to say.</p><p>Aside from her parents, a few of Logan’s favorite adults to interact with are her teacher and teacher’s assistant. What makes her TA especially skilled at connecting with children is her ability to imagine and play, Logan said. One day at recess, Logan and a friend took turns trying on the TA’s lanyard, pretending they were in charge. Rather than shut them down, the TA upped the ante: “She said that she was going to steal the principal’s name tag and say that she was the principal,” Logan said.</p><p>Logan’s preferred form of play involves dreaming up new universes and games and when grown-ups can join in and play pretend, all the better.</p><p>Getting on kids’ wavelength might mean suspending disbelief, too. Winona told me that when she was younger, she had an imaginary friend named Christopher, a raccoon who was prone to making a mess. If connecting with a kid means referring to a fake racoon by name, it’s a conversational path worth taking.</p><p>All the kids I talked to seemed to notice and appreciate when adults are down to play — when they don’t rationalize make-believe scenarios and logic, and instead lean into silliness. Make a point to turn off your adult brain and try asking questions about their imaginary friend or what the castle the queen of their dream universe lives in looks like; basically, just say “<a href="https://en.wikipedia.org/wiki/Yes,_and_..." rel="noopener noreferrer" target="_blank">yes, and…</a>”</p><p>Perhaps my biggest faux pas when talking to children, I’ve learned, is treating them like aliens whose world I will never understand. In reporting this story, I learned that the things kids say they value when interacting with others are largely the same for grown-ups, too.</p><p></p><p><h2>What to avoid when talking to kids</h2></p><ul><li>Don’t play tricks on them or elide the truth: Logan and Apple’s mom told them they were going to “a special place” which turned out to be the library — a locale Apple did not find very special. While not technically a lie, she felt duped. “I don’t think the library is a special place because I don’t really like to read,” Apple said.</li><li>Don’t make it all about you: Leo finds it particularly annoying when he tries to talk to an adult about something that interests him and grown-ups bring the conversation back to their life. “It’s not all about you,” he said. </li><li>Don’t freak them out about the future, or bring up sensitive topics that might make them feel awkward: “Since I’m around that age, I don’t really like it when people talk about me changing and having puberty and not getting along with my friends as much,” Logan said. </li><li>Don’t use a loud voice: Both Leo and Logan agreed they get scared when adults raise their voices.</li></ul><p>Don’t be discouraged if a kid doesn’t open up to you immediately. You’re unfamiliar and that can perhaps be scary or intimidating! They’re comfortable chatting with their parents, but generally take a little more time warming up to other grown-ups. And familiarity is key: Those I talked to mentioned their teachers, relatives, neighbors, and parents’ friends as being their favorite adults. Regardless of your level of closeness, treat a kid much like you would treat any other person.</p><p>Kids want to feel acknowledged and listened to. Eli remembered a friend’s mom ignoring him when he greeted her. “She didn’t want to talk and it was just weird. It was awkward,” he said. “I felt like I’m being ghosted.” So look them in the eye, respond appropriately when they tell you sad or exciting news, and ask follow-up questions.</p><p>They notice when you’re not paying attention or when you put them off. “Kids always say, ‘Come on, let’s go play. Come on, let’s go play.’ But adults are like, ‘We’ll play later,’” Winona said. So make an effort to engage with them, if only briefly.</p><p>They can also tell when you’re making things too simplistic. “That makes me want to rage,” Eli said. So treat them with (age-appropriate) respect.</p><p>But perhaps most importantly, they do not want to be told to do chores. Luckily for you, a person who is not their parent, you don’t have to.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/advice/511543/talking-to-kids-advice-from-children" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

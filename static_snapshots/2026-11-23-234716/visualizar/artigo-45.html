@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can the Nvidia scandal possibly get weirder? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Can the Nvidia scandal possibly get weirder?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/today-explained-newsletter/511366/jensen-huang-nvidia-reinstated" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2298607332.jpg?quality=90&strip=all&crop=0%2C10.732984293194%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Can the Nvidia scandal possibly get weirder?
+                            </p>
+                            <p><em>This story appeared in Today, Explained, a daily newsletter that helps you understand the most compelling news and stories of the day. <a href="https://www.vox.com/today-explained-newsletter" rel="noopener noreferrer" target="_blank">Subscribe here</a></em>.</p><p>It is truly wild that an executive with several reported affairs, a reputation for violently berating his staff, and a trail of deeply questionable deals could be invited back for a second go-round.</p><p>Then again, if President Donald Trump managed it…then why not his buddy, Jensen Huang?</p><p>Huang, the ex-ex-Nvidia CEO, is officially back at the helm of the giant chipmaker he cofounded 35 years ago — and all his past indiscretions have been forgiven, if still under investigation. And the <a href="https://www.cnbc.com/2026/11/23/nvidia-jensen-huang-ceo.html" rel="noopener noreferrer" target="_blank">stock market loves it</a>, with investors joining Trump in betting that Huang’s singular business talents will make up for the considerable chaos he’s personally caused already.</p><p>Huang, you’ll recall, <a href="https://www.vox.com/today-explained-newsletter/509593/nvidia-jensen-huang-chinese-spy-affair" rel="noopener noreferrer" target="_blank">resigned less than two weeks ago</a> following reports that he’d had an affair with a woman suspected of spying for China. Whether she actually <em>was</em> a spy is still an open question.</p><p>But other reporting has since cast lots of doubts on different aspects of Huang’s conduct and character. Like: reports that Nvidia, under Huang’s watch, may have <a href="https://www.wsj.com/tech/jensen-huang-backdoor-ai-data-centers-a5e4499d" rel="noopener noreferrer" target="_blank">indirectly sold restricted chips</a> to China. Or that Huang <a href="https://www.nytimes.com/2026/11/20/technology/jensen-huang-nvidia-culture.html" rel="noopener noreferrer" target="_blank">allegedly told an employee</a> he’d rip off his head and “pee on [his] brain,” among a number of other, er…inventive humiliations.</p><p>And yet! On Sunday, Nvidia’s board voted unanimously to reinstate him, apparently at the request of Trump himself. “I spoke to them. Let me just put it that way. And I convinced them,” Trump told CNBC in <a href="https://www.cnbc.com/2026/11/23/trump-nvidia-jensen-huang.html" rel="noopener noreferrer" target="_blank">a Monday morning segment</a>. Key to that decision: The president’s <a href="https://truthsocial.com/@realDonaldTrump/posts/117666141823845971" rel="noopener noreferrer" target="_blank">personal assurance</a> that “the United States Government has no reason to believe that Jensen’s return to NVIDIA poses any risk to National Security.”</p><p>It’s an extraordinary turn in an extraordinary story that we very likely have not seen the end of just yet. Because the fight over Huang is also a fight over how America can continue dominating the high-stakes field of artificial intelligence.</p><p>Before the scandal, before the spying allegations, before all the drama…Huang was already a central player in <a href="https://www.vox.com/politics/471884/nvidia-chips-china-trump-huang" rel="noopener noreferrer" target="_blank">the bitter debate over selling AI chips to China</a>. The US restricts sales of some kinds of cutting-edge chips for fear they could help China develop more advanced AI. Huang has spent months telling Trump he should loosen those restrictions. (It’s not <a href="https://fortune.com/asia/2025/08/28/nvidia-earnings-china-jensen-huang-h20-trump-export-controls/" rel="noopener noreferrer" target="_blank">particularly difficult</a> to imagine why.)</p><p>But <a href="https://www.vox.com/politics/511687/jensen-huang-returns-nvidia-ceo-trump" rel="noopener noreferrer" target="_blank">as my colleague Andrew Prokop breaks down today</a>, lawmakers, AI executives, and officials within Trump’s own administration are not sold. In fact, they’re deeply divided over whether loosening sales restrictions on AI chips would ultimately advance or erode America’s AI dominance.</p><p>In one camp are the so-called “China hawks,” who argue that selling powerful chips to China would very likely accelerate its AI development at America’s expense.</p><p>In the other camp are Nvidia and its allies in Trump’s orbit. They argue that America is better off selling China <em>some</em> chips — and keeping Chinese developers dependent on American technology — than abandoning that market to the Chinese competition.</p><p>This divide <a href="https://www.vox.com/politics/510820/jensen-huang-nvidia-critics-hawks-populists-ai-safety" rel="noopener noreferrer" target="_blank">doesn’t map neatly onto party lines</a>. While most prominent Democrats fall toward the hawkish end of the spectrum, the China question has divided Trump’s coalition.</p><p>Many GOP lawmakers and some of Trump’s top officials — including Secretary of State Marco Rubio and Treasury Secretary Scott Bessent — side more or less with Democrats on this. So does much of the national security establishment and the AI safety movement.</p><p>Meanwhile, Commerce Secretary Howard Lutnick and former White House AI adviser David Sacks have made <a href="https://www.vox.com/politics/503140/david-sacks-trump-ai-safety-all-in-podcast-china" rel="noopener noreferrer" target="_blank">the case for keeping Chinese developers hooked</a> on American chips. And Trump has increasingly favored their approach, growing generally more conciliatory toward China since his first term. Last year, his administration <a href="https://www.vox.com/future-perfect/419791/trump-nvidia-h20-china-ai-chip" rel="noopener noreferrer" target="_blank">loosened restrictions on some Nvidia chip sales to China</a>. (And last week Trump was, <em>for what it’s worth</em>, photographed holding Xi Jinping’s hand on an escalator.)</p><p>But Huang’s return won’t settle the China AI argument for long, regardless of Trump’s influence. When Democrats take control of Congress in January, they’ll gain the power to launch more rigorous investigations — including into Nvidia. And at least a few Republicans also say they have questions.</p><p>“Who in our government weighed in?” asked Sen. John Curtis (R-UT) in <a href="https://x.com/SenJohnCurtis/status/2124900396455838142" rel="noopener noreferrer" target="_blank">a post on X</a>, referring to Huang’s reinstatement. “What did they tell the board? And on what basis did the board conclude there was no risk?”</p><p><strong>➨ Indulge your inner child.</strong> In the US, adults without kids now officially buy more toys than adults with children. That fact initially struck me as odd, but...<a href="https://www.vox.com/explain-it-to-me/511306/kidults-toy-industry-play-brain-benefits" rel="noopener noreferrer" target="_blank">there’s a neurological justification</a>! When people of any age play with toys, the part of the brain that governs the stress response calms down. “The drive to play is actually biologically hardwired into our subcortex,” one expert told Vox.</p><ul><li><strong>Did you know</strong>…that female turkeys <a href="https://www.vox.com/2014/11/27/7299377/turkey-facts-fun" rel="noopener noreferrer" target="_blank">can basically clone themselves</a>? Occasionally, the eggs of female turkeys will spontaneously develop into embryos without any sperm. This process is called parthenogenesis.</li><li><strong>Today’s trivia:</strong> Which 19th-century author and activist is known as “the mother of Black feminism”? (You can find this and other brain puzzles <a href="https://link.vox.com/click/6a46cfd46352b082500e86fe/aHR0cHM6Ly93d3cudm94LmNvbS8yMTUyMzIxMi9jcm9zc3dvcmQtcHV6emxlcy1mcmVlLWRhaWx5LXByaW50YWJsZT91ZWlkPWM3Mzg0ZDJhYzRmZDQ0YzcyZDI4OGQ4N2YxZjM5NDlh/664389def568f1a4620aa3aeC7b08b10b" rel="noopener noreferrer" target="_blank">in Vox’s daily crossword</a>. Look for the answer in tomorrow’s edition.)</li><li><strong>Yesterday’s trivia: </strong>Last week we asked you for the name of the independent federal agency currently chaired by Kevin Warsh. That would be the Federal Reserve System — a.k.a. the Federal Reserve or the Fed — which sets monetary policy in the US. </li></ul>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/today-explained-newsletter/511366/jensen-huang-nvidia-reinstated" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Na ordem, contra a ordem - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Na ordem, contra a ordem</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Opera Mundi</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://operamundi.uol.com.br/opiniao/na-ordem-contra-a-ordem/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://operamundi.uol.com.br/wp-content/uploads/2026/11/ordem.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Na ordem, contra a ordem
+                            </p>
+                            
+<p>A trajetória histórica inaugurada pela promulgação da Carta de 1988 consolidou-se, no imaginário político e na historiografia hegemônica, como o momento culminante da reconciliação do Brasil com as formas civilizatórias da modernidade democrática. A superação da ditadura civil-militar, o restabelecimento da ordem representativa e a consagração dogmática de um catálogo imenso de direitos fundamentais pareciam apontar para o desfecho vitorioso de uma marcha ascensional rumo à cidadania plena.</p>
+<p>Todavia, a maturação desse arcabouço revelou uma fratura irreconciliável no coração do edifício institucional da Sexta República: a coexistência antagônica entre uma gramática <i>principiológica</i>, formalmente comprometida com a emancipação e a justiça social, e uma engrenagem <i>concreta </i>de poder expressamente arquitetada para neutralizar a soberania popular, sequestrar a representação política e submeter as decisões estratégicas da nação aos ditames inflexíveis da exploração capitalista.</p>
+<p>A crise crônica que consome a ordem inaugurada em 1988 não se reduz a uma turbulência conjuntural provocada pela radicalização de comportamentos eleitorais ou pela degradação moral de lideranças ocasionais. Trata-se, com efeito, da bancarrota estrutural de um pacto de conciliação de classes que esgotou sua capacidade de mediar contradições materiais e que agora expõe a sua vocação originária: atuar como dispositivo de contenção social e blindagem do grande capital corporativo e rentista contra as aspirações do povo brasileiro.</p>
+<p>Para compreender as bases dessa falência, é imperativo enfrentar as ilusões em torno da transição política brasileira. A passagem do regime autocrático para a Nova República não decorreu de uma fratura revolucionária, tampouco de uma rendição incondicional dos detentores do monopólio da violência e de seus sócios civis. Pelo contrário, operou-se o modelo clássico da transição pelo alto, lenta e pactuada, na qual as elites dominantes, alarmadas pela magnitude das manifestações de massas pelas eleições diretas, canalizaram a disputa para os limites estritos do Colégio Eleitoral.</p>
+<p>A conciliação que alçou Tancredo Neves e, subitamente, José Sarney à direção do Estado traduziu com fidelidade cirúrgica a categoria do transformismo gramsciano: uma revolução passiva em que o aparelho de dominação assimilou frações da oposição moderada para desarticular o ímpeto contestatório das massas subalternas a fim de salvaguardar as continuidades fundamentais da inserção subalterna do país na divisão internacional do trabalho.</p>
+<p>Essa marca de nascença impôs à Assembleia Nacional Constituinte de 1987 uma dinâmica de contenção preventiva. Embora a pressão social sem precedentes tenha garantido vitórias inegáveis no campo dos direitos difusos, da previdência pública e das liberdades civis, a fração hegemônica do empresariado, do latifúndio e do capital monopolista articulou-se com celeridade por meio do Centrão original. O objetivo não era apenas barrar medidas que afrontassem diretamente a propriedade privada, a estrutura fundiária arcaica e a preservação das estruturas de acumulação de capital, mas erigir um labirinto normativo no qual a efetivação das conquistas sociais ficasse condicionada à intermediação permanente do Poder Legislativo. O pacto constitucional nascente ergueu-se sobre uma concessão formal no plano dos direitos civis e sociais conjugada a uma blindagem material dos eixos de reprodução do capital, delegando ao futuro parlamento a tarefa de regulamentar e, invariavelmente, esvaziar a substância emancipatória do texto constitucional.</p>
+<p>Essa estratégia de neutralização manifesta-se de maneira explícita no tratamento conferido pela ordem jurídica aos instrumentos de democracia direta. O artigo inaugural da Carta Magna proclama de modo triunfal que todo o poder emana do povo, exercendo-se por intermédio de mandatários ou de maneira direta. Todavia, a engenharia constitucional tratou de converter a participação direta em uma ficção institucional rigorosamente tutelada pela representação parlamentar. Os três institutos fundamentais da soberania popular direta previstos no texto constitucional – o plebiscito, o referendo e o projeto de lei de iniciativa popular – foram concebidos com travas operacionais que os tornam politicamente inofensivos para a ordem burguesa.</p>
+<p>A principal chave dessa asfixia reside na outorga de competência privativa e discricionária ao Congresso Nacional para autorizar referendos e convocar plebiscitos, consoante estipulado no artigo 49 da Constituição. Ao subtrair da cidadania o poder imediato de autodeterminar a convocação de consultas soberanas, mesmo sob petições populares de amplitude massiva, o legislador constituinte ergueu uma barragem oligárquica contra o poder desconstituinte das massas e da mobilização popular por iniciativa do Presidente da República. Nesse contexto, o povo somente é autorizado a manifestar sua vontade direta quando as frações dominantes do parlamento julgam conveniente ou inócuo fazê-lo.</p>
+<p>É por essa razão que, ao longo de quase quatro décadas de vigência da Sexta República, o povo brasileiro foi consultado apenas em episódios marginais e rigidamente controlados, como o plebiscito monárquico-presidencialista de 1993, determinado originariamente pelos Atos Transitórios, e o referendo sobre o comércio de armas de fogo em 2005.</p>
+<p>As deliberações vitais que redesenharam a anatomia material do país foram sistematicamente vedadas ao escrutínio popular direto. As privatizações de infraestruturas estratégicas, a desnacionalização de bacias petrolíferas, os sucessivos acordos de endividamento externo e interno, a aprovação de reformas previdenciárias que dilatam os tempos de exploração do trabalho e as sucessivas reformas tributárias que aprofundam a regressividade da cobrança sobre os assalariados jamais passaram pelo crivo de um plebiscito nacional.</p>
+<p>Sempre que a lógica do valor e os interesses de rentabilidade da classe dominante estiveram em jogo, o Congresso atuou como uma blindagem intransponível contra a deliberação popular. A mesma esterilização atinge a iniciativa popular de lei, sufocada por exigências procedimentais quantitativas e territoriais de extrema dificuldade logística, somadas à prerrogativa congressual de mutilar, desfigurar ou arquivar os textos populares nas comissões temáticas sem qualquer constrangimento ético ou legal. O poder popular constituído foi desarmado, reduzindo-se o eleitorado à função de homologador episódico de candidaturas fabricadas pelas maquinarias eleitorais.</p>
+<p>Ademais, essa atrofia da soberania popular articula-se com a degeneração profunda dos corpos intermediários que deveriam conferir organicidade à democracia representativa: os partidos políticos. Na gramática clássica da teoria democrática liberal, os partidos operariam como vetores de representação programática, educadores de classe e canais de disputa legítima entre visões antagônicas de mundo e de organização societária. No ecossistema político da Sexta República, todavia, o processo histórico impôs a liquidação da densidade ideológica das agremiações e a consolidação desenfreada do modelo de partidos de cartel, como lucidamente formulado por Peter Mair e Richard Katz.</p>
+<p>Ao se desconectarem das bases sociais vivas, os partidos políticos brasileiros foram colonizados pelo imperativo de sua própria reprodução burocrática e parasitária. Em vez de atuarem como instrumentos de mobilização popular e formação política, as legendas converteram-se em feudos oligárquicos cujo fim único reside na apropriação dos recursos vultosos do fundo partidário e eleitoral, na conquista de tempo de televisão e na ocupação predatória de cargos na burocracia do Estado. O pluripartidarismo desmesurado não reflete a pluralidade programática da sociedade brasileira, mas a dispersão calculada de balcões de negócios eleitorais que mercadejam apoio legislativo em troca de vantagens patrimonialistas imediatas.</p>
+<p>Mesmo as forças políticas que outrora emergiram das entranhas das lutas operárias e dos movimentos sindicais e sociais foram compelidas, pelo magnetismo conservador do sistema, a submeter sua <i>práxis</i> a essa lógica instrumental. O imperativo de acumular coalizões eleitorais competitivas gerou um processo avassalador de moderação programática e desmobilização de massas. A política reduziu-se a uma técnica gerencial da ordem capitalista dependente, onde as diferenças ideológicas esvaem-se em nome de discursos de eficiência, acomodação e manutenção da estabilidade macroeconômica.</p>
+<p>Esse esvaziamento ideológico produziu uma cisão irremediável entre a sociedade civil e os seus supostos representantes. Quando o cidadão percebe que a troca periódica de governantes não altera a precariedade de suas condições materiais de existência, a desilusão passa a minar as fundações da institucionalidade representativa, fomentando uma despolitização generalizada que abre espaço para o ressentimento social desorganizado e a ascensão de frações reacionárias e obscurantistas.</p>
+<p>O epicentro institucional onde essa esterilização ideológica e essa contenção popular se encontram é o chamado presidencialismo de coalizão. Longe de constituir uma mera particularidade acidental do sistema de governo brasileiro, o presidencialismo de coalizão consolidou-se como a fórmula ótima de governança do capital. O mandato presidencial, ungido pelo voto popular majoritário em âmbito nacional mas destituído de poderes presidenciais típicos, encontra-se aprisionado em uma camisa de força de dupla face.</p>
+<p>De um lado, para consolidar a maioria simples necessária para aprovar legislação e afastar o espectro constante do impedimento parlamentar, o Chefe do Executivo é coagido a fragmentar as pastas ministeriais, as agências reguladoras e as diretorias de empresas públicas entre as legendas do pragmatismo fisiológico. Essa fisiologia, que se organiza no Congresso sob a denominação histórica de Centrão, não defende outro projeto de país senão a maximização das rendas corporativas de seus membros e a garantia de sua sobrevivência eleitoral por meio de laços clientelistas com as elites regionais.</p>
+<p>De outro lado, após sucessivas investidas contra o patrimônio público suberano, o Executivo é mantido sob permanente chantagem pelo poder financeiro e pelas corporações monopolistas. Caso o mandatário tente romper as amarras do compadrio fisiológico ou mobilizar o povo para aprovar reformas estruturais de cunho popular e redistributivo, o capital mobiliza seus arsenais de desestabilização: a especulação com as taxas de câmbio, o ataque aos títulos da dívida soberana, a retenção de investimentos produtivos e a histeria orquestrada dos grandes conglomerados de mídia corporativa acusando o governo de irresponsabilidade fiscal.</p>
+<p>Nesse contexto, governar resume-se à busca obstinada pela credibilidade perante os operadores do mercado financeiro, subordinando a totalidade das políticas públicas à satisfação dos credores do rentismo. O Estado brasileiro funciona, sob essa ótica, como uma gigantesca bomba de sucção que extrai a riqueza produzida pelos setores assalariados, mediante uma estrutura tributária profundamente regressiva que taxa de forma desproporcional o consumo da população pobre, para repassá-la sistematicamente ao capital financeiro sob a forma do pagamento ininterrupto de amortizações e juros de uma dívida pública.</p>
+<p>A subordinação da soberania popular a essa engenharia institucional culminou, nos últimos anos, no agravamento terminal da Sexta República, impulsionado por um processo de mutação parasitária do Legislativo sobre o orçamento público. A derrocada dos governos progressistas e os choques autoritários inaugurados pelo golpe parlamentar de 2016 abriram as comportas para a desestruturação dos pilares do presidencialismo de coalizão original, transmutando-o em uma espécie de semipresidencialismo orçamentário disfuncional.</p>
+<p>Deve-se reconhecer que o parlamento não apenas se recusou a atuar como formulador de grandes sínteses nacionais, mas avançou vorazmente sobre o fundo público através da consagração das emendas impositivas e do uso opaco de emendas de relator e comissão. Essa apropriação privada do orçamento destituiu, em partes expressivas, o Poder Executivo da capacidade de planejar e executar políticas públicas universais e redistributivas de longo prazo. Parcelas massivas de recursos fiscais foram fragmentadas e loteadas para atender a interesses paroquiais de currais eleitorais, subsidiando oligarquias locais ligadas ao agronegócio predatório, à mineração clandestina e ao lobby do ensino e saúde privados.</p>
+<p>O traço mais perverso dessa metamorfose reside no fato de que o Congresso Nacional passou a exercer o controle hegemônico sobre o destino dos recursos da sociedade sem ter de prestar contas aos custos políticos da governabilidade perante o eleitorado em nível nacional. Os parlamentares blindam suas próprias prerrogativas orçamentárias contra contingenciamentos e, ao mesmo tempo, impõem um regime de austeridade permanente sobre as despesas de custeio dos serviços públicos essenciais, como saúde e educação.</p>
+<p>Ao aprovarem normas que congelam o crescimento real dos gastos sociais e flexibilizam os direitos trabalhistas e previdenciários, os parlamentares atuam não como mediadores do bem comum, mas como prepostos diretos do grande capital, assegurando que o espaço fiscal subtraído da classe trabalhadora permaneça disponível para a remuneração desimpedida do capital rentista e para os incentivos e subsídios tributários do empresariado agroexportador.</p>
+<p>Essa realidade desnuda o caráter de classe do Estado nascente sob a Sexta República. O arcabouço normativo que prometia o bem-estar e o desenvolvimento econômico operou, na verdade, para conter as massas subalternas nos períodos de euforia e sacrificá-las sem misericórdia nos períodos de desaceleração da economia mundial. As formulações teóricas que compreendiam o Estado como um espaço neutro de disputa institucional caíram por terra perante a violência com que a burguesia brasileira e seus operadores institucionais descartaram a própria legalidade do pacto de 1988 sempre que as concessões populares ameaçaram comprimir as margens de lucro do capital.</p>
+<p>A judicialização da política e o ativismo do Poder Judiciário — fração tecnocrática da elite burocrática do Estado — consolidaram-se igualmente como braços auxiliares dessa mesma blindagem. A toga atuou repetidas vezes para convalidar desregulamentações laborais agressivas, interditar políticas substantivas de reforma agrária, conferir legitimidade a perseguições políticas seletivas e ratificar marcos regulatórios privatizantes que transferem riquezas naturais estratégicas e empresas estatais essenciais para o controle predatório do capital financeiro transnacional. O sistema de justiça da Nova República nunca foi cego às divisões de classe. Ao contrário, operou com rigor implacável para assegurar a intocabilidade dos contratos monopolistas e a repressão dos movimentos sociais que ousassem desafiar as cercas do latifúndio ou as portas dos bancos.</p>
+<p>A arquitetura institucional contemporânea atesta que a conciliação social-liberal — a aposta de que seria possível conceder migalhas de alívio material às massas por meio da renda e do consumo sem tocar nos centros neurálgicos do poder econômico e fundiário — atingiu sua exaustão definitiva. Os ganhos marginais concedidos aos trabalhadores nos anos de expansão das commodities foram brutalmente varridos pela dinâmica de austeridade e pelas reformas anti-populares que se seguiram à crise de acumulação.</p>
+<p>Isso expõe a armadilha contida na veneração acrítica da Carta de 1988: o texto  constitucional foi simultaneamente a certidão de batismo de certas garantias civis e o manual prático de contenção que impediu a transição do Brasil para uma verdadeira soberania popular. O arcabouço político-institucional erigido pela transição conservadora foi programado para funcionar precisamente dessa maneira, servindo de filtro depurador que remove qualquer risco de intervenção popular substantiva na distribuição do produto social do trabalho.</p>
+<p>Portanto, sustentar a defesa incondicional da institucionalidade da Nova República como o horizonte insuperável da democracia brasileira significa capitular diante de uma estrutura de dominação que tem a subordinação do trabalho ao capital como fundamento irremovível. A crença ingênua de que é possível restaurar o pacto original de 1988 por meio da pedagogia cívica ou de reformas políticas paliativas que apenas reorganizem o coeficiente partidário é uma ilusão paralisante que desarma o movimento popular perante a ofensiva do capital. A falência da Sexta República não é um defeito de execução das regras do jogo, mas a maturidade plena de um sistema que foi desenhado desde a sua origem para esvaziar a política de sua dimensão emancipatória e proteger as oligarquias dominantes da soberania do povo.</p>
+<p>A persistência desse arranjo institucional caduco conduz a sociedade brasileira a uma espiral degradante de autoritarismo sociopolítico, pauperização estrutural, desmantelamento das políticas públicas e entrega avassaladora de suas riquezas soberanas. A cisão absoluta entre uma cidadania espoliada e uma representação parlamentar mercantilizada demonstra que a via da conciliação esgotou-se em sua totalidade. O impasse histórico que se coloca diante das classes subalternas exige a superação teórica e prática da ideologia da conciliação que lhe deu vida.</p>
+<p>A verdadeira democratização do Brasil não virá do aperfeiçoamento formal de mecanismos parlamentares asfixiados pelo grande poder econômico, nem da dependência subserviente em relação a lideranças que operam como corretores da governabilidade burguesa. Ela exige a irrupção do poder popular em sua forma desconstituinte e revolucionária, capaz de fraturar o dique da conciliação conservadora, arrancar as decisões estratégicas do controle dos comitês do mercado financeiro e fundar as bases de uma nova ordem constitucional onde o trabalho coletivo impunha, de forma direta e definitiva, a sua primazia soberana sobre as forças acumuladoras do capital.</p>
+<p>Diante desse impasse histórico, a superação da Sexta República não se dará pela via ingênua do abandono niilista à institucionalidade, tampouco pela capitulação conformista aos ritos de uma ordem parlamentar desenhada para a asfixia da ordem popular e democrática. O horizonte de combate exige, em sua formulação mais rigorosa e dialética, a capacidade de <i>estar na ordem</i> mas, irredutivelmente, em luta de vida ou morte, c<i>ontra a ordem</i>.</p>
+<p><b><i>(*) Guilherme Diniz</i></b><i> é professor de História do Brasil e dedica-se ao estudo da formação social brasileira, do pensamento brasileiro e das ideias que moldaram o país. Minhas pesquisas transitam por temas como Forças Armadas, republicanismo e nacionalismo no Brasil, buscando compreender as continuidades, disputas e projetos que atravessam nossa trajetória histórica, política e intelectual.</i></p><p>Fonte: Especial para Opera Mundi</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://operamundi.uol.com.br/opiniao/na-ordem-contra-a-ordem/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

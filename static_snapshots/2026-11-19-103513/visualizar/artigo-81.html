@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>As lições da eleição - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">As lições da eleição</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Fundação Perseu Abramo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://fpabramo.org.br/as-licoes-da-eleicao/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://fpabramo.org.br/wp-content/uploads/2026/11/raf5497-11.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: As lições da eleição
+                            </p>
+                            
+<p></p>
+<p>A <a href="https://pt.org.br/eleicoes-no-brasil-e-eua-movimentam-tabuleiro-geopolitico-nas-americas/" rel="noopener noreferrer" target="_blank">eleição</a> presidencial de 2026 entra para a história do Brasil como um dos maiores movimentos de mobilização política do país em defesa da democracia, da soberania nacional e da continuidade de um projeto de desenvolvimento comprometido com a justiça social, a sustentabilidade e a redução das desigualdades.</p>
+<p>A reeleição do presidente Lula, com 64.256.232 votos, equivalentes a 51,79% dos votos válidos, expressou a escolha da maioria dos brasileiros pela continuidade de um projeto nacional que recoloca o Estado como indutor do desenvolvimento e a população como destinatária de seus benefícios.</p>
+<p>Foi uma <a href="https://pt.org.br/eleicoes-no-brasil-e-eua-movimentam-tabuleiro-geopolitico-nas-americas/" rel="noopener noreferrer" target="_blank">eleição</a> que colocou em confronto duas concepções de país. De um lado, a democracia, a soberania, a defesa dos direitos, a inclusão social, a justiça tributária e ambiental e a construção de uma economia moderna, produtiva e sustentável. De outro, uma visão de sociedade que ameaça conquistas democráticas, enfraquece a proteção social e subordina os interesses nacionais a projetos políticos e econômicos excludentes.</p>
+<p>A dimensão dessa escolha ultrapassou as fronteiras brasileiras e repercutiu em todo o mundo, principalmente na Europa, onde crescem as manifestações em defesa dos direitos conquistados. </p>
+<h4>Vitória de Lula na eleição e o tabuleiro global</h4>
+<p>A vitória do presidente Lula reafirma o reposicionamento do Brasil na geopolítica global e sua liderança na defesa de pautas centrais da agenda internacional, como a erradicação da fome e da pobreza, a redução das desigualdades, a transição energética, o multilateralismo e a paz.</p>
+<p>A política externa brasileira voltou a ter presença ativa e altiva nos fóruns multilaterais, defendendo o diálogo entre as nações, o respeito à autodeterminação dos povos, a reforma da Organização das Nações Unidas e a democratização de suas instituições.</p>
+<p>O presidente Lula defende que o enfrentamento das crises internacionais exige cooperação, e não submissão; diplomacia, e não guerras; investimentos no desenvolvimento humano, e não uma corrida armamentista que consome os recursos públicos indispensáveis à vida das populações.</p>
+<p>A humanidade precisa superar uma de suas heranças tribais mais atrasadas e estúpidas: a guerra, naturalizada em todo o mundo e assistida nas telas como espetáculo. Romper com essa herança e construir uma cultura de paz deve ser uma das grandes utopias do século 21.</p>
+<p>A dimensão desse desafio é demonstrada pelos números do Instituto Internacional de Pesquisa para a Paz de Estocolmo (Sipri): os gastos militares mundiais alcançaram US$ 2,7 trilhões em 2024, o maior valor já registrado pela instituição. Redirecionar os recursos destinados aos gastos militares para a educação, a saúde, a habitação, a segurança alimentar, a ciência e a tecnologia e o enfrentamento das mudanças climáticas é uma agenda civilizatória que o presidente Lula levou ao debate internacional em diversas ocasiões.</p>
+<h4>A reconstrução do Brasil e a recuperação da capacidade de governar</h4>
+<p>A reconstrução nacional começou em condições políticas, econômicas e orçamentárias adversas. Ainda em dezembro de 2022, antes da posse, a articulação política do governo Lula, recém-eleito, fez a maior obra política de construção da base de apoio ao governo e aprovou a PEC da Transição, que assegurou R$ 145 bilhões adicionais ao Orçamento de 2023.</p>
+<p>Essa conquista política deu início às grandes mudanças que ocorreram nos quatro anos do mandato. Decisão estratégica para evitar a descontinuidade de políticas públicas e permitir que o novo governo começasse a recompor os programas sociais, os investimentos públicos, a fim de retomar o crescimento econômico, gerar emprego e renda. O governo Lula reabriu canais de diálogo institucional e devolveu ao Estado a capacidade de planejar o desenvolvimento.</p>
+<p>O Novo Programa de Aceleração do Crescimento (PAC) tornou-se um dos principais instrumentos dessa estratégia. Inicialmente anunciado com R$ 1,7 trilhão em investimentos, o programa passou a reunir uma carteira de aproximadamente R$ 1,9 trilhão, entre recursos públicos, estatais, financiamentos e investimentos privados, conforme o painel de transparência da Casa Civil.</p>
+<p>São investimentos em rodovias, ferrovias, portos, aeroportos, energia, saneamento, habitação, saúde, educação e infraestrutura digital. Mais do que executar obras, trata-se de recuperar a capacidade de integração territorial, impulsionar o crescimento econômico, ampliar o emprego e a renda e criar condições para um novo ciclo de industrialização.</p>
+<p>A reconstrução exigiu também uma ampla articulação política com o Congresso Nacional. A formação de uma base parlamentar de sustentação do governo, com partidos e forças políticas que compreenderam a importância das reformas, foi decisiva para aprovar medidas estruturantes.</p>
+<p>Com a aprovação do Regime Fiscal Sustentável, instituído pela Lei Complementar nº 200/2023, as contas públicas foram organizadas e criadas as condições para o crescimento econômico.</p>
+<p>A Reforma Tributária, que esteve paralisada no Congresso Nacional por quase 40 anos, foi colocada em pauta, debatida, aprovada por meio da Emenda Constitucional nº 132/2023 e regulamentada pela Lei Complementar nº 214/2025. Uma reforma feita sem aumentar impostos. O Brasil dispõe, hoje, de um sistema tributário moderno e simplificado, que reduz a cumulatividade, melhora o ambiente de negócios e corrige distorções que penalizam a produção e o consumo.</p>
+<p>A reforma também abre caminho para um sistema mais transparente e eficiente, com mecanismos de devolução de tributos às famílias de menor renda. Somada à ampliação da isenção do Imposto de Renda para quem recebe até R$ 5 mil mensais, constitui um avanço na construção de uma estrutura tributária mais justa.</p>
+<h4>Segurança pública</h4>
+<p>Outro marco é a Proposta de Emenda à Constituição (PEC) da Segurança Pública, enviada ao Congresso Nacional em abril de 2026 e aprovada pelo Senado, em dois turnos, em 3 de novembro do mesmo ano. A oposição, liderada pelo senador Flávio Bolsonaro, usou todo tipo de artifício para impedir a votação da PEC. Mesmo assim, o governo foi vitorioso. O Brasil venceu!</p>
+<p>A proposta constitucionaliza o Sistema Único de Segurança Pública e os fundos nacionais de Segurança Pública e Penitenciário, além de promover a integração dos sistemas de informação e inteligência dos governos federal, estaduais e municipais para enfrentar o crime organizado, com coordenação nacional e respeito às competências federativas. </p>
+<p>Esses são alguns exemplos das conquistas alcançadas por meio da articulação política democrática. O governo Lula conseguiu aprovar cerca de 90% da agenda política de interesse do governo no Congresso Nacional.</p>
+<h4>Desenvolvimento precisa chegar à vida das pessoas</h4>
+<p>A reconstrução do país tem sua expressão mais concreta na recuperação e na ampliação das políticas sociais. “Colocar o pobre no Orçamento”, como o presidente Lula costuma dizer, significa reconhecer que a geração de riqueza e o crescimento econômico precisam beneficiar toda a sociedade, melhorando a vida da população, especialmente daqueles que historicamente ficaram à margem das oportunidades.</p>
+<p>O Bolsa Família atendeu aproximadamente 19,8 milhões de famílias por mês em 2025, com investimento federal próximo de R$ 160 bilhões no ano e benefício médio de R$ 680 por família. Não se trata apenas de transferência de renda. O programa garante alimentação, matrícula e vacinação às crianças, movimenta o comércio local e a economia dos pequenos municípios, protege milhões de famílias e ajuda a retirá-las da pobreza extrema.</p>
+<p>Na saúde, o programa Farmácia Popular ampliou o acesso gratuito a medicamentos. Em 2025, beneficiou 27,3 milhões de pessoas. Em outubro de 2026, o Ministério da Saúde informou que o programa já estava presente em cinco mil municípios, alcançando localidades onde vivem 97,1% dos brasileiros. São 41 produtos disponibilizados gratuitamente, incluindo medicamentos para hipertensão, diabetes, asma e outras condições, além de insumos de saúde.</p>
+<p>Na área habitacional, o programa Minha Casa, Minha Vida recuperou sua capacidade de atender às famílias de baixa renda e de movimentar a construção civil. O balanço divulgado pelo governo federal em outubro de 2026 registrou aproximadamente 2,7 milhões de moradias contratadas desde 2023, em 5.330 municípios. A política habitacional combina o direito à moradia, a geração de empregos, o desenvolvimento urbano e a redução das desigualdades. Esses resultados demonstram que a política social é um investimento na economia. É um investimento na população e no futuro.</p>
+<p>Quando uma família recebe renda, compra alimentos, medicamentos, roupas e outros bens e serviços, o dinheiro circula, fortalece os pequenos negócios, estimula a produção e gera empregos. A inclusão social é também uma estratégia de desenvolvimento econômico.</p>
+<h4>Emprego, renda e crescimento econômico</h4>
+<p>Os indicadores do mercado de trabalho confirmam essa estratégia do projeto do governo Lula. Segundo o Instituto Brasileiro de Geografia e Estatística (IBGE), a taxa de desocupação caiu para 5,2% no trimestre encerrado em setembro de 2026, o menor patamar da série histórica iniciada em 2012. O rendimento médio real habitual dos trabalhadores alcançou R$ 3.790 mensais.</p>
+<p>São resultados que expressam a ampliação das oportunidades de trabalho e o fortalecimento da renda das famílias. O crescimento do emprego formal, a valorização do salário mínimo e a expansão da atividade econômica contribuem para ampliar o mercado consumidor e fortalecer o mercado interno.</p>
+<p>O Produto Interno Bruto (PIB) cresceu 2,3% em 2025, alcançando R$ 12,7 trilhões. No segundo trimestre de 2026, avançou 0,5% em relação ao trimestre anterior e 2% na comparação com o mesmo período do ano anterior. O Fundo Monetário Internacional (FMI) projetou expansão de 2,2% para o Brasil em 2026, em meio a uma conjuntura econômica mundial adversa, marcada por baixos índices de crescimento.</p>
+<p>Na comparação internacional, o Brasil ocupa a sexta posição no <em>ranking</em> de crescimento econômico do G20 (fórum que reúne as vinte nações mais ricas do mundo), à frente de economias como as dos Estados Unidos, do Canadá, da União Europeia, do Reino Unido, do Japão, da França e da Alemanha. Não basta crescer. Em um país com tamanha desigualdade, é estratégico distribuir a renda e transformar o crescimento em desenvolvimento duradouro.</p>
+<h4>Nova geração e defesa das conquistas democráticas</h4>
+<p>Uma dimensão importante das eleições foi a participação de uma nova geração de brasileiras e brasileiros que cresceu convivendo com direitos conquistados e políticas públicas incorporadas ao cotidiano e naturalizadas. Para esses jovens, universidade pública, institutos federais, acesso a medicamentos, programas de transferência de renda, oportunidades de trabalho e políticas de inclusão são direitos que não podem ser tratados como concessões de governos.</p>
+<p>A defesa dessas conquistas também se expressa na renovação da participação política e na necessidade de consolidar os partidos democráticos. O Partido dos Trabalhadores (PT) tem o imenso desafio de ampliar sua relação com a juventude, abrir espaços para novas lideranças, renovar suas práticas e aprofundar a democracia interna. </p>
+<p>A participação dos jovens precisa ultrapassar os períodos eleitorais e alcançar os espaços de formação política, os debates, a formulação das políticas públicas e a construção do projeto nacional.</p>
+<h4>O futuro: ciência, tecnologia, indústria e transição energética</h4>
+<p>O Brasil tem condições excepcionais para participar da quarta revolução industrial global em novo ciclo de desenvolvimento, marcada pelo avanço da pesquisa científica e da indústria digital e, possivelmente, por uma nova etapa impulsionada pela inteligência artificial.</p>
+<p>O Brasil precisa superar a condição de grande exportador de matérias-primas e importador de produtos industrializados de alta tecnologia. É necessário transformar nossas riquezas naturais em conhecimento, inovação, produção industrial e empregos qualificados.</p>
+<p>A exploração e o processamento de terras raras e minerais críticos são estratégicos para a economia do futuro, pois esses recursos são fundamentais para a fabricação de baterias, veículos elétricos, equipamentos eletrônicos, semicondutores, turbinas eólicas, superímãs e outras tecnologias digitais. O Brasil precisa desenvolver toda a cadeia produtiva, da pesquisa mineral à transformação industrial, garantindo que o valor agregado permaneça no país.</p>
+<p>Há mais de 30 anos, a China vem dominando as tecnologias relacionadas às terras raras. O país asiático investiu cerca de US$ 1 trilhão nesse período e controla 95% desse mercado. Desenvolveu toda a cadeia produtiva, chegando à fabricação de superímãs. Para se ter uma ideia, mais de 80% dos equipamentos de guerra dos Estados Unidos dependem de superímãs. A China detém o monopólio, e o Brasil, com a segunda maior reserva de terras raras do mundo, não pode ficar de fora desse mercado.</p>
+<p>O Brasil tem apenas um terço de seu território pesquisado. O Banco Nacional de Desenvolvimento Econômico (BNDES) já está financiando a produção de baterias no Brasil por meio da empresa WEG, e dez empresas já estão ingressando nos setores de terras raras e minerais críticos. O BNDES selecionou 53 projetos para financiamento. O Brasil detém o monopólio do nióbio do mundo.</p>
+<p>Na ciência e tecnologia, a recuperação do Fundo Nacional de Desenvolvimento Científico e Tecnológico é um marco. Em 2024, o FNDCT mobilizou R$ 12,7 bilhões, recorde histórico, para financiar projetos de pesquisa, inovação e desenvolvimento tecnológico.</p>
+<p>Esses recursos são estratégicos para a expansão das universidades, o fortalecimento dos institutos de pesquisa, o estímulo às empresas inovadoras e o desenvolvimento da capacidade nacional de produzir tecnologia. No entanto, nossos investimentos nas engenharias ainda estão muito aquém do necessário para transformar nossas riquezas em avanços na quarta revolução industrial. A China forma, por ano, mais engenheiros do que os Estados Unidos e a União Europeia juntos.</p>
+<p>A indústria de semicondutores, a inteligência artificial, a computação de alto desempenho, a biotecnologia e a economia digital precisam ocupar lugar central na estratégia de desenvolvimento. O Brasil dispõe de universidades, pesquisadores, mercado consumidor, recursos naturais e uma matriz energética que oferecem condições excepcionais para avançar nessas áreas.</p>
+<p>A transição energética é outra vantagem estratégica. Segundo o Balanço Energético Nacional 2026, elaborado pela Empresa de Pesquisa Energética (EPE), 86,8% da matriz elétrica brasileira foi composta por fontes renováveis em 2025. Essa característica coloca o país em posição privilegiada para atrair investimentos em indústrias de baixo carbono, hidrogênio de baixa emissão, combustíveis sustentáveis e tecnologias limpas.</p>
+<p>A realização da Conferência das Nações Unidas sobre Mudança do Clima (COP) 31, em 2026, reafirma o compromisso internacional com a sustentabilidade. O Brasil precisa converter sua biodiversidade, suas fontes renováveis, seus recursos minerais e sua capacidade científica em vantagens competitivas, sem abrir mão da proteção ambiental e dos direitos das populações.</p>
+<h4>Projeto nacional para o século 21</h4>
+<p>O quarto mandato do presidente Lula terá a responsabilidade de consolidar os direitos constitucionais e as conquistas sociais, acelerar a transformação industrial e preparar o Brasil para uma nova etapa de desenvolvimento. Isso exige investimentos, planejamento, capacidade de articulação política e uma base parlamentar comprometida com o projeto nacional.</p>
+<p>É necessário aprofundar a democracia, fortalecer as instituições, ampliar a participação popular e construir consensos em torno de uma agenda de longo prazo. O Congresso Nacional também tem responsabilidade na garantia de direitos e poder decisivo no cumprimento dessa tarefa. A governabilidade deve estar a serviço de reformas que ampliem direitos, fortaleçam a economia produtiva e garantam condições para o desenvolvimento sustentável com justiça social e ambiental.</p>
+<p>A eleição de outubro reafirmou uma escolha histórica. O Brasil decidiu defender sua democracia, sua soberania e a continuidade de um projeto que combina crescimento econômico, justiça social, proteção ambiental e participação internacional, com uma política externa ativa e altiva.</p>
+<p>O desafio agora é transformar essa decisão política em uma nova etapa de desenvolvimento. Um país que não apenas exporte suas riquezas, mas produza conhecimento; que não apenas cresça, mas distribua a riqueza gerada pelo crescimento; que não apenas participe da economia mundial, mas tenha capacidade de influenciar seus rumos.</p>
+<p>A democracia garantiu a continuidade do projeto nacional. O próximo passo é construir uma economia moderna, sustentável, industrializada e tecnologicamente avançada, capaz de assegurar oportunidades para as novas gerações e elevar o Brasil a uma posição de destaque entre os países mais desenvolvidos do mundo.</p>
+<p>O Brasil escolheu o futuro. Cabe ao governo, ao Congresso Nacional e à sociedade transformar essa escolha em um projeto de nação.</p>
+<p><em><strong>José Guimarães</strong></em> <em>é advogado, deputado federal (PT/CE) e ministro da Secretaria de Relações Institucionais da Presidência da República.</em></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://fpabramo.org.br/as-licoes-da-eleicao/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

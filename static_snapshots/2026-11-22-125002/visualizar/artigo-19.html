@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem abastece a mala preta? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Quem abastece a mala preta?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/opiniao/quem-abastece-a-mala-preta/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/10/AFP__20261028__D4PC79E__v3__HighRes__TopshotUsBrazilPolitics-1024x683.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Quem abastece a mala preta?
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+<p>Na sexta-feira, 20 de novembro, Alexandre de Moraes votou no STF para manter o cancelamento dos passaportes de Flávio Bolsonaro e a proibição de contato com Willer Tomaz, seu sócio.  </p><p>
+</p>
+<p>Para o ministro, a fuga do senador, em descumprimento de ordem judicial, tem potencial para obstruir as investigações. O julgamento na Primeira Turma segue em curso, com término previsto para 30 de novembro. </p><p>
+</p>
+<p>É chegada a hora de perguntar: como Flávio e Eduardo Bolsonaro pagam suas contas nos Estados Unidos? </p><p>
+</p>
+<h2><b>Quem pagou o voo?</b> </h2>
+<p>Em 27 de outubro, dois dias depois da derrota para Lula, Flávio fugiu do Brasil pela Argentina. Embarcou num Gulfstream G400, com escala em Guayaquil, no Equador, antes de chegar a Miami. </p>
+<p></p>
+<p>Luís Grande, dono da Baires Fly, declarou à AFP ter recebido US$ 150 mil pelo voo — aproximadamente R$ 800 mil na conversão da época. Segundo relato divulgado em 30 de outubro, o pagamento veio da conta empresarial de um intermediário residente nos Estados Unidos para um banco argentino. </p>
+<p>Grande não revelou o nome do intermediário e afirmou desconhecer o cliente final. Sem contrato ou comprovante bancário obtidos nesta apuração, o valor permanece atribuído ao empresário. A pergunta é: quem forneceu o dinheiro? </p>
+<p>Em Washington, reportagens situaram Flávio no hotel Le Méridien The Madison, a cerca de 830 metros em linha reta da Casa Branca. Em 16 de novembro, o Metrópoles cotou um quarto com duas camas a R$ 1.400 por diária. Duração, conta efetiva e pagador permanecem desconhecidos nesta apuração. </p>
+<h2><b>Aluguéis de luxo, contas em aberto</b> </h2>
+<p>Na Flórida, segundo Lauro Jardim, em coluna de 15 de novembro, o senador procurou moradia no condomínio Lotus, em Boca Raton, com aluguéis na faixa de US$ 15 mil mensais, aproximadamente R$ 88 mil. Não há confirmação de contrato assinado. </p>
+<p>Eduardo, nos Estados Unidos desde 2025, foi alvo de reportagem do Intercept Brasil sobre uma residência em Southlake, no Texas, anunciada para aluguel por US$ 5.950 mensais, cerca de R$ 35 mil. O imóvel pertence a terceiros, e o anúncio não comprova o preço contratado. Eduardo contestou a identificação da casa e afirmou morar de aluguel, com dinheiro próprio. </p>
+<p>Somados, os preços anunciados dos dois aluguéis representam cerca de R$ 123 mil mensais. Mantidos por um ano e acrescidos do voo de US$ 150 mil relatado pela operadora, chegariam a aproximadamente R$ 2,36 milhões sem alimentação e outras despesas.  </p>
+<p>A conta dimensiona os valores citados; não comprova quanto os irmãos efetivamente gastaram.  </p>
+<p>Eduardo citou renda passiva, receitas de cursos e um repasse paterno de R$ 2 milhões, parte dos R$ dos 17 milhões que pai Jair Bolsonaro diz que recebeu dos bolsonaristas via PIX. Essas explicações precisam ser consideradas. Falta, porém, o quadro completo de rendimentos, reservas, remessas e despesas. </p>
+<p>Dinheiro privado tem origem. Presentes têm doadores. Viagens têm pagadores. “Não existe almoço grátis”, como diria Milton Friedman. </p>
+<p>Se um amigo ou uma empresa paga a conta, cabe esclarecer: presente, empréstimo, remuneração ou reembolso? </p>
+<h2><b>O patrimônio e as acusações</b> </h2>
+<p>A família construiu sua trajetória durante décadas em cargos públicos. Jair, capitão reformado do Exército, foi vereador, deputado federal por sete mandatos e presidente. Flávio passou pela Assembleia Legislativa do Rio e chegou ao Senado, acumulando atividades, diz ele, empresariais e de advocacia. </p>
+<p>Segundo reportagens baseadas nas declarações ao TSE, Flávio informou cerca de R$ 8,19 milhões em bens em 2026, ante R$ 1,74 milhão em 2018: crescimento nominal próximo de 370% em dois anos como senador.  Cerca de R$ 6,2 milhões correspondiam à residência em Brasília, adquirida com financiamento parcial do BRB.  </p>
+<p>O Banco de Brasília, controlado pelo governo do Distrito Federal, um dos clientes preferenciais de Daniel Vorcaro, o banqueiro dono do Master, responsável pelo maior escândalo financeiro da história do Brasil, a quem Flávio Bolsonaro chama de “meu irmão”.  </p>
+<p>O mesmo Vorcaro que Flávio aponta como financiador do <i>Cavalo Preto</i>, o <i>“Dark Horse”</i>, o filme que ninguém viu. O mesmo Vorcaro a quem Flávio pediu e recebeu cerca de R$ 60 milhões, metade do que queria para financiar o filme <i>Cavalo Preto</i> do pai Jair. </p>
+<h2><b>Milhões, sempre milhões</b> </h2>
+<p>Julian Lemos, ex-deputado e coordenador da campanha de Jair Bolsonaro no Nordeste em 2018, fez acusações muito superiores. Em julho, em programa divulgado pelo YouTube atribuiu a Flávio R$ 600 milhões de patrimônio sem apresentar provas. Flávio chamou a acusação de “fake news” e “piada”, remetendo o caso à Justiça Eleitoral. </p>
+<p>Em 27 de outubro, depois do segundo turno, Lemos afirmou no programa Senso Crítico, da FGTV e MRTV, também divulgado pelo YouTube, que o patrimônio de Flávio superaria R$ 1 bilhão. Novamente, sem comprovação nas declarações reproduzidas. A negativa de julho não é resposta específica à nova cifra. São acusações de um ex-aliado, não patrimônio demonstrado. </p>
+<h2><b>Os vínculos com Willer Tomaz</b> </h2>
+<p>A relação do fugitivo Bolsonaro com o advogado Willer Tomaz envolve documentos e benefícios identificados. </p>
+<p>A Folha revelou, em 15 de outubro, três trechos de jato contratados pela Cathedral Holdings para Flávio e Tomaz na Europa, em 2025. A defesa afirmou que Tomaz pagou pessoalmente os passeios entre amigos e familiares, sem contrapartida. Há, portanto, uma explicação pública de custeio por terceiro, distinta do voo para Miami. </p>
+<p>Outra investigação examina possível sociedade oculta de Flávio em uma casa de apostas ligada ao advogado Thomaz. UOL e Revista piauí descreveram documentos bancários envolvendo o senador e a Alcazar Holdings. Os envolvidos negam conta compartilhada e sociedade; a holding declarou ao TSE que Thomaz detém todo o capital.  </p>
+<p>Em Angra dos Reis, Flávio visitou a mansão da Ilha Comprida disputada por ele, Tomaz e o jogador de futebol Richarlison, que afirma ter investido cerca de R$ 10 milhões e acusa os dois de manobras para retirar seus direitos. Flávio nega participação na aquisição e irregularidades. Tomaz sustenta ter adquirido legalmente os direitos sobre o imóvel. Richarlison diz que não. </p>
+<p>O Ministério da Gestão confirmou que o imóvel está em área da União, com inscrição de ocupação para a WT Administração de Imóveis e Bens desde julho de 2022, e anunciou apuração com participação da CGU e encaminhamentos à PF e ao Ibama. </p>
+<p>Em 6 de novembro, o SBT News informou ter consultado a decisão judicial que suspendeu temporariamente os registros de quatro imóveis na Ilha Comprida. Tomaz, sócio de Flávio, disse que demonstraria a regularidade da ocupação. A cautelar não encerra a disputa. </p>
+<p>Em 19 de novembro, Malu Gaspar, em sua coluna no Globo, noticiou suspeita de interferência remota na extração de arquivos da nuvem de Tomaz durante busca em agosto. Causa e autoria não foram confirmadas. A defesa apontou questão técnica a esclarecer pela PF.  </p>
+<h2><b>O caminho do dinheiro nos EUA</b> </h2>
+<p>No caso Dark Horse, filme sobre Jair Bolsonaro, financiado com recursos ligados ao escândalo que levou Vorcaro à prisão, a PF aguarda registros financeiros solicitados aos Estados Unidos. </p>
+<p>Parte dos repasses descritos pela imprensa foi encaminhada ao Havengate Development Fund, no Texas, administrado por Paulo Calixto, advogado ligado a Eduardo Bolsonaro. Flávio nega irregularidades e afirma que o dinheiro era privado. Eduardo nega usar recursos do fundo para se manter nos EUA.  </p>
+<p>As conexões devem ser provadas, transferência por transferência. A falta de conclusão não dispensa a investigação. </p>
+<p>Nos Estados Unidos, o democrata Robert Garcia cobrou de Marco Rubio documentos sobre a fuga e o acolhimento de Flávio, autorizações migratórias e eventuais despesas federais. Rubio negou envolvimento direto do governo americano na saída do senador. </p>
+<p>O manifesto de 59 entidades brasileiras e norte-americanas, divulgado em 17 de novembro, cobrou esclarecimentos sobre a atuação dos EUA, cooperação com as investigações e reconhecimento público da vitória de Lula. </p>
+<h2><b>A mala precisa ser aberta</b> </h2>
+<p>Quais despesas são pagas com recursos próprios? Qual a origem desses recurso? Quais recebem ajuda de amigos, empresas ou terceiros? Em que condições? </p>
+<p>Os irmãos Bolsonaro têm direito à defesa. A sociedade tem direito a respostas. Um senador e candidato derrotado a presidente do Brasil não pode tratar perguntas sobre dinheiro como afronta pessoal. </p>
+<p>Nos filmes americanos, a mala de dinheiro dos criminosos que fugiam dos Estados Unidos para o Brasil dispensava explicações. Na vida pública, o roteiro inverso exige prestação de contas. É essa conta que precisa ser explicada. </p>
+<p>É essa mala preta que precisa ser aberta. </p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/opiniao/quem-abastece-a-mala-preta/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

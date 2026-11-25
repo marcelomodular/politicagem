@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congo’s Escalating Ebola Crisis - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Congo’s Escalating Ebola Crisis</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/18/congo-ebola-outbreak-budnibugyo-constitution-conflict-m23/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/Congo-Ebola-GettyImages-2285416505.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Ebola Crisis: Historic Outbreak in Congo Hits Six-Month Mark
+                            </p>
+                            
+<p>Welcome to <em>Foreign Policy</em>’s Africa Brief.</p>
+<p>The highlights this week: Health leaders issue new warnings about the <strong>Ebola outbreak</strong> in the Democratic Republic of the Congo, voters choose continuity in <strong>Cape Verde’s</strong> <strong>presidential election</strong>, and the board of an <strong>African literary prize</strong> exonerates a winner accused of using artificial intelligence.</p>
+<p>
+</p>
+
+<p>Six months into the fastest-growing Ebola outbreak in history, the rare Bundibugyo variant of the virus shows no sign of slowing down in the Democratic Republic of the Congo. It is exacerbated by an underfunded health system and armed conflict in eastern provinces, where global <a href="https://www.theguardian.com/world/2026/jun/05/ebola-mineral-mining-smartphones-congo" rel="noopener noreferrer" target="_blank">mining projects</a> have led to increased disease transmission.</p>
+<p>The outbreak is “still serious, and is still not under control,” <a href="https://www.reuters.com/business/healthcare-pharmaceuticals/africa-cdc-says-ebola-outbreak-still-out-control-six-months-since-it-was-2026-11-15/" rel="noopener noreferrer" target="_blank">said</a> Jean Kaseya, the director-general of the Africa Centres for Disease Control and Prevention, or Africa CDC. The <a href="https://www.reuters.com/business/healthcare-pharmaceuticals/congos-ebola-outbreak-is-spreading-killing-record-pace-2026-11-17/" rel="noopener noreferrer" target="_blank">death toll </a>since the outbreak began in May has passed 5,500 people, with more than 11,000 people infected, according to Congolese government figures released last week.</p>
+<p>Infections are now spreading at <a href="https://www.reuters.com/business/healthcare-pharmaceuticals/congos-ebola-outbreak-is-spreading-killing-record-pace-2026-11-17/" rel="noopener noreferrer" target="_blank">double</a> the rate as when the outbreak began, according to Kaseya. More than 80 percent of new cases are emerging outside of known contact lists, and more than 65 percent of deaths have occurred outside of healthcare facilities, he added.</p>
+<p>Kaseya called the lack of coordination between Congo’s government and foreign donors “a collective failure,” urging donors to release $1.6 billion in pledged aid.</p>
+<p>International donors have disbursed more than $962 million to organizations that are implementing Congo’s Ebola response. But around <a href="https://www.cnbcafrica.com/2026/africa-cdc-says-over-700-million-in-ebola-response-funds-unaccounted-for-in-congo" rel="noopener noreferrer" target="_blank">$700 million</a> of that sum was unaccounted for as of last month, according to Kaseya. The Africa CDC said that it was <a href="https://www.bbc.co.uk/news/articles/cx98757ymm6zo" rel="noopener noreferrer" target="_blank">too early</a> to attribute this discrepancy to embezzlement, but an investigation is underway.</p>
+<p>In 2020, Congo’s former health minister was <a href="https://www.barrons.com/news/former-dr-congo-health-minister-freed-from-prison-54851d99" rel="noopener noreferrer" target="_blank">convicted</a> of embezzling more than $400,000 from funds intended to fight Ebola during the 2018-2020 outbreak.</p>
+<p>Meanwhile, Congolese health workers—who have <a href="https://www.theguardian.com/world/2026/aug/22/ebola-drc-democratic-republic-congo-health-workers-unpaid-wages" rel="noopener noreferrer" target="_blank">not been paid</a> for months—have <a href="https://apnews.com/article/ebola-congo-strike-4e61d1c9ae80c892efa38db95a23dd9e" rel="noopener noreferrer" target="_blank">gone on strike</a>. Médecins Sans Frontières (MSF) <a href="https://www.msf.org/ebola-drc-persistent-gaps-between-resources-and-action-remain-six-months" rel="noopener noreferrer" target="_blank">warned</a> last week that ambulances had run out of fuel, staff were untrained, and that the Congolese government and United Nations agencies needed to “strengthen oversight and accountability.” MSF has called the outbreak “out of control.”</p>
+<p>For Congo, dealing with the Ebola crisis requires tackling systemic issues beyond healthcare, including poverty, conflict, and inefficient governance. But Congolese President Félix Tshisekedi appears to be focused on cementing his grip on power. On Nov. 9, he signed a law that critics say <a href="https://foreignpolicy.com/2026/06/24/congo-controversial-bill-felix-tshisekedi-constitution/" rel="noopener noreferrer" target="_blank">could grant him a third term</a> in office.</p>
+<p>Congo’s 2006 constitution allows a maximum of two presidential terms and explicitly prevents parliament from changing those rules under any circumstance. The new law <a href="https://lepotentiel.cd/2026/11/11/promulgation-de-la-loi-sur-le-referendum-en-rdc-tshisekedi-ouvre-la-voie-a-une-nouvelle-constitution/" rel="noopener noreferrer" target="_blank">lowers the threshold</a> for holding national referendums and <a href="https://www.dw.com/en/drc-referendum-bill-intensifies-constitutional-standoff/a-77499438" rel="noopener noreferrer" target="_blank">permits</a> constitutional overhauls through referendums “in case of absolute necessity.”</p>
+<p>Tshisekedi became president in January 2019; his second term ends in 2028. He has said that he is not seeking a third term but <a href="https://www.reuters.com/world/africa/congo-president-raises-prospect-third-term-vote-delay-angering-opposition-2026-05-07/" rel="noopener noreferrer" target="_blank">would serve one</a> if given a mandate by voters. “I have not asked for a third term, but I tell you this: If the people want me to have a third term, I will accept,” Tshisekedi <a href="https://www.bbc.co.uk/news/articles/c202dkkk70po" rel="noopener noreferrer" target="_blank">said</a> in May.</p>
+<p>On Nov. 1, the Front for the Refoundation of the Nation, a new rebel alliance led by former Congolese President Joseph Kabila, <a href="https://allafrica.com/stories/202611100538.html" rel="noopener noreferrer" target="_blank">sent</a> a letter to U.S. officials and the U.N. peacekeeping mission in Congo warning that any constitutional changes could derail peace negotiations. Kabila’s alliance includes the Rwanda-backed rebel group M23.</p>
+<p>The Trump administration negotiated a <a href="https://foreignpolicy.com/2025/12/10/congo-peace-deal-fighting-rwanda-m23-trump-historic-deal/" rel="noopener noreferrer" target="_blank">peace accord</a> between Congo and Rwanda in December 2025 that seemed to prioritize securing U.S. access to Congo’s critical minerals over tackling domestic government reforms and bolstering a weak state. Expanded mining in Congo’s forests has increased human contact with animals that carry the Ebola virus, <a href="https://www.theguardian.com/world/2026/jun/05/ebola-mineral-mining-smartphones-congo" rel="noopener noreferrer" target="_blank">according</a> to scientists.</p>
+<p>Nearly one year on, amid an Ebola outbreak and on the precipice of further conflict, Congo is paying the price for the institutional neglect enshrined in the deal.</p>
+<p><strong>Wednesday, Nov. 18:</strong> An Egyptian court hears the retrial of Lina Attalah, the editor in chief of <em>Mada Masr</em>, on charges of publishing false news and running an unlicensed website. The U.N. has described the charges against Attalah as an <a href="https://news.un.org/en/story/2026/11/1168778" rel="noopener noreferrer" target="_blank">assault</a> on press freedom.</p>
+<p>The U.N. Security Council hears a briefing from the International Criminal Court on its work in Libya.</p>
+<p><strong>Thursday, Nov. 19, to Saturday, Dec. 19: </strong>Dak’Art, the biennale of contemporary African art, returns to Dakar, Senegal.</p>
+<p><strong>Wednesday, Nov. 25: </strong>The U.N. Security Council is due to renew its sanctions targeting al-Shabaab and other armed groups in Somalia.</p>
+
+<p><strong>Amnesty report on South Sudan. </strong>A new <a href="https://www.amnesty.org/en/latest/news/2026/11/south-sudan-authorities-un-must-investigate-failure-to-protect-victims-of-abiemnom-massacre/" rel="noopener noreferrer" target="_blank">report</a> from Amnesty International accuses South Sudan’s government and U.N. peacekeepers of failing to act on advance warnings of a <a href="https://foreignpolicy.com/2026/03/11/south-africa-response-us-iran-war-economic-fallout/" rel="noopener noreferrer" target="_blank">March massacre that killed</a> more than 200 people. The report came ahead of an <a href="https://apnews.com/article/south-sudan-election-postponement-february-2027-c62033bb79a606ef8ce7e335cfc8478b" rel="noopener noreferrer" target="_blank">announcement</a> that South Sudan would again delay <a href="https://foreignpolicy.com/2026/01/01/top-world-elections-2026-brazil-israel-hungary-bangladesh-colombia-ethiopia/#south-sudan" rel="noopener noreferrer" target="_blank">general elections</a> to February 2027.</p>
+<p>The elections were previously scheduled for Dec. 22. The South Sudanese government did not cite a reason for the move, but authorities have repeatedly pushed back elections since 2022 amid a power struggle between President Salva Kiir and his ousted former deputy, Riek Machar.</p>
+<p>A 2018 power-sharing arrangement between Kiir and Machar  <a href="https://foreignpolicy.com/2025/05/07/south-sudan-conflict-hospital-bombing-civil-war-civilian-casualties/" rel="noopener noreferrer" target="_blank">broke down</a> last year after an attack on a military base in Upper Nile state by an armed group known as the White Army, which killed more than 250 soldiers. Kiir <a href="https://foreignpolicy.com/2025/04/02/south-sudan-fragile-peace-civil-war-vice-president-arrest-clashes/" rel="noopener noreferrer" target="_blank">accused</a> Machar and his party’s military wing of colluding with the White Army, which Machar <a href="https://www.onecitizendaily.com/index.php/2026/10/27/special-court-machar-denies-commanding-white-army/" rel="noopener noreferrer" target="_blank">denied</a>.</p>
+<p>Machar is <a href="https://www.onecitizendaily.com/index.php/2026/11/09/dr-machar-tells-court-we-worked-to-stop-nasirs-bloodshed/" rel="noopener noreferrer" target="_blank">currently on trial</a> for charges including treason.</p>
+<p><strong>Cape Verde elections.</strong> Cape Verdean President José Maria Neves was <a href="https://www.reuters.com/world/cape-verde-president-neves-wins-second-term-provisional-election-results-show-2026-11-16/" rel="noopener noreferrer" target="_blank">reelected</a> on Sunday, capturing more than 63 percent of the vote amid <a href="https://cabo-verde.cv/cape-verde-crisis-record-68-voter-abstention-alarms-nation/" rel="noopener noreferrer" target="_blank">record low </a><a href="https://cabo-verde.cv/cape-verde-crisis-record-68-voter-abstention-alarms-nation/" rel="noopener noreferrer" target="_blank">turnout</a>, according to provisional results. Neves’s main challenger, former Justice Minister Joana Rosa—the country’s first woman presidential candidate—conceded on Monday.</p>
+<p>The lack of opportunities for young people in Cape Verde was a major election topic. Rosa pledged to <a href="https://cabo-verde.cv/joana-rosa-cape-verdes-first-female-presidential-candidate/" rel="noopener noreferrer" target="_blank">address issues</a> facing young people, while Neves promised to organize a summit to address youth emigration. According to <a href="https://cabo-verde.cv/65-of-young-cape-verdeans-plan-to-emigrate-amid-job-crisis/" rel="noopener noreferrer" target="_blank">data</a> released in July by Cape Verde’s statistics body, around <a href="https://cabo-verde.cv/65-of-young-cape-verdeans-plan-to-emigrate-amid-job-crisis/" rel="noopener noreferrer" target="_blank">65 percent</a> of people aged 15 to 35 said they intended to emigrate.</p>
+<p>Neves’s party has dominated Cape Verdean politics since it gained independence from Portugal in 1975.</p>
+<p><strong>Madagascar’s ties to Russia.</strong> U.S. Africa Command’s deputy commander, John Brennan, warned against Madagascar’s strengthening ties with Russia last week, saying that Moscow is importing the “Sahel model” to the island.</p>
+<p>“We are concerned about Russia wanting to proliferate [the Sahel model] elsewhere across the continent,” Brennan <a href="https://www.bbc.co.uk/news/articles/crkgv58pknyeo" rel="noopener noreferrer" target="_blank">said</a> in a media briefing. Since the country’s 2025 coup, Russia has supplied the military-backed government with weapons—amid <a href="https://foreignpolicy.com/2026/05/13/madagascar-gen-z-movement-protests-military-government-elections-democracy/" rel="noopener noreferrer" target="_blank">repeated calls from young Madagascans</a> for a return to democracy.</p>
+<p>Some Africans perceived Brennan’s comments as lecturing from the United States. “America is not talking to Russia as a partner. It is talking to Madagascar as a client,” Fortune Madondo <a href="https://www.modernghana.com/news/1544651/from-traor-to-randrianirina-america-is-repeating.html" rel="noopener noreferrer" target="_blank">wrote</a> in <em>Modern Ghana</em>, suggesting that the United States might condition assistance to needy Madagascar on its allegiance.</p>
+<p>The criticism underscored why it’s important that U.S. officials consider how their comments land in Africa. If not framed carefully, they could play into <a href="https://www.aljazeera.com/opinions/2022/7/30/where-would-africa-be-without-russian-and-western-propaganda" rel="noopener noreferrer" target="_blank">Russia’s narrative</a> that the United States is acting like a colonial power.</p>
+<p><strong>Ghana to boost local manufacturing. </strong>Ghana will invest $10 billion over four years in a domestically funded “new economy” <a href="https://www.mofep.gov.gh/sites/default/files/budget-statements/New-Economy-Document.pdf" rel="noopener noreferrer" target="_blank">program</a> to boost local manufacturing and jobs. Ghanaian Finance Minister Cassiel Ato Forson told parliament in his 2027 <a href="https://www.modernghana.com/news/1544195/2027-budget-government-plans-gh3892bn-spending.html" rel="noopener noreferrer" target="_blank">budget speech</a> last Friday that the funds will increase refining capacity and reduce lower-value raw materials exports.</p>
+<p>Around $1.5 billion of the package will be allocated to financing refining facilities for gold, manganese, bauxite, and lithium. The Ghanaian government said it is relying on tax reforms already approved by parliament, better tax collection, and revenue from oil and minerals exports to finance the program.</p>
+
+<p>The winner of this year’s 2026 Caine Prize for African Writing, Zimbabwean writer Simbarashe Kundizeza, has been <a href="https://www.bbc.co.uk/news/articles/cmglr260z7eko" rel="noopener noreferrer" target="_blank">cleared</a> of using artificial intelligence to write his award-winning short story, “<a href="https://static1.squarespace.com/static/6a4f3fb6a6178e0225b39a4c/t/6a95fffc36f1fc568e02f7fe/1788215293124/3.The+Blue+Fighter.pdf" rel="noopener noreferrer" target="_blank">The Blue Fighter</a>,” after an October article in the <em>Atlantic</em> <a href="https://www.theatlantic.com/books/2026/10/caine-prize-winning-short-story-seems-be-ai/688967/" rel="noopener noreferrer" target="_blank">said</a> that the AI detection software Pangram found the story was entirely AI-generated.</p>
+<p>The <em>Atlantic </em>article sparked<a href="https://brittlepaper.com/2026/10/african-literary-community-pushes-back-on-the-atlantics-ai-claims-about-10000-caine-prize-winner-simbarashe-steyn-kundizeza/" rel="noopener noreferrer" target="_blank"> pushback</a> from Africa’s literary community. Critics said AI detection tools are <a href="https://lithub.com/is-it-or-isnt-it-how-generative-ai-is-poisoning-the-literary-well-for-everyone/" rel="noopener noreferrer" target="_blank">disproportionately</a> <a href="https://www.nytimes.com/2026/10/11/opinion/ai-books-fiction-black-writers-racism.html" rel="noopener noreferrer" target="_blank">weaponized</a> against authors from marginalized backgrounds. Following a monthlong review, the Caine Prize’s board <a href="https://www.caineprize.com/press" rel="noopener noreferrer" target="_blank">said</a> that digital forensic evidence showed the article was human-written and that Kundizeza’s $13,000 award stands.</p>
+
+
+<p><strong>Nigeria’s surveillance state.</strong> An <a href="https://veza.news/article/2026/10/19/part-1-big-brother-nigeria-how-public-money-funded-surveillance-of-government-critics/?mc_cid=f9623a42ae" rel="noopener noreferrer" target="_blank">investigation</a> by <a href="https://veza.news/article/2026/10/19/part-1-big-brother-nigeria-how-public-money-funded-surveillance-of-government-critics/?mc_cid=f9623a42ae" rel="noopener noreferrer" target="_blank">Ajibola Amzat</a> for the Center for Collaborative Investigative Journalism found that Nigeria has spent billions of dollars of public funds on surveillance technology that is supposedly intended to fight insecurity—but is routinely used instead to monitor protesters, journalists, and government critics.</p>
+<p>“Constitutionally guaranteed dissent is being watched and increasingly hunted while the terrorists and bandits freely operating in several corners of Nigeria’s 36 states remain elusive,” <a href="https://veza.news/article/2026/10/19/part-1-big-brother-nigeria-how-public-money-funded-surveillance-of-government-critics/?mc_cid=f9623a42ae" rel="noopener noreferrer" target="_blank">Amzat</a> wrote.</p>
+<p><strong>Europe’s externalized borders.</strong> On Monday, five European countries—Austria, Denmark, Germany, Greece, and the Netherlands—announced <a href="https://www.theguardian.com/world/2026/nov/16/eu-states-immigration-return-hubs-rwanda" rel="noopener noreferrer" target="_blank">plans</a> to send asylum-seekers who have exhausted all legal avenues to Rwanda.</p>
+<p>In 2024, the United Kingdom scrapped a similar deal due to legal challenges over the country’s human rights record. Since 2019, the European Union has also <a href="https://www.unhcr.org/rw/news/press-releases/european-union-increases-support-people-need-international-protection" rel="noopener noreferrer" target="_blank">funded</a> a scheme operated by the U.N. refugee agency that temporarily evacuates refugees from Libya to Rwanda.</p>
+<p>In light of this week’s news, we’re revisiting Sally Hayden’s 2020 <em>Foreign Policy</em> <a href="https://foreignpolicy.com/2020/02/20/europes-harsh-border-policies-are-pushing-refugees-all-the-way-to-rwanda/" rel="noopener noreferrer" target="_blank">dispatch</a> from Rwanda’s refugee centers. “At what point does the EU become responsible for refugees it has forced from its borders through externalization policies?” Hayden wrote at the time.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/18/congo-ebola-outbreak-budnibugyo-constitution-conflict-m23/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

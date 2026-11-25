@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moscouzinho, uma nova era - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Moscouzinho, uma nova era</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://piaui.uol.com.br/web/moscouzinho-conjunto-habitacional-comunistas-direita/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/11/242_guinadasurbanas_85social.jpeg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Moscouzinho, uma nova era
+                            </p>
+                             <p>Destinado à moradia de operários no Rio de Janeiro, o Conjunto Habitacional Iapi de Realengo abrigou no passado um núcleo importante do Partido Comunista Brasileiro e serviu de refúgio a numerosos militantes da esquerda. Por esse motivo, ganhou o apelido de Moscouzinho. “Aqui na região morava um monte de insurgentes, da ALN [<em>Ação Libertadora Nacional</em>], do MR-8 [<em>Movimento Revolucionário 8 de Outubro</em>], tinha a esquerda católica, operária, camponesa, estudantil”, diz o consultor de gestão e capacitação Beto Matos, de 70 anos, que cresceu na vizinha Vila Vintém e se define como “militante de esquerda não organizado”</p> <p>Mas tudo mudou. Hoje, as pessoas que vivem lá sequer sabem do apelido antigo, e Moscouzinho assiste à direita e à extrema direita avançarem entre seus moradores. Foi um processo lento e gradual. No segundo turno das eleições de 2014, Dilma Rousseff venceu Aécio Neves na 123ª Zona Eleitoral, que inclui parte do bairro onde fica o conjunto habitacional. Em 2018, esse mesmo eleitorado preferiu Jair Bolsonaro a Fernando Haddad. Nas eleições de 2022, quando Lula foi eleito presidente, deu-se ali o inimaginável: Bolsonaro bateu com larga vantagem o petista, por 60,76% contra 39,24%. No segundo turno da eleição deste ano, a diferença foi menor: Flávio Bolsonaro teve 55,56% dos votos válidos e Lula, 44,44%. </p> <p>“Agora, se parar qualquer um na rua, todo mundo é de direita”, diz Matos. O professor de geografia Julio Xavier, de 27 anos, fundador da ONG Favela Educa, concorda: “O bairro Realengo como um todo hoje é muito conservador, mas no Iapi tem menos conservadores do que no resto da região.” Ele mora próximo do conjunto habitacional, que costuma frequentar, mas nunca tinha ouvido falar do apelido Moscouzinho. “Soube apenas que aqui havia pessoas escondidas na época da ditadura. Parece que os familiares dos que esconderam esses perseguidos não gostam de falar no assunto.”</p> <p>O conjunto habitacional foi inaugurado em 1942, durante o governo Getúlio Vargas. Tinha 2.321 unidades habitacionais, em uma área entre Realengo e Bangu de 890 mil m² (equivalente a cerca de cinco Maracanãs). Foi o primeiro de 52 conjuntos habitacionais construídos pelo Instituto de Aposentadoria e Pensões dos Industriários (Iapi), órgão federal criado em 1936, durante o governo Vargas. Havia algo de pioneiro no projeto, não apenas no plano social, mas também urbanístico e arquitetônico. O conjunto foi criado sob a influência da escola alemã de arquitetura e design Bauhaus, que nas primeiras décadas do século XX postulou uma nova forma para edificações e objetos de uso diário, visando juntar funcionalidade, simplicidade, padronização e novos materiais, como o concreto, no caso das construções.</p> <p>A história do Moscouzinho é curiosa também por outros fatores, como mostra uma <a href="https://piaui.uol.com.br/revista/242/quando-moscouzinho-era-comunista/" rel="noopener noreferrer" target="_blank">reportagem</a> publicada na edição deste mês da <strong>piauí</strong>. O conjunto habitacional foi construído em uma área com vários aparelhos militares e policiais. É vizinho da Vila Militar, do Campo dos Afonsos – uma das três maiores bases da Aeronáutica do Rio – e do Centro de Formação e Aperfeiçoamento de Praças, dedicado à instrução de policiais militares do estado. “Os comunistas se reuniam numa casa ao lado do quartel, justamente porque achavam que ali seria o último lugar onde os militares os procurariam”, conta, rindo, o advogado Paulo Ramos, de 82 anos, ex-deputado constituinte (pelo então PMDB-RJ). Filho de metalúrgico, criado no Moscouzinho, Ramos já exerceu oito mandatos. Foi candidato este ano a deputado estadual pelo MDB, mas recebeu apenas 3.389 votos, e ficou como suplente.</p> <p>A esquerda que existia no Moscouzinho resistiu o quanto pôde. Com a ditadura militar, as coisas começaram a mudar. “Quando veio a redemocratização, o estrago já estava feito em duas gerações”, diz Matos. Com o passar do tempo, começou a cooptação de lideranças comunitárias por políticos de direita e a catequização evangélica no Moscouzinho. “O que tem de igreja evangélica aqui é muita coisa”, afirma o ex-jogador Alberto Fonseca, de 60 anos. Calcula-se que existam cerca de quarenta igrejas evangélicas na região do conjunto habitacional.</p> <p>No passado, Moscouzinho fervilhava politicamente – para os lados da esquerda. Durante o Estado Novo, pelo menos 42 moradores foram fichados pelo Departamento de Ordem Política e Social (Dops). A socióloga Wilma Mangabeira ainda pôde ver parte dessa geração de perto, entre 1981 e 1985. “Eu tinha 25 anos, pegava a Avenida Brasil no meu Fusquinha e passava o dia todo no conjunto habitacional. Além de fazer meu trabalho acadêmico sobre o local, era supermilitante – fui uma das fundadoras do PT. E lá no Moscouzinho eram todos stalinistas.” Ela conta que era recebida com café, bolo e carinho pelos moradores.</p> <p>Alguns militantes comunistas que viveram lá ficaram na memória, como Deodoro – codinome de um gráfico e fotógrafo cuja identidade sua família pediu que não fosse revelada –, João Lopes de Souza (1896-1988), que chegou a ser expulso do Sindicato dos Metalúrgicos do Rio de Janeiro por “subversão”, e o alfaiate José Caiaffa Soares (1911-75), que fingia vender pão de porta em porta para trocar informações e articular atividades clandestinas.</p> <p>Assim como a história política do Moscouzinho está sendo esquecida, a arquitetura do conjunto habitacional vai se deteriorando, como mostra a reportagem da <strong>piauí</strong>. Hoje, é preciso esforço para reconhecer o design vanguardista do projeto, inaugurado em 1942. As casas foram muradas, ganharam puxadinhos e novos andares. As fachadas não seguem mais nenhum padrão estético. Encontrar uma unidade que ainda conserve traços originais tornou-se uma gincana. Muitas ruas foram fechadas com portões e guaritas, como medida de segurança tomada pelos próprios moradores. As áreas comunitárias – o comércio e as praças com quadras de esportes – estão malcuidadas e subaproveitadas. Um terreno amplo, próximo à linha do trem, que funcionava como área de manutenção e apoio para os funcionários do Iapi, foi ocupado ao longo dos anos. “Foram ocupando essa área, e virou tudo comunidade. O pessoal chamava de Portelinha, por causa da novela <em>Duas caras</em>, e hoje chamam de favelinha do campo do Iapi”, diz o policial civil aposentado José Licastro, de 66 anos, que nasceu e cresceu no conjunto habitacional. Portelinha era o nome da comunidade fictícia da novela.</p> <p>Filha de imigrantes europeus que chegaram no Brasil fugidos da Segunda Guerra Mundial, a escriturária aposentada Marlene Brancucci nasceu no conjunto em 1952 e também se queixa das mudanças. “Quando eu era criança, as laterais das casas eram cercas de fícus plantados pelos funcionários do Iapi. Eles mesmos cuidavam das folhagens, deixando todas as casas iguais.” Seus pais integraram a primeira leva de moradores, e, segundo ela, não se envolviam com questões políticas: “Eles não faziam parte de nada, graças a Deus.” </p> <p></p>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/web/moscouzinho-conjunto-habitacional-comunistas-direita/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

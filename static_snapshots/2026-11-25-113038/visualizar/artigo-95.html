@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGU usa tecnologia da Palantir em “projeto-piloto” enquanto Abin vê “risco” à soberania - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">AGU usa tecnologia da Palantir em “projeto-piloto” enquanto Abin vê “risco” à soberania</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Agencia Publica</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://apublica.org/2026/11/agu-usa-tecnologia-da-palantir-em-projeto-piloto-enquanto-abin-ve-risco-a-soberania/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/THUMB_REPORTAGEM-AGU-usa-tecnologia-da-Palantir-em-projeto-piloto-enquanto-Abin-ve-risco-a-soberania.jpg?fit=1200%2C630&ssl=1" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: AGU usa tecnologia apesar de alerta da Abin sobre riscos
+                            </p>
+                            
+<p>Desde a gestão Jair Bolsonaro (PL), uma empresa fundada pelo bilionário Peter Thiel com apoio da CIA tem aprofundado seu lobby junto ao governo federal. Nos últimos cinco anos, representantes da <a href="https://www.palantir.com/" rel="noopener noreferrer" target="_blank">Palantir Technologies</a> tiveram ao menos 73 reuniões com pastas estratégicas que lidam com ações judiciais do governo, petróleo, terras raras e que mantêm vastos bancos de dados sensíveis e sigilosos sobre a população e a economia do Brasil. Até aqui, o esforço rendeu frutos. Durante a gestão Lula (PT), a Advocacia-Geral da União (AGU) passou a utilizar tecnologias da Palantir em um “projeto-piloto”. É o que revela uma apuração inédita da <strong>Agência Pública</strong>.</p>
+<p>Para o pesquisador em Direito da Informação e Comunicação da Universidade de Hamburgo André Ramiro, o grande número de reuniões com o governo já é um sinal de alerta. Para ele, a big tech atua como um emissário do governo dos EUA ao redor do mundo com o que ele define como uma “agenda tecno-autoritária”. </p>
+<p>“Uma reunião de tratativa ou apenas uma sugestão de um contrato futuro já é um ativo para a Palantir, porque é um mapeamento de uma demanda do poder público brasileiro”, disse Ramiro à <strong>Pública</strong>.</p>
+<p>“Esse mapeamento já é uma estratégia de lobby, que pode fazer parte da estratégia de negócios da empresa… ainda que, no fim das contas, não haja um ‘aperto de mãos’ ou um contrato assinado, a Palantir consegue criar um mapeamento de demandas que pode ser compartilhado com o governo dos Estados Unidos, ameaçando nossa soberania digital”, afirmou ainda o pesquisador.</p>
+<p>O software Foundry, da Palantir, foi usado pelo Ministério da Educação (MEC) e também pela AGU. No MEC, o programa foi usado para gerir o transporte escolar em nível nacional, mas o uso foi descontinuado em agosto de 2026 depois de muito questionamento, inclusive pela base do governo Lula (PT). A <strong>Pública</strong> identificou que a AGU também usa o Foundry, além da Inteligência Artificial da Palantir (AIP), por meio de um contrato de dois anos no valor de R$ 3,7 milhões.</p>
+<p>A AGU confirmou à reportagem o uso de programas da Palantir em “projetos-piloto e provas de conceito nas áreas de ontologia e gestão do conhecimento” <a href="https://www-palantir-com.translate.goog/partnerships/aws/?_x_tr_sl=en&amp;_x_tr_tl=pt&amp;_x_tr_hl=pt&amp;_x_tr_pto=tc&amp;_x_tr_hist=true" rel="noopener noreferrer" target="_blank">por meio do serviço de nuvem AWS, da Amazon</a>.</p>
+<p>Questionada pela <strong>Pública</strong>, a pasta afirmou que o contrato vence em dezembro e que não será renovado. “A Palantir e a AWS não participaram do desenvolvimento dos modelos, artefatos e protótipos produzidos pela AGU a partir do uso da plataforma”, disse ainda a AGU. </p>
+<p>A reportagem apurou que o governo usou programas da Palantir apesar da Agência Brasileira de Inteligência (Abin) ter pregado cautela quanto ao acesso de <em>softwares</em> da companhia a dados brasileiros.</p>
+<p>Em julho de 2022, na reta final do governo Bolsonaro, a Abin iniciou tratativas com a Palantir para adquirir programas da empresa usados na área de inteligência e espionagem, mas em maio de 2023, já no governo Lula, a Abin desistiu da compra por enxergar estes mesmos <em>softwares</em> como um “risco” à “soberania digital” brasileira. </p>
+<p>Procurado, o órgão confirmou ter tido “reuniões técnicas” com a Palantir, mas não forneceu detalhes, como datas dos encontros, lista de participantes ou relatórios e atas do que foi discutido com a big tech.  </p>
+<p>Consultados pela <strong>Pública</strong>, dados do governo organizados <a href="https://agendas.fiquemsabendo.com.br/global-search?term=%22palantir%22" rel="noopener noreferrer" target="_blank">pela agência Fiquem Sabendo</a> mostram que ao menos 49 servidores dos governos Lula e Bolsonaro se reuniram com representantes da Palantir desde 2021. As agendas mostram que a maior parte dos encontros de representantes da Palantir aconteceram após a posse do presidente Lula (PT), em janeiro de 2023.</p>
+<blockquote>
+<p><strong>Representantes da Palantir que se reuniram com o governo</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>Servidores do governo que se reuniram com a Palantir</strong></p>
+</blockquote>
+<p>Ao todo, ocorreram 15 reuniões ao longo do governo Bolsonaro, concentradas no Ministério da Saúde, por meio do Departamento Nacional de Auditoria do Sistema Único de Saúde (DENASUS). Na atual gestão, houve outros 38 encontros de servidores do governo com representantes da Palantir, concentrados no MEC e na AGU. As 18 reuniões restantes envolveram servidores de agências reguladoras – autarquias ligadas (mas não subordinadas) ao governo.</p>
+<p>Entre os órgãos com quem a empresa <em></em>se encontrou durante o governo de Jair Bolsonaro (PL) estão a Abin, o Ministério da Saúde e a Polícia Rodoviária Federal. Durante o governo Lula, executivos da big tech se reuniram nos ministérios da Defesa, da Fazenda, da Educação, de Minas e Energia, do Desenvolvimento, Indústria, Comércio e Serviços, além da Advocacia-Geral da União.</p>
+<p>A partir de 2023, representantes da Palantir também estiveram reunidos com servidores de agências reguladoras que lidam com dados estratégicos do Brasil. Na lista, constam encontros com servidores da Agência Nacional de Águas (ANA), de Mineração (ANM) e do Petróleo, Gás Natural e Biocombustíveis (ANP).</p>
+<p>Em 25 de janeiro de 2023, por exemplo, dirigentes da ANP reuniram-se com um representante da Palantir no escritório central da agência no Rio de Janeiro (RJ) para discutir uma eventual “solução Palantir”. Pouco depois, em 6 de março, houve <a href="https://www.gov.br/anp/pt-br/acesso-a-informacao/institucional/agenda-dirigentes/assessor-39/2023-03-06" rel="noopener noreferrer" target="_blank">mais uma reunião de “apresentação”</a> da companhia dos EUA com um assessor da ANP.</p>
+<p>Meses depois, o superintendente de Dados Técnicos da ANP Marcelo Castilho, um dos participantes do 1º encontro, relatou num ofício interno obtido pela <strong>Pública</strong> que a Palantir foi uma das procuradas pela ANP para apresentar “soluções e tecnologias” para a “gestão dos dados geofísicos e de poço oriundos das atividades de E&amp;P [Extração e Produção] de petróleo e gás natural”, suspenso à época por problemas “de segurança cibernética, após tentativa de ataque <em>hacker</em> à ANP”. </p>
+<p>A agência nega que tenha contratos com a Palantir e afirmou que “não realizou contratação ou aquisição de suas soluções tecnológicas, direta ou indiretamente”. Segundo a ANP, as reuniões tiveram caráter “exclusivamente institucional e informativo, destinada à apresentação da empresa e de suas soluções tecnológicas, sem caráter deliberativo, negociação comercial ou tomada de decisão administrativa”.</p>
+<p>A Palantir foi criada no início dos anos 2010 com <a href="https://web.archive.org/web/20250207185332/https://www.ft.com/content/926af768-1a4c-11e5-a130-2e7db721f996" rel="noopener noreferrer" target="_blank">verbas</a> do fundo de investimentos em <em>startups</em> da CIA, chamado de <a href="https://www.iqt.org/" rel="noopener noreferrer" target="_blank">In-Q-Tel</a>. Lançado em 1999, o fundo investiu em mais de 800 empresas com o intuito de financiar um salto de desenvolvimento em tecnologias de defesa e espionagem que depois serviriam ao complexo militar norte-americano.</p>
+<p>Fundador da Palantir, o bilionário norte-americano Peter Thiel é <a href="https://www.nexojornal.com.br/expresso/2022/02/14/peter-thiel-o-bilionario-do-vale-do-silicio-criador-de-reis-da-direita" rel="noopener noreferrer" target="_blank">um dos nomes mais influentes na extrema direita dos EUA</a>, com ascendência sobre o governo de Donald Trump e políticos importantes, como o atual vice-presidente JD Vance, tendo injetado milhões de dólares em candidaturas alinhadas a ele ideologicamente. Em 2009, no artigo “<a href="https://www.cato-unbound.org/2009/04/13/peter-thiel/education-libertarian/" rel="noopener noreferrer" target="_blank">The Education of a Libertarian</a>” (A Educação Libertária), ele escreveu: “eu não acredito mais que liberdade e democracia sejam compatíveis”, argumentando que o sufrágio universal dificulta a manutenção de políticas libertárias.</p>
+<p>Para o diretor-executivo da ONG Data Privacy, Rafael Zanatta, a aproximação do governo brasileiro com a Palantir – e, por consequência, com seus donos e acionistas – implica riscos à soberania brasileira e a informações sensíveis em poder do estado.</p>
+<p>“Peter Thiel atua para ampliar a influência dos EUA na América do Sul, sonhando com uma espécie de ‘protetorado’ norte-americano na região – e ele imprime essa ideologia na empresa, porque a Palantir defende que o mundo se encaminha para um cenário de guerra total”, disse Zanatta. “Quem capitula e se integra acaba sendo protegido pelo complexo militar e ideológico norte-americano”, completa, afirmando que o fundador da Palantir “não acredita no multilateralismo, pois enxerga a sociedade como um espaço de competição sem fim”.</p>
+<p>A <strong>Pública</strong> procurou representantes da Palantir do Brasil, para ouvi-los sobre a relação da empresa com o governo federal e eventuais parcerias a nível estadual e municipal na atualidade, mas não houve resposta. Caso se manifestem, o texto será atualizado. </p>
+<h2><strong>AGU: escolha “puramente técnica” com política de dados “rigorosa” </strong></h2>
+<p>A reportagem da <strong>Pública</strong> localizou <a href="https://www.gov.br/agu/pt-br/acesso-a-informacao/agenda-de-autoridades/diretora-do-departamento-de-assuntos-do-pessoal-civil-e-militar-da-procuradoria-geral-da-uniao-ana-karenina-silva-ramalho-duarte/@@busca-agenda?portal_type:list=AgendaDiaria&amp;b_start:int=0&amp;SearchableText=%22palantir%22" rel="noopener noreferrer" target="_blank">registros de ao menos 22 reuniões</a> de membros da AGU com representantes da Palantir entre fevereiro de 2024 e agosto de 2026, via Lei de Acesso à Informação (LAI). Porém, a AGU disse que ocorreram apenas 18 reuniões neste período. </p>
+<p>Desde 2025, a pasta usa o <em>software</em> Foundry e a inteligência artificial AIP por meio do serviço de nuvem <a href="https://aws.amazon.com/marketplace/seller-profile?id=602cea7f-c602-4ec1-93ab-a8f4e9cb9f03" rel="noopener noreferrer" target="_blank">AWS</a>, da Amazon, no âmbito do contrato nº 28/2023 com a operadora Claro S/A. Segundo a AGU, a tecnologia é aplicada em um “projeto-piloto” para a produção de “minutas”, que são modelos de peças judiciais que podem ser usadas pelos advogados da União, como petições, contestações, recursos e propostas de acordo judicial.</p>
+<p>“A AGU não mantém relação contratual direta nem realiza pagamentos à AWS ou à Palantir; as relações financeiras e operacionais da instituição são mantidas exclusivamente com a Claro”, afirmou a pasta.</p>
+<p>Em entrevista à <strong>Pública</strong>, o secretário de Governança e Gestão Estratégica da AGU, Caio Castelliano, disse que os <em>softwares</em> da Palantir acessam somente dados públicos de processos e que a escolha pela empresa foi “puramente técnica”. “Eles [Palantir] são muito bons em organizar o conhecimento, e criar a ontologia [da AGU] a partir da ferramenta é muito mais fácil, segundo a nossa equipe técnica”, disse.</p>
+<img alt="Secretário de Governança e Gestão Estratégica da AGU, Caio Castelliano" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/1-AGU-usa-tecnologia-da-Palantir-em-projeto-piloto-enquanto-Abin-ve-risco-a-soberania-1.jpg?resize=640%2C427&amp;ssl=1"/>Secretário de Governança e Gestão Estratégica da AGU, Caio Castelliano
+<p>“Nossa ideia é tentar economizar ao máximo o tempo do advogado: já sabemos qual modelo [de texto] que ele usa, qual o tipo de dado que precisa para preencher uma minuta, então como geramos isso o mais bem acabado possível? É aí que a Palantir nos ajuda a economizar tempo, gerando as minutas o mais próximo possível da versão final”, disse o secretário da AGU.</p>
+<p>De acordo com ele, a aplicação de tecnologias da Palantir partiu de uma constatação interna – a necessidade de uma espécie de “paridade de armas” com escritórios privados.</p>
+<p>“Os escritórios estão usando muito intensamente a IA e nós também precisamos usar, mas infelizmente não existem IAs de referência nacionais. O que nós estamos fazendo é um processo de máxima diversificação: a gente quer ter IAs pagas, gratuitas, americanas, chinesas… essa é a nossa estratégia”, disse o secretário. Ele alegou que existem treinamentos internos de segurança com os servidores para prevenir incidentes e a disponibilização de dados sensíveis em ambientes fora do controle da AGU – e do próprio governo.</p>
+<p>Segundo o secretário, a política interna da AGU sobre dados sensíveis seria “mais rigorosa” do que em <a href="https://sinttec.org.br/contrato-brasil-amazon-armazenamento-dados-gera-preocupacao/" rel="noopener noreferrer" target="_blank">outros órgãos do governo</a> e o uso da tecnologia da Palantir foi “exclusivamente experimental”, não operacional. Castelliano afirmou que os <em>softwares</em> da big tech passam por uma “dupla camada de segurança” e não têm conexão com o principal sistema usado pela pasta – “um sistema inteiramente desenvolvido pela AGU, hospedado em nosso data center e que usa nossos equipamentos e <em>softwares</em>”, segundo ele. </p>
+<p>“Nós só podemos mandar para a nuvem o que for dado público. O que não for, não vai para nenhuma nuvem, nem em território nacional – o próprio sistema barra e não permite isso ao usuário”, disse Castelliano.</p>
+<p>Por meio de nota, a AGU afirmou que “os projetos [com tecnologia da Palantir] serviram para validar métodos de estruturação da gestão do conhecimento baseados em ontologias, mediante a organização de conceitos, entidades e relações relevantes”. Segundo a pasta, o contrato se encerra em dezembro e não será renovado. (<a href="https://apublica.org/wp-content/uploads/2026/11/AGU_outro-lado2_05nov2026_AGU-usa-tecnologia-da-Palantir-em-projeto-piloto-enquanto-Abin-ve-risco-a-soberania.pdf" rel="noopener noreferrer" target="_blank">Leia a resposta na íntegra</a>) </p>
+<p>Para o diretor-executivo da Data Privacy, porém, qualquer metodologia que se baseie na tecnologia da Palantir traz riscos ao Brasil.</p>
+<p>“A plataforma Foundry não é banco de dados nem uma mera ferramenta, mas algo que conecta bases de dados e as organiza seguindo o modelo da Palantir, oferecendo ações automatizadas, permissões, trilhas de auditoria e rastreabilidade, além de presença de agentes de IA operando regularmente. Há potencial ganho de eficiência, mas com um modelo de dependência embutido na ontologia dos atores estatais – porque as ‘soluções’ são propriedades da Palantir”, disse Rafael Zanatta. Segundo ele, a estratégia da empresa é tornar os governos dependentes das soluções da Palantir.</p>
+<p>André Ramiro concorda sobre os riscos deste lobby: “pensando na aproximação com o MEC e com sistemas judiciais por meio da AGU, me preocupa muito essa estratégia da Palantir seguir ‘comendo pelas beiradas’, contando inclusive com o relato de servidores do governo que vão atestar ‘ganhos na eficiência’ com o uso dos programas dela”.</p>
+<p>Agendas da AGU também registram encontros com representantes da <em>big tech</em> para discutir a criação de um “<a href="https://www.gov.br/agu/pt-br/acesso-a-informacao/agenda-de-autoridades/agenda-diretor-de-inteligencia-juridica-e-inovacao/2024-10-25" rel="noopener noreferrer" target="_blank">sistema de análise de riscos fiscais judiciais</a>”, com uma “proposta” da Palantir para a área de “precatórios” – que lida com um nicho bilionário de dívidas do governo negociadas diariamente em bolsas de valores.</p>
+<p>Além disso, em uma resposta enviada via LAI a própria AGU citou à <strong>Pública</strong> “casos de uso” da tecnologia na “investigação de fraudes”, sem dar mais detalhes.</p>
+<p>Em nota, a AGU disse que a “identificação de fraudes foi prevista no contrato [com a Claro S/A] como uma das frentes possíveis, mas não foi operacionalizada, já que todos os créditos do contrato foram direcionados unicamente para a gestão do conhecimento”.</p>
+<p>A pasta informou ainda que o uso das ferramentas da Palantir custará, ao todo, R$ 3,7 milhões até o fim de dezembro – um valor pago à Claro, que atua como intermediária técnica. Segundo a pasta, o <em>software</em> Foundry não foi instalado em computadores da AGU, sendo acessado apenas <a href="https://aws.amazon.com/pt/what-is/saas/" rel="noopener noreferrer" target="_blank">via método SaaS</a>, que é baseado em servidores na nuvem.</p>
+<h2><strong>Abin vê “alto risco de dependência tecnológica” em “soberania digital”</strong></h2>
+<p>Logo no início do governo Lula a Abin avaliou o uso da tecnologia da Palantir como um “risco” à “soberania digital” do país. </p>
+<p>A Abin iniciou negociações para comprar “soluções de gestão de conteúdo digital” e “produção de inteligência” da Palantir em junho de 2022, durante o governo Bolsonaro. À época, o órgão estava sob o comando do ex-capitão do Exército e oficial de inteligência Victor Carneiro, que foi indiciado pela PF no <a href="https://apublica.org/2025/06/abin-paralela-como-tudo-se-conecta-espionagem-firstmile-bolsonaros-e-ramagem/" rel="noopener noreferrer" target="_blank">caso da Abin Paralela</a>. Carneiro também foi peça central na espionagem ilegal de favelas na cidade do Rio de Janeiro (RJ) no mesmo período, como revelado <a href="https://apublica.org/2024/07/sem-justificativas-abin-vigiou-ilegalmente-favelas-do-rj-no-governo-bolsonaro/" rel="noopener noreferrer" target="_blank">pela <strong>Pública</strong></a>.</p>
+<p>Mas logo no início do atual governo, o órgão central da política de inteligência do país desistiu do negócio. Segundo a Abin, a compra era “inviável” pelo “alto risco de dependência tecnológica”, “inclusive no que diz respeito a critérios de soberania digital”. </p>
+<p>A declaração consta em uma resposta do órgão para a <strong>Agência Pública</strong> via Lei de Acesso à Informação. Em seu posicionamento, a Abin aponta que, “conforme informado pela Agência [Abin], a referida prospecção concluiu que eventual contratação dos serviços da Palantir seria inviável, porque, além de não atender adequadamente às necessidades do órgão, representaria alto risco de dependência tecnológica, inclusive no que diz respeito a critérios de soberania digital. Por tais razões, a Abin não realizou qualquer tipo de contratação com a empresa”.</p>
+<h2><strong>Lobby da Palantir começou no governo Bolsonaro e aumentou na gestão Lula </strong></h2>
+<p>A linha do tempo de contatos e encontros da Palantir com o governo federal começa na época da pandemia de Covid-19, em 2021. Foi quando <a href="https://www.gov.br/saude/pt-br/acesso-a-informacao/agenda-de-autoridades/audisus/auditor-geral/2022-04-11" rel="noopener noreferrer" target="_blank">o Ministério da Saúde</a> do ex-ministro Marcelo Queiroga (PL) testou <em>softwares</em> da companhia por meio da área de incorporação de novas tecnologias pelo Sistema Único de Saúde (SUS), segundo apurado pela <strong>Pública</strong> em fontes oficiais do governo. Entretanto, o ministério negou à reportagem ter realizado qualquer contratação de <em>softwares</em> da Palantir.</p>
+<p>A Palantir não esconde seu interesse em reunir e tratar dados de sistemas de saúde – o que fica latente a partir de <a href="https://www.palantir.com/uk/healthcare/" rel="noopener noreferrer" target="_blank">sua parceria com o Serviço Nacional de Saúde (NHS) do Reino Unido</a>. Em 2023, o governo britânico anunciou uma parceria por meio de um contrato de 330 milhões de libras (R$ 2,4 bilhões) para o desenvolvimento de <em>softwares</em> personalizados, alimentados por dados de pacientes do NHS, como reportado <a href="https://www.reuters.com/world/uk/uks-nhs-hands-us-based-palantir-contract-patient-data-software-2023-11-21/" rel="noopener noreferrer" target="_blank">pela agência Reuters</a>.</p>
+<p>A parceria tem rendido críticas no Reino Unido, com instituições de saúde e pacientes <a href="https://www.theguardian.com/technology/2026/oct/17/palantir-patient-data-tech-rejected-by-many-nhs-trusts-in-england" rel="noopener noreferrer" target="_blank">questionando a eficácia do serviço</a> e a necessidade de abertura e compartilhamento de dados com a controversa empresa. No último dia 16 de novembro, o jornal <a href="https://www.theguardian.com/society/2026/nov/16/ministers-to-end-palantir-contract-nhs-england-2029" rel="noopener noreferrer" target="_blank">The Guardian reportou</a> que o governo britânico estenderá o contrato com a Palantir por mais dois anos, até 2029, e dali em diante não renovará a parceria pelo risco crescente de dependência da tecnologia da big tech. </p>
+<p>De volta ao Brasil, em 2022 representantes da Palantir também se encontraram com dirigentes do Serviço Federal de Processamento de Dados (Serpro) brasileiro. Em 12 de maio daquele ano, a Diretoria de Negócios, Governos e Mercados do Serpro recebeu emissários da big tech para uma reunião cuja pauta era “apresentação da Palantir e negócios em andamento com o governo brasileiro”.</p>
+<p>Já no governo Lula, a Palantir se reuniu com o setor do Ministério da Defesa que monitora a Amazônia com imagens de satélite e radares (Censipam). O encontro ocorreu em abril de 2025, um mês após a conselheira sênior da Palantir no Brasil, Consuelo Remmert, participar de um evento da Escola Superior de Defesa (ESD), também ligada à pasta do ministro José Múcio.</p>
+<p>Segundo o Ministério da Defesa, em 24 de abril de 2025 Remmert e outros representantes da Palantir <em></em>se reuniram com o então diretor-geral adjunto do Censipam, Harley de Moraes, o diretor Operacional, Daniel Pereira, o coordenador-geral de Inteligência, Raimundo Camargos Filho, e a chefe de gabinete do órgão, Laura Perdigão, para uma “apresentação da área de atuação da empresa”.</p>
+<p>Procurado pela <strong>Pública</strong>, o Ministério da Defesa disse que “não foram celebrados acordos de cooperação, parcerias ou instrumentos congêneres com o referido grupo”.</p>
+<p>Ainda em 2025, a Secretaria Nacional de Políticas Penais (Senappen), subordinada ao Ministério da Justiça e Segurança Pública na gestão do ex-ministro Ricardo Lewandovski, solicitou oficialmente a compra do principal <em>software</em> de inteligência da Palantir, chamado de <a href="https://www.palantir.com/platforms/gotham/" rel="noopener noreferrer" target="_blank">Gotham</a> em referência ao universo do personagem Batman, da DC Comics.</p>
+<p>Segundo <a href="https://www.palantir.com/platforms/gotham/" rel="noopener noreferrer" target="_blank">a própria empresa</a>, o <em>software</em> “permite que os usuários identifiquem padrões ocultos em conjuntos de dados que vão desde fontes de inteligência de sinais até relatos de informantes confidenciais”. </p>
+<p>A diretoria de inteligência da Senappen planejava usar o programa na “análise em tempo real” de “milhões de registros” do sistema penitenciário brasileiro. Procurada pela <strong>Pública</strong>, a pasta disse apenas que a compra não foi realizada, sem fornecer mais detalhes.</p>
+<p>A reportagem também identificou que a Palantir concorreu em editais para o setor de tecnologia no Supremo Tribunal Federal (STF). Em 2023, <a href="https://portal.stf.jus.br/noticias/verNoticiaDetalhe.asp?idConteudo=519091&amp;ori=" rel="noopener noreferrer" target="_blank">a <em>big tech</em> conseguiu se credenciar</a> para fornecer soluções de tratamento de dados, mas não foi escolhida para compilar extensas bases de processos judiciais em andamento e arquivados no Supremo.</p>
+<blockquote>
+<h2><strong>Proximidade com Exércitos dos EUA e Israel  </strong></h2>
+<p>No início de 2024, quando já fortalecia seu lobby junto ao governo brasileiro, a Palantir fechou uma parceria com o ministério da Defesa de Israel para desenvolver soluções tecnológicas para contribuir com os “<a href="https://www.palantir.com/assets/xrfr7uokpv1b/3MuEeA8MLbLDAyxixTsiIe/9e4a11a7fb058554a8a1e3cd83e31c09/C134184_finaleprint.pdf" rel="noopener noreferrer" target="_blank">esforços de guerra</a>” do governo de Benjamin Netanyahu, inclusive na ofensiva contra Gaza. Na ocasião, o próprio Peter Thiel viajou até Israel e tirou fotos ao lado de membros do Exército israelense e do CEO da Palantir, <a href="https://operamundi.uol.com.br/opiniao/alex-karp-de-aluno-em-frankfurt-a-ceo-da-palantir/" rel="noopener noreferrer" target="_blank">o também polêmico Alex Karp</a>. </p>
+<img alt="Alex Karp e Peter Thiel durante encontro com o governo de Israel" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/2-AGU-usa-tecnologia-da-Palantir-em-projeto-piloto-enquanto-Abin-ve-risco-a-soberania.jpg?resize=640%2C425&amp;ssl=1"/>Alex Karp e Peter Thiel durante encontro com o governo de Israel
+<p>Em junho de 2025, a empresa estreitou sua relação com o governo Trump ao liberar seu Chief Technology Officer (CFO), Shyam Sankar, para servir como conselheiro da reserva do Exército. <a href="https://x.com/SecArmy/status/1933693585183965372" rel="noopener noreferrer" target="_blank">Segundo a gestão Trump</a>, “nesta função, eles trabalharão em projetos direcionados para ajudar a orientar soluções tecnológicas rápidas e escaláveis para problemas complexos”. Com o novo emprego, Sankar recebeu o título de Tenente-Coronel da Reserva do Exército dos Estados Unidos. </p>
+<img alt="Destacamento 201, é uma unidade da Reserva do Exército dos Estados Unidos criada em junho de 2025 para integrar executivos de tecnologia como oficiais comissionados ao posto de tenente-coronel em regime de tempo parcial" src="https://i0.wp.com/apublica.org/wp-content/uploads/2026/11/3-AGU-usa-tecnologia-da-Palantir-em-projeto-piloto-enquanto-Abin-ve-risco-a-soberania.jpeg?resize=640%2C428&amp;ssl=1"/>Destacamento 201, uma unidade da Reserva do Exército dos EUA, criada em junho de 2025 para incorporar executivos de tecnologia como tenentes-coronéis em regime de tempo parcial
+<p>Há ainda suspeitas que o <em>software</em> <a href="https://www.palantir.com/platforms/gotham/europa" rel="noopener noreferrer" target="_blank">Gotham</a> tenha sido utilizado por Israel e Estados Unidos em recentes conflitos no Oriente Médio, como por exemplo na seleção da lista de centenas de alvos que tiveram seus <a href="https://en.al-akhbar.com/news/palantir-s-role-in-the-pager-attacks" rel="noopener noreferrer" target="_blank"><em>pagers</em></a> explodidos no Líbano, em setembro de 2024, sob acusação de ser membros do Hezbollah no Líbano. </p>
+</blockquote>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://apublica.org/2026/11/agu-usa-tecnologia-da-palantir-em-projeto-piloto-enquanto-abin-ve-risco-a-soberania/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

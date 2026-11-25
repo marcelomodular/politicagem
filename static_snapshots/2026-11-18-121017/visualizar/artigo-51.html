@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A perfect storm is descending on the AI industry - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A perfect storm is descending on the AI industry</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/politics/511132/anthropic-ipo-ai-bubble-nvidia" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/05/gettyimages-2271402911.jpg?quality=90&strip=all&crop=0%2C10.437161852194%2C100%2C79.125676295611&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Anthropic IPO: Is the AI bubble finally popping?
+                            </p>
+                            <p>The stock market is set to christen a new <a href="https://finance.yahoo.com/technology/ai/articles/anthropic-ipo-valuation-soars-past-175102212.html" rel="noopener noreferrer" target="_blank">trillion-dollar company</a> on Wednesday, as the AI juggernaut Anthropic goes public.</p><p></p><ul><li>Fears of an AI market crash are growing, with tech stocks sliding sharply since June.</li><li>The AI industry is spending far more on infrastructure than it earns, and cheaper “good enough” models threaten the profits of frontier labs like OpenAI and Anthropic.</li><li>Three recent shocks have made things worse.</li><li>The boom may survive, but AI companies can no longer count on governments deferring to them or markets cheering them on.</li></ul><p>The IPO should have been the crowning triumph of the AI boom — a testament to the technology’s mind-bending commercial value, which enabled <a href="https://en.wikipedia.org/wiki/Anthropic" rel="noopener noreferrer" target="_blank">a seven-person startup</a> to become a world-conquering juggernaut in five short years.</p><p>But all is not well with Silicon Valley. Even as investors scramble to claim a piece of our future God-emperor, Claude Opus 5,000 (<a href="https://en.wikipedia.org/wiki/Roko%27s_basilisk" rel="noopener noreferrer" target="_blank">hallowed be his name!</a>), fears of an AI market crash are building.</p><p>Since June, tech stocks have taken a beating, with <a href="https://finance.yahoo.com/quote/CHAT/" rel="noopener noreferrer" target="_blank">one generative AI ETF</a> shedding 35 percent of its value. Over the same period, the Philadelphia semiconductor index — a rough gauge of the chip industry’s value — <a href="https://finance.yahoo.com/quote/%5ESOX/" rel="noopener noreferrer" target="_blank">fell by more</a> than one-third.</p><p>The sell-off gained steam in recent weeks, as Republicans lost key elections to <a href="https://hbr.org/2026/11/ai-lost-big-in-the-midterms-what-does-that-mean-for-your-business" rel="noopener noreferrer" target="_blank">AI-skeptical Democrats </a>— and Nvidia lost its <a href="https://www.vox.com/today-explained-newsletter/509593/nvidia-jensen-huang-chinese-spy-affair" rel="noopener noreferrer" target="_blank">longtime CEO</a> to a geopolitically explosive sex scandal, a leadership change that has overshadowed the company’s persistently <a href="https://www.nytimes.com/live/2026/11/17/technology/nvidia-earnings-stock-price" rel="noopener noreferrer" target="_blank">strong earnings</a>. Meanwhile, every mysterious IT problem at a major government institution or company is being scrutinized for signs of AI hacking — which could bring <a href="https://www.npr.org/2026/11/16/nx-s1-6042920/california-sues-openai-hugging-face-hacking-incident" rel="noopener noreferrer" target="_blank">even more unwanted attention</a> from politicians, regulators, and the general public.</p><p>Now, after years of deriding the AI boom as a “bubble,” some of the industry’s bears are finally hearing a popping sound: In their estimation, the bubble <a href="https://www.derekthompson.org/p/did-jensen-huang-just-pop-the-ai?r=3dkp&amp;utm_medium=ios&amp;triedRedirect=true" rel="noopener noreferrer" target="_blank">has already burst</a>.</p><p>Such declarations are premature. To qualify as a punctured bubble, the decline in AI assets would need to become much deeper and more sustained than it’s been thus far. As of this writing, the tech-heavy Nasdaq index remains <a href="https://finance.yahoo.com/quote/%5EIXIC/" rel="noopener noreferrer" target="_blank">more than 4 percent higher</a> than it was when the year began.</p><p>Nevertheless, there is an increasingly strong case for believing that investors drastically overvalued AI-related companies, and that recent events might speed the AI industry toward a day of financial reckoning. At the very least, the AI boom’s charmed childhood seems to be giving way to a more troubled adolescence. And given the centrality of artificial intelligence to today’s economy, a large-enough correction could tip the US <a href="https://www.nytimes.com/2026/11/06/opinion/nasdaq-tech-stocks-ai-bubble-dot-com-bust.html" rel="noopener noreferrer" target="_blank">into a recession</a>, thereby raising unemployment, squeezing wages, and quite possibly <a href="https://www.brookings.edu/articles/the-robots-are-ready-as-the-covid-19-recession-spreads/" rel="noopener noreferrer" target="_blank"><em>accelerating</em> the automation of white-collar jobs</a> — all of which could exacerbate Big Tech’s political headaches.</p><p>“Once the fever breaks, it never really comes back,” Brent Donnelly, a former HSBC trader and president of the financial media company Spectra Markets, told me. “People aren’t going to be as optimistic now that the cracks have begun to show.”</p><p>Financial analysts have been <a href="https://www.derekthompson.org/p/this-is-how-the-ai-bubble-will-pop" rel="noopener noreferrer" target="_blank">wringing their hands</a> over a potential AI bubble for years. And not without reason.</p><p>The AI boom’s scale alone makes a case for its unsustainability. According to <a href="https://www.goldmansachs.com/insights/articles/global-investment-is-forecast-to-exceed-1-trillion-in-2026" rel="noopener noreferrer" target="_blank">Goldman Sachs,</a> US investment in AI infrastructure this year will reach $581 billion, or roughly 1.8 percent of America’s entire GDP. Next year, the bank expects such capital expenditures will add up to 2.5 percent of our nation’s total economy.</p><p>For context, at the peak of the dot-com boom in 2000, spending on telecommunications and fiber totaled only 1.15 percent of America’s gross domestic product. In terms of magnitude, the closer analog to today’s AI frenzy might be the railroad buildout of the late 19th century.</p><p>Of course, both the dot-com and <a href="https://en.wikipedia.org/wiki/Panic_of_1873" rel="noopener noreferrer" target="_blank">railroad booms</a> ended in tears. Investors weren’t wrong to think that trains and the internet would prove immensely valuable. But in their excitement about each technology’s promise, they overestimated near-term demand for many rail lines and fiber optic cables.</p><p>And there’s reason to think that today’s AI investors are making a similar mistake. According to an <a href="https://www.bain.com/about/media-center/press-releases/2026/global-ai-market-could-hit-$6-trillion-annually-by-2031-through-unlocking-value-and-innovation--bain--cos-7th-global-technology-report/" rel="noopener noreferrer" target="_blank">estimate</a> from the consulting firm Bain &amp; Company, the AI industry will need to generate $6 trillion in annual revenues by 2031 to justify its spending on data centers and chips. The sector’s current revenues are closer to $540 billion, according to an estimate from <a href="https://www.grandviewresearch.com/industry-analysis/artificial-intelligence-ai-market" rel="noopener noreferrer" target="_blank">Grandview Research</a>. Thus, tech investors are essentially betting that demand for AI is poised to soar at a mind-bending rate.</p><p>Yet this hope may rest on a faulty extrapolation from Silicon Valley’s own experience. Artificial intelligence has rapidly penetrated the software industry, delivering large <a href="https://aiweekly.co/alerts/harvard-study-ai-coding-agents-lift-code-30-shipped-output-flat" rel="noopener noreferrer" target="_blank">productivity gains</a> in the process. But outside of tech, corporate interest has been more tepid. According to a <a href="https://www.nber.org/papers/w34836" rel="noopener noreferrer" target="_blank">2026 NBER study,</a> just 2 percent of firms account for over half of AI enterprise spending. And among companies that deployed AI, 80 percent discerned no productivity benefits from the technology.</p><p>“There’s a lot of real revenue being generated by these companies,” Paulo Carvão, an ex-IBM executive and research fellow at Harvard’s Kennedy School, said. “But the amount of investments and infrastructure far outweigh revenue-generating capabilities and there is no clear path towards these lines crossing.”</p><p>Finally, even if AI sales skyrocket, the major labs could still prove radically less profitable than markets are wagering. To justify their trillion-dollar valuations, OpenAI and Anthropic don’t merely need other companies to spend vastly more on artificial intelligence; they also need them to pay a premium for frontier models, even as cheaper knock-offs become more and more adept. (Disclosure: Vox Media is one of several publishers that have signed partnership agreements with OpenAI. Our reporting remains editorially independent.)</p><p>Yet for most corporations, that might be a losing proposition. Today, the second-tier AI systems aren’t just a <em>little</em> cheaper than the frontier ones. The Chinese open-weight model Kimi K3.1 Pro costs <a href="https://www.kimi.ai/resources/kimi-k3-1-pro-pricing?trk=public_post_comment-text" rel="noopener noreferrer" target="_blank">$10 per million tokens of output</a>; for OpenAI’s most advanced model, GPT-6 Astra, <a href="https://developers.openai.com/api/docs/pricing" rel="noopener noreferrer" target="_blank">that figure is $50</a>.</p><p>Perhaps, this premium is justified, given the current divergence between each product’s abilities. But that gap might become less relevant as AI becomes more powerful.</p><p>After all, intelligence has diminishing returns in many fields of endeavor. To staff its accounting department, Taco Bell <em>could</em> hire a team of path-breaking theoretical mathematicians. But if those geniuses cost five times as much as your average CPA, it would probably be wiser for the company to go with the latter; you simply don’t need a Fields medalist to monitor gordita revenues. Likewise, once last year’s AI model is as capable as 10,000 geniuses, few companies may feel the need to pay extra for a bot that’s as skilled as 10,500.</p><p>Already, there is some evidence that businesses consider open-source models good enough for many purposes. In a <a href="https://futurumgroup.com/insights/enterprises-embrace-open-weights-but-infrastructure-sellers-profit-most/" rel="noopener noreferrer" target="_blank">September survey</a> of 200 enterprises, the market analysis firm Futurum Research found that 53 percent had partially substituted open-weight models for frontier ones.</p><p>“For the financial modeling that I do — which isn’t rocket science but not fourth-grade math either — Claude is already so capable, I can’t really imagine what more the next 6.0 or 7.0 would offer me,” Spectra’s Donnelly told me. “There was an all-you-can-eat buffet approach initially where token budgets weren’t really a huge consideration. But now that it’s not free, people are looking for cheaper options.”</p><p><h2><strong>The autumn of the AI industry’s discontent</strong></h2></p><p>These basic concerns have <a href="https://www.theguardian.com/commentisfree/article/2024/aug/07/the-guardian-view-on-a-tech-bubble-going-pop-ai-pays-the-price-for-inflated-expectations" rel="noopener noreferrer" target="_blank">long</a> <a href="https://www.wsj.com/livecoverage/stock-market-today-dow-sp-500-nasdaq-11-18-2025/card/t1crjyqTmOK3kJTmYTsF" rel="noopener noreferrer" target="_blank">shadowed</a> the AI boom. Every time investors started getting antsy, however, a new technical breakthrough or eye-popping earnings report seemed to quell their fears.</p><p>But concerns about a bubble intensified in recent weeks, for at least three reasons:</p><p><strong>1) The “central bank” of the AI sector is in crisis. </strong>The chipmaker Nvidia has arguably been the single biggest beneficiary of the AI boom, with its market valuation rising by trillions of dollars since the release of ChatGPT. Partly for this reason, it has also functioned as the tech industry’s mini-Federal Reserve, acting as a <a href="https://finance.yahoo.com/technology/ai/articles/ai-boom-survive-without-jensen-094506182.html" rel="noopener noreferrer" target="_blank">funder and financial backstop</a> for AI investment.</p><p>As of this August, Nvidia <a href="https://www.reuters.com/legal/transactional/nvidias-ai-financing-machine-may-survive-huang-with-less-risk-appetite-2026-11-16/" rel="noopener noreferrer" target="_blank">had invested $70 billion</a> in AI companies, facilitating the growth of OpenAI and Anthropic. It separately extended roughly $230 billion in financial guarantees to support the data center expansion.</p><p>To see how the latter work, consider the cloud infrastructure company CoreWeave. That firm is viewed as a bigger credit risk than many other hyperscalers, since it isn’t a diversified tech giant like Google or Amazon. To prevent lenders’ fears from styming CoreWeave’s growth, Nvidia promised to buy any data center capacity that the firm failed to sell, <a href="https://finance.yahoo.com/technology/ai/articles/nvidia-backed-coreweave-surging-means-223603255.html" rel="noopener noreferrer" target="_blank">up to $6.3 billion</a>.</p><p>Nvidia did none of this out of charity. By facilitating the growth of AI labs and hyperscalers, the company increased demand for its own products. The aim was to foster a self-reinforcing cycle of spending: Nvidia puts money into AI companies, those companies buy its chips, the resulting revenue raises Nvidia’s valuation, which allows it to put more money into AI companies.</p><p>This plan worked beautifully — until last week, when Nvidia’s longtime leader Jensen Huang abruptly resigned amid revelations of two extramarital affairs, one with an employee, the other <a href="https://www.vox.com/today-explained-newsletter/509593/nvidia-jensen-huang-chinese-spy-affair" rel="noopener noreferrer" target="_blank">with an alleged Chinese intelligence asset</a>.</p><p>The latter relationship proved especially damaging for Nvidia. The company had long lobbied the White House to loosen restrictions on the sale of advanced AI chips to China, eventually persuading the Trump administration to relax its export controls. The suspected Chinese spy in question, Alice Huang, was <a href="https://www.nytimes.com/2026/10/29/us/politics/nvidia-china-jensen-huang-trump.html" rel="noopener noreferrer" target="_blank">an executive at Megaspeed</a>, a Singapore-based cloud computing firm that was itself suspected of facilitating the illicit transfer of cutting-edge American semiconductors to China.</p><p>The Nvidia CEO initially tried to weather the resulting storm. But when a second affair — <a href="https://www.reuters.com/technology/former-nvidia-ceo-huang-had-relationship-with-second-employee-sources-say-2026-11-12/" rel="noopener noreferrer" target="_blank">with another Nvidia executive</a> — came to light, Huang stepped down.</p><p>All this has left Nvidia both less capable and willing to supply AI companies with cheap financing. Nvidia’s <a href="https://finance.yahoo.com/quote/NVDA/" rel="noopener noreferrer" target="_blank">market capitalization</a> has fallen by nearly 40 percent since Huang’s extramarital activities first came to light. Investors fear that the company will be incapable of adequately replacing its 33-year CEO, who had exercised unusually wide-ranging control over its operations. And the scandal threatens to restrict Nvidia’s access to the Chinese market, as the federal government <a href="https://www.cnbc.com/2026/11/16/nvidia-commerce-china-lutnick.html" rel="noopener noreferrer" target="_blank">cracks down</a> on the use of US chips by Chinese firms.</p><p>Nvidia’s falling valuation has left it with less spare cash for funding other AI ventures, and Huang’s departure has also reportedly sapped its interest in circular financing schemes. According to the <a href="https://www.wsj.com/tech/jensen-huang-colette-kress-nvidia-ceo-eb289097" rel="noopener noreferrer" target="_blank">Wall Street Journal</a>, Nvidia’s new interim CEO, longtime finance chief Colette Kress, had privately pushed back against Huang’s increasingly ambitious investments in AI startups and data-center developers. At her behest, Nvidia halved a proposed $250 billion financial guarantee for an OpenAI development. With Cress at the helm, the AI industry may find funding harder to come by.</p><p>“This is a classic kind of black swan event,” Ryan Cummings, a former staff economist for the White House Council of Economic Advisers, told me. “A CEO has an affair with a potential Chinese spy and then all of a sudden people notice there were a lot of cockroaches underneath the floorboards.”</p><p><strong>2) A blue tsunami just inundated Silicon Valley. </strong>By early this year, the unpopularity of the data center boom had <a href="https://www.vox.com/politics/501146/data-centers-bans-polls-ai" rel="noopener noreferrer" target="_blank">become clear</a>, registering in polls and local opposition to developments.</p><p>Still, November’s midterm elections revealed the extraordinary scale of Big Tech’s political problems. In the 41 jurisdictions where data center development was on the ballot, the side favoring restrictions <a href="https://news.ballotpedia.org/2026/11/06/voters-favored-limiting-data-center-development-in-40-of-41-local-ballot-measures-on-nov-3/" rel="noopener noreferrer" target="_blank">prevailed</a> in 40. Meanwhile, Democratic governors came to power in data center hotspots like Texas, Georgia, and Ohio, after campaigning against such projects.</p><p>This poses two threats to the AI boom. First (and most obviously), it threatens to constrain the compute buildout that powers AI models and enriches hyperscalers and chipmakers. Newly elected Democratic governors like Texas’s Gina Hinojosa and Ohio’s Amy Acton <a href="https://www.morganstanley.com/insights/articles/investing-in-ai-after-2026-midterms-selloff" rel="noopener noreferrer" target="_blank">appear unlikely</a> to block projects already underway or permanently ban all data center development. Nevertheless, they will surely impose costly requirements on new development, such as <a href="https://www.texastribune.org/2026/11/04/data-center-texas-pause-gina-hinojosa-governor-policies/" rel="noopener noreferrer" target="_blank">obligations</a> to cover all electricity costs, provide community benefits, or <a href="https://actonforgovernor.com/issue/data-centers/" rel="noopener noreferrer" target="_blank">use union labor</a>. And across the country, every other governor with a self-preservation instinct is liable to follow suit.</p><p>As a result, the AI buildout is poised to become slower and more expensive. This is not terrible news for <em>all</em> of the sector’s players (if the supply of compute gets constrained, the hyperscalers who own existing data centers will be able to charge higher rents). But the top AI labs’ already gargantuan computing costs will marginally rise and growth across the sector will marginally slow.</p><p>Second, the fact that Democrats won a landslide congressional victory after campaigning against data centers and Big Tech raises the odds of federal AI regulations (if not in 2027, then in 2029). Congress’s new Democratic majorities plan to push <a href="https://www.npr.org/2026/11/16/nx-s1-6037801/regulating-ai-will-being-a-top-priority-for-congressional-democrats-in-the-new-year" rel="noopener noreferrer" target="_blank">legislation</a> requiring data center developers to assume full responsibility for their impacts on electricity costs, mandating independent testing of advanced AI models, and expanding AI companies’ liability for harm committed with their products.</p><p>And if AI’s capabilities rapidly accelerate — as OpenAI and Anthropic’s revenue estimates assume — political pressure to regulate (or even suppress) their models could build. Fears of AI’s impacts on cybersecurity <a href="https://www.vox.com/politics/502717/ai-freakout-mainstream-openai-anthropic-humans" rel="noopener noreferrer" target="_blank">reached a fever pitch</a> in late October, after advanced models <a href="https://www.cnbc.com/2026/10/23/php-vulnerabilities-ai-cybersecurity.html" rel="noopener noreferrer" target="_blank">uncovered previously unknown flaws</a> in one of the internet’s core programming languages.</p><p>Barring an all-out ban on new models, AI safety regulations will not make or break the boom. But they would likely leave the sector slightly less profitable.</p><p>For these reasons, among others, tech stocks fell sharply <a href="https://www.morganstanley.com/insights/articles/investing-in-ai-after-2026-midterms-selloff" rel="noopener noreferrer" target="_blank">after Election Day</a>.</p><p><strong>3) Credit is getting more expensive. </strong>Inflation came in unexpectedly <a href="https://www.reuters.com/world/us/us-consumer-prices-rise-above-expectations-october-2026-11-10/" rel="noopener noreferrer" target="_blank">high</a> last month. Since the Federal Reserve raises interest rates in response to high prices, October’s CPI data pushed up <a href="https://www.telegraph.co.uk/business/2026/11/10/us-borrowing-costs-rise-fastest-trump-liberation-day-tariff/" rel="noopener noreferrer" target="_blank">borrowing costs across the economy</a>.</p><p>That’s bad news for the AI buildout, since the boom increasingly runs on credit — roughly <a href="https://www.goldmansachs.com/insights/goldman-sachs-exchanges/how-ai-debt-is-reshaping-the-credit-market" rel="noopener noreferrer" target="_blank">one-third</a> of hyperscalers’ capital expenditures are debt-financed. Thus, rising interest rates means higher costs and lower profits.</p><p>What’s more, high interest rates put downward pressure on AI companies’ valuations. The reason for this is simple: The more that investors can earn from safe assets like US Treasury bonds, the less eager they become to buy a claim on some risky venture’s hypothetical future profits. Thus, high rates tend to depress stock prices across the board. But since AI companies’ future mega-profits are especially speculative, rising borrowing costs weigh heavily on their valuations.</p><p><h2><strong>The AI boom might survive — but it will never be the same</strong></h2></p><p>None of this means that the AI sector is certain to melt down. There’s still cause for doubting that AI is in a bubble analogous to the ill-fated dot-com boom. At the peak of the latter, ascendant tech companies like Yahoo boasted stock prices equal to nearly <a href="https://www.nasdaq.com/docs/is-ai-another-bubble-for-the-nasdaq-100" rel="noopener noreferrer" target="_blank">2,000 times</a> their earnings. Today, Nvidia’s price-to-earnings ratio <a href="https://finance.yahoo.com/quote/NVDA/key-statistics/" rel="noopener noreferrer" target="_blank">is roughly 20</a>.</p><p>Further, the dot-com bubble was fueled in part by fledgling companies with negative earnings and scant revenues. By contrast, many of today’s biggest AI players are established mega-corporations with diverse, profitable businesses, such as Amazon and Google, or chip manufacturers like Nvidia who sell an actual physical product to a range of profitable industries.</p><p>“Hyperscalers are omnivores that have multiple sources of food,” John-David Lovelock, chief forecaster at the global advisory firm Gartner, said. “They’re probably going to be fine.”</p><p>Meanwhile, AI labs continue to make technological progress at a blistering pace. According to a recent assessment from the AI safety <a href="https://metr.org/blog/2026-11-05-anthropic-ai-rd-acceleration-assessment/" rel="noopener noreferrer" target="_blank">nonprofit METR</a>, Anthropic is now improving its unreleased models at twice its pre-November 2025 rate, thanks largely to its own AI tools’ growing ability to make better AI tools. This development lends greater credibility to the notion that artificial intelligence will eventually achieve <a href="https://www.vox.com/future-perfect/502856/ai-safety-risk-garrison-lovely-obsolete" rel="noopener noreferrer" target="_blank">“recursive self-improvement,”</a> a feedback loop in which every jump in AI’s capabilities accelerates the arrival of the next, as superintelligent models automate the process of building even more superintelligent models.</p><p>Precisely how fast AI models will improve in the near term — and how profitable their newfound capacities will be — remains uncertain. But it’s at least <em>possible</em> that next year’s state-of-the-art models could be radically more useful to businesses than today’s.</p><p>Regardless, it’s clear that the AI boom has entered a new era. The days when AI giants enjoyed governments’ reflexive deference — and markets’ unqualified exuberance — are over. If labs fail to contain their models’ ever-growing capacity to cause harm, they will be hearing from Congress. If hyperscalers fail to muster revenue commensurate with their capital spending, they will bleed value. AI’s great crash may or may not be beginning. But its honeymoon has ended.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/politics/511132/anthropic-ipo-ai-bubble-nvidia" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

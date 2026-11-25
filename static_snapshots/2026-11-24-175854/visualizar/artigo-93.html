@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jensen Huang Is Back - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Jensen Huang Is Back</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/23/nvidia-reinstates-jensen-huang-ceo-trump-board/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/GettyImages-2275586641.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Nvidia Reinstates Jensen Huang After Trump Intervenes
+                            </p>
+                            
+<p>Welcome back to World Brief, where we’re looking at the return of <strong>Nvidia</strong>’s Jensen Huang, collapsed negotiations at this year’s <strong>U.N. </strong>climate summit, and <strong>Ukraine</strong>’s naval drone attack.</p>
+<p>
+</p>
+
+<h3></h3>
+<p>Nvidia, the semiconductor giant at the center of the global artificial intelligence race, <a href="https://nvidianews.nvidia.com/news/nvidia-board-reinstates-jensen-huang-as-president-ceo-and-board-director" rel="noopener noreferrer" target="_blank">announced</a> on Monday that it had reinstated its CEO, Jensen Huang, just 11 days after he was <a href="https://foreignpolicy.com/2026/11/09/jensen-huang-spy-scandal-alice-nvidia-trump-china/" rel="noopener noreferrer" target="_blank">forced to resign</a> following multiple alleged extramarital affairs.</p>
+<p>Monday’s announcement marks a dramatic development in a saga that has roiled markets, seen the powerful company’s <a href="https://www.cnbc.com/2026/11/20/nvidias-7-week-losing-streak-is-longest-since-2008-financial-crisis.html" rel="noopener noreferrer" target="_blank">value plunge</a>, and fueled uncertainty about the future of the AI boom. Plummeting stock prices had wiped some $2.6 trillion from Nvidia’s market value, and amid mounting scrutiny, the U.S. Securities and Exchange Commission reportedly <a href="https://www.nytimes.com/2026/11/20/business/nvidia-sec-accounting.html" rel="noopener noreferrer" target="_blank">launched a probe</a> into the company’s accounting practices.</p>
+<p>Huang’s alleged affairs were made particularly scandalous—and geopolitically noteworthy—by the fact that one of those affairs was with a woman whom U.S. intelligence agencies suspect of being a Chinese spy. That revelation raised major national security concerns for a company whose most advanced AI chips remained banned from China.</p>
+<p>Yet all those concerns now appear to have been cast aside at the behest of Huang’s most powerful backer: U.S. President Donald Trump. Trump has never wavered from Huang’s corner, calling him a “very high-quality person” and an “amazing guy” even after the Nvidia CEO resigned. Now, it appears that the U.S. president decided to put his thumb on the scale to bring Huang back.</p>
+<p>On Monday, Nvidia’s stock price rose by <a href="https://www.cnbc.com/2026/11/23/nvidia-jensen-huang-ceo.html" rel="noopener noreferrer" target="_blank">33 percent</a> in the wake of the company’s announcement.</p>
+<p>The Nvidia board said it had “received input from senior levels of the United States government, and based on that input, the Board is confident that Mr. Huang’s reinstatement poses no national security risk.”</p>
+<p>Huang said in a statement shared by the board that he was “honored” to return to Nvidia and would do so with “renewed commitment.” The board, meanwhile, said its previously announced independent investigation into Huang’s possible Chinese espionage exposure would proceed as planned and that Huang had pledged to cooperate with it.</p>
+<p>Trump, who <a href="https://truthsocial.com/@realDonaldTrump/posts/117663497310955803" rel="noopener noreferrer" target="_blank">posted</a> on Truth Social Sunday night that he hoped the Nvidia board would reinstate Huang, also hinted on Monday that such a decision was coming, even before it was officially confirmed.</p>
+<p>“He’s back where he should be,” Trump said in a phone <a href="https://www.pbs.org/newshour/politics/what-trump-told-pbs-news-about-jensen-huang-before-nvidia-reinstatement" rel="noopener noreferrer" target="_blank">interview</a> with <em>PBS NewsHour</em> minutes before the Nvidia announcement. “Well, he will be soon, hopefully,” he added. Trump also <a href="https://www.cnbc.com/2026/11/23/trump-nvidia-jensen-huang.html" rel="noopener noreferrer" target="_blank">told CNBC</a> after the announcement that he had spoken directly to Nvidia’s board and provided them with <a href="https://www.cnbc.com/2026/11/23/trump-nvidia-jensen-huang.html" rel="noopener noreferrer" target="_blank">assurances</a> on the national security threat. “I convinced them,” he said. “I made the deal.” Afterward, Trump called Huang and asked him to “<a href="https://www.cnbc.com/2026/11/23/trump-nvidia-jensen-huang.html" rel="noopener noreferrer" target="_blank">work hard</a>,” he told CNBC.</p>
+<p>Some U.S. lawmakers from Trump’s own party appear to be less convinced. “Jensen Huang was compromised and exploited by a Chinese spy. Nvidia should have moved on without Huang and ignored the Administration’s inexplicable desire to save Huang,” Republican Rep. Don Bacon wrote in a <a href="https://x.com/RepDonBacon/status/2124872741899661513" rel="noopener noreferrer" target="_blank">post</a> on X.</p>
+<p>Texas Sen. John Cornyn was more pointed in his own <a href="https://x.com/JohnCornyn/status/2124874239115505866" rel="noopener noreferrer" target="_blank">X post</a>. “No national security risk? Based on what?” Cornyn wrote. (Both Cornyn and Bacon are leaving Congress at the end of this year.)</p>
+<p>Utah Sen. John Curtis also slammed the decision, declaring in a <a href="https://x.com/SenJohnCurtis/status/2124900396455838142" rel="noopener noreferrer" target="_blank">post on X</a> that Huang “was right to step down when the affair came to light.” Curtis also wrote, “I have some questions. Who in our government weighed in? What did they tell the board? And on what basis did the board conclude there was no risk?”</p>
+<p>Trump dismissed those concerns in his CNBC interview, agreeing when CNBC asked whether Republicans would “come around” on Huang’s reinstatement. As for the national security concerns, Trump dismissed <a href="https://www.nytimes.com/2026/11/22/us/politics/alice-huang-china-spy-agency-nvidia.html" rel="noopener noreferrer" target="_blank">new </a><a href="https://www.nytimes.com/2026/11/22/us/politics/alice-huang-china-spy-agency-nvidia.html" rel="noopener noreferrer" target="_blank">reporting</a> that the Chinese woman whom Huang had a romantic relationship with, Alice Huang, was in contact with China’s Ministry of State Security—the country’s main intelligence agency—during their affair. “Who isn’t in contact?” Trump asked. “China speaks to everybody,” he said, adding, “They speak to me.”</p>
+<p>Trump said he had spoken to Chinese President Xi Jinping “at length” about Jensen Huang during the two leaders’ <a href="https://foreignpolicy.com/2026/11/19/trump-xi-putin-trilateral-summit-shenzhen-apec/" rel="noopener noreferrer" target="_blank">meeting in Shenzhen</a>, China, last week. The U.S. president also claimed that keeping Huang out of Nvidia would risk the CEO defecting to China. “I could see China coming in and saying to Jensen: ‘Hey, how would you like to come to China?’” Trump said. “He’s got a little blood in him, you know,” the U.S. president added, alluding to Huang’s Taiwanese heritage.</p>
+<p>After the interview, Trump made his backing of Huang far more explicit with another <a href="https://truthsocial.com/@realDonaldTrump/posts/117666713950631493" rel="noopener noreferrer" target="_blank">post</a> on Truth Social. The post featured an AI-generated recasting of a <a href="https://youtu.be/26JEuUf5pIY?t=53" rel="noopener noreferrer" target="_blank">photo</a> of Trump raising his fist after an assassination attempt in 2024; instead of Trump, the AI-generated version depicted Huang with an Nvidia flag in the background, raising his fist with a red bra in hand. “Sex sells,” Trump <a href="https://x.com/atrupar/status/2124895402071609786?s=20" rel="noopener noreferrer" target="_blank">told</a> CNBC.</p>
+
+<h3></h3>
+
+<h3></h3>
+<p><strong>Wednesday, Nov. 25: </strong>An EU-Western Balkans summit kicks off in Brussels.<strong> </strong></p>
+<p><strong>Saturday, Nov. 28: </strong>Taiwan holds local elections.<strong> </strong></p>
+<p><strong>Sunday, Nov. 29: </strong>Spain holds snap parliamentary elections.<strong> </strong></p>
+
+<h3></h3>
+<p><strong>Deep divisions. </strong>Negotiations at this year’s U.N. climate summit, also known as COP31, <a href="https://www.reuters.com/sustainability/cop/cop31-climate-talks-close-final-deal-says-summit-president-2026-11-21/" rel="noopener noreferrer" target="_blank">collapsed on Sunday</a> as countries clashed over a proposed deal and ultimately failed to reach consensus. It marks the first time that the climate talks have failed over a final deal in about <a href="https://www.nytimes.com/2026/11/22/climate/cop31-climate-summit-ends-climate.html" rel="noopener noreferrer" target="_blank">17 years</a>, and it comes in a year that has seen <a href="https://www.nbcnews.com/world/europe/earth-hottest-month-record-global-heat-record-high-august-rcna596975" rel="noopener noreferrer" target="_blank">record-shattering heat</a> and other climate extremes.</p>
+<p>The proposed deal had <a href="https://www.reuters.com/sustainability/cop/cop31-climate-talks-close-final-deal-says-summit-president-2026-11-21/" rel="noopener noreferrer" target="_blank">omitted any mention</a> of <a href="https://www.theguardian.com/environment/2026/nov/22/cop31-climate-talks-set-to-end-in-deep-division-as-key-deal-rejected" rel="noopener noreferrer" target="_blank">fossil fuels</a>, the <a href="https://www.nytimes.com/2026/11/22/climate/cop31-climate-summit-ends-climate.html" rel="noopener noreferrer" target="_blank">primary driver</a> of climate change. That exclusion sparked an uproar and prompted Pacific island nations and the European Union, <a href="https://www.bbc.com/news/articles/cqwy06zrd26lo" rel="noopener noreferrer" target="_blank">among others</a>, to reject it.</p>
+<p>The proposed agreement “failed to meet the moment,” <a href="https://www.theguardian.com/environment/2026/nov/22/cop31-climate-talks-set-to-end-in-deep-division-as-key-deal-rejected" rel="noopener noreferrer" target="_blank">said</a> Irish Environment Minister Darragh O’Brien, who was speaking on behalf of the European Union. “We will not endorse a decision that does not respond to the science and that actually risks deepening the chasm between global commitments and the action required.”</p>
+<p><strong>Maritime strikes.</strong> Ukrainian forces deployed seven naval drones in a weekend attack against two Russian vessels located off the coast of Libya, Ukrainian President Volodymyr Zelensky <a href="https://x.com/ZelenskyyUa/status/2124764825049850041" rel="noopener noreferrer" target="_blank">said in a post on X</a> on Monday. The strikes sank the Russian corvette <em>Merkury</em>, which is one of Moscow’s newest ships, Zelensky said.</p>
+<p>Drones also struck a Russian-owned cargo ship in the Baltic Sea on Saturday; the vessel later floated into Finnish waters. Finnish authorities believe that Ukraine <a href="https://www.reuters.com/world/europe/russian-cargo-ship-still-fire-off-finland-after-attack-2026-11-22/" rel="noopener noreferrer" target="_blank">perpetrated the attack</a>, but Kyiv <a href="https://www.nytimes.com/2026/11/23/world/europe/ukraine-libya-russian-ships.html?eafs_enabled=false" rel="noopener noreferrer" target="_blank">has not</a> taken responsibility for it. “War is spilling over into our immediate vicinity,” Finnish Prime Minister Petteri Orpo said in a <a href="https://x.com/PetteriOrpo/status/2124102069938463032" rel="noopener noreferrer" target="_blank">post on X,</a> though he added that “Ukraine has the right to fight back against the aggressor.”</p>
+<p><strong>Under pressure.</strong> South Korea’s education minister resigned on Sunday amid controversy over newly announced anti-cheating measures. After news emerged of a cheating scandal in a separate exam, South Korean officials unveiled a raft of rigid anti-AI cheating measures <a href="https://www.nytimes.com/2026/11/22/world/asia/korea-csat-exam-ai-cheating.html" rel="noopener noreferrer" target="_blank">just days before</a> the country’s annual college entrance exam, known as the Suneung.</p>
+<p>The Suneung is a famously grueling <a href="https://www.nytimes.com/2026/11/22/world/asia/korea-csat-exam-ai-cheating.html" rel="noopener noreferrer" target="_blank">eight-hour test</a> that can be vital in shaping students’ career outcomes. Yet the last-minute announcement of the new rules, which included blaring emergency cellphone alerts, sparked confusion among test-takers. Ultimately, some 111 people were caught cheating, according to officials.</p>
+<p>“I believe I am not free from criticism or blame from the public for failing to prepare adequately in advance,” the education minister said in a <a href="https://www.nytimes.com/2026/11/22/world/asia/korea-csat-exam-ai-cheating.html" rel="noopener noreferrer" target="_blank">statement</a> reported by local media.</p>
+
+<h3></h3>
+<p>On a stage in Ottawa over the weekend, Trump joked around with two Canadian Prime Minister Mark Carneys—or did he? The Canadian leader actually <a href="https://apnews.com/article/carney-trump-canada-press-gallery-dinner-75c0aa1ae75143e2cd044fc289149d44" rel="noopener noreferrer" target="_blank">recruited two comedians</a> to assist him with a roast at an annual dinner with journalists, enlisting impersonators both of himself and his U.S. counterpart. “I am pressing the emergency comedy button,” Carney joked.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/23/nvidia-reinstates-jensen-huang-ceo-trump-board/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

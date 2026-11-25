@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A política sem procuração - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A política sem procuração</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/11/160449/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/11/cool-series-no-9-gibraltar-1963.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A política sem procuração
+                            </p>
+                            
+<p><strong>Um livro feito de jornal</strong></p>
+<p><em>A falência da política</em> não foi concebido originalmente como uma obra unitária. Trata-se de uma coletânea organizada por Evaldo A. Vieira para a Coleção Maurício Tragtenberg da Editora UNESP, estruturada a partir de cadernos de cópias preservados pela viúva do autor, a atriz Beatriz Romano Tragtenberg. Reúne mais de uma centena de textos, em sua esmagadora maioria publicados na imprensa diária e semanal — na <em>Folha de S.Paulo</em>, no <em>Jornal da Tarde</em>, no <em>Em Tempo</em> e na coluna “No Batente” do <em>Notícias Populares</em> —, além de esparsos artigos acadêmicos e inéditos. A maior parte do material concentrou-se nos anos 1980, com incursões pelos anos 1970 e raros registros das décadas de 1950 e 1990.</p>
+<p>O título é formulação do organizador, não do autor. Vieira o justificou pelos “fecundos e eruditos entendimentos da política, do poder político, do governo, do Estado” (p. 11 a p. 12) extraídos da leitura dos textos. A escolha revela-se tão feliz quanto suscetível a equívocos. Feliz porque o volume constitui uma rigorosa desconstrução das formas consagradas da dominação política: o Parlamento, o partido centralizado, o sindicalismo oficial, o Estado de pretensão dita socialista e a vanguarda burocrática que confisca a palavra alheia. Enganosa porque Tragtenberg jamais incorreu em um ceticismo descompromissado ou num apolitismo abstrato. O que ele caracteriza como falido é um modo histórico específico de fazer política: a política por procuração. A outra dimensão — a ação direta e auto-organizada emergente do cotidiano de quem trabalha — perpassa o livro como diagnóstico da práxis concreta.</p>
+<p>A obra estrutura-se em três partes. A primeira prioriza a especulação teórica e sociológica: dialoga com Malatesta, Rathenau, Maquiavel, Freud, analisa a Revolução Russa, a teoria da burocracia e o Estado, sem jamais descolar das lutas populares e das controvérsias da esquerda brasileira. A segunda reúne artigos sobre a conjuntura internacional: Espanha, Israel e Palestina, África do Sul, Polônia, Irã, Alemanha e Japão. A terceira volta-se ao Brasil, desdobrando-se entre análise de conjuntura, crítica das instituições educacionais e anatomia da previdência e da saúde pública.</p>
+<p>Este ensaio não se submete à ordenação do sumário. Objetiva reconstruir os eixos analíticos que conferem unidade conceitual a um corpus disperso no tempo, demonstrar o método sociológico com que Tragtenberg aborda a realidade — que parte rigorosamente do que é, e não de modelos abstratos do que deveria ser —, e avaliar a permanente validade de suas categorias.</p>
+<p>Maurício Tragtenberg (1929-1998) nasceu em uma comunidade de imigrantes judeus ucranianos no interior do Rio Grande do Sul. Autodidata cuja formação principal deu-se nos círculos operários e na Biblioteca Mário de Andrade, ingressou na docência universitária por trajetórias heterodoxas. Com passagem pela PUC-SP, pela Fundação Getúlio Vargas e pela Faculdade de Educação da Unicamp, sua tese de doutorado deu origem a <em>Burocracia e ideologia</em>, obra divisora de águas na teoria das organizações no Brasil.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/cool-series-no-9-gibraltar-1963-300x245.jpg"/></p>
+<p>Essa trajetória transparece nas entrelinhas de <em>A falência da política</em>. Ao redigir o necrológio do jornalista Hermínio Sacchetta (p. 234 a p. 236) — ex-dirigente do PCB que rompeu com o stalinismo —, Tragtenberg o qualifica como seu “pai social”, de quem herdara “o ódio ao carreirismo político e o desprezo aos canalhas que usurpam a fala do trabalhador, para em seu nome legitimarem suas prebendas burocráticas”. É desse mirante analítico que o livro se edifica: a escrita parte da experiência dos administrados, e não da perspectiva dos administradores.</p>
+<p>Há uma opção de método que se traduz no próprio estilo: Tragtenberg redigia para o jornal de grande circulação popular com a mesma densidade conceitual destinada às revistas especializadas. Entrelaça Weber, Rosa Luxemburgo, Spinoza e Padre Antônio Vieira à descrição minuciosa da degradação das instalações sanitárias nas fábricas paulistas, sem alternar a frequência da reflexão. Corrobora, assim, a intuição que elogia em Errico Malatesta: a de que as ideias críticas só cumprem sua função quando se convertem em categorias do saber compartilhado e do repertório prático da classe trabalhadora.</p>
+<p><strong>A categoria central: Burocracia como camada social</strong></p>
+<p>A categoria que confere coerência e estrutura a todo o livro é a burocracia. Tragtenberg a mobiliza a partir da matriz sociológica de Max Weber, mas submete-a à crítica materialista. Não se trata de uma disfunção administrativa ou mero excesso de papelada. A burocracia é compreendida como a camada social que se constitui no exato momento em que a gestão e a decisão são expropriadas dos produtores diretos, transformando a administração de um meio em um fim em si mesmo.</p>
+<p>No ensaio “Burocracia, Estado e sociedade civil” (p. 185 a p. 188), o autor analisa a formação social brasileira. O capitalismo consolida-se no país via “revolução pelo alto”, sem a consolidação prévia de direitos de cidadania. O correlato desse processo é uma sociedade civil historicamente fragilizada perante um Estado hipertrofiado, munido de uma burocracia cuja função precípua é a autoperpetuação do sistema de dominação. Nesse arranjo, “poucos pensam e muitos executam: o ato de pensar é privilégio estamental”. Com fina ironia, Tragtenberg descreve a “dramaturgia do superior hierárquico”, as salas atapetadas como insígnias de status e a exigência de que o subordinado performe a submissão, convertendo o espaço burocrático em “uma espécie de cemitério de vivos”.</p>
+<p>O diagnóstico ganha precisão ao abordar a dimensão ideológica. A burocracia estatal e corporativa necessita de um discurso que a afigure como neutra e tecnicamente indispensável. Tragtenberg identifica essa função na Teoria Geral dos Sistemas, por ele classificada como a “típica ideologia dos que não têm ideologia”. Sob o pretexto da otimização e do pragmatismo, o planejador neutraliza a discussão pública sobre as finalidades sociais do planejamento. O antídoto que o autor aponta é político, não técnico. Com Rosa Luxemburgo, vê na liberdade de organização e na opinião pública “o grande freio das disfunções burocráticas e da corrupção”: sem eleições, sem liberdade de informação e sem “o cotejo livre das opiniões”, a vida “morre nas instituições públicas”, e a burocracia torna-se “o único elemento ativo”.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/cool-series-no-80-impatient-spring-1963.jpgLarge-244x300.jpg"/></p>
+<p>Em “Quem pode controlar o Estado e a burocracia no Brasil” (p. 390 a p. 396), a análise evidencia a dinâmica real das disputas institucionais: “Toda a luta político-partidária, no fundo, é uma luta pelo direito de nomeação para os cargos públicos, independentemente da ideologia com que apareçam”. Os cargos de provimento em comissão constituem um “regime de incompetência treinada”, desprovido de controle social. Disso decorre sua tese central sobre a corrupção: longe de constituir um desvio moral individual, “toda estrutura que foge a um controle público tende à corrupção, e toda pessoa que foge ao controle de seu grupo tende a se corromper”. O antídoto não reside no moralismo burocrático, mas no efetivo controle exercido diretamente pela base sobre seus delegados.</p>
+<p><strong>O Estado, a representação e a análise das instituições</strong></p>
+<p>O segundo eixo do livro volta-se à anatomia do Estado e do sistema representativo. Em “O voto e as ilusões” (p. 50 a p. 53), redigido durante o pleito de 1982, Tragtenberg recompõe a gênese do Parlamento modernizador para apontar uma constante sociológica: a delegação de poder via voto formal implica a abdicação da iniciativa direta dos representados. Os eleitos, afastados do cotidiano do trabalho, autonomizam-se como estamento, convertendo o ritual eleitoral em uma engrenagem de conformismo que substitui a mobilização autônoma pela arregimentação institucional. É nesse texto que sobressai a síntese do livro: “Não há vida por procuração, cada um tem de viver a sua, assim como não há luta por procuração”.</p>
+<p>O autor aplica a mesma lente rigorosa ao processo constituinte e às transformações do Estado brasileiro, e a estende ao Estado em geral: “Qualquer Estado, por sua natureza, é conservador, e se pressupõe um quadro burocrático para geri-lo. Estado e revolução são contradições lógicas” (“Qualquer Estado por natureza é conservador”, p. 182 a p. 184). Contudo, seria impreciso deduzir de sua crítica uma rejeição ingênua ou simplista das mediações institucionais. É preciso compreender o método de Tragtenberg: ele aponta o que as instituições são, desnudando sua natureza de classe e sua tendência à cristalização burocrática, sem partir de abstrações normativas sobre o que ‘deveriam’ ser.</p>
+<p>Essa postura transparece na série “Max Weber na Assembleia” (p. 244 a p. 251), na qual projeta o sociólogo alemão no contexto da abertura política brasileira. Pela mediação de Weber, Tragtenberg argumenta que um Parlamento forte — dotado de comissões de inquérito atuantes, rigor orçamentário e capacidade de fiscalização — cumpre a função sociológica de limitar o arbítrio e a opacidade da burocracia executiva. Da mesma forma, em “O conflito social, Maquiavel revisitado” (p. 114 a p. 130), resgata dos <em>Discursos sobre a primeira década de Tito Lívio</em> a tese de que a liberdade política de uma sociedade não deriva da harmonia aparente, mas da existência de canais institucionais abertos que permitam ao conflito entre as classes manifestar-se abertamente. As instituições liberais não são estimadas como fins emancipatórios em si, mas como arenas de atrito que oferecem à classe trabalhadora um terreno menos desfavorável de resistência.</p>
+<p><strong> A Revolução Russa e o capitalismo de Estado</strong></p>
+<p>É na análise da experiência soviética que a teoria da burocracia alcança sua formulação mais radical. Já nos dois artigos dos anos 1950 sobre a “Rússia atual” (p. 167 a p. 174), os mais antigos do livro, Tragtenberg define o regime como “capitalismo burocrático sem existir burguesia”, herdeiro do Estado bizantino e do “espírito técnico norte-americano”, e recusa a escolha entre Moscou e Washington como “um falso problema”. Os textos dos anos 1980 retomam a tese com rigor histórico. “Uma revolução na Revolução Russa” (p. 139 a p. 147) reconstrói a rebelião de Kronstadt, em 1921, e transcreve as reivindicações dos marinheiros por sovietes livremente eleitos e liberdade de palavra para operários e camponeses. “De Lênin ao capitalismo de Estado” (p. 148 a p. 158) acompanha a substituição dos comitês de fábrica por diretores nomeados, a introdução do taylorismo e o atrelamento dos sindicatos ao Estado.</p>
+<p>O critério que emerge é decisivo para todo o livro: o caráter de um regime não se define pela forma jurídica da propriedade, mas “pela natureza antagônica expressa pela relação de dependência entre quem vende sua força de trabalho e quem a compra”. É a essa forma de exploração, apoiada na propriedade estatal dos meios de produção, que Tragtenberg dá o nome de capitalismo de Estado. Daí sua crítica ao partido-vanguarda, que tem “as virtudes do guarda-noturno: controla a classe, viveiro de escola de novos patrões, constrói o capitalismo de Estado e diz que é socialismo” (“O partido único”, p. 159 a p. 162). Daí, também, a observação de que Lênin combateu a burocracia criando um novo órgão burocrático, sem jamais apelar às massas. O contraponto, nos textos sobre a Polônia (p. 333 a p. 344), é o sindicato Solidariedade, em cujas reivindicações o autor reconhece as da Oposição Operária e dos marinheiros de Kronstadt: a libertação dos trabalhadores como “obra deles próprios”.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/cool-series-dark-pink-over-brown-1963.jpgLarge-265x300.jpg"/></p>
+<p><strong> A esquerda, a burocratização e a avaliação tática de conjuntura</strong></p>
+<p>Nenhum ator político recebe análise mais minuciosa em <em>A falência da política</em> do que as próprias organizações da esquerda. Acompanhando a emergência do Partido dos Trabalhadores nos anos 1980, Tragtenberg registra tanto o seu potencial de inovação quanto as tendências sociológicas que o ameaçavam. Saúda o PT como “a primeira tentativa séria de um partido de trabalhadores com real base operária” (“Qualquer Estado por natureza é conservador”, p. 182 a p. 184), mas adverte, já em 1982, que a opção pela via das urnas levaria o partido a “formar, em cada trabalhador vereador, deputado ou senador, um ex-trabalhador” e que, sem definir com nitidez seus propósitos de transformação, ele poderia converter-se no “braço esquerdo” do regime.</p>
+<p>No ensaio “O dilema da estrela: branca ou vermelha?” (p. 54 a p. 63), examina as disputas internas da agremiação, assinalando que a opção prioritária pela via parlamentar corria o risco de transformar o dirigente operário em um profissional da representação, subsumido pela lógica institucional. Tragtenberg alerta para o perigo de o partido converter-se em uma estrutura social-democrata clássica, cuja máquina eleitoral sobrepuja os núcleos de base. Não se opõe às reformas, que defende “aqui e agora”, mas ao reformismo parlamentar, pois “o reformismo torna impossíveis as reformas, inclusive”. O critério analítico oferecido ao leitor é estritamente descritivo: observar “a inevitável distância entre as afirmações abstratas em documentos partidários” e “a prática política real no cotidiano”.</p>
+<p>O rigor do diagnóstico estende-se ao sindicalismo e aos agrupamentos da esquerda autoritária. Nos textos “Fascismo ‘proletário’” (p. 192 a p. 194) e “Feminismo e fascismo” (p. 221 a p. 223), denuncia as práticas violentas e intolerantes exercidas por seitas burocráticas contra oposições sindicais e movimentos sociais autônomos. Para o autor, a utilização de métodos opressivos na gestão da luta política antecipa a natureza da dominação que tais grupos exerceriam caso ocupassem o aparelho de Estado, ratificando a premissa de que os meios empregados condicionam e definem a substância dos fins atingidos.</p>
+<p><strong> A conjuntura de 1990 e as escolhas de terreno no presente</strong></p>
+<p>A posição que Tragtenberg assume diante das urnas em 1990 só se compreende à luz de dois fios que atravessam a coletânea. O primeiro é a sombra do fascismo. O longo ensaio sobre Walther Rathenau (p. 64 a p. 100), industrial e ministro assassinado pela extrema direita alemã em 1922, termina com Maquiavel: os “profetas desarmados” sucumbem, e o crime “marca o início da ascensão da onda totalitária”. Em “De Weimar a Dallari” (p. 230 a p. 232), escrito após os atentados de 1980 contra o jurista Dalmo Dallari e sedes de partidos, a abertura brasileira aparece como a república de Weimar, uma democracia “mal-amada”, espremida entre “uma esquerda imobilista e uma direita superativa”. “A nova eugenia” (p. 104 a p. 113) reconstrói a influência do eugenismo norte-americano sobre a legislação nazista e conclui: “Nenhum discurso racista é inocente”. E “Os fundamentos despóticos do neoliberalismo” (p. 101 a p. 103), tomando o Chile de Pinochet como exemplo, sustenta que o neoliberalismo econômico “exige a ditadura autoritária como seu complemento lógico”.</p>
+<p>O segundo fio é a matriz tática formulada em “Organização popular, a saída lúcida” (p. 20 a p. 23), do início dos anos 1980. Ali, Tragtenberg recusa ao mesmo tempo o basismo e o estatismo: “Se ficarmos na posição de absolutizar práticas setoriais populares, estaremos remendando o regime com meia sola. No entanto, se pensarmos somente no poder de Estado sem nos preocuparmos com o poder nas organizações (fábricas, escolas, fazendas), estaremos construindo nova tirania”. E rejeita o “voluntarismo armado” de grupos de classe média que, por vias transversas, trabalham para uma direita radical “à espera do grande pretexto para pôr as mangas de fora”. A atitude que propõe às organizações populares é a de ser “firme, porém flexível”.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/cool-series-no-36-rough-hewn-1963-300x241.jpg"/></p>
+<p>É com esses dois fios que se deve ler “Barre a escalada fascista de Maluf” (p. 258 a p. 260), escrito durante o segundo turno das eleições para o governo paulista em 1990, o único momento do livro em que Tragtenberg se posiciona explicitamente diante das urnas. O texto é um chamado ao voto — “o voto em branco ou nulo significa a vitória de Maluf”, escreve o autor —, mas não uma adesão doutrinária ao jogo eleitoral. Opera como uma avaliação estritamente tática de conjuntura. Tragtenberg não prescreve o voto como meio de emancipação humana nem atribui qualidades redentoras à candidatura opositora. O que faz é mapear o impacto material das condições de dominação sobre a organização dos trabalhadores: uma vitória do projeto malufista significaria o fechamento de espaços, a intensificação do aparelho repressivo e a deterioração das garantias políticas fundamentais.</p>
+<p>Ao citar a máxima de que “contra o fascismo me uniria até com o diabo”, Tragtenberg esclarece a natureza pragmática de seu raciocínio: a escolha em jogo não era entre a libertação e a alienação, mas entre cenários nos quais a classe trabalhadora teria maior ou menor capacidade de continuar sua auto-organização de base. A ressalva ao final do artigo restabelece o vetor crítico central: vencido o candidato da extrema direita, “para os assalariados a luta continuará, porém, em condições menos fascistas”. O voto aparece, assim, como instrumento defensivo de um momento histórico específico, e não como procuração. É essa distinção entre a urna como terreno de luta e a urna como promessa de emancipação que permite levar a análise ao presente.</p>
+<p>Extrapolar a análise de Tragtenberg para a história recente do país permite inferir que, se estivesse vivo diante do avanço da extrema-direita contemporânea, o autor não hesitaria em defender taticamente o voto em Luiz Inácio Lula da Silva. A razão não estaria em uma eventual adesão dogmática ao programa do Partido dos Trabalhadores ou na conversão ao reformismo de coalizão — estruturas que Tragtenberg sempre submeteu a um crivo sociológico implacável —, mas no imperativo tático de garantir as condições materiais mínimas para a existência da ação política e dos movimentos sociais autônomos.</p>
+<p>A inferência encontra apoio textual no próprio livro. Em entrevista concedida durante a campanha presidencial que opôs Lula a Fernando Henrique Cardoso (p. 397 a p. 398), perguntado sobre o candidato por quem batia seu coração, Tragtenberg respondeu: “Bate pelo Lula. Mas se o coração bate por ele, a minha cabeça se preocupa”. Na mesma entrevista, criticava a indefinição programática do PT e concluía: “Qualquer que seja o governo, a população precisa se organizar para ter voz”. É a fórmula exata de sua posição: o coração no voto, a cabeça na crítica e a auto-organização como tarefa permanente.</p>
+<p>Assim como fez em 1990 ao diagnosticar que conter a ascensão autoritária era pré-requisito para que a classe trabalhadora continuasse a organizar-se, o voto em Lula surgiria na equação de Tragtenberg não como um ato de delegação emancipatória ou “procuração”, mas como uma escolha estritamente defensiva de terreno. Trata-se de distinguir a preservação das garantias democráticas formais — arena na qual o conflito social ainda pode se expressar — da ilusão de que o Estado ou a urna resolverão as contradições do capital. Para Tragtenberg, votar contra a barbárie autoritária é assegurar o espaço onde a única política não falida — a auto-organização de quem trabalha — continue sendo possível.</p>
+<p><strong>A fábrica, as experiências de autogestão e a ecologia crítica</strong></p>
+<p>Se o aparelho de Estado e a representação partidária são instâncias onde a política tende à fossilização burocrática, o chão da fábrica e as comunidades são os locais onde a ação direta se manifesta.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/cool-series-no-29-cool-blue-cold-green-1963-300x256.jpg"/></p>
+<p>Em “Comissões de Fábrica e sindicatos” (p. 41 a p. 49), resenha de <em>A tomada da Ford</em>, livro em que José Carlos Brito narra a formação da comissão de fábrica da Ford no ABC paulista após as greves de 1978 a 1981, Tragtenberg contrapõe dois modelos. De um lado, a comissão da Ford, atrelada à diretoria do sindicato, que dispõe de membros natos e pode avocar a representação dos trabalhadores. De outro, a da Asama, metalúrgica paulista, cuja comissão pertence a quem nela trabalha: a assembleia é a instância soberana e o sindicato figura apenas como “órgão consultivo”. A comissão autônoma, observa, “unifica a mão de obra, suprimindo a concorrência que o capital estabelece entre ela”, e constitui “uma organização horizontal, não hierárquica, na qual não há dirigentes e dirigidos”. Formulador de sínteses precisas, assinala que “quanto mais regulamentado é um direito, mais perde quem deveria gozá-lo”, concluindo com o enunciado que condensa sua perspectiva sociológica: “Trabalhador, se ninguém trabalha por você, que ninguém decida por você”.</p>
+<p>A mesma acuidade analítica é aplicada à crítica das modas gerenciais em “Inovações na administração do trabalho” (p. 207 a p. 210) e nos artigos sobre os Círculos de Controle de Qualidade (CCQ) (p. 368 a p. 374). Ao examinar a administração por objetivos, o “enriquecimento de tarefas” e o modelo japonês, Tragtenberg demonstra como as técnicas de “gestão participativa” visam cooptar a subjetividade do operário, rebatizando a exploração como cooperação espontânea para mitigar o conflito aberto. Não as condena em abstrato, porém: tudo “depende de sua origem e a serviço de quem ele se coloca”. Instituída de cima, a reforma é “uma recuperação reformista da resistência operária”; instituída de baixo, “pode ser uma brecha”.</p>
+<p>Ao lado das comissões de fábrica, o livro documenta experiências de gestão popular fora da fábrica. Em Lages (p. 24 a p. 26), Santa Catarina, a administração municipal organizou hortas comunitárias, mutirões habitacionais e postos de saúde construídos e geridos pela comunidade, sob o lema “A força do povo”. Em Boa Esperança (p. 27 a p. 31), no norte do Espírito Santo, um município que o Tribunal de Contas recomendava extinguir foi reerguido por um Conselho Municipal de Desenvolvimento formado por líderes eleitos pelas comunidades, “assembleia soberana” à qual se submetiam “o prefeito, a burocracia e os vereadores”. Tragtenberg elogia a experiência mesmo conduzida por um prefeito do PDS, partido do regime: o que lhe interessa é a forma de organização, não a sigla.</p>
+<p>Os limites são registrados com igual franqueza. A Unilabor (p. 32 a p. 34), cooperativa de confecção criada por operárias desempregadas e viúvas de metalúrgicos em Monlevade, sobreviveu à concorrência predatória graças à solidariedade dos operários da Belgo-Mineira, mas, para crescer, adotou a organização taylorista e substituiu as pioneiras por jovens qualificadas: “cresceu quantitativamente, mas decresceu qualitativamente”. Ainda assim, demonstrou que “o patrão é substituível”. Em Piracicaba (p. 35 a p. 36), Tragtenberg registra o desmonte, por um novo prefeito, dos centros de educação infantil e do Conselho Orçamentário dos Cidadãos criados pela gestão anterior. As conquistas da participação são frágeis quando dependem da vontade de quem governa.</p>
+<p><strong> Crítica à ecologia </strong></p>
+<p>No ensaio “Ecologia e capitalismo” (p. 213 a p. 220), originado de intervenção na SBPC em 1972, Tragtenberg antecipa em décadas o debate sobre a apropriação corporativa da pauta ambiental. O autor demonstra como o discurso ecológico dominante — formulado por organismos internacionais como o Clube de Roma — tende a tratar o modo de produção capitalista como um dado neutro, substituindo as relações sociais de produção por uma discussão abstrata sobre a relação genérica entre o “homem” e a “natureza”.</p>
+<p>Tragtenberg evidencia que o apelo à “frugalidade” e ao “crescimento zero”, quando desassociado da crítica às relações sociais de produção e ao controle do trabalho, serve para legitimar o arrocho salarial e transferir o custo da crise para a classe trabalhadora. “A antipoluição socializa as perdas e privatiza os lucros”, resume o autor. A questão decisiva não reside no consumo individual, mas em saber quem detém o poder de decidir o que e como se produz.</p>
+<p><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/cool-series-no-46-spanking-fresh-1963-300x250.jpg"/></p>
+<p><strong>O método de Tragtenberg: partir do real, recusar o dever-ser abstrato</strong></p>
+<p>Ao longo de todo o volume, a postura intelectual de Maurício Tragtenberg distingue-se categoricamente do normativismo idealista. Tragtenberg não elabora um sistema doutrinário fechado, tampouco parte de um conjunto de regras abstratas sobre como a sociedade perfeita “deve ser”. O seu ponto de partida é rigorosamente analítico e sociológico: desvelar a estrutura do que é. Isso não faz dele um observador neutro. Quando conclui, prescreve sem hesitar — “Socialismo significa autogestão econômica das empresas pelos produtores”; “um partido dos trabalhadores tem de vencer a sedução do eleitoralismo” (“Qualquer Estado por natureza é conservador”, p. 182 a p. 184) —, mas a prescrição nasce da análise das lutas concretas, e não de um dever-ser imposto de fora a elas.</p>
+<p>Quando examina o Estado, a burocracia, as técnicas de gestão, o sistema partidário ou o discurso ecológico, sua operação conceitual consiste em remover as camadas ideológicas e as mistificações que encobrem as relações reais de dominação e exploração. Mesmo quando documenta experiências autogeridas — como as comissões de fábrica, as cooperativas operárias ou as gestões municipais comunitárias em Lages e Boa Esperança —, ele não as apresenta como modelos ideais ou receitas prontas, mas como manifestações concretas e históricas das contradições da classe trabalhadora. Registra seus avanços com a mesma lucidez com que assinala seus limites, contradições e suscetibilidade à cooptação. Uma pergunta, contudo, permanece em aberto no livro: como formas de autogoverno que funcionam na escala de um município, de uma fábrica ou de uma cooperativa poderiam organizar uma sociedade de milhões de pessoas. Tragtenberg a deixa para a experiência histórica das próprias lutas, coerente com sua recusa em antecipá-la por decreto teórico.</p>
+<p>O título <em>A falência da política</em> sugere um epitáfio, mas a leitura do volume projeta a questão para o futuro. Falida está a política por procuração, o privilégio dos administradores e a tutela burocrática sobre os administrados. Ao desnudá-los, Tragtenberg não ergue um novo dogma nem prescreve o horizonte a ser alcançado. Sua contribuição é um ponto de interrogação permanente: uma lição de rigor crítico que ensina a rastrear o poder real por trás das formas institucionais e deixa em aberto a construção das formas de resistência que virão.</p>
+<p><strong>Referências</strong></p>
+<p>TRAGTENBERG, Maurício. <em>A falência da política</em>. Organização de Evaldo A. Vieira. São Paulo: Editora UNESP, 2009 (Coleção Maurício Tragtenberg). Todas as citações de Tragtenberg remetem a esta edição. As indicações de página assinalam a extensão de cada artigo citado, conforme o sumário do volume.</p>
+<p>Dados biográficos e trajetória acadêmica: Revista Adusp, n. 17, 1999, Dossiê Maurício Tragtenberg.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/11/160449/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

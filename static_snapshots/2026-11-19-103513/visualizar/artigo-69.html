@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soberania não começa nem termina no data center - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Soberania não começa nem termina no data center</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/descolonizacoes/soberania-nao-comeca-nem-termina-no-data-center/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Sem-titulo-3.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Soberania nÃ£o comeÃ§a nem termina no data center
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Sem-titulo-3.jpg"/>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Em 2025, numa comunidade indÃ­gena da Reserva de Desenvolvimento SustentÃ¡vel do TupÃ©, no Rio Negro, em Manaus, eu ensinei uma pessoa a abrir uma pasta no computador. Ela nunca tinha encostado num teclado. Duas horas depois, essa mesma pessoa estava escrevendo as primeiras linhas de um programa.</p>
+<p>Eu penso nessa cena toda vez que alguÃ©m fala em soberania em inteligÃªncia artificial. E tenho pensado muito nela, porque em 25 de novembro eu sento numa mesa da UNU Macau AI Conference, a conferÃªncia de inteligÃªncia artificial da ONU em Macau, na China, pra responder justamente isso: a IA na educaÃ§Ã£o da maioria global estÃ¡ formando consumidores ou criadores? (UNU MACAU, 2026).</p>
+<p>A pergunta Ã© boa. O problema Ã© onde a gente costuma comeÃ§ar a responder.</p>
+<h3><strong>A conversa comeÃ§a pela mÃ¡quina grande</strong></h3>
+<p>Quando o assunto Ã© soberania em IA, quase sempre se fala primeiro de data center, de chip, de nuvem, de modelo prÃ³prio. E essa conversa importa. Eu trabalho hÃ¡ onze anos construindo modelos em bancos e fintechs e sei quanto custa treinar e rodar IA. Quem nÃ£o tem a mÃ¡quina aluga a de alguÃ©m. E quem aluga joga com as regras do dono.</p>
+<p>O mapa dessa mÃ¡quina Ã© desigual. Pesquisadores da Universidade de Oxford olharam as regiÃµes de nuvem das seis maiores empresas do setor e dividiram o mundo em trÃªs grupos. No “Norte da computaÃ§Ã£o” estÃ£o os paÃ­ses com placas capazes de treinar modelos de ponta. No “Sul da computaÃ§Ã£o”, os que sÃ³ tÃªm placas mais antigas, que servem pra rodar modelos prontos. E, no “deserto da computaÃ§Ã£o”, os que nÃ£o tÃªm nada (LEHDONVIRTA; WÃ; HAWKINS, 2024). O Brasil estÃ¡ no Sul. No levantamento, a AmÃ©rica Latina inteira tinha cinco regiÃµes de nuvem com GPU, e nenhuma oferecia nada mais potente do que uma placa lanÃ§ada em 2017.</p>
+<p>Em 2025, uma reportagem do New York Times com dados do mesmo grupo de Oxford contou sÃ³ 32 paÃ­ses com data centers especializados em IA. Empresas dos Estados Unidos e da China operam mais de 90% dos data centers que o resto do mundo usa pra trabalhar com IA. E os sistemas mais usados funcionam melhor em inglÃªs e em chinÃªs, as lÃ­nguas de quem concentra a computaÃ§Ã£o (SATARIANO et al., 2025).</p>
+<p>Agora pensa no Brasil. Segundo o Censo 2022, a gente tem 295 lÃ­nguas indÃ­genas faladas (CENSO…, 2025). Quantas delas um assistente de IA entende?</p>
+<p>Mesmo assim, eu desconfio quando a soberania comeÃ§a e termina no data center. Um paÃ­s pode ter a mÃ¡quina, o modelo e a nuvem e continuar formando sÃ³ gente que usa.</p>
+<h3><strong>O sinal chegou</strong></h3>
+<p>A rede chegou longe. Segundo a PNAD ContÃ­nua TIC 2025, do IBGE, 95% dos domicÃ­lios brasileiros jÃ¡ usam internet (IBGE, 2026).</p>
+<p>O computador ficou pra trÃ¡s. SÃ³ 38,7% das casas tÃªm um. E ele segue a renda: nos domicÃ­lios sem computador nem tablet, o rendimento mÃ©dio era de R$ 1.350 por pessoa. Nos que tinham os dois, de R$ 5.298. Entre os 4 milhÃµes de domicÃ­lios que ainda nÃ£o usam internet, o motivo mais citado, em 36,5% deles, Ã© que ninguÃ©m na casa sabe usar (IBGE, 2026).</p>
+<p>Na escola, a diferenÃ§a tem endereÃ§o. Em 2024, 72,9% dos estudantes da rede privada acessavam a internet pelo computador. Na rede pÃºblica, 29,2% (PELA…, 2025).</p>
+<p>Eu comecei a programar com 14 anos, numa escola tÃ©cnica pÃºblica, a ETEC Uirapuru. Pra muita gente de onde eu vim, a escola Ã© o lugar onde o computador existe. Quando ele nÃ£o estÃ¡ lÃ¡, sobra o celular. E o celular Ã© Ã³timo pra receber: aula gravada, mensagem, resposta pronta de chatbot. Pra construir, ele aperta. Escrever um programa, montar uma base de dados, entender por que um modelo errou: isso pede uma mÃ¡quina, tempo e alguÃ©m do lado.</p>
+<p>Eu jÃ¡ escrevi isso uma vez e repito, porque continua verdade: o sinal chegou. O letramento, nÃ£o (FREIRES, 2026).</p>
+<h3><strong>Quem fornece, quem recebe</strong></h3>
+<p>A descriÃ§Ã£o do painel de Macau usa uma expressÃ£o que eu queria que mais gente conhecesse: colonialismo de dados. Ela fala de dados educacionais da Ãfrica, da Ãsia, da AmÃ©rica Latina e do Caribe usados pra treinar modelos globais sem compensaÃ§Ã£o e sem benefÃ­cio pra quem gerou esses dados (UNU MACAU, 2026).</p>
+<p>Na prÃ¡tica, funciona assim. A gente fornece o uso, a pergunta, a correÃ§Ã£o, o jeito de falar. O modelo aprende com isso lÃ¡ fora e volta pra cÃ¡ como produto pronto.</p>
+<p>Quem estudou a histÃ³ria do Brasil conhece esse filme. Muda a matÃ©ria-prima, o roteiro Ã© o mesmo.</p>
+<p>Se o Sul Global entra nessa histÃ³ria sÃ³ como usuÃ¡rio, entra como mercado. A lÃ­ngua que a gente fala, o jeito como a gente aprende, os problemas que a gente vive: nada disso entra no modelo se ninguÃ©m daqui estiver construindo.</p>
+<h3><strong>Infraestrutura que fica</strong></h3>
+<p>O Lab Digital da AmazÃ´nia nasceu pra responder isso na prÃ¡tica. A ideia veio em 2024, em frente ao MIT, nos Estados Unidos, numa conversa com o JosÃ© Netto, jornalista e educomunicador amazonense, fundador da CaribÃ­ AmazÃ´nia, quando a gente recebeu o prÃªmio Valuable Young Leaders, do MIT Sloan Management Review Brasil e da Anga. Ele conhecia as comunidades. Eu sabia ensinar.</p>
+<p>A pergunta era se dava pra levar formaÃ§Ã£o em tecnologia pra dentro de uma comunidade indÃ­gena como infraestrutura que fica, e nÃ£o como visita. Em 2025, a gente foi. Duas comunidades da RDS do TupÃ©, dez computadores instalados, vinte crianÃ§as e jovens formados, com a parceria institucional do Instituto Unidos pela Terra, que garante a logÃ­stica e os protocolos que uma aÃ§Ã£o em territÃ³rio indÃ­gena exige.</p>
+<p>As comunidades jÃ¡ tinham internet. O que faltava era computador e alguÃ©m sentado do lado.</p>
+<p>O Amazonas tem a maior populaÃ§Ã£o indÃ­gena do paÃ­s, 490,9 mil pessoas, e Manaus Ã© o municÃ­pio brasileiro com mais indÃ­genas, 71,7 mil (IBGE, [s. d.]). Dez computadores Ã© pouco perto disso. Eu sei. Mas Ã© assim que se comeÃ§a: de comunidade em comunidade, de gente formando gente.</p>
+<p>Em dezembro, a segunda ediÃ§Ã£o chega a SÃ£o Thome e Nova CanaÃ£, no Rio Cuieiras, com dez computadores doados. A trilha vai do primeiro clique ao primeiro currÃ­culo: letramento digital, programaÃ§Ã£o, IA do dia a dia e preparaÃ§Ã£o pro mercado de trabalho.</p>
+<h3><strong>O que eu vou defender em Macau</strong></h3>
+<p>Vou dizer que computador e formaÃ§Ã£o tambÃ©m sÃ£o infraestrutura de IA, e precisam entrar na conta junto com chip, nuvem e modelo. PolÃ­tica de soberania que mede sÃ³ capacidade de processamento esquece quem vai usar essa capacidade pra criar.</p>
+<p>Vou dizer que quem gera os dados tem que participar da decisÃ£o sobre eles. Dado de estudante de escola pÃºblica e de comunidade indÃ­gena nÃ£o pode virar matÃ©ria-prima de graÃ§a pra modelo de fora.</p>
+<p>E vou dizer que a passagem de consumidor pra criador nÃ£o acontece por download. Acontece com alguÃ©m sentado do lado.</p>
+<p>A diferenÃ§a entre consumidor e criador nÃ£o Ã© tÃ©cnica. Ã de posiÃ§Ã£o. E posiÃ§Ã£o a gente muda ocupando lugar: na sala de aula, no laboratÃ³rio, na mesa onde se decide o futuro da tecnologia.</p>
+<p>Em 25 de novembro, eu ocupo essa mesa levando o TupÃ©, SÃ£o Thome e Nova CanaÃ£ comigo. E levando aquela cena: uma pasta aberta e, duas horas depois, a primeira linha de cÃ³digo.</p>
+<p>Soberania em IA comeÃ§a aÃ­. No primeiro clique.</p>
+
+<p><strong>ReferÃªncias</strong></p>
+<p>CENSO 2022: Brasil tem 391 etnias e 295 lÃ­nguas indÃ­genas. <em>AgÃªncia IBGE NotÃ­cias</em>, Rio de Janeiro, 24 out. 2025. DisponÃ­vel em: https://agenciadenoticias.ibge.gov.br/agencia-noticias/2012-agencia-de-noticias/noticias/44848-censo-2022-brasil-tem-391-etnias-e-295-linguas-indigenas. Acesso em: 10 nov. 2026.</p>
+<p>FREIRES, Andressa. Eu gravei um vÃ­deo dizendo que nÃ£o ia conseguir. Quatro dias depois, a comunidade me levou pra ONU pra falar de IA e AmazÃ´nia. <em>Data Hackers</em>, [<em>s. l.</em>], 23 out. 2026. DisponÃ­vel em: https://medium.com/data-hackers/eu-gravei-um-v%C3%ADdeo-dizendo-que-n%C3%A3o-ia-conseguir-74f5f346662f. Acesso em: 10 nov. 2026.</p>
+<p>INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÃSTICA (IBGE). <em>Pesquisa Nacional por Amostra de DomicÃ­lios ContÃ­nua</em>: acesso Ã  Internet e Ã  televisÃ£o e posse de telefone mÃ³vel celular para uso pessoal 2025. Rio de Janeiro: IBGE, 2026. Informativo. ISBN 978-85-240-4716-9. DisponÃ­vel em: https://biblioteca.ibge.gov.br/visualizacao/livros/liv102290_informativo.pdf. Acesso em: 10 nov. 2026.</p>
+<p>INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÃSTICA (IBGE). Os indÃ­genas no Censo 2022. <em>IBGE Educa</em>, Rio de Janeiro, [<em>s. d.</em>]. DisponÃ­vel em: https://educa.ibge.gov.br/criancas/brasil/2848-nosso-povo/22324-os-indigenas-no-censo-2022.html. Acesso em: 10 nov. 2026.</p>
+<p>LEHDONVIRTA, Vili; WÃ, BÃ³xÄ«; HAWKINS, Zoe. Compute North vs. Compute South: the uneven possibilities of compute-based AI governance around the globe. <em>In</em>: AAAI/ACM CONFERENCE ON AI, ETHICS, AND SOCIETY, 7., 2024, San Jose. <em>Proceedings</em> […]. Palo Alto: AAAI Press, 2024. v. 7, p. 828-838. DOI: https://doi.org/10.1609/aies.v7i1.31683.</p>
+<p>PELA primeira vez, mais da metade da populaÃ§Ã£o acessa a internet pela TV. <em>AgÃªncia IBGE NotÃ­cias</em>, Rio de Janeiro, 24 jul. 2025. DisponÃ­vel em: https://agenciadenoticias.ibge.gov.br/pt/agencia-noticias/44033-pela-primeira-vez-mais-da-metade-da-populacao-acessa-a-internet-pela-tv.html. Acesso em: 10 nov. 2026.</p>
+<p>SATARIANO, Adam; MOZUR, Paul; RUSSELL, Karl; KIM, June. The A.I. race is splitting the world into haves and have-nots. <em>The New York Times</em>, Nova York, 23 jun. 2025. DisponÃ­vel em: https://www.nytimes.com/interactive/2025/06/23/technology/ai-computing-global-divide.html. Acesso em: 10 nov. 2026.</p>
+<p>UNITED NATIONS UNIVERSITY INSTITUTE IN MACAU (UNU MACAU). AI &amp; Education in the Global Majority: consumers or creators? <em>In</em>: UNU MACAU AI CONFERENCE 2026, Macau, 25-26 nov. 2026. <em>Programa</em>. Macau: UNU Macau, 2026. DisponÃ­vel em: https://unu.edu/macau/aiconf2026/program/ai-edprogramucation-global-majority-consumers-or-creators. Acesso em: 10 nov. 2026.</p>
+<p></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/descolonizacoes/soberania-nao-comeca-nem-termina-no-data-center/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

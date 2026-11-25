@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A presença da ciência nas redes não deve apagar a complexidade do trabalho de comunicá-la - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A presença da ciência nas redes não deve apagar a complexidade do trabalho de comunicá-la</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Observatorio da Imprensa</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.observatoriodaimprensa.com.br/ciencia/297479/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/11/pexels-artempodrez-8532826-e1795127601369.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A presença da ciência nas redes não deve apagar a complexidade do trabalho de comunicá-la
+                            </p>
+                            
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/11/pexels-artempodrez-8532826-e1795127601369.jpg"/><p>(Foto: Artem Podrez/Pexels)</p>
+<p>O editorial publicado na edição de junho de 2026 da revista <a href="https://www.nature.com/articles/d41586-026-01723-1" rel="noopener noreferrer" target="_blank"><i>Nature</i></a> provocou discussões entre pesquisadores e entusiastas da divulgação científica. O título já é, por si só, uma provocação: “O futuro da divulgação científica não é um artigo como este” (<i>The Future</i>, 2026). Em tradução livre, a frase sintetiza o argumento central do texto: pesquisadores e editoras científicas precisam aproveitar as profundas mudanças na forma como as notícias são produzidas, distribuídas e consumidas. Não por acaso, a própria <i>Nature</i> decidiu entrar no TikTok.</p>
+<p>O movimento faz sentido quando se olha para os dados mais recentes sobre o consumo de informação, citados em parte pelo próprio editorial. O <a href="https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026" rel="noopener noreferrer" target="_blank"><i>Digital News Report</i></a> (Reuters Institute, 2026) acompanha há mais de uma década as transformações nos hábitos de consumo de notícias e ajuda a dimensionar a mudança em curso. O que está acontecendo é uma passagem do <i>online first</i> para o <i>social first</i>, especialmente entre os mais jovens (pessoas de 18 a 24 anos). Para esse público, as redes sociais, as plataformas de vídeo e os <i>chatbots</i> de inteligência artificial já disputam — e, em alguns casos, ocupam — o espaço antes reservado aos sites e aplicativos dos próprios veículos jornalísticos.</p>
+<p>Esses jovens tendem ainda a prestar mais atenção a criadores de conteúdo (51% dos participantes) do que em meios de comunicação tradicionais (39%). Somente 35% disseram se interessar muito por notícias e 36% as consomem diariamente. As plataformas audiovisuais, com recursos de vídeos curtos, são as que têm a preferência: Instagram, YouTube e TikTok (Robertson et al, 2026). O cenário combina, portanto, menor interesse para o consumo jornalístico tradicional com uma crescente disposição para receber informação em ambientes marcados pela lógica das plataformas e pela presença de personalidades digitais.</p>
+<p>A questão que se coloca para a divulgação científica, portanto, vai muito além de decidir se vale a pena criar uma conta no TikTok. Se os públicos mudaram de lugar, mudaram também as formas pelas quais a ciência precisa disputar atenção, construir confiança e se tornar socialmente relevante. A provocação da <i>Nature</i> suscita um debate maior: não se trata apenas de um formato de comunicação, mas de todo um aparato para o qual pesquisadores e instituições precisam se preparar com cada vez mais velocidade.</p>
+<p>O propósito deste artigo não é conceituar divulgação científica, tampouco discutir as diferentes denominações que historicamente se associam a esse campo. Parto de algumas premissas que considero suficientemente consolidadas. A primeira é que o acesso ao conhecimento científico e a participação pública nas discussões sobre ciência integram uma dimensão importante da vida democrática. A segunda premissa é que as plataformas digitais se tornaram espaços incontornáveis de circulação de informações sobre ciência. Também não é novidade que esses ambientes são atravessados pela desinformação, pela circulação de pseudociências e por disputas em torno da credibilidade das fontes. Há, portanto, razões substantivas para que pesquisadores, instituições científicas, jornalistas e divulgadores estejam presentes nesses espaços – e para que essa presença não seja tratada como algo periférico à comunicação pública da ciência.</p>
+<p>É justamente a partir dessas premissas que surge o incômodo que motiva este artigo. Ele não está na defesa da presença da ciência nas redes, mas na simplificação de alguns discursos que transformam essa presença em uma espécie de imperativo individual: “todos precisamos estar nas redes”, “esse é o futuro”, “o cientista precisa aprender a produzir conteúdo”.</p>
+<p>Há uma diferença importante entre afirmar que a ciência precisa disputar espaço nas plataformas e afirmar que todo cientista precisa, pessoalmente, tornar-se um produtor de conteúdo. A primeira proposição diz respeito à circulação social do conhecimento científico; a segunda atribui ao pesquisador uma função específica dentro de um ecossistema comunicacional complexo.</p>
+<p>Talvez seja útil, aqui, um paralelo com discussões que atravessaram o debate sobre cultura de massa. Em determinados momentos, a crítica à elitização da cultura foi acompanhada pela valorização da cultura popular e pela ampliação daquilo que poderia ser reconhecido como expressão cultural. O problema aparece quando a necessária abertura do acesso se transforma em uma espécie de recusa da distinção: se tudo pode ser arte, questionar determinados produtos culturais passa a ser interpretado como elitismo.</p>
+<p>Algo semelhante parece estar se desenhando em parte do entusiasmo contemporâneo com as redes sociais. Se a ciência precisa ocupar esses espaços, parece haver uma tendência a transformar determinadas características da linguagem das plataformas em requisitos quase naturais dessa ocupação: o cientista deve ser simpático, espontâneo, divertido, fazer humor, seguir tendências, dominar vídeos curtos e, sobretudo, aprender a disputar a atenção. Caso contrário, corre o risco de ser considerado distante, sisudo ou incapaz de dialogar com o público.</p>
+<p>Mas precisamos mesmo de cientistas que se comportem como influenciadores para que a ciência esteja presente nas redes? E mais: o que perdemos quando a linguagem da plataforma deixa de ser uma possibilidade e passa a ser tratada como modelo?</p>
+<p>Não se trata de questionar a relevância dessas plataformas ou de defender um retorno a formas exclusivamente tradicionais de comunicação. Trata-se de problematizar uma transformação que considero necessária, mas que vem sendo, por vezes, apresentada de maneira excessivamente simples. Se a ciência precisa ocupar as redes, precisamos discutir não apenas se ela deve estar ali, mas como essa ocupação acontece, quem realiza esse trabalho e o que efetivamente resulta dele. É nesse sentido que proponho descamar essa discussão em três dimensões: a engrenagem, os trabalhadores e o fruto desse trabalho.</p>
+<p><b>A engrenagem</b></p>
+<p>Defendemos que a ciência ocupe as plataformas justamente porque elas concentram os públicos, mas, ao ocupá-las, também passamos a alimentar infraestruturas privadas que operam segundo interesses, métricas e modelos econômicos que não são necessariamente os mesmos da comunicação pública da ciência. O entusiasmo com a possibilidade de alcançar milhões de pessoas não deveria nos fazer esquecer a postura crítica que a produção de conhecimento nos exige.</p>
+<p>Há uma contradição que merece ser enfrentada de forma consciente: que tipo de infraestrutura estamos fortalecendo quando decidimos que a comunicação pública da ciência precisa necessariamente passar por ela?</p>
+<p>As universidades brasileiras já estão profundamente inseridas nesse ecossistema. E-mail institucional, armazenamento em nuvem, ambientes virtuais de aprendizagem, ferramentas de videoconferência, plataformas de gestão, canais de transmissão e redes sociais fazem parte, em diferentes graus, do cotidiano de ensino, pesquisa, extensão e comunicação institucional. A dependência não começa quando um pesquisador abre uma conta no Instagram para divulgar seu trabalho; ela é anterior e estrutural.</p>
+<p>Essa constatação impede uma leitura simplista da questão. Não se trata de imaginar uma universidade que possa simplesmente “sair das plataformas” ou um pesquisador que consiga estabelecer uma relação absolutamente autônoma com essas infraestruturas. A plataformização já atravessa parte significativa da vida acadêmica. O que cabe discutir, portanto, são os graus dessa dependência, os dados envolvidos, as condições de uso e as alternativas possíveis.</p>
+<p>A discussão sobre privacidade e governança de dados é particularmente importante nesse contexto, pois o público que queremos alcançar também se torna dado para a plataforma que nos permite alcançá-lo. Há ainda uma dimensão mais sutil dessa dependência: a infraestrutura não apenas hospeda a comunicação; ela participa da definição de sua visibilidade. O que chega às pessoas não depende exclusivamente da qualidade, da relevância ou da credibilidade de um conteúdo. Depende também de mecanismos de recomendação, métricas de engajamento e decisões algorítmicas que permanecem, em grande medida, fora do controle de quem produz o conteúdo. É por isso que ocupar as redes não deveria significar simplesmente adaptar a ciência às regras das plataformas. Se a ciência entra na engrenagem, precisa também compreender a engrenagem.</p>
+<p><b>Os trabalhadores</b></p>
+<p>A convocação costuma aparecer no singular – o/a cientista precisa estar no TikTok, produzir <i>reels</i>, gravar vídeos, responder comentários, acompanhar tendências, aprender a falar com diferentes públicos. Mas esse “precisa” adiciona uma nova camada de trabalho a uma atividade profissional que já envolve ensino, pesquisa, extensão, gestão e, em muitos casos, uma série de tarefas administrativas.</p>
+<p>A questão não é nova. A divulgação científica já não constituía uma unanimidade entre pesquisadores antes da ascensão das plataformas digitais. Há razões bastante concretas para isso: comunicar ciência demanda tempo e competências específicas; nem todos os pesquisadores receberam formação para fazê-lo; a atividade historicamente ocupa posição secundária nos mecanismos de reconhecimento e progressão acadêmica; faltam recursos e estruturas institucionais; e persistem, no próprio campo científico, concepções segundo as quais determinados conhecimentos seriam excessivamente especializados ou não despertariam interesse fora da comunidade de pares.</p>
+<p>Mas há uma dimensão institucional que precisa ser acrescentada a esse debate. Quem deveria comunicar ciência em uma universidade ou instituição de pesquisa não é apenas o/a cientista. Assessorias e estruturas profissionais de comunicação cumprem justamente a função de fazer a mediação entre a produção acadêmica e diferentes públicos. E essas estruturas também foram submetidas, nos últimos anos, a um processo de expansão de demandas que não foi acompanhado pela ampliação correspondente de equipes.</p>
+<p>A Emenda Constitucional nº 95/2016 inaugurou um período de forte contenção do crescimento das despesas públicas, enquanto o Decreto nº 10.185/2019 determinou a extinção de cargos efetivos vagos e daqueles que viessem a vagar em diferentes órgãos federais, além de restringir o provimento de determinadas vagas. Entre os cargos alcançados estavam jornalistas e outros profissionais relacionados à produção e à comunicação de conteúdos, enquanto, no âmbito das instituições federais de ensino, também foram atingidos cargos técnico-administrativos ligados à produção audiovisual e editorial.</p>
+<p>O problema, para a comunicação institucional, é que a demanda não ficou parada. Ao contrário: as universidades e instituições de pesquisa passaram a operar em um ecossistema comunicacional muito mais complexo. À produção tradicional de notícias institucionais somaram-se redes sociais, produção audiovisual, comunicação científica, gestão de sites e plataformas, relacionamento com a imprensa, campanhas institucionais, transmissões on-line, produção de conteúdos para diferentes formatos e, mais recentemente, demandas relacionadas à inteligência artificial e à comunicação em ambientes cada vez mais plataformizados.</p>
+<p>Mais canais, mais formatos, mais velocidade e mais responsabilidades – sem que isso necessariamente tenha significado mais profissionais para realizar o trabalho. Essa equação importa porque ajuda a explicar por que a solução “o cientista precisa fazer” pode parecer tão atraente. Se as estruturas profissionais não conseguem responder sozinhas à multiplicação das demandas, transfere-se parte dessa responsabilidade para o pesquisador, que passa a ser convocado não apenas como fonte especializada, mas como roteirista, apresentador, produtor e distribuidor do próprio conteúdo.</p>
+<p>Não se trata de negar a importância dessa participação. Cientistas podem, sim, produzir comunicação pública de alta qualidade e estabelecer relações mais diretas com diferentes públicos. A questão é não transformar essa possibilidade em uma solução organizacional para a insuficiência de estruturas de comunicação.</p>
+<p>Minha experiência de pesquisa também me leva a desconfiar dessa simplificação. Em <a href="https://www.reciis.icict.fiocruz.br/index.php/reciis/article/view/4585" rel="noopener noreferrer" target="_blank">estudo realizado sobre a atuação de instituições de pesquisa e influenciadores no TikTok</a>, analisei justamente as diferenças entre esses atores e as formas pelas quais a comunicação científica é tensionada pelas linguagens e dinâmicas próprias das plataformas (Agnez, 2025). A comparação evidencia que instituições científicas e criadores de conteúdo não partem das mesmas condições, não possuem necessariamente os mesmos objetivos e não operam com os mesmos recursos comunicacionais. Colocar todos esses sujeitos sob a categoria genérica de “produtores de conteúdo” apaga diferenças importantes.</p>
+<p>Quando pensamos nos cientistas-influenciadores, há ainda outro ponto: a inserção nesses ambientes não ocorre em um espaço neutro. Visibilidade, métricas de engajamento, reconhecimento, construção de reputação e, em alguns casos, monetização passam a integrar as condições nas quais esse trabalho é realizado. O pesquisador que se torna também produtor de conteúdo passa, portanto, a operar sob incentivos que não são necessariamente os mesmos da comunicação científica ou da própria atividade acadêmica.</p>
+<p>Outra questão está relacionada à própria formação para esse trabalho. Em 2025, promovemos na UFG o seminário <i>Ciência em Rede: desafios e estratégias para a divulgação científica no mundo digital</i>, com a participação de Guilhermo Vilas Boas, então coordenador técnico da Coordenação dos Programas de Pesquisa em Educação, Popularização e Divulgação Científica do CNPq. Na ocasião, foi discutido um problema recorrente nos planos de divulgação científica apresentados por pesquisadores em propostas de financiamento: a inclusão de atividades que não correspondem propriamente à divulgação para públicos não especializados, como anais de eventos, palestras técnicas ou materiais destinados ao ensino formal. O problema pode ser interpretado como despreparo, desconhecimento ou simplesmente como consequência de uma tradição acadêmica que durante muito tempo distinguiu a produção destinada aos pares daquela voltada à sociedade. Seja qual for a explicação, isso revela que não basta exigir divulgação científica; é preciso formar para ela.</p>
+<p>Esse movimento vem sendo acompanhado por mudanças nas políticas de fomento. O CNPq passou a incorporar nos últimos anos, em diferentes chamadas, exigências relacionadas à disseminação do conhecimento, tendência que vem sendo acompanhada por fundações estaduais de amparo à pesquisa. Há, portanto, uma mudança institucional relevante: a comunicação com públicos não especializados deixa de aparecer apenas como uma atividade desejável e passa a integrar o planejamento da pesquisa. Mas essa mudança produz uma pergunta incômoda: se a divulgação científica passa a ser exigida, quem será responsável por realizá-la?</p>
+<p>Divulgar ciência exige conhecimento sobre ciência, mas também exige conhecimento sobre públicos, linguagens, narrativas, plataformas, formatos e estratégias de comunicação. Em determinadas situações, o próprio pesquisador será a pessoa mais adequada para comunicar seu trabalho. Em outras, a mediação de jornalistas, divulgadores, designers, produtores audiovisuais, profissionais de comunicação ou equipes institucionais poderá produzir resultados mais adequados. Não se trata de substituir o cientista, mas de reconhecer que comunicar também é um trabalho especializado.</p>
+<p><b>Os frutos</b></p>
+<p>Nessas condições, quais são os frutos desse trabalho? A pergunta não pretende desqualificar os conteúdos produzidos por cientistas, estudantes ou instituições nas redes sociais. Há experiências excelentes, criativas e tecnicamente sofisticadas. Tampouco se trata de opor a comunicação científica em formatos tradicionais às linguagens digitais. O problema é compreender o que acontece quando uma atividade que exige tempo e conhecimento especializado passa a ser realizada sob as condições de uma economia da atenção marcada pela velocidade, pela frequência e pela disputa permanente por visibilidade.</p>
+<p>Em contextos de poucos recursos e pouca formação específica, uma das consequências pode ser a produção de materiais tecnicamente mais simples, improvisados ou dependentes de ferramentas automatizadas. Recursos de IA, por exemplo, reduzem barreiras de produção, mas não resolvem o problema da qualidade, da adequação ao público, da apuração ou da responsabilidade sobre aquilo que é comunicado. Outro exemplo é de conteúdos bem comuns que engajam pelo humor e aparente autenticidade, que seguem inundando as redes de mais e mais materiais, porém, será que comunicam ciência?</p>
+<p>Há também uma questão anterior à qualidade individual dos conteúdos: quem efetivamente os vê? Participei, este ano, do VIII Simpósio Brasileiro de Popularização da Ciência (SIBPOP) e pude trocar experiências com colegas de diferentes áreas e instituições. Uma percepção recorrente nas apresentações e conversas foi a existência de muitos projetos de divulgação científica com perfis em redes sociais, mas também a dificuldade de ultrapassar os limites das próprias comunidades. Não é incomum que esses perfis sejam acompanhados sobretudo pelos próprios estudantes envolvidos nos projetos, por pesquisadores e por pessoas que já integram a comunidade daquela área. Produzir para uma plataforma não significa, portanto, necessariamente alcançar públicos novos. A existência de um perfil, a regularidade das postagens ou mesmo o número de seguidores não dizem, por si só, quem está sendo alcançado, como esse público interpreta o conteúdo ou se houve, de fato, ampliação da circulação do conhecimento.</p>
+<p>A divulgação científica nunca foi uma atividade restrita aos profissionais de comunicação. Mas talvez nunca tenha sido exigido tantas competências comunicacionais, nem enfrentado condições tão complexas de produção e circulação. Por isso, mais do que perguntar se todos precisamos estar nas redes, talvez seja necessário perguntar que condições precisamos criar para que a ciência possa estar onde as pessoas estão sem precisar se transformar naquilo que as plataformas esperam que ela seja. Pois, se as plataformas recompensam determinadas formas de interação, o risco é que passemos a confundir comunicação científica eficiente com aquilo que é eficiente para o algoritmo. E a ciência nem sempre funciona assim.</p>
+<p>O editorial da <i>Nature</i> é um excelente recorte de um tempo, que registra uma transformação efetivamente em curso, mas não precisa se transformar em uma sentença. O futuro da comunicação científica não precisa ser reduzido à escolha entre estar ou não estar nas redes.</p>
+<p>Engajar a ciência também significa discutir as próprias condições de produção e circulação do conhecimento. Isso inclui participar do debate sobre regulação das plataformas, transparência dos sistemas de recomendação, responsabilidade das empresas e enfrentamento da desinformação. Se a ciência ocupa esses espaços para defender a circulação de informação confiável, também precisa poder questionar as regras dos espaços que ocupa.</p>
+<p>Significa também pensar em tecnologias e infraestruturas. Universidades e instituições de pesquisa são profundamente dependentes de plataformas privadas e, em muitos casos, estrangeiras, para armazenar dados, hospedar conteúdos, realizar reuniões, ensinar, publicar e distribuir informação. A soberania científica e tecnológica passa também pela capacidade de desenvolver alternativas e reduzir dependências quando isso for possível.</p>
+<p>Significa, ainda, defender formação e equipes. Se queremos pesquisadores capazes de dialogar com diferentes públicos, precisamos oferecer formação para isso. Se queremos comunicação científica de qualidade, precisamos de profissionais e equipes de comunicação em condições adequadas de trabalho. O CNPq criou, por exemplo, a modalidade de bolsa de Apoio à Difusão do Conhecimento (ADC), o que representa uma possibilidade de incorporar pessoas a esse trabalho. Mas iniciativas dessa natureza precisam alcançar escala e continuidade compatíveis com a dimensão da demanda. Projetos de pesquisa, redes e Institutos Nacionais de Ciência e Tecnologia também podem incorporar profissionais de comunicação de forma mais estruturada, com bolsas e recursos destinados especificamente a essa finalidade. Não como uma atividade acessória, a ser realizada quando houver tempo ou como contrapartida informal, mas como parte da própria estratégia de circulação e apropriação social do conhecimento.</p>
+<p>E significa, finalmente, investir em educação midiática. Nunca foi tão importante ensinar jovens não apenas a encontrar informação, mas a compreender como ela chega até eles e a consequência do que eles próprios curtem e compartilham. Quem escolhe um conteúdo? Por que ele apareceu na tela? Que interesses estão envolvidos? Como identificar uma fonte? Como distinguir evidência de opinião? Quando uma simplificação ajuda a compreender e quando ela distorce? Nem tudo precisa ser engraçado, nem tudo precisa caber em quinze segundos, nem toda informação precisa disputar a atenção como se fosse entretenimento.</p>
+<p>Problemas complexos não têm soluções fáceis, mas isso não significa que não haja caminhos possíveis. A ciência precisa circular, ser compreendida, questionada, apropriada e discutida pela sociedade. O desafio, portanto, não é simplesmente ocupar as redes, mas construir diferentes formas e condições para que esse conhecimento possa alcançar a sociedade — nas redes e para além delas.</p>
+<p><b>Referências:</b></p>
+<p>AGNEZ, L. F. Divulgação científica nas redes sociais: desafios para instituições de pesquisa e influenciadores no TikTok. <b>Reciis</b>, v. 19, n. 4, 2025. DOI: <a href="https://doi.org/10.29397/reciis.v19iAhead-of-Print.4585" rel="noopener noreferrer" target="_blank">https://doi.org/10.29397/reciis.v19iAhead-of-Print.4585</a> </p>
+<p>REUTERS INSTITUTE. <b>Digital News Report 2026</b>. Oxford: University of Oxford, 2026. Disponível em: <a href="https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026" rel="noopener noreferrer" target="_blank">https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026</a>. Acesso em: 22 set. 2026.</p>
+<p>ROBERTSON, C. T.; ARGUEDAS, A. R.; MUKHERJEE, M.; FLETCHER, R. Understanding young news audiences at a time of rapid change. In: REUTERS INSTITUTE. <b>Digital News Report 2026</b>. Oxford: University of Oxford, 2026. Disponível em: <a href="https://reutersinstitute.politics.ox.ac.uk/understanding-young-news-audiences-time-rapid-change" rel="noopener noreferrer" target="_blank">https://reutersinstitute.politics.ox.ac.uk/understanding-young-news-audiences-time-rapid-change</a>. Acesso em: 22 set. 2026.</p>
+<p>THE FUTURE of science communication is not an article like this. <b>Nature</b>, v. 654, p. 8, 2 jun. 2026. DOI: <a href="https://doi.org/10.1038/d41586-026-01723-1" rel="noopener noreferrer" target="_blank">https://doi.org/10.1038/d41586-026-01723-1</a>. </p>
+<p><strong>***</strong></p>
+<p><strong>Luciane Fassarella Agnez</strong> é Professora da Faculdade de Informação e Comunicação e do Programa de Pós-graduação em Comunicação da Universidade Federal de Goiás. Diretora Regional Centro-Oeste da Associação Brasileira de Ensino de Jornalismo.</p>
+<p> </p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.observatoriodaimprensa.com.br/ciencia/297479/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

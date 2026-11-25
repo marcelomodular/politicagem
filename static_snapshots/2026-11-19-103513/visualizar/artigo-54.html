@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anthropic’s early birds are getting very rich - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Anthropic’s early birds are getting very rich</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/today-explained-newsletter/510608/anthropic-ipo" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/gettyimages-2305196407.jpg?quality=90&strip=all&crop=0%2C10.752607989199%2C100%2C78.494784021602&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Anthropic IPO: The AI giant’s early birds are getting very rich
+                            </p>
+                            <p><em>This story appeared in Today, Explained, a daily newsletter that helps you understand the most compelling news and stories of the day. <a href="https://www.vox.com/today-explained-newsletter" rel="noopener noreferrer" target="_blank">Subscribe here</a></em>.</p><p>Americans have debated, derided, praised, and protested the frontier AI labs. But they’ve <a href="https://www.nytimes.com/2026/11/17/world/18int-theworld-anthropic-ukraine-nvidia.html" rel="noopener noreferrer" target="_blank">never been able</a> to directly own a piece of one…until tomorrow at 9 am.</p><p>That’s when Anthropic, developer of the chatbot Claude, is expected to go public at a valuation of <a href="https://www.nytimes.com/2026/11/10/technology/anthropic-ipo-valuation-share-price.html" rel="noopener noreferrer" target="_blank">more than $1 trillion</a>. That would immediately rank the almost-six-year-old lab among the world’s most valuable publicly traded companies — up there <a href="https://abcnews.com/US/wireStory/investors-anthropics-unusual-ipo-138254440" rel="noopener noreferrer" target="_blank">with the likes</a> of Walmart and JPMorgan Chase.</p><p>It’s a major public test of what investors think Anthropic is worth, at a moment when a <em>lot</em> of people — policymakers, regulators, and technologists among them — are questioning the economic and social value of the AI industry. AI stocks have been shaky lately, and many of the new congressional Democrats <a href="https://www.vox.com/future-perfect/509829/data-centers-ai-midterm-election-congress" rel="noopener noreferrer" target="_blank">have promised to take a tougher stance</a> toward data centers and related technology.</p><p>But you wouldn’t know it from the hype around the IPO, which is on track to become one of the largest ever. Anthropic initially set a price range of $70 to $78 a share, then <a href="https://www.cnbc.com/2026/11/18/anthropic-ipo-ai-offering-price.html" rel="noopener noreferrer" target="_blank">reportedly revised</a> the offering at $83 per share as demand <a href="https://www.cnbc.com/2026/11/18/anthropic-ipo-ai-offering-price.html" rel="noopener noreferrer" target="_blank">surged far beyond</a> the number of shares available.</p><p>Investors are apparently betting that Anthropic has more growing to do. For ordinary buyers, that represents a chance to share in a company whose technology <a href="https://www.vox.com/politics/478794/ai-economy-claude-code-jobs-openai-anthropic" rel="noopener noreferrer" target="_blank">could cost us our jobs</a>…if not <a href="https://www.vox.com/politics/505834/ai-doom-anthropic-openai-pr" rel="noopener noreferrer" target="_blank">our very existence on Earth</a>. 💀</p><p>The biggest winners, however, will almost undoubtedly be the executives, employees, <a href="https://www.wsj.com/finance/investing/the-investors-set-to-win-big-in-anthropics-ipo-a2fc795c" rel="noopener noreferrer" target="_blank">and early investors</a> at Anthropic itself. The timing of the IPO helps with that.</p><p>Some of America’s most iconic companies went public very early in their lifecycles. (Think Apple, Amazon, and eBay, which all IPO-ed before they were five years old.)</p><p>But over the past two decades or so, many of America’s biggest businesses have instead grown in private. Between the early 2000s and 2025, the <a href="https://site.warrington.ufl.edu/ritter/files/IPOs-Age-of-Companies-Going-Public.pdf" rel="noopener noreferrer" target="_blank">median age of a company at IPO doubled</a> from six years in 2000 to 12 in 2025.</p><p>Analysts credit <a href="https://corporate.vanguard.com/content/dam/corp/research/pdf/2026_private_equity_midyear_update_private_longer_public_later.pdf" rel="noopener noreferrer" target="_blank">two main factors</a> for these increasingly late-breaking IPOs. One is the fast-growing availability of private capital from venture funds, wealthy individuals, and other companies. Firms that once needed to go public to raise money to grow can now raise that money privately.</p><p>The other factor is the desire to maintain control over the company and its information: Private firms don’t have to file public financial reports or give public shareholders a vote on corporate matters.</p><p>But while that may be good for companies and their leaders, it’s not always or unambiguously great for the general public. Financial reports shed valuable light on how a business operates and where its risks lie, for instance.</p><p>There’s a financial downside for us normies, too. “The way I see it, the later a company goes public, the more of its growth gains accrue to private investors,” <a href="https://mendoza.nd.edu/directory/brad-badertscher" rel="noopener noreferrer" target="_blank">Brad Badertscher</a>, a professor of accountancy at the University of Notre Dame who <a href="https://theconversation.com/spacex-and-openai-ipos-are-unlikely-to-bring-skyrocketing-returns-that-amazon-and-apple-did-as-companies-go-public-later-in-life-and-early-investors-cash-out-276147" rel="noopener noreferrer" target="_blank">has studied IPO trends,</a> said in an email to Vox.</p><p>Under this system, insiders like executives, employees, and early investors can nab shares at a low price while the company is still young and then benefit if its value goes up. Retail investors only join the party after much of that growth has already happened.</p><p>Of course, growth is never guaranteed. Early investors, private or public, also take on a lot of risk. And even now, several years in, <a href="https://www.vox.com/politics/511132/anthropic-ipo-ai-bubble-nvidia" rel="noopener noreferrer" target="_blank">new investors are <em>still</em> taking a substantial risk</a> when they buy shares in Anthropic — a company that, in the grand scheme of recent IPOs, isn’t even that late to the process.</p><p>There’s the threat of greater regulation from a Democratic Congress. The fallout of the shake-up at Nvidia. The specter of a potential AI market crash (to say nothing about the aforementioned end of the world).</p><p>If would-be shareholders are bothered, however…you’d never know it! They’ve been waiting years to buy Anthropic stock, and they very much want in.</p><p><strong>➨ Become a (moderately) better home cook.</strong> Especially if you’re a beginner, it’s easy to make perfect the enemy of good. But <a href="https://www.vox.com/even-better/23436672/how-to-start-cooking-beginner-guide" rel="noopener noreferrer" target="_blank">you don’t have to be a master chef to turn out a great Thanksgiving feast</a> (...or to feel confident in the kitchen, in general!). Buy a decent knife and stock your spice drawer. Set some small, manageable goals. And make your kitchen a fun place to be. It makes all the chopping go much faster.</p><ul><li><strong>Did you know…</strong>there’s a type of bird that quite literally sews its nest together? They’re called common tailorbirds, and <a href="https://www.vox.com/down-to-earth/409296/animal-instinct-tailorbird-biodiversity" rel="noopener noreferrer" target="_blank">they stitch leaves with spiderwebs</a> or plant fibers after poking holes in them. </li><li><strong>Today’s trivia:</strong> What’s the name of the US soccer player who scored the game-winning penalty kick at the 1999 Women’s World Cup? (You can find this and other brain puzzles <a href="https://link.vox.com/click/6a46cfd46352b082500e86fe/aHR0cHM6Ly93d3cudm94LmNvbS8yMTUyMzIxMi9jcm9zc3dvcmQtcHV6emxlcy1mcmVlLWRhaWx5LXByaW50YWJsZT91ZWlkPWM3Mzg0ZDJhYzRmZDQ0YzcyZDI4OGQ4N2YxZjM5NDlh/664389def568f1a4620aa3aeC7b08b10b" rel="noopener noreferrer" target="_blank">in Vox’s daily crossword</a>. Look for the answer in tomorrow’s edition.)</li><li><strong>Yesterday’s trivia:</strong> Yesterday we asked you for the 13th-century explorer who dictated the story of his travels to his prison cellmate. That would be Marco Polo, who <a href="https://www.loc.gov/item/2021668052" rel="noopener noreferrer" target="_blank">shared his tale</a> with the writer Rustichello da Pisa when they were both jailed in Genoa in the late 1290s. </li></ul>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/today-explained-newsletter/510608/anthropic-ipo" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

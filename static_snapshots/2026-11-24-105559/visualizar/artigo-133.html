@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Necroeros - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Necroeros</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/11/160500/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2026/11/After_Peter_Paul_Rubens_003.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Necroeros | Passa Palavra
+                            </p>
+                            
+<h3>Por Thiago Santos*</h3>
+<p><em><strong>Escrevo para cortar. Escrevo por gozar muito com isso. Escrevo pelo meu gozo cortante e sadomasoquista. Dizer que minha escrita está a favor de uma causa nobre, justa ou elevada seria performático demais. Até mesmo para mim. Minha filosofia, se é que o que faço pode ser chamado assim, é sadomasoquismo filosófico.</strong></em></p>
+<p><strong>Necro </strong>deriva do grego antigo e significa “morto” ou “cadáver”. <strong>Eros</strong> remete às divindades e personificações gregas do amor, mas também significa paixão e amor ou amor apaixonado. Meu objetivo com este texto é dissecar o cadáver de Eros, fazer sua autópsia. Ou, melhor dizendo, busco demonstrar que as possibilidades de um amor e relacionamento amoroso autêntico, profundo e duradouro são baixas em nosso Zeitgeist. Não pretendo romantizar os relacionamentos amorosos nos períodos históricos anteriores, como nossos filmes de Hollywood e seriados alegremente o fazem. Afinal não se pode negar que o amor fantasioso e agridoce vende. E vende muito. De minha parte viso explicitar como, diferentemente da intensa noção romântica do século XIX, atualmente não se deve apenas estar apaixonado. É necessário otimizar a paixão, postar e lucrar com ela. Seja em capital financeiro ou social. A paixão já foi há muito monetizada. No capitalismo não se deve perguntar o que é monetizado, e sim o que não o é. Nos nossos tempos a monetização é regra e não exceção.</p>
+<p>A noção de que o matrimônio e o relacionamento conjugal devem ser pautados por sentimentos genuínos de amor e companheirismo é recente. Durante a maior parte da história da humanidade o <em>Homo Sapiens</em> estava muito ocupado em sobreviver e proteger sua prole para pautar sua existência em sentimentos doces. A vida era amarga e dura demais para isso. Na Idade Média e até mesmo antes, o casamento era uma forma de aliança, aumento do poder político e sobrevivência das famílias. Atualmente é um meio de performar e crescer na vida. Com o advento do capitalismo, que é a superação do feudalismo e de seu modo de produção, é fato que a qualidade de vida das pessoas, em geral, está melhor do que no período medieval e Antiguidade. Basta levarmos em conta a diminuição da taxa de mortalidade infantil, o aumento da expectativa de vida da população em geral, os avanços na medicina, etc. Digo isso levando em conta, evidentemente, o sofisticado processo alienante e exploratório que o proletariado sofre, fruto do neoliberalismo e do discurso <em>coach</em>, sobre o qual discorri nos meus ensaios anteriores.</p>
+<p>Mesmo com sua grande capacidade de gerar riqueza e desenvolver tecnologia, o sistema capitalista mata as possibilidades de Eros. O capitalismo oferece condições superiores de vida em relação aos períodos históricos mencionados que, teoricamente, deveriam proporcionar um Eros mais saudável, já que as condições socioeconômicas das massas são outras. Na prática, o nosso sistema econômico atual e seus discursos em voga tendem a corroer e assassinar nossas relações amorosas, ao mesmo tempo em que nos vendem ideais inalcançáveis e ingênuos do amor, tanto do seu passado quanto do presente. O Eros é morto pelo mesmo sistema que o romantiza e vende uma versão distorcida de sua história.</p>
+<p>Em uma sociedade cujo erotismo é consumido aos montes, seja em sites pornográficos, revistas e afins, o Eros (que aqui não se limita ao caráter sexual) da paixão e do amor se empobrece cada vez mais. Pode-se dizer que pretendo fazer uma nosografia-filosófica para se pensar e repensar a dinâmica amorosa da contemporaneidade, atravessada e mediada pela tecnologia. Em resumo, pretendo explicitar os fatores que levaram Eros a ser vencido por Tânatos.</p>
+<p>Necroeros remete à dinâmica das relações amorosas atuais. Além de serem líquidas elas estão propensas a morrer cada vez mais na medida em que o aspecto afetivo do sujeito atual é reprimido e, em alguns casos, morto pela descartabilidade contemporânea. O capitalismo neoliberal não apenas constrói condições de neoalienação, mas também um ambiente essencialmente tanatogênico para o Eros. O individualismo latente de nossa época, que acaba por se converter em um egoísmo generalizado, é um dos fatores que contribuem para a desumanização do outro e o sufocamento no próprio eu. Nossa energia psíquica é tão concentrada em nosso próprio ego que não há espaço para reconhecer a singular alteridade do outro. Caso reconheça essa singular alteridade, ela só importa na medida em que serve como meio para a maximização dos objetivos do eu. Os efeitos disso são términos precoces e uma epidemia de solidão e desconectividade. Tal epidemia é mascarada e relativizada na medida em que o sujeito contemporâneo afirma que “não precisa de ninguém”. Admitir que essa situação é dolorosa, admitir que essa ausência de Eros sufoca é fraqueza. E fraqueza é desperformar. Algo improdutivo que deve ser evitado a todo custo. Desperformance ou desperformar significa que as fragilidades e vulnerabilidades do sujeito-mercadoria vêm à tona e sua imagem encantada e eficiente se desfaz. A engrenagem-humana deixa de lado sua aparência metálica e seus ossos e carne, já corroídos pelo consumo e desgaste que fez a si mesma, são expostos. Essa atitude não é compatível com os padrões da Sociedade Performática. Como dito no meu ensaio anterior, o <em>ghosting</em>, o trabalhador-engrenagem se esquece de que é um animal social e que o Eros é importante para seu bem-estar. Decerto não é essencial, mas é bom que ame.<img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/Peter_Paul_Rubens_-_The_Judgment_of_Paris_-_WGA20312.jpg"/></p>
+<p><strong>1.</strong> O sistema capitalista não se limita a influenciar as nossas relações de trabalho e produção de riqueza. Ele vai além e molda nosso psiquismo, nossos afetos e relacionamentos. A dinâmica socioeconômica neoliberal de nossa sociedade faz com que o ser humano tenha a tendência de absorver e reproduzir, consciente ou inconscientemente, a lógica do consumismo, do imediatismo, da virtualização e da maximização da eficiência, cujo resultado é a descartabilidade do próximo e a conversão do eu em empresa. Descartabilidade aqui não se trata do mero descarte do outro, mas de sequer o reconhecer como ser humano. O sujeito do descarte, que com justiça pode ser chamado de rato skinneriano, é condicionado por uma série de estímulos e fatores que o levam ao descarte e à objetificação do outro. O foco do escrito visa apontar uma tendência geral e estrutural, excluindo quaisquer totalizações.</p>
+<p><strong>2.</strong> O ser humano atual pode ser descrito como um ser conectado. Esse<em> Homo-Connectus</em> é tão conectado às redes e às plataformas digitais (não raras vezes viciado em conexão) que poderíamos chamá-lo de ser-para-conexão. No entanto, esse mesmo ser também é ser-para-desconectar. Suas desconexões são tão numerosas e rápidas quanto suas conexões e termina relacionamentos com a mesma facilidade com que os inicia. Descarta rápido e é descartado na mesma velocidade. A contemporaneidade não apenas nos condiciona a uma desconexão e estranheza do eu em relação a si próprio devido a se identificar excessivamente com seu trabalho e produção, que, nos meus termos, chamo de neoalienação. Não se trata de mera desconexão de si, mas de desconexão e descarte do outro. O egoísmo do sujeito contemporâneo lhe impede de se aprofundar no outro e lhe apreciar como tal, como alguém distinto dele e que não é mero reflexo seu ou algo que o lembre de si mesmo. Não tem capacidade de se emancipar da soberania do ego para se conectar ao outro por muito tempo, embora passe boa parte de seus dias em uma incessante conexão virtual. Nunca volta verdadeiramente seus olhos para o outro. O outro se torna um eterno estranho. Condenar o outro a ser eternamente estranho é sentença, uma sentença a se afogar no próprio narcisismo. Em uma sociedade que fomenta e celebra o individualismo, aparentemente é uma recompensa. Se for, é uma das trágicas. Tal sujeito não compreende que sair de si não significa empobrecer o eu, mas elevá-lo. O ego se enriquece quando volta seu olhar e sua escuta para a particularidade do próximo e não o oposto. Além de ser fonte de conhecimento e perspectivas distintas, o outro me recorda ou até mesmo denuncia as limitações e defeitos do ego. Porém é imperativo evitar entrar em contato com suas falhas. A engrenagem humana abomina desperformar.</p>
+<p>Nossos relacionamentos atuais tendem a operar na mesma lógica consumista que permeia a todos nós: consumir o máximo no menor tempo possível, descartar e trocar por algo melhor ou mais eficiente. Além de vendermos o eu como mercadoria, o outro não passa de produto. De algo que posso ter, mas que não necessariamente enxergo como ser. Não nos interessa ele como ser, mas como coisa que me leva a ter cada vez mais. Um degrau ou quiçá um acessório que vai ser reposto assim que enjoarmos dele. A consumização-do-outro, o ato de “usar e jogar fora”, por almejar um produto humano com melhor custo-benefício ou para evitar lidar com a manutenção do relacionamento sem nenhum sentimento de culpa ou noção de responsabilidade afetiva, foi normalizada. A consumização do Eros aparentemente é o melhor a se fazer. O ato de evitar o desgaste de uma relação e não sofrer caso as coisas fiquem sérias demais aparentemente é o mais produtivo. Se essa produtividade exige a desumanização do outro, que é visto como outro-de-consumo, o que isso diz de nós, contemporâneos? Desumanizar o outro é desumanizar a si mesmo. É desumano negar a humanidade do próximo a menos que esse próximo já a tenha renegado. Como mecanismo de defesa, o sujeito performático pode pensar que é melhor descartar do que ser descartado em tempos de relações líquidas. Portanto, o seu beaver dam interno, suas barreiras e proteções que freiam e impedem o fluxo do sentir lhe dão conforto. Sentir amor significa correr o risco de passar por muita dor. As barreiras abrem espaços e brechas para o sexo, mas não para o Eros, visto que o amor transcende o toque físico.</p>
+<p><strong><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/Rubens_Peter_Paul_-_Cupid_Eros_Carves_the_Bow_-_1614.jpg"/>3.</strong> Ao ser atravessado e constituído pelo consumismo em uma sociedade na qual o amor é líquido, o sujeito performático tende a internalizar a lógica da descartabilidade, consciente ou inconscientemente. Ele introjeta essa noção ao fazer isso diariamente com bens materiais e com os produtos que adquire em geral. Transfere essa dinâmica não apenas no seu contato com coisas, mas com pessoas. O outro vira coisa e produto. E como todo produto é julgado minuciosa e pragmaticamente pelo seu custo-benefício, a relação e o contato do sujeito performático com o próximo vão ser perpassados por esse utilitarismo. A esse processo psíquico específico chamo de produtização-do-outro. As propagandas e narrativas dominantes do sistema capitalista que absorve, endossadas pelo discurso <em>coach,</em> fazem com que adote o “<em>mindset</em> de abundância” no qual sempre deve adquirir e ter mais. Pode-se chamar isso de Imperativo do Ter e Comprar. Ele nunca tem o suficiente e sempre merece mais. Se contentar com as coisas e produtos que tem é ser menos. Ele é mais na medida em que tem mais. Mais produtos, coisas e pessoas, todos esses facilmente descartáveis. Por temer ser descartado outra vez, o indivíduo corre o risco de replicar o que passou nos próximos relacionamentos. A descartabilidade do outro é mecanismo de defesa psíquico do sujeito performático. É jogar fora antes de ser jogado. Não raras vezes, a priori, desumaniza ou está predisposto a desumanizar o outro e o trata como mercadoria dispensável por temer ser ele próprio descartado. Os relacionamentos amorosos atuais se reduzem a jogos de poder narcísicos entre dois egos que, na ânsia de não se ferirem, ferem o outro preventivamente. Mas ferir o outro contribui para a solidão que fere o próprio agressor. É um suicídio afetivo que se traveste de proteção egoica. O sujeito faz isso tanto para evitar a honra de ser rejeitado e abandonado novamente quanto para impedir que isso sequer aconteça. Há o receio de sofrer e o orgulho de não deixar que se brinquem consigo. Passar por isso seria desperformar, e deve-se evitar a desperformance a qualquer custo. O descarte como prevenção do próprio descarte é o único recurso de suposta legítima defesa afetiva que tem. Esse não se permitir adentrar fundo o bastante e por tempo o suficiente na alteridade do outro como prevenção do próprio ego, justamente por temer ser descartado, é ferir a si mesmo. Frear bruscamente o fluxo do sentir, ou, pior, premeditar isso antes do fluxo se iniciar é resguardo. Mas essa proteção paradoxalmente fere e machuca o sujeito. O sujeito do descarte teme tanto o descarte do eu como sujeito que se automutila emocionalmente. Os chifres do carneiro são afiados e belos, símbolos de orgulho e força. São usados tanto para a disputa por territórios como para a defesa. Porém se os chifres crescem de forma disfuncional, correm o risco de perfurar o crânio do animal e matá-lo. O crescimento é gradual e lento, de modo que a dor que sente ao ser perfurado pode não ser tão expressiva a princípio. No entanto, a intensidade dela aumenta com o passar do tempo e sua morte é lenta e angustiante. A automutilação afetiva que o sujeito performático inflige a si mesmo como forma de proteção e resguardo psicológico soa muito conveniente. Mas a longo prazo contribui para a solidão e o deficit emocional, penetrando lentamente seu Eros.</p>
+<p>A lógica dessa consumização-do-outro não é a única que perpassa o sujeito atual. O indivíduo também incorpora em sua constituição psíquica a fixação em eficiência e inovação, termos tão em voga nos nossos dias. Não descrevo um mero utilitarismo. O sujeito performático está tão acostumado a pensar em termos de maximização da produtividade que passa a enxergar o outro sob essa ótica. A relação precisa constantemente ser inovada, renovada e ser de algum modo eficiente. O foco nunca está no momento presente, mas apenas no devir a ser ideal da relação. Apenas em um futuro que nunca vai chegar. A alteridade passa a ser vista como um iPhone que precisamos constantemente trocar por outro. É necessário buscar incessantemente a inovação, caso contrário, o sujeito fica para trás. Não basta apenas competir no mercado de trabalho, mas compete com terceiros com quem nunca teve contato na vida no Eros. Esses terceiros, por sua vez, também julgam estar em uma intensa competição. O que não compreendem é que a linha de chegada não existe. Mas a corrida que corrói seu ser e mundo afetivo, sim.</p>
+<p>Há o receio de investir em uma relação que vai durar pouco tempo e, portanto, o sujeito performático passa a enxergar o outro como outro-de-consumo. É improdutivo e potencialmente desperformático ter uma relação a longo prazo. Tanto financeiramente (em tempos capitalistas, perder dinheiro é perder parte do valor como ser humano) quanto emocionalmente e até mesmo socialmente, já que teme ser exposto ao olhar virtual por qualquer rancor do parceiro. O espírito utilitarista de nossa época nos leva a enxergar o outro não como fim em si mesmo, mas como mero meio para um fim lucrativo. Esse outro só me importa na medida em que me ajuda a alcançar sucesso, para somar e crescer junto. Não que querer crescer como ser humano junto ao parceiro seja ruim ou imoral, porém a noção utilitarista de maximização do prazer se infiltrou tanto no psiquismo do sujeito performático que ele tende a enxergar valor no outro somente na medida em que este o leva a algum fim. E tal fim é financeiro. O outro é visto não como ser, mas como empresa e coisa, simultaneamente.</p>
+<p><strong>4.</strong> A virtualização do outro contribui para sua desumanização e posterior descarte. O <em>Homo Sapiens</em> atual, se é que podemos chamá-lo de<em> sapiens</em>, vive imerso no mundo digital. Sua própria dinâmica econômica, que é chamada de Economia 4.0, é ditada pela tecnologia e pela virtualidade. O Eros atual em grande medida é mediado por redes sociais e aplicativos de namoro como o famoso Tinder, que não deixa de ser uma sofisticada vitrine de carne humana. Nosso contato e representação do outro passam a ser mediados por notificações, fotos de perfis, “bios” e assim por diante. É um Eros Virtual. Tal forma de representação do outro faz com que nossa empatia e calor por ele diminuam, pois o ser humano do outro lado da tela passa a ser um ser-virtual. A virtualização do outro nos faz esquecer do calor do corpo, do calor da alma. A virtualidade facilita entrar em contato com o próximo, mas também o desumaniza e mata o Eros com a mesma facilidade. A internet e as redes, que deveriam fomentar a conexão, acabam por desconectar os seres humanos cada vez mais. Chamo essa contradição de paradoxo-desconectivo. Justamente por crer que pode fazer conexões ao seu bel-prazer a qualquer momento via meios digitais desvaloriza a conexão que já fez. Afinal, já consumizou o outro e pode voltar a fazer isso nas vitrines de carnes humanas virtuais.</p>
+<p><strong><img alt="" src="https://passapalavra.info/wp-content/uploads/2026/11/Peter_Paul_Rubens_1577-1640_De_heilige_Sebastiaan_-_Rubenshuis_Antwerpen_27-09-2018.jpg"/>5</strong>. Nosso <em>Zeitgeist</em> é essencialmente imediatista e urgente. Temos pressa para ir ao trabalho, pressa para ter sucesso e até mesmo pressa para consumir conteúdos. É que não podemos perder tempo. No capitalismo perder tempo é improdutivo, uma afronta ao Mandamento da Produtividade. E ser improdutivo é perder dinheiro. Ser improdutivo é desperformar, quebrar a lógica de fazer de si mesmo e de sua imagem mercadoria agradável. As notícias, vídeos, informações etc., os quais são produzidos e consumidos em massa na contemporaneidade, sofrem de uma <em>tiktokização.</em> Conteúdos excessivamente condensados, rápidos, curtos e sintéticos demais. O próprio formato dos meus escritos é em certo sentido <strong>tiktokizado</strong>, caso contrário não seriam lidos por ninguém. Exigir uma leitura atenta e demorada dos meus leitores seria desconsiderar sua atenção líquida. Dito isso, um relacionamento exige tempo para se aprofundar na alteridade que compõe o ser do outro. Porém estamos tão condicionados ao imediatismo que esse aprofundamento simplesmente não ocorre. Dado que nossa contemporaneidade é obcecada com a otimização e eficácia, na qual tudo tem que ser rápido, pragmático e eficiente, investir tempo valioso em uma relação na qual não há garantias de retorno, cujo custo-benefício é incerto, é improdutivo. E o sujeito instantâneo abomina a improdutividade. Como resultado, o relacionamento desmorona ou sequer começa e ficamos propensos a reduzir o outro ao outro-de-consumo e depois “partir para a próxima”. É mais seguro e econômico enxergar as coisas dessa forma. Mas é mais triste também.</p>
+<p>A corrente existencialista nos diz que ter várias opções causa angústia. Mas escolher uma ou duas e depois ficar se indagando o que teria acontecido caso tivesse sido diferente também. O sujeito atual tem tantas opções de amor que, quando escolhe uma, rapidamente se entedia desta por ficar se perguntando quais prazeres ou estímulos poderia ter tido com outra escolha. O necroeros não se dá pela falta de opções do amor, mas pelo excesso delas.</p>
+<p>Se a dinâmica capitalista atual resulta na solidez do necroeros, será que a implementação de um sistema socialista poderia ser o antídoto da vitória do Tânatos sobre o amor? Ou tais elementos e mecanismos explicitados acima que advêm com a modernidade construíram problemas que existiriam ainda depois do capitalismo? Antes de mais nada, quero salientar que é óbvio que o egoísmo, narcisismo e outros elementos citados acima existiram em sociedades pré-capitalistas. Não afirmo que o capitalismo causa esses fatores, mas que sua lógica neoliberal atual tende a intensificar eles ao mesmo tempo em que os traveste como elementos de progresso e sucesso. Dito isso, partindo do princípio de que, em um sistema socialista, o consumismo e o desejo de ter perderiam intensidade, mas ainda existiriam como remanescentes do capitalismo, podemos especular que a lógica atual mudaria significativamente. No entanto, a internet e a tecnologia tendem a favorecer a dinâmica atual, não sendo algo causado exclusivamente pelo capitalismo. Quer gostemos ou não, a lógica consumista e da gratificação instantânea já faz parte da constituição psicológica dos seres humanos de hoje. Mas uma mudança no sistema socioeconômico atual, a longo prazo, também moldaria essa constituição psicológica, assim como o capitalismo fez. A questão é que o capitalismo oferece paliativos para manter o trabalhador-engrenagem lubrificado e dopado. Além disso, certos discursos e noções como meritocracia, individualismo e similares tendem a fazer as pessoas pensarem que seus problemas e questões psicológicas são causados apenas por suas próprias ações, e não pelas dinâmicas econômicas e culturais.</p>
+<p>Assim nasce uma cultura do descarte, vivemos em uma Sociedade do Descarte. O medo de ser descartado asfixia o Eros e coloca o ego em estado de constante alerta. Com um misto de medo e orgulho, talvez pesar, o sujeito descarta o outro antes de ser descartado. Paradoxalmente o descarte do outro é, ao menos aparentemente, um mecanismo de defesa legítimo na lógica sociocultural atual. Desumanizar o próximo se torna meio legítimo em uma sociedade tão <strong>civilizada.</strong></p>
+<p>Dito isso, o amor está morto. E fomos nós que o matamos. Como poderemos nós, egoístas e meritocráticos, lavar o sangue de nossas mãos? Não podemos. O único sangue que interessa ao sujeito performático é o seu próprio.</p>
+<p>O amor morre por ser improdutivo.</p>
+<p><em>As imagens que ilustram o artigo são reproduções de obras de Peter Paul Rubens (1577-1640)</em></p>
+<h4><strong>Nota</strong></h4>
+<p>*  Thiago Ferreira dos Santos Freitas, 21 anos, é natural de Itapecerica da Serra, São Paulo, e cursa psicologia pela Universidade Paulista (UNIP). Tem interesse em filosofia e psicanálise.</p>
+<p> </p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/11/160500/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

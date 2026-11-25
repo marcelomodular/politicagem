@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yuk Hui: Quem teme a Tecnodiversidade? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Yuk Hui: Quem teme a Tecnodiversidade?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/tecnologiaemdisputa/yuk-hui-quem-teme-tecnodiversidade/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5183770079257103805.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Yuk Hui: Quem teme a Tecnodiversidade?
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/5183770079257103805.jpg"/>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p><strong>Yuk Hui</strong> em entrevista a <strong>Thiago Gama</strong></p>
+<p>Yuk Hui, o filósofo da Tecnodiversidade, aponta: tecnologia não é uma coisa só. Soberania digital não se conquista simplesmente fabricando o próprio chip. O equipamento pode ser comprado. A decisão sobre o que fazer com ele, não. E o Brasil está comprando o futuro da inteligência artificial no atacado. Ministérios assinam contratos para instalar modelos de empresas do Norte global nas escolas públicas e no sistema de saúde. O debate público discute acurácia e viés. Quase nunca discute o tipo de técnica que está sendo instalada. Para Hui, a IA não é uma tecnologia neutra nem universal: ela carrega pressupostos sobre o que é inteligência, conhecimento e realidade, que precisam ser questionados.</p>
+<p>Em vez de apenas importar modelos e buscar algoritmos mais eficientes, devemos intervir em suas diferentes camadas — dados, algoritmos, aplicações e governança — para desenvolver outras possibilidades tecnológicas, propõe o filósofo. O desafio é fazer com que as tecnologias respondam às necessidades e às formas de pensar de cada sociedade, em vez de permitir que a sociedade se reorganize em função dela. Hui propõe, portanto, reativar saberes e cosmologias locais para construir outras possibilidades de desenvolvimento tecnológico, sem cair no nacionalismo ou no tradicionalismo. Em última instância, sua preocupação é democrática: impedir que a tecnologia determine a organização da vida social e devolver às comunidades a capacidade de decidir sobre seus rumos.</p>
+<p>Hui nasceu em Hong Kong, formou-se em engenharia de computação e fez doutorado em filosofia em Londres sob Bernard Stiegler. Ensinou em Hong Kong, foi professor visitante em Tóquio e na China Academy of Art, e hoje ocupa a cátedra Human Conditions na Erasmus School of Philosophy, em Roterdã, onde dirige o Erasmus Institute for Philosophy and Technology.</p>
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-18-at-18-36-46-OP-PautasIdeias.png"/>
+<p>Preside o júri do Berggruen Prize for Philosophy and Culture. Em 2026, recebeu do conselho holandês de pesquisa um Vici de 1,5 milhão de euros, a mais alta distinção individual de pesquisa do país, para um projeto chamado Technodiversity: A New Lens on AI. É autor de The Question Concerning Technology in China, de 2016, de Tecnodiversidade, seu único livro em português, e de Machine and Sovereignty, de 2024.</p>
+<h3><strong>Eis a entrevista</strong></h3>
+<p><strong>No diálogo com Eduardo Viveiros de Castro, publicado na </strong><em><strong>Philosophy Today</strong></em><strong>, o senhor falou de um primitivismo estratégico. Aqui essa questão não é especulativa. A cosmologia ameríndia, no Brasil, não é um passado recuperável, é uma política viva, e os povos indígenas hoje usam drones, GPS e imagens de satélite para mapear e defender a própria terra. Os Guajajara, no Maranhão, patrulham o território guiados por um sistema de monitoramento por satélite, e pagaram por isso com sangue. A cosmologia é deles, a máquina não é. Isso é cosmotécnica, no seu sentido, ou é o uso tático da máquina de outro? E o que, no seu quadro, separa uma coisa da outra?</strong></p>
+<p>Deixe-me tentar esclarecer a questão da tecnologia. Mais adiante nas suas perguntas o senhor menciona o meu livro <em>Machine and Sovereignty</em>, e nele há um capítulo sobre a anatomia dos objetos técnicos. Ali eu quis dizer que a nossa compreensão da tecnologia como uma coisa é problemática.</p>
+<p>Quando dizemos IA, não existe tal coisa chamada IA. A IA envolve níveis diferentes. Toda tecnologia pode ser compreendida em termos de níveis diferentes. Há o nível do <em>hardware</em>. Estou falando com o senhor pela internet, e a internet não é uma coisa, a internet tem níveis diferentes. Tem o nível físico, que são as fibras óticas, os sinais ligados e desligados, um e zero. Quando a luz está acesa é um, quando está apagada é zero, e isso é a fibra ótica. Essa é a camada física. Sobre a camada física há uma camada de rede, e sobre a camada de rede há uma camada de aplicação, e assim por diante. Há camadas diferentes, níveis diferentes, e esses níveis de abstração se tornam cada vez mais abstratos. O mais concreto é a camada física, e dali em diante fica cada vez mais abstrato.</p>
+<p>Podemos intervir na tecnologia em camadas diferentes. Quando penso em IA, não estou dizendo que o Brasil deva desenvolver a própria GPU, com lógica brasileira. Não é isso que eu digo. Pode-se usar a GPU. Mas acima da camada física há também uma camada que é dos algoritmos, do raciocínio, da inteligência, e essa é a camada em que podemos intervir. Podemos propor algoritmos diferentes para rodar na GPU, e não é preciso substituir a GPU por outra versão brasileira dela. Há a camada da inteligência, ou a camada do algoritmo, e nela podemos intervir. Acima dessa, temos a camada da aplicação, o modo como aquilo pode ser usado, como usamos a máquina. E acima dessa há ainda uma camada que é das regulações, uma camada da governança.</p>
+<p>Quando falamos de uma tecnologia, temos múltiplas camadas, e não apenas uma coisa. Quando o senhor diz que alguém na Amazônia está usando tecnologia, essa pessoa está diante de múltiplas camadas, de múltiplos níveis. A questão é em que nível somos capazes de participar, em que nível somos capazes de desenvolver diversidade.</p>
+<p>Pode ser que não se consiga desenvolver diversidade no nível da camada física. Quando se fala de IA, aquilo é eletricidade, é água, é GPU, é <em>data center</em>. Mas acima disso há a camada dos dados, o modo como os dados são desenhados, ou como o <em>data center</em> é desenhado. Acima disso há a camada do algoritmo, que determina o que é inteligente, ou que é definida por aquilo que se toma por inteligente, e com que parâmetros. Acima disso há a camada da aplicação, que tipo de aplicação de IA se quer desenvolver. E acima disso há outra camada, que é da governança, da organização dessas máquinas.</p>
+<p>Não é simples dizer que alguém da Amazônia está usando uma máquina estrangeira. Esse é o problema que temos hoje, porque vemos a tecnologia como uma coisa e pensamos que não podemos intervir. Mas há múltiplas maneiras de intervir, e o que o senhor descreve é a mais intuitiva delas, que é o uso. Estamos falando da camada da aplicação, e a pessoa pode, claro, usar a tecnologia de outro modo. Mas há também múltiplas camadas em que podemos intervir, e que são mais técnicas, mais filosóficas. Em matéria de IA, há a camada dos dados, em que podemos intervir, e há a camada do algoritmo, em que podemos intervir, por exemplo naquilo que define a inteligência.</p>
+<p>A questão é mais complexa. A tecnodiversidade tem de ser analisada segundo a anatomia do objeto técnico.</p>
+<p><strong>Michael D. Higgins, presidente da Irlanda, me disse numa entrevista para esta coluna que o grande argumento dos últimos </strong><strong>150</strong><strong> anos é sobre quem deve controlar a tecnologia e fazê-la responder às vulnerabilidades que temos em comum, e que a inovação técnica precisa vir acompanhada de um compromisso ético com aquilo que a sua implementação produz em condições de diversidade. Acrescentou que a deferência à tecnologia, quando não está contida num modelo democrático, se torna um instrumento extremamente perverso de colonização. A tecnodiversidade responde a ele, professor, mas responde a partir de cosmologias que têm metafísica própria e continuidade escrita própria, a China e a Grécia acima de todas. O Brasil não tem nada disso. Técnicas indígenas, africanas e europeias se encontraram aqui sob violência, e o resultado é uma mistura sem nenhum </strong><em><strong>Dao</strong></em><strong> por trás. A tecnodiversidade exige uma cosmologia própria para existir? Ou um país formado pelo sincretismo pode produzir uma cosmotécnica sem uma cosmologia que a ancore?</strong></p>
+<p>Quando dizemos cosmologia, o termo precisa ser definido primeiro. Dizer que não há cosmologia no Brasil não é verdade. Todo lugar tem, de um modo ou de outro, uma cosmologia, e não estou dizendo toda cultura, estou dizendo todo lugar. Uma cosmologia é o modo como as pessoas entendem a relação entre o humano e o não humano, entre o humano e o céu, entre o humano e a terra. Em algumas culturas isso é mais sistemático do que em outras. Vai da mitologia à cosmologia, e em certas culturas pode não ser tão sistemático.</p>
+<p>Mesmo assim, são recursos que podemos mobilizar. Quando digo recurso, quero dizer que não são algo que se aplique. Tomar a cosmologia chinesa e aplicá-la à tecnologia moderna, ou tomar a cosmologia europeia e aplicá-la à tecnologia, não funciona assim. São coisas que temos de reativar, e reativar a partir de uma localidade.</p>
+<p>Isso é muito importante, porque o que eu proponho não é um tribalismo nem um nacionalismo. Cosmologia chinesa, nacionalidade chinesa, nacionalismo chinês, tecnologia chinesa, isso ainda seria muito reacionário. A minha proposta é outra. Como ativar esses recursos de maneira que nos permitam pensar as nossas relações com a tecnologia, em vez de deixar que a tecnologia chegue e determine tudo?</p>
+<p>É esse o caso hoje. Abrimos a porta para a tecnologia e dizemos venha, e então temos de reorganizar a nossa vida em torno dela. Com a inteligência artificial, estamos orientando a nossa vida em torno da IA. Para mim, isso é problemático. Permitimos que uma tecnologia não questionada, concebida para ser universal, invada a nossa vida, e orientamos a nossa vida em torno dela. É o que conhecemos como determinismo tecnológico.</p>
+<p>O que eu proponho é encontrar um modo diferente de ressituar a tecnologia. Ressituar a tecnologia é produzir uma relação nova com ela. Para mim, essa é a verdadeira questão. É a questão real da democracia.</p>
+<p>No século XX nós dizíamos que o povo devia ter democracia e decidir o que fazer, decidir o que é possível. Pense no exemplo do X, o Twitter. Como tornar o Twitter mais democrático? Houve o debate entre Donald Trump e Elon Musk, alguns anos atrás. Mas essa é a pergunta errada, é o modo errado de pensar. A questão não é perguntar se temos democracia no Twitter. Claro que não há democracia no Twitter. A questão é como democratizar as mídias sociais. Precisamos de mídias sociais que também nos permitam reorganizar a nossa comunidade, a comunidade no Brasil, a comunidade na Amazônia. Do contrário, deixamos que esse tipo de mídia social determine a nossa vida.</p>
+<p>Não é um retorno ao nacionalismo nem um retorno ao tradicionalismo. Mesmo que se possa encontrar a cosmologia antiga, onde é que ela está? Qual é o lugar da cosmologia? No Ocidente, na Europa, onde está a cosmologia? Não há cosmologia. Já no século XVIII não há cosmologia, há apenas astrofísica. Houve um momento na Europa em que a cosmologia foi rejeitada em favor da astrofísica. Não podemos tomar a cosmologia e dizer que vamos voltar atrás e aplicá-la. Temos de reativar, e de pensar como torná-la contemporânea.</p>
+<p>É uma questão muito mais complicada do que a identidade. É contra esse tipo de política de identidade que eu gostaria de resistir. Quando digo tecnodiversidade, não se trata de identidade política. Trata-se de como podemos repensar a democracia no século XXI.</p>
+<p><strong>O senhor veio ao Rio de Janeiro em setembro de 2019, deu uma conferência na Universidade Federal do Rio de Janeiro e sentou-se com Ronaldo Lemos, diretor do Instituto de Tecnologia e Sociedade, que ajudou a escrever as regras da internet no Brasil. No ano seguinte a Ubu, em São Paulo, lançou </strong><em><strong>Tecnodiversidade</strong></em><strong>, o seu primeiro livro em português, e o abriu com um texto dele. O que o senhor encontrou no Rio que não havia encontrado em Hong Kong ou na Alemanha? E alguma coisa daqueles dias mudou uma página do livro que veio depois?</strong></p>
+<p>A minha estada no Brasil foi muito curta, oito ou nove dias. Fui ao Norte e depois fui ao Rio, onde passei alguns dias. No Norte a minha experiência foi muito diferente.</p>
+<p>Dou um exemplo. Quando cheguei ao Norte, fui à praia, e não encontrei ninguém nadando. Não havia pessoas nadando. Vi muita gente de pé dentro do mar, sem nadar. Perguntei ao meu anfitrião por que não nadavam no mar. Ele disse que era verdade, que no Brasil não se nada muito no mar, que se vai à praia, se entra na água e se fica ali de pé, sem nadar.</p>
+<p>Há algo de muito interessante nisso. Se falamos da Europa, se falamos de outros lugares, vai-se à praia porque se quer nadar, ou porque se quer bronzear, tomar um banho de sol. É um exemplo muito interessante de que existe uma forma de vida diferente no Brasil. Existe uma relação diferente entre o humano e a praia, entre o humano e o mar. Não é o que eu encontro em outros lugares, porque normalmente se vai à praia, se vai ao mar porque se quer nadar. E isso significa também que temos relações diferentes com a água, relações diferentes com o mar, relações diferentes com o sol.</p>
+<p>Isso, para mim, é o que eu chamo de noodiversidade. Noo vem de <em>nous</em>, a palavra grega <em>nous</em>, que diz respeito ao pensamento. E a noodiversidade é tão importante quanto a tecnodiversidade e a biodiversidade. Para o desenvolvimento da cultura, temos de pensar a noodiversidade, a biodiversidade e a tecnodiversidade. Não podemos ignorar isso, e não podemos separá-las.</p>
+<p>Nós, seres humanos, somos parte da natureza. Estamos na natureza, estamos com a natureza. É problemático dizer que eu quero proteger a biodiversidade, como se a biodiversidade fosse algo fora de nós, como se quiséssemos proteger algo que está fora de nós. Não. Somos parte dessa biodiversidade.</p>
+<p>As nossas relações com os animais e com as plantas são outras. No perspectivismo ameríndio, as relações com eles são diferentes. E precisamos desenvolver também uma tecnodiversidade que seja adequada, para reabrir a questão de constituir a constelação da biodiversidade, da noodiversidade e da tecnodiversidade.</p>
+<p><strong>O senhor organizou </strong><em><strong>Philosophy after Automation</strong></em><strong>, na </strong><em><strong>Philosophy Today</strong></em><strong>, e este ano a NWO, o conselho holandês de pesquisa, lhe concedeu um Vici de um milhão e meio de euros para o projeto </strong><em><strong>Technodiversity: A New Lens on AI</strong></em><strong>. O Brasil está comprando esse futuro no atacado, professor. Os nossos ministérios estão assinando contratos para pôr modelos de empresas do Norte nas escolas públicas e no sistema público de saúde, e o debate aqui é quase inteiramente sobre acurácia e sobre viés, nunca sobre que tipo de técnica está sendo instalada. Se um ministro da educação lhe perguntasse o que uma pedagogia da tecnodiversidade exigiria, na prática, num país como o meu, o que o senhor diria a ele?</strong></p>
+<p>Obrigado por mencionar o meu projeto sobre tecnodiversidade. Eu contratei uma pesquisadora brasileira para trabalhar nele, e ela começou poucos dias atrás. Espero que nos próximos anos possamos construir uma conexão mais forte com o Brasil, porque agora estou trabalhando com uma pesquisadora brasileira que foi aluna de Eduardo Viveiros de Castro. Estamos trabalhando juntos, e isso porque o Brasil me parece um caso muito interessante.</p>
+<p>Quanto à sua pergunta, o senhor provavelmente se lembra de que na primeira delas eu tentei lhe explicar que não existe tal coisa chamada IA, e tentei lhe explicar que a IA tem múltiplas camadas. Precisamos compreender como poderíamos intervir, como poderíamos nos engajar no desenvolvimento da IA. O ministro é capaz de comprar as máquinas e de usá-las conforme a indústria que encontramos na Europa, no Ocidente, ou, como o senhor disse, no Norte global. Mas eu penso que precisamos de uma compreensão melhor da tecnologia a partir daquilo que eu chamo de tecnodiversidade.</p>
+<p>Quando falamos de IA, há muitos limites que temos de compreender. Há o limite ontológico, e o que eu quero dizer com limite ontológico é que, para a IA, tudo é calculável, tudo poderia ser quantificável. Não é verdade. Há um limite epistemológico, o que significa que ela trabalha sobre o empirismo. Os dados são fatos. Ela trabalha sobre dados e probabilidade. Mas o nosso raciocínio não se limita ao empirismo e à probabilidade, e esse é o limite epistemológico. Há também um limite cosmológico, porque a nossa relação com o ambiente, as nossas relações com os animais e com as plantas, ou com aquilo que chamamos de natureza, não são levadas em consideração. E há o limite psicológico. Qual é a nossa relação com as máquinas? Numa perspectiva europeia, a máquina é uma escrava. Numa perspectiva japonesa, a máquina não é uma escrava, a máquina é uma amiga.</p>
+<p>Há níveis diferentes pelos quais podemos examinar o limite da IA, ou maneiras diferentes de examiná-lo. E quando vemos o limite, podemos ter uma ideia do que fazer com ele. Quando se vê o limite, pode-se então pensar naquilo que poderia ser de outro modo. Quais poderiam ser as outras suposições ontológicas, ou talvez outras suposições epistemológicas. Mas não pensamos assim. Os nossos engenheiros não pensam assim.</p>
+<p>Eu tenho alguns estudantes de engenharia, porque aqui alguns dos nossos estudantes fazem dois cursos, um em ciência da computação ou engenharia de sistemas, e outro em filosofia. Quando conversei com esses estudantes, eles me disseram que nunca tinham ouvido falar do termo epistemologia. Nunca tinham ouvido falar do termo ontologia. A ontologia talvez um pouco mais, porque é um termo apropriado pela ciência da computação, mas me disseram que não sabiam o que é epistemologia. E o senhor vê nisso qual é o limite da nossa educação em engenharia hoje. Os nossos engenheiros têm um conhecimento muito limitado da possibilidade da tecnodiversidade. Eles não questionam os limites epistemológicos, ontológicos e cosmológicos das máquinas. São treinados para encontrar o melhor algoritmo. Querem encontrar o algoritmo mais eficaz, mais rápido, mais robusto.</p>
+<p>Um ministro da educação precisa compreender que agora, com o desafio da inteligência artificial, temos de repensar a nossa educação e temos de repensar a estrutura das universidades. Que tipo de conhecimento vamos produzir no século XXI e nas décadas que vêm? Que tipo de conhecimento vamos produzir? É assim que seremos capazes de reabrir a questão da tecnodiversidade nas universidades. Para mim, essa é uma questão muito importante. E para que isso seja possível, temos de reformar a nossa educação, temos de desenvolver uma maneira nova de educar.</p>
+<p>O que acontece quando olhamos para aquilo que de fato se passa hoje? Nas universidades, há cada vez mais programas dedicados à IA e à filosofia, à IA e às humanidades. Há, de um modo ou de outro, esforços e tentativas de enfrentar o problema da divisão do trabalho que tivemos no século XX. Isso significa que precisamos também reestruturar todos esses programas, a educação, os currículos.</p>
+<p>E o mais crítico, para mim, é preparar os nossos estudantes para confrontar o problema da democracia no século XXI. Porque, como eu disse antes, a questão da democracia é, para mim, a questão da tecnodiversidade. Mas para isso os estudantes precisam adquirir o conhecimento necessário, as metodologias, o conhecimento que eu esbocei antes.</p>
+<p><em><strong>Kant Machine</strong></em><strong> saiu pela Bloomsbury, e o juízo é a sua matéria.</strong>9<strong> Os tribunais brasileiros foram mais longe na automação do que quase qualquer judiciário do mundo. As nossas cortes usam aprendizado de máquina para triar e agrupar processos numa escala que nenhum tribunal europeu tentou, e a justificativa é sempre o acervo. Uma máquina que não julga está, no entanto, decidindo o que chega ao juiz. O que a sua leitura de Kant faz com esse caso, em que a faculdade do juízo foi deixada formalmente intacta e esvaziada na prática?</strong></p>
+<p><em>Kant Machine</em> não tem nada a ver com o juiz, tem a ver com o juízo, com aquilo que Kant chamou de juízo, e com a distinção que ele fez entre juízo reflexivo e juízo determinante.</p>
+<p>Em alguns países da Europa há o uso de máquinas, de algoritmos, nos tribunais. Mas há dois casos. Um se chama caso contingente, é assim que o chamam na França. Por exemplo, o senhor estaciona o carro no lugar errado e recebe uma multa. Tem de pagar a multa porque estacionou o carro no lugar errado. Isso é considerado um caso contingente, e esses casos são tratados pela máquina. O senhor estaciona no lugar errado, portanto recebe uma multa. Ou joga lixo no lugar errado e recebe uma multa. Ou, em alguns países, atravessa a rua no sinal vermelho e tem de pagar a multa. Ouvi falar de um caso de alguém que corria na China e havia um sinal vermelho, e essa pessoa atravessou a rua no vermelho. Dias depois, recebeu uma multa dizendo que havia atravessado a rua sem respeitar o sinal. Tinha de pagar quinhentos e cinquenta yuans, ou algo assim. Essas coisas já são feitas por máquinas.</p>
+<p>Porque não conheço a situação no Brasil, não posso comentar sobre ela. Mas esse tipo de caso já é tratado assim na Europa e na China.</p>
+<p>Estamos falando de casos contingentes, e há outro tipo de caso, diferente. Podemos chamá-lo, como se chama na França, de lógico. Por exemplo, um jovem matou o pai. Então não se pode usar um algoritmo para analisar esse processo. Por que esse jovem quis matar o pai? Aí é preciso investigação, o juiz precisa raciocinar. Não pode ser feito por uma máquina.</p>
+<p>Pelo que eu sei, no tribunal europeu há dois casos, ou há duas categorias. Uma é contingente, como o processamento de multas. A outra é lógica, como uma mãe que matou o bebê, ou um jovem que matou o pai. E esses não se pode deixar que uma máquina trate, ou a máquina não é capaz de tratá-los.</p>
+<p>Não sei como isso é feito no Brasil. O senhor disse que a corte usa IA. Mas em que circunstâncias? Não sei. Não posso comentar o uso exato de máquinas no tribunal brasileiro.</p>
+<p>A questão, no entanto, está no juízo determinante, que é o que se encontra no caso do processamento de uma multa. Se o senhor atravessa a rua sem respeitar o sinal, não há desculpa. Não se segue a regra, não se segue a lei, tem de ser multado. Esse é um juízo determinante no caso, e a corte pode aplicar essa regra a todos, independentemente do que aconteceu. O senhor estacionou o carro no lugar errado. Por qualquer razão que fosse, estacionou no lugar errado, e recebeu uma multa. Pode dizer que não encontrou outro lugar para estacionar. Mesmo que não encontrasse lugar, não lhe era permitido estacionar no lugar errado, e, portanto, tem de receber a multa.</p>
+<p>Mas há um limite do juízo determinante. E então a corte tem de introduzir um juízo reflexivo, porque não se pode aplicar a lei universalmente. É preciso um tipo diferente de raciocínio.</p>
+<p>É aqui que encontramos hoje uma ambivalência entre a IA e o raciocínio humano. Em <em>Kant Machine</em> eu procurava mostrar que a IA se baseia numa apropriação do juízo reflexivo. No entanto, mesmo que haja semelhança epistemológica, a questão que se levanta é até que ponto podemos delegar tal juízo às máquinas. Quais são os casos em que não podemos delegar o juízo às máquinas? Na situação que eu conheço, na França, classificam-se os casos em contingência e lógica. Os casos chamados lógicos não podem ser delegados às IAs.</p>
+<p>É muito complicado. Não sei como comentar, porque precisamos entender que tipo de casos a corte delegou à IA e quão controversa é essa delegação.</p>
+<p><em><strong>The Question Concerning Technology in China</strong></em><strong> saiu há dez anos e pedia muitas cosmotécnicas, uma para cada tradição. O seu livro de dois anos atrás, </strong><em><strong>Machine and Sovereignty</strong></em><strong>, pede um pensamento planetário, para o planeta inteiro. Leitores no Brasil têm os dois livros sobre a mesma mesa e os leem como uma obra só. Entre esses dois livros, o que o senhor deixou atrás? Qual ideia sustentava no primeiro e não sustenta hoje, e o que o fez abandoná-la?</strong></p>
+<p>Esses dois livros são muito diferentes. O primeiro foi a minha primeira tentativa de explicar a necessidade da tecnodiversidade, ou aquilo que se quer dizer com tecnodiversidade. Usei a China como exemplo, mas não precisava ser a China, podia ser o Brasil, podia ser o Japão, podia ser a Coreia. Foi a minha primeira tentativa de desafiar a concepção de uma tecnologia universal.</p>
+<p>No livro de 2024, <em>Machine and Sovereignty</em>, o que eu procuro fazer é levar isso adiante, é compreender qual seria a implicação política daquilo na política atual. O primeiro livro, de dez anos atrás, era um livro mais sobre a história da tecnologia e a filosofia da tecnologia. O livro que publiquei dois anos atrás é um livro de filosofia política, no qual eu quis pensar qual poderia ser a implicação da tecnodiversidade na política planetária de hoje. É por isso que chego à matriz que lhe expliquei, que é a biodiversidade, a noodiversidade e a tecnodiversidade.</p>
+<p>Não é que eu tenha abandonado algumas das ideias. Eles são muito diferentes. E talvez <em>Machine and Sovereignty</em> seja o modo como eu mobilizo a tecnodiversidade para tratar da situação política atual.</p>
+<p><em>Sem publicidade ou patrocínio, dependemos de você. Faça parte do nosso grupo de apoiadores e ajude a manter nossa voz livre e plural: <a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank"><strong>apoia.se/outraspalavras</strong></a></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/tecnologiaemdisputa/yuk-hui-quem-teme-tecnodiversidade/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

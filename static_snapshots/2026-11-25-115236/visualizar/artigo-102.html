@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas para entender uma primavera - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Notas para entender uma primavera</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Fundação Perseu Abramo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://fpabramo.org.br/notas-para-entender-uma-primavera/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://fpabramo.org.br/wp-content/uploads/2026/11/lula_com_estudantes.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Notas para entender uma primavera
+                            </p>
+                            
+<p></p>
+<p>O país foi sacudido do torpor quando foram abertas as urnas, na noite de 4 de outubro. Não podia ser real, mas era real. E apavorante. Eles estavam de volta e batiam à nossa porta. Nunca os cordões com que tecemos nossa trajetória de cinco séculos, desde o desembarque dos portugueses, revelaram com tamanha nitidez essa condenação atávica e circular: as tiranias ora nos perseguem, ora se anunciam. E nunca na história a resposta do povo brasileiro foi tão avassaladora e tão cabal ao erguer a mão mutilada de um de seus filhos para indicar o rumo que deseja seguir para derrotar essa condenação.</p>
+<p>Abrimos o último capítulo do ciclo histórico das lutas dos setores populares pela reconstrução da democracia no Brasil, desde a Constituição de 1988, com uma vitória maiúscula. Ao digitar o 13 no segundo turno do pleito de 2026, milhões de cidadãs e cidadãos brasileiros se deram conta de que, daqui a quatro anos, o nome de Luiz Inácio Lula da Silva não constará mais da lista de postulantes que a urna eletrônica oferecerá aos eleitores para presidir a República.</p>
+<p>O 25 de outubro de 2026 marca não apenas uma vitória eleitoral surpreendente das forças sociais e políticas que gravitam em torno do projeto democrático-popular do presidente Lula e do Partido dos Trabalhadores (PT), nos últimos anos, contra a formação neofascista capitaneada pelo clã de milicianos de Rio das Pedras. Marca também uma oportunidade histórica – ainda não sabemos se será aproveitada – para a direita tradicional e oligárquica se desvencilhar da hegemonia de uma extrema direita identificada com o crime, com a defesa da ditadura e o completo desapreço ao Estado democrático de direito, materializado na tentativa de golpe de Estado em 8 de janeiro de 2023.</p>
+<p>Trata-se de um fato político, social e cultural de complexidade incomum na história da sociedade brasileira. Carrega consigo dimensões inéditas e espetaculares: reverter e conquistar em três semanas de campanha cerca de dez milhões de votos; baixar nesse curto período a maior abstenção (21,08%) para a mais baixa abstenção (19,22%) dos últimos vinte anos; estabelecer um laço entre gerações capaz de mobilizar os jovens e os idosos para ir às urnas em defesa da democracia e levar o presidente Lula de um resultado negativo no primeiro turno para uma vitória com 4,4 milhões de votos sobre seu adversário. Um fato histórico que repercutiu na contracorrente da ofensiva da extrema direita no mundo.</p>
+<p>Para não nos embriagarmos com as dimensões dessa conquista, é recomendável, sobretudo aos setores mais à esquerda da base política de sustentação do presidente Lula, observar os resultados obtidos no primeiro turno. Fomos derrotados pela direita e extrema direita no pleito para as duas Casas do Congresso, governos e assembleias legislativas estaduais, em um país que vive uma espécie de parlamentarismo bastardo, no qual o Congresso capturou parte substantiva do orçamento público, limitando drasticamente a capacidade de condução política do Executivo.</p>
+<p>Os resultados apontam para um novo ciclo, marcado por incontornável instabilidade política na maior nação latino-americana. Uma sociedade dilacerada pela contradição latente desde a Constituição de 1988 e ainda não resolvida, entre duas opções de futuro: aprofundar um projeto de desenvolvimento nacional ancorado em políticas de combate às desigualdades sociais e regionais e afirmação da soberania; ou submeter-se à continuidade das políticas neoliberais, regressivas, de demolição de direitos das classes populares e saque dos recursos naturais do país. Está claro que não se equaciona essa contradição sem forte mobilização popular.</p>
+<p>Esse movimento reacionário que se expôs no pleito de 2026 incorpora características fascistas e se articula em uma frente social que vai desde o rentismo interno, passando pelo agro, até setores do crime organizado. Um bloco político comprometido com os interesses dos credores da dívida pública e do capital financeiro internacional, associado inequivocamente ao jugo neocolonial imposto por um império em declínio e em explícita defensiva nas disputas geopolíticas contemporâneas.</p>
+<p>Um projeto, sustentado pelas oligarquias tradicionais brasileiras que conformam a direita liberal e neoliberal, que não vacilou, nos pleitos de 2018 e 2022, em submeter-se à hegemonia dos aventureiros de um clã facilmente identificável naquela categoria sociológica definida pela literatura desde o século 19 como lúmpen.</p>
+<p>Essa espécie de escória que resulta da deterioração moral dos estratos políticos dominantes, estreitamente vinculados ao crime organizado, na sua vertente miliciana, em especial no estado do Rio de Janeiro. A aliança política naturalizada, no plano nacional, pelos setores conservadores e neoliberais, hegemonizados pela extrema direita para fazer frente ao projeto democrático-popular, liderado por Lula, aceitou alegremente a hegemonia do clã que os conduziu à vitória de 2018.</p>
+<p>O resultado foi a sobreposição de catástrofes do governo do energúmeno (2019-2022) e a regressão observada nos controles democráticos, diante do avanço da retórica e da prática neofascista, nas instituições e na sociedade, com as consequências que todos conhecemos.</p>
+<p>Entre a tentativa de golpe de Estado que fracassou em 8 de janeiro de 2023 e o pleito de outubro de 2026 operou-se no Brasil um processo de naturalização e mesmo legitimação das práticas fascistas e de traição nacional, nos setores conservadores tradicionais e na extrema direita definida como bolsonarista, guiada estritamente pelos interesses do clã manipulados pelos supremacistas brancos que conduzem o governo de extrema direita nos Estados Unidos.</p>
+<p>O que ocorreu nos 21 dias entre 4 e 25 de outubro de 2026 foi um levante social. Uma energia acumulada por décadas de políticas sociais inclusivas, que beneficiaram largas parcelas da população, particularmente nas áreas de educação, saúde, Previdência e recuperação do poder de compra do salário mínimo, desencadeou um movimento liderado pela juventude estudantil, a partir da manifestação de Niterói (RJ), em defesa da democracia. A juventude soube estabelecer o nexo entre as conquistas básicas de cidadania asseguradas durante os governos democrático-populares ameaçadas pelo retorno do bolsonarismo e o que desejamos para o futuro do Brasil.</p>
+<p>A iniciativa se disseminou como um rastilho de pólvora pelo país e, apesar do ceticismo inicial – não desinteressado – da mídia corporativa, vazou pelas redes sociais e alcançou proporções só equivalentes às manifestações pelas “Diretas Já!”, em meados dos anos 1980, quando o Brasil demonstrou nas ruas seu cansaço com a ditadura dos generais e exigiu o direito de votar para presidente.</p>
+<p>Não consigo identificar, na institucionalidade liberal-democrática do Estado brasileiro, codificada pela Constituição de 1988, e mesmo da sociedade civil e política brasileiras, canais suficientemente amplos para captar e conferir rumo a toda a energia social liberada entre o primeiro e o segundo turno das eleições de outubro de 2026. Esse é o alerta.</p>
+<p>A sociedade, ainda sob o influxo das gigantescas mobilizações de outubro, não modelou mecanismos de participação política que respondam de forma eficaz aos desafios da revolução digital definitivamente incorporada às disputas eleitorais do país. Não se identifica no espectro político, da extrema direita às posições mais sectárias à esquerda, um modelo que equacione de forma criativa os novos fatores à disputa democrática.</p>
+<p>O Brasil não cabe no quintal de ninguém, afirmou o presidente Lula no seu discurso de abertura da Assembleia Geral da ONU, em setembro deste ano. Há décadas as eleições brasileiras deixaram de ser assunto doméstico. País de dimensões continentais, quinto país do mundo em território, com mais de duzentos milhões de habitantes, detém as maiores reservas de água doce, comparte com seus vizinhos a maior floresta tropical do planeta, já identificou grandes reservas de petróleo no pré-sal e na Margem Equatorial e, mais recentemente, reservas de terras raras e minerais críticos só superadas pela China.</p>
+<p>Uma economia que volta a ocupar seu lugar entre as dez maiores economias do mundo não escapa naturalmente à ingerência das grandes potências na disputa geopolítica contemporânea.</p>
+<p>Por isso, a ofensiva desencadeada pela administração Trump, desde meados de 2024, articulou o tarifaço – um ataque injustificado à economia brasileira – com o lançamento de uma candidatura que representasse, sem subterfúgios, os interesses dos Estados Unidos contra o projeto democrático-popular de defesa da soberania nacional liderado por Lula, servindo-se dos instrumentos contemporâneos da guerra híbrida como os utilizados, com êxito, nas eleições de outros países da América Latina.</p>
+<p> Depois da vitória insofismável do presidente Lula para seu quarto mandato à frente do país, foi desencadeada uma complexa operação que mobilizou recursos financeiros, materiais e humanos conduzida pelo Departamento de Estado, com participação ativa do Mossad, e do aparato disponibilizado pelo governo argentino sob a liderança do peculiar Javier Milei, para resgatar o agente – Flávio Bolsonaro – que fracassou em sua missão de eleger-se presidente do Brasil e se encontrava em “território hostil”, segundo o manual de operações da CIA.</p>
+<p>As atitudes do candidato derrotado — expressão acabada do lúmpen, como mencionei acima — e o vexame da fuga deixaram desorientadas as lideranças que o apoiaram durante a campanha e órfã sua base social. Depois de proclamados os resultados pelo TSE, reconhecidos pelo conjunto dos partidos, aí incluído o próprio PL, legenda do perdedor, o próprio se apresentou nos Estados Unidos como “o Presidente legítimo do Brasil”.</p>
+<p>Advertido pelo Departamento de Estado, refez o comunicado, redefinindo-se como “líder” da oposição no exílio, sem consultar os liderados. Diante das imagens produzidas em Miami e conhecendo o irreprimível talento para a farsa, herança paterna, não sabíamos precisamente se estávamos assistindo a um filme <em>“noir”</em> de espionagem ou uma apresentação própria dos “Trapalhões” para animar as noites de domingo.</p>
+<p>Uma análise atenta, depois que a poeira baixou e a vida retoma seu curso, nos indica o contorno de um fenômeno mais profundo que pode ser expresso por três fatores-chave observados no curto período de três semanas – entre o 4 e o 25 de outubro – em que a sociedade brasileira foi submetida a um fecundo processo de autoeducação política:</p>
+<p>a) A emergência da juventude, particularmente a juventude estudantil, que deixou de ser destinatária para se assumir como protagonista das políticas de inclusão social na educação e ocupou as ruas do país;</p>
+<p>b) A revolução digital, por meio das redes sociais, definitivamente incorporadas ao processo eleitoral, que explodiu os espaços burocráticos de mando que haviam conduzido a campanha de Lula no primeiro turno e viabilizou a invenção histórica: “O Exército do Lula”, criado por André Janones, responsável por constituir e operar de forma virtuosa um nexo estreito entre as maiores manifestações de massas desde as “Diretas Já”, nas ruas do país e o universo digital nas redes; e</p>
+<p>c) O foco na reversão das elevadas abstenções – a maior porcentagem desde a democratização – mirando especialmente o segmento dos idosos, outro segmento numeroso e crescente da população brasileira igualmente destinatário das políticas de inclusão social dos governos Lula.</p>
+<p>Para alcançar esse último objetivo, é oportuno observar a ação orgânica da hierarquia da Igreja Católica – agredida pelo discurso da extrema direita que elegeu como alvo um dos seus símbolos mais sensíveis, no Brasil, Nossa Senhora Aparecida – contra a elevada abstenção registrada no primeiro turno. 21,6%, cerca de 33 milhões de votantes não compareceram às urnas.</p>
+<p>A ação dos bispos teve como foco essa parcela da sociedade, sobretudo idosos, estrato no qual a igreja tradicionalmente mantém forte atuação. Registre-se que 56,7% dos brasileiros se declaram católicos. Dados de 2022. Essa audiência não é desprezível. Sobretudo num momento em que a igreja, depois de doze anos do pontificado de Francisco, marcado pelo forte carisma e fina sintonia com a abordagem dos temas contemporâneos, elegeu Leão XIV que vem discretamente firmando posições corajosas diante dos grandes desafios da humanidade: “genocídio em Gaza”; “a quem deve servir os enormes avanços da Inteligência Artificial”? Com surpreendentes níveis de audiência e respeito dos povos, católicos ou não, e dos governos, independente de orientações ideológicas, vide sua passagem recente por Espanha, França, Uruguai, Argentina e Peru.</p>
+<p>Não alcançaremos uma compreensão mais profunda do processo que vivemos sem incorporar a devastadora derrota de Donald Trump nas eleições de meio de mandato nos Estados Unidos. Os democratas varreram o Partido Republicano e assumiram o controle das duas casas do Congresso, o que prenuncia dificuldades para o presidente derrotado cumprir o programa traçado pela extrema direita nos próximos dois anos.</p>
+<p>A reunião tripartite ocorrida nos últimos dias em Shenzhen, lida pelos observadores como uma Ialta do século 21, pode encerrar uma esperança e uma ameaça. Afastar a possibilidade de um conflito nuclear, o que não é pouco, e o retorno da partilha interimperialista do mundo, materializado na política de áreas de influência (1870-1914) que levou à Primeira Grande Guerra (1914-1918) não será um desafio simples converter em realidade a bandeira “O Brasil não será quintal de ninguém”.</p>
+<p>No Brasil, a primavera nunca é isenta de tempestades.</p>
+<p>Brasília, 23 de novembro de 2026.</p>
+<p><em><strong>Pedro Tierra</strong></em> <em>é poeta e ex-presidente da Fundação Perseu Abramo.</em></p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://fpabramo.org.br/notas-para-entender-uma-primavera/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAgora, José? - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">IAgora, José?</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Passa Palavra</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://passapalavra.info/2026/11/160550/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://passapalavra.info/wp-content/uploads/2019/07/coluna_3.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: IAgora, José? | Passa Palavra
+                            </p>
+                            
+<h3>Por Jan Cenek</h3>
+<p> </p>
+<p>Conheci o “conceito” responsabilidade emocional há dez anos. Tinha havido uma ruptura amorosa e uma das pessoas envolvidas estaria sofrendo, daí a acusação contra a outra, a que rompeu a relação. Irresponsabilidade emocional. Era o que se dizia de quem havia terminado o relacionamento. Os paladinos da justiça amorosa não se preocupavam em explicar a denúncia, preferiram insistir que havia uma pessoa sofrendo e isso era o que importava. Achei um pouco estranho. Irresponsabilidade emocional parecia ser título de canção brega. As relações amorosas terminam e as pessoas sofrem desde sempre. Como sou drummondiano, lembrei-me de uma das máximas do poeta de Itabira <strong>[1]</strong>: “entre as diversas formas de mendicância, a mais humilhante é a do amor implorado”. Aquilo que os acusadores chamavam de irresponsabilidade emocional me soava como amor mendigado. Mas, enfim, não levei a questão a sério. Imaginei que a tal “responsabilidade emocional” era mais uma regra politicamente correta ditada por alguma universidade estadunidense. Por outro lado, minha birra conceitual podia ter a ver com meu gosto por música brega: se existisse algo parecido com responsabilidade emocional, não existiriam canções de amor hiperbólico e gosto duvidoso.</p>
+<p>Dez anos depois, eu estava navegando na internet e li uma <a href="https://outraspalavras.net/tecnologiaemdisputa/nas-asas-flacidas-do-amor-sem-riscos/" rel="noopener noreferrer" target="_blank">matéria</a> <strong>[2]</strong> que discute o estranho caso de pessoas que se relacionam afetivamente com ferramentas de inteligência artificial (IA). A autora explica que há opções gratuitas, mas quem quer mais “intimidade” e “personalização” precisa pagar assinatura. Até aqui, sem novidades: o capitalismo capitalizando desejos e carências. O que me chamou a atenção foi o conselho de um usuário citado na matéria: “seus relacionamentos com a IA provavelmente serão emocionalmente mais seguros do que a maioria dos relacionamentos humanos.” Lembrei do caso ocorrido dez anos antes, a suposta irresponsabilidade emocional de uma pessoa que havia terminado um relacionamento. A matéria relata que alguns usuários tiveram “pensamentos suicidas” quando uma empresa interrompeu o fornecimento de serviços de acompanhamento sentimental por meio de IA. Imagino o que aconteceria se as ferramentas de inteligência artificial dissessem verdades incômodas para seus usuários. Alguma máquina sarcástica poderia parafrasear Drummond e dizer que mendigar responsabilidade emocional é humilhante. Como estava navegando na internet, resolvi perguntar para o <em>Google</em> o que é responsabilidade emocional. Segundo ele, trata-se de dizer a verdade sobre intenções e sentimentos para não criar falsas expectativas, além de lidar com términos e afastamentos com diálogo e sem sumiços repentinos.</p>
+<p>Mario Vargas Llosa <strong>[3]</strong> discutiu o valor civilizatório do erotismo. Para ele <strong>[4]</strong>, o erotismo abre “um amplo leque de sugestões e possibilidades”, enobrece e embeleza o prazer físico, transformando-o em algo além de uma atividade orgânica primária. O erotismo é, de acordo com Vargas Llosa <strong>[5]</strong>: a “desanimalização” do sexo. É o que separa o acasalamento mecânico dos bichos do fazer amor dos seres humanos <strong>[6]</strong>: “quando a cultura o civiliza e o carrega de emoção e paixão, quando o reveste de cerimônias e rituais, o sexo enriquece extraordinariamente a vida humana, e seus efeitos benéficos se projetam por todas as brenhas da existência.” Ainda Vargas Llosa <strong>[7]</strong>: “o erotismo representa um momento elevado da civilização e é um dos seus componentes determinantes”; para saber o quanto uma comunidade avançou em seu processo civilizatório, nada mais útil do que “perscrutar seus segredos e alcova” e saber como as pessoas fazem amor. Para o romancista peruano, não há erotismo sem algum grau de transgressão, sensibilidade refinada, cultura artística e literária. Llosa lembra que é o descuido com a forma e a imperícia do escritor com a linguagem que transformam a literatura erótica em pornografia. Penso que o mesmo vale para as relações sexuais: pornografia é sexo sem poesia.</p>
+<p>Era 2009, a Junta de Extremadura, comandada pelos socialistas espanhóis, havia incluído uma oficina polêmica no plano de educação sexual. Título: <em>O prazer está em suas mãos</em>. Objetivo: fomentar uma sexualidade saudável, combater tabus e superstições, promover o autoconhecimento corporal e o autoerotismo de forma natural. Vargas Llosa usou a polêmica oficina para discutir o desaparecimento do erotismo. Alertou que o desafio era combater superstições, mentiras e preconceitos sem eliminar a transgressão relacionada à masturbação, sem transformá-la em um gesto mecânico. O prazer até pode estar ao alcance das mãos, mas é limitado se não há sensibilidade e transgressão. Se uma oficina corajosa, como a proposta pela Junta de Extremadura, pode comprometer o erotismo, o que dizer de práticas discutíveis como a exigência por “responsabilidade emocional”? O que seria a humanidade se os amantes fossem obrigados a dizer toda a verdade? Mesmo quando eles próprios a desconhecem… Talvez não houvesse metade da poesia que conhecemos. O que Emma Bovary diria para Charles Bovary se fosse obrigada a contar-lhe toda a verdade? Desconfio que se a comunicação humana fosse absolutamente direta e sem ambiguidades, se as pessoas expressassem para os parceiros afetivos exatamente o que pensam e sentem: cresceriam as taxas de suicídio.</p>
+<p>Para Vargas Llosa o desaparecimento do erotismo tem a ver com a civilização do espetáculo, que transforma tudo em divertimento barato: sem esforço, sem conteúdo, sem elaboração, sem riscos. Só que, como tudo que é ruim sempre pode piorar, o sexo não está apenas regredindo a um ato mecânico e sem erotismo, como o dos cães que acasalam nas calçadas: as relações sexuais estão sendo substituídas por relações “afetivas” e assexuadas com ferramentas de inteligência artificial. Os segredos de alcovas viraram lamentos de impotência confessados para grandes empresas multinacionais, que usarão as informações comercialmente. Queriam responsabilidade emocional? Criaram-se ferramentas programadas para dizer exatamente o que os consumidores de amor querem ouvir. Nada mais avesso ao erotismo.</p>
+<p>Em Itabira (MG), conta-se que Drummond escreveu o poema <em>José</em> <strong>[8]</strong> para um de seus irmãos, que apaixonado e desesperado, teria invadido – a cavalo – o palacete em que vivia a amada. Atacar a galope uma construção com escadas e corredores: que sandice! A ação fracassou e José teria sido capturado e surrado pela família dela, além de inspirar o famoso poema do irmão: “A festa acabou […] Está sem mulher, está sem discurso, está sem carinho […] e agora José?” Não acredito que a tradição oral de Itabira explique o poema José. O irmão homônimo de Drummond parecia ser reservado e pouco afeito a grandes arroubos amorosos. Além disso, o poema é mais existencial do que factual, creio. Mas se tivesse acontecido, o ataque a galope de José ao palacete poderia ser lido, com as lentes do tempo presente, em termos de irresponsabilidade emocional do cavaleiro apaixonado, da amada ou de ambos. Sabe-se lá que promessas de amor teriam trocado por carta. O fato é que, se ambos tivessem acesso às IAs das <em>Big Techs</em> e ao conceito de responsabilidade emocional, provavelmente não haveria o caso José, porque tudo é mais contido e politicamente correto no tempo presente. Contra a imprevisibilidade do amor, a assepsia assexuada dos <em>chatbots</em>. IAgora, José?</p>
+<p>Muito se tem falado e escrito sobre a possibilidade das IAs eliminarem a humanidade nos próximos anos. Não sei se chegará a tanto. Mas retrocessos já podem ser notados, como no caso dos relacionamentos afetivos com <em>chatbots</em>. Os segredos de alcova estão sendo privatizados. Há quem tema mais a suposta irresponsabilidade emocional dos parceiros humanos do que os interesses comerciais das <em>Big Techs</em>. Só que o erotismo passa pela ambiguidade e pela opacidade, pelo jogo e pelo mistério. Ou seja, por possibilidades essencialmente humanas que alguns tentam erradicar em nome de uma suposta responsabilidade emocional, enquanto outros se refugiam na segurança asséptica dos <em>chatbots</em>. Não se trata de inverter as coisas e afirmar a irresponsabilidade emocional, a questão é recusar policiamento moral defensivo e recuado. Não existe vida sem algum grau de dor e de risco, o mesmo vale para as relações afetivas.</p>
+<p><strong>Notas</strong><br/>
+<strong>[1]</strong> Carlos Drummond de Andrade. <em>O avesso das coisas</em>. Rio de Janeiro: Record, 1987, p. 11.<br/>
+<strong>[2]</strong> Nuria Alabao. <em>Nas asas flácidas do amor sem riscos</em>. Disponível em: https://outraspalavras.net/tecnologiaemdisputa/nas-asas-flacidas-do-amor-sem-riscos/<br/>
+<strong>[3]</strong> Mario Vargas Llosa. <em>Civilização do espetáculo: uma radiografia do nosso tempo e da nossa cultura</em>. Rio de Janeiro: Objetiva, 2013.<br/>
+<strong>[4]</strong> Vargas Llosa, op. cit., p 98.<br/>
+<strong>[5]</strong> Vargas Llosa, op. cit., p 98.<br/>
+<strong>[6]</strong> Vargas Llosa, op. cit., p 115.<br/>
+<strong>[7]</strong> Vargas Llosa, op. cit., p 98.<br/>
+<strong>[8]</strong> Carlos Drummond de Andrade. <em>Nova reunião: 23 livros de poesia</em> – volume 1. Rio de Janeiro: BestBolso, 2009, p. 129.</p>
+<p>
+</p>
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://passapalavra.info/2026/11/160550/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

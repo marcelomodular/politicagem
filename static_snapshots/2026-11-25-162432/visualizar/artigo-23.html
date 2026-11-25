@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arte: uma obra aberta - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Arte: uma obra aberta</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/11/arte2.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Arte: uma obra aberta
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+<p><em>“É preciso buscar na fonte de origem</em></p><p>
+</p>
+<p><em>e devolver ao povo em forma de arte”</em></p><p>
+</p>
+<p>(Francisco Solano Trindade).</p><p>
+</p>
+<p>Arte é uma O<em>bra Aberta</em><a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftn1" rel="noopener noreferrer" target="_blank"><em>[1]</em></a>. Vou me ater a três dimensões que se interrelacionam e que considero inseparáveis: <a href="https://revistaforum.com.br/opiniao/arte-como-forma-de-revolucao/" rel="noopener noreferrer" target="_blank"><strong>arte</strong> </a>como experiência de alteridade e conhecimento, porque nos permite sentir e compreender vidas que não são as nossas; como potência ética e cultural de transformação dos conflitos, podendo fazer da sensibilidade um caminho para a Cultura de Paz; e como abertura para a <a href="https://revistaforum.com.br/blogs/o-cafezinho/dez-anos-apos-a-morte-de-fidel-cuba-vive-sob-um-cerco-mais-duro-dos-eua/" rel="noopener noreferrer" target="_blank"><strong>revolução</strong></a>, porque torna imaginável aquilo que a ordem estabelecida insiste em declarar impossível. Sentir o Outro, transformar as relações e reinventar o mundo, três movimentos de uma mesma experiência.</p>
+<p></p>
+<p>Arte não é apenas produto, físico ou intangível, composição ou técnica, é assombro. A capacidade de tocar e transportar alguém para realidades jamais imaginadas, ou de revelar no mundo que julgávamos conhecer aquilo que nossos olhos já não conseguiam enxergar. É comunicação que ultrapassa a mensagem e conhecimento que não se encerra na explicação. Mais que refletir, é sentir como forma de conhecer.</p>
+<p>Está intrinsecamente vinculada à poética como revelação, quando a <a href="https://revistaforum.com.br/cultura/quando-surgiu-a-linguagem/" rel="noopener noreferrer" target="_blank"><strong>linguagem</strong> </a>deixa de apenas designar o mundo para recriá-lo, mas isso não significa afirmar que a arte é o contrário da razão, ela é a sua expansão pelo sensível, como um pensamento que ganha corpo pela memória que se faz presença com a imaginação que abre passagem ao desconhecido.</p>
+<p>Pela arte conhecemos o mundo com o corpo inteiro, a experiência não começa na ideia abstrata, mas no encontro entre nossos sentidos e aquilo que nos afeta. A arte intensifica essa relação, interrompendo o automatismo e devolvendo espessura ao que a repetição tornou imperceptível.</p>
+<p>O que antes era apenas visto passa a ser percebido e o que parecia distante ganha proximidade pela arte, fazendo com que aquilo que não encontrava expressão adquira forma. A arte não está separada da vida, nasce dela e a ela retorna.</p>
+<p>Arte é o lugar de fala da alteridade<a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftn2" rel="noopener noreferrer" target="_blank">[2]</a>. Não porque nos autorize a falar pelo Outro, mas porque nos permite reconhecer sua existência para além de nossas certezas. Nenhum lugar de fala é puro, absoluto ou imune aos atravessamentos da história, não há como essencializar os lugares de fala, somos feitos de muitos lugares, referências e contradições, o papel da arte é irromper essas fronteiras sem dissolver as diferenças. Pela arte nos tornamos o Outro, mas podemos nos aproximar de sua experiência.</p>
+<p>A imaginação, quando reconhece seus próprios limites, torna-se movimento que se realiza artisticamente no encontro com quem a recebe, mesmo quando esse encontro acontece milhares de anos depois. O outro que pintou e o outro que admira as pinturas rupestres na Serra da Capivara, no Piauí, onde a beleza de um beijo atravessa o tempo. Não sabemos exatamente o que pensava quem pintou, tampouco recuperamos integralmente seu mundo, ainda assim, algo nos alcança. A arte não elimina a distância, o que ela faz é tornar possível o encontro.</p>
+<p>A obra de arte permanece, mas o mundo muda, e com ele os sentidos da obra, e até palavras e signos aparentemente idênticos podem adquirir significados distintos quando em outros tempos, lugares e circunstâncias.</p>
+<p>O significado da arte não é fixo nem definitivo, é polissêmico, uma obra pode arrancar lágrimas ou sorrisos sem que saibamos explicar a razão porque provoca estranhamento, desconforto, indignação, também alegria, contemplação e maravilhamento. É bela quando exprime verdade, mesmo sendo rude ou feia. Verdadeira não por demonstrar uma certeza, mas por revelar algo que permanecia encoberto, produzindo conexão e também ruptura, até unir o que estava separado e separar o que parecia indissociável.</p>
+<p>Há uma dimensão ética nesse acontecimento. O Outro não é prolongamento de nós mesmos, nem objeto que possamos reduzir às nossas certezas, a alteridade começa quando reconhecemos aquilo que não dominamos.</p>
+<p>A Arte educa essa disposição fazendo-nos perceber a humanidade de quem não conhecemos, não compreendemos ou fomos ensinados a temer, é precisamente aí que encontra a Cultura de Paz.</p>
+<p>Uma paz que não é indiferença, silêncio imposto ou da resignação diante das injustiças, e sim capacidade de transformar conflitos sem reproduzir a desumanização, porque a violência não se limita à agressão direta, ela está presente também nas estruturas que perpetuam desigualdades e as culturas que as legitimam. Arte é uma forma de amor vestida de coragem.</p>
+<p>Uma Arte comprometida com a paz não pode se contentar em ornamentar um mundo violento, ela precisa revelar suas contradições, desnaturalizar a brutalidade, fazer da sensibilidade uma forma de reconhecimento da vida.</p>
+<p>Após a primeira edição deste livro, eu e Silvana nos dedicamos à realização do Festival Artes pela Paz, em Campinas. Coube-me a curadoria e a redação do catálogo conceitual <em>“Artes pela Paz – O silêncio que grita ao coração do mundo”</em><a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftn3" rel="noopener noreferrer" target="_blank"><em>[3]</em></a>.</p>
+<p>Da experiência com o Festival, pude aprofundar a compreensão de que a paz é uma utopia praticável. E para já! Começa no corpo, mas não termina nele, vai se espalhando na relação consigo, com o Outro, com a comunidade, entre os povos e com a Natureza.</p>
+<p>Ela está presente nas filosofias ancestrais do Bem Viver ameríndio, que questiona a confusão entre viver bem e acumular bens, assim como o Ubuntu, de matriz africana, mais precisamente banto, ao reconhecer que a humanidade de cada pessoa só se realiza na relação com a humanidade dos outros.</p>
+<p>Não há indivíduo sozinho, e <em>“eu só sou, porque nós somos”</em>, como é comumente traduzido o conceito do Ubuntu, que também significa “corpo em movimento”.</p>
+<p>Desde antes, viajando por aí, me aproximei dessas filosofias, ao mesmo tempo ancestrais e atuais, pois se expressam em desdobramentos contemporâneos aplicados, como nos Direitos da Natureza e na Justiça Restaurativa, respectivamente, embora por caminhos históricos próprios. Convergem na percepção de que ninguém se realiza plenamente contra a vida dos demais, humanos e não humanos, pois não há paz verdadeira quando a existência de uns depende da destruição de outros. A Arte torna sensível essa interdependência, não apenas pelo que representa, mas pelas relações que produz no próprio ato de criação.</p>
+<p>Quando pessoas diferentes criam juntas, aprendem a escutar, compartilhar, reconhecer o gesto alheio e modificar o próprio gesto, a obra de arte deixa de ser somente resultado para tornar-se experiência.</p>
+<p>Desses procedimentos, com idas e vindas, vai sendo composta uma <em>artemetodologia</em> feita de escuta sensível, circularidade e construção coletiva. São milênios, séculos e espaços. Não se trata de submeter toda criação a uma finalidade pedagógica ou comunitária, mas de reconhecer sua capacidade de produzir encontros que ultrapassam a obra acabada. A paz não se contempla apenas, pratica-se, assim como a arte.</p>
+<p>Dessas duas filosofias ancestrais, encontrei outra, também enquanto difundia a filosofia da Cultura Viva pelo mundo. Das muitas graças em mais de meia centena de viagens, pude participar de significativos encontros com Papa Francisco.</p>
+<p>Desses diálogos uma ideia sempre retornou: harmonizar as linguagens do coração, da cabeça e das mãos, conforme ele apresentou na primeira vez e nos encontros sucessivos. Sentir, pensar e agir em harmonia. Me vejo compelido a incorporar esse pensamento nesta “lata de sementes”.</p>
+<p>Eis um dos maiores, se não o maior, desafio para uma civilização fragmentada como a nossa, que separa emoção e razão, trabalho de arte, intenção e gesto, religar essas dimensões. Como fazer isso se não pela arte? Não basta pensar a emancipação, é preciso senti-la e praticá-la, tampouco basta emocionar-se diante da injustiça se a emoção não encontrar caminhos de ação.</p>
+<p>Arte é expressão cultural historicamente situada, ela incorpora as condições materiais e as contradições da sociedade que a produz. Não é algo que “paira no vazio”, fruto de um “sopro sublime” que reflete o mundo; a arte participa de sua construção, no de bom e de ruim. Os significados culturais não pairam acima da vida social, eles são resultado da própria experiência de viver em sociedade, a constituem.</p>
+<p>Arte tem dimensão ideológica, mesmo quando aparentemente desprovida de intenção política, pela arte são reforçadas as ideias dominantes, naturalizadas opressões e glorificado o poder, também por ela, pode-se interromper o automatismo da percepção, revelar contradições e fazer emergir possibilidades de existência ainda não reconhecidas.</p>
+<p>Gramsci demonstrou que a hegemonia se constrói não apenas pela coerção, mas pelo consentimento, pelos hábitos e valores que se tornam senso comum. A Arte participa dessa disputa. Há décadas escolhi fazer política cultural por conta disso, é a minha trincheira na luta de classes<a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftn4" rel="noopener noreferrer" target="_blank">[4]</a>. Não há, porém, emancipação automática na criação artística; uma obra engajada pode reproduzir autoritarismos na própria forma, assim como uma criação sem mensagem política explícita pode desestabilizar profundamente nossa percepção do mundo.</p>
+<p>A Arte não se torna revolucionária por repetir palavras de ordem, quando reduzida a propaganda ela arrisca perder justamente aquilo que a distingue, que é a liberdade de surpreender, contradizer e abrir passagem ao inesperado. Igualmente a técnica, que participa dessa liberdade, mas não a substitui, pois há uma tensão entre a capacidade humana de criar instrumentos e a necessidade de conferir sentido àquilo que produzimos. Técnica é conhecimento, trabalho, habilidade, domínio dos meios, arte também é tudo isso, refere-se à habilidade, mas vai além, pergunta pelo sentido, pelo encontro, pela experiência. Quando a técnica se torna finalidade, a vida corre o risco de submeter-se à máquina, ao cálculo e à eficiência. Penso (imagino) que é a arte que pode devolver à técnica sua dimensão humana, fazendo do instrumento uma extensão da imaginação, não uma prisão para ela. E isso é tão necessário nos dias atuais! A arte irá vencer o tecnofascismo.</p>
+<p>Nunca se produziu e distribuiu tanto conteúdo, informações e estímulos sensoriais ao mesmo tempo, mas abundância de conteúdo não significa abundância de experiência, ao contrário. Desse tipo de abundância surge uma atenção que se fragmenta a ponto de fazer a sensibilidade ser disputada como mercadoria. E o tempo da contemplação (e imaginação) é comprimido.</p>
+<p>Diante da automação e da chamada “Inteligência Artificial”, mais que nunca se faz necessária a retomada da pergunta: a quem servem os instrumentos? À ampliação da imaginação humana ou à reprodução incessante do já conhecido? A Arte precisa de técnica, mas também de tempo, silêncio, erro, risco e liberdade, precisa do gesto que escapa ao previsto. Há experiências que não cabem nas métricas. Uma canção pode transformar uma vida sem jamais alcançar milhões de ouvintes, basta alguém a cantar e um ouvinte.</p>
+<p>Arte é assim, território de disputa entre potência e poder. O poder que procura ordenar, controlar, estabelecer limites e conservar posições, e a potência que cria, transborda, estabelece relações; e faz nascer aquilo que ainda não existe. São modos de agir que adentram pessoas e instituições, não essências atribuíveis a homens e mulheres.</p>
+<p>O poder pode criar condições para a potência florescer, ou pode sufocá-la, daí a necessidade de cultivar a potência, que pode transformar o poder, impedindo que ele se converta em dominação. Mas até hoje, quem tem vencido é o poder. Há um cultivo que se faz pela arte, como capacidade de agir, de afetar e ser afetado.  Uma vida que se expande quando aumentam suas possibilidades de relação e ação.</p>
+<p>A arte pode produzir esse aumento de potência porque amplia aquilo que somos capazes de imaginar e realizar com os outros. Uma obra de arte que nos transforma não acrescenta apenas informação à consciência, ela modifica nossa capacidade de existir. Nesse sentido a Arte pode preparar a revolução.</p>
+<p>Antes de transformar as estruturas é preciso romper a crença de que elas são naturais, eternas e inevitáveis. Para construir outro mundo é necessário imaginá-lo, e imaginar não é fugir da realidade, e sim perceber, no interior das contradições da realidade, as possibilidades que ainda não encontraram forma.</p>
+<p>A arte não substitui a luta política, a organização social ou a transformação das condições materiais de existência, mas nenhuma revolução se completa se não alcançar também a sensibilidade, os desejos, os valores e as maneiras de conviver. As que negligenciaram isso (creio que todas), retrocederam, fracassaram e viraram muros desmoronados. Pode-se derrubar um governo e conservar intacta a lógica da dominação, mudar a propriedade das coisas e continuar tratando pessoas como coisas.</p>
+<p>Uma transformação que não venha acompanhada de cultura e a arte, reproduz, sob novas aparências, o mundo que pretendia superar. Aposto nessa revolução mais profunda, produzindo libertação do medo, dos ódios e da naturalização da violência e das indiferenças. Não pela eliminação das diferenças ou recusa do conflito, ao contrário, indignar-se é gesto profundo de amor ao mundo. Mas pela possibilidade de convivência sem submissão, transformando as contradições em movimento criador. A revolução exige justiça, e a justiça exige coragem. Desobedeçamos ao que desumaniza. O conceito de arte, tal qual apresento nessas sementes, pode ser essa desobediência sensível a abrir uma fenda no conformismo e dar forma ao que ainda não tem nome.</p>
+<p><strong>Às artistas e aos artistas, um chamado</strong></p>
+<p>Revoltem-se!</p>
+<p>Não se conformem com um mundo que transforma a vida em mercadoria, a diferença em ameaça e a natureza em despojo. Beleza não é privilégio. Não entreguem sua imaginação aos que pretendem administrar até os nossos sonhos. Nem permitam que o medo lhes dite a forma, que o mercado lhes determine o sentido, ou que o poder lhes imponha o silêncio. A liberdade artística é também responsabilidade diante do mundo. Criem com as mãos, com a cabeça e com o coração. Façam do espanto, conhecimento, e da indignação, coragem.</p>
+<p>Não escondam as feridas do mundo!</p>
+<p>Revelem-nas sem perder a capacidade de imaginar sua cura. Onde houver muros, inventem passagens. Derrubem os muros! Todos os muros. Onde houver silêncio imposto, façam nascer vozes. Não lhes peço uma Arte obediente, que confunda paz com resignação. Não é! Nem revolução é uma simples troca de quem exerce o poder. Arte que desobedece faz da potência criadora uma força capaz de multiplicar vidas, e não de submetê-las. Peço uma Arte viva, que não se contente em representar o mundo, mas se arrisque a transformá-lo.</p>
+<p>Com imaginação, rigor, sensibilidade e coragem de experimentar, digam ao mundo que criação não é mercadoria, propaganda ou instrumento administrativo. Cultivem as condições para que a potência floresça sem pretender controlar as formas que ela assumirá.</p>
+<p>Arte não é a revolução, é a fagulha que irá despertar aquilo sem o qual nenhuma revolução verdadeira acontece. Por essa fagulha a arte irá despertar a capacidade humana de imaginar e desejar outro mundo possível (em que caibam outros mundos e formas de vida). Arte é a semente que rompe a casca antes que a árvore apareça.</p>
+<p>Artistas, semeiem o impossível!</p>
+<p>É dele que nascem os mundos ainda por viver.</p>
+<p><a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftnref1" rel="noopener noreferrer" target="_blank"></a></p>
+<p>[1] <strong>Obra Aberta.</strong> Expressão escolhida em referência e homenagem a Umberto Eco. A obra não se esgota na intenção do criador, permanecendo aberta às experiências e interpretações de quem a encontra.</p>
+<p><a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftnref2" rel="noopener noreferrer" target="_blank">[2]</a>  <strong>Lugar de fala da alteridade.</strong> Emprego a expressão em sentido ensaístico, reconhecendo as contradições de seu uso corrente. Indivíduos e comunidades são atravessados por múltiplos lugares, referências e valores, não havendo lugar de fala absoluto ou puro em essência. A Arte oferece uma possibilidade singular de atravessar essas fronteiras, tempos e experiências, sem apagar a diferença entre os sujeitos.</p>
+<p><a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftnref3" rel="noopener noreferrer" target="_blank">[3]</a> Ver site do Instituto Casa Comum www.institutocasacomum.org.br  Festival ARTES PELA PAZ.</p>
+<p><a href="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/#_ftnref4" rel="noopener noreferrer" target="_blank">[4]</a> …e queria ter sido mais bem sucedido. Sei que fiz muito, mas é preciso mais, muito mais. Faltou força, respaldo político, compreensão coletiva. Foi muito, foi feliz, mas faltava mais porque o mundo urge. Há um ditado árabe, que um amigo querido que me recrutou para o comunismo quando eu tinha dezessete anos, Lejeune Mirhan, recém falecido, que começava suas mensagens com ele <em>“Sou pobre, não tenho nada, dou meu coração”</em>. É o que estou entregando agora, arte e cultura sem ideia de revolução de nada serve, é só vaidade, ornamento. Peguem! Por favor, peguem essa semente e a façam brotar com mais força. (é a pura verdade, não é alegoria poética, enquanto escrevia essa nota apareceu um beija-flor defronte ao computador).</p>
+<p><em><strong>*Este artigo não reflete, necessariamente, a opinião da Fórum.</strong></em></p>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+ 
+Leia mais textos de Célio Turino
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/opiniao/arte-uma-obra-aberta/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Os robôs assassinos com Inteligência Artificial já estão aqui - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Os robôs assassinos com Inteligência Artificial já estão aqui</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/os-robos-assassinos-com-inteligencia-artificial-ja-estao-aqui/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/176004985949.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Os robôs assassinos com Inteligência Artificial já estão aqui
+                            </p>
+                            
+<p>UMA ENTREVISTA DE</p><p>
+
+			Nick French		</p>
+<p>Nas últimas semanas, o pânico em relação à inteligência artificial atingiu níveis alarmantes. Denunciantes da indústria de IA, assim como políticos como Bernie Sanders, estão soando o alarme sobre o potencial de um apocalipse impulsionado pela IA e a necessidade de desacelerar ou interromper o desenvolvimento dessa tecnologia.</p>
+<p>Mas não podemos nos esquecer de que a IA já está matando seres humanos, graças ao crescente uso de sistemas de armas autônomas em guerras. Um incidente recente de grande repercussão, <a href="https://www.nytimes.com/2026/08/24/world/europe/russia-drones-autonomous-ai-kill-ukraine-war.html?eafs_enabled=false" rel="noopener noreferrer" target="_blank">noticiado</a> pelo <em>The New York Times</em> no mês passado, resultou na morte de três civis ucranianos por um drone guiado por IA. Um sistema de IA também foi tristemente usado para <a href="https://www.972mag.com/lavender-ai-israeli-army-gaza/" rel="noopener noreferrer" target="_blank">selecionar alvos</a> no ataque genocida de Israel à Faixa de Gaza.</p>
+<p>Robert Sparrow é professor de filosofia na Universidade Monash e escreveu extensivamente sobre a ética da guerra, além de ter defendido a proibição do uso de sistemas de armas autônomos. A <em>Jacobin</em> conversou com Sparrow recentemente sobre como os sistemas de armas com inteligência artificial estão sendo usados ​​atualmente, por que ele considera seu uso particularmente perturbador do ponto de vista moral e o que pensa sobre as recentes declarações a respeito da iminente catástrofe causada pela inteligência artificial.</p>
+
+<p>NICK FRENCH</p>
+<p><strong>O jornal <em>The New York Times</em> noticiou no mês passado que um drone totalmente autônomo matou três pessoas na Ucrânia neste verão. Comecemos por definir o que torna um drone ou um sistema de armas totalmente autônomo. Em que as mortes na Ucrânia diferem de usos anteriores documentados de sistemas de armas semiautônomos ou não tripulados?</strong></p>
+<p>ROBERT SPARROW</p>
+<p>A definição padrão de autonomia atualmente é um sistema de armas que escolhe seus próprios alvos ou executa alguma função significativa sem supervisão humana. Algumas pessoas classificarão munições do tipo “dispare e esqueça” como autônomas; outras exigirão algo mais parecido com o tipo de capacidade de ação que estamos vendo na IA generativa e nesses tipos de agentes de IA de que se fala.</p>
+<p>De acordo com a reportagem, o que pareceu realmente inovador não foi tanto a capacidade do armamento. O drone foi essencialmente projetado para detectar combustível. Ele foi disparado na direção de um posto de combustíveis e reconheceu os tanques de propano, tentando colidir com eles. Não há muitas questões envolvidas. O que pareceu ser novidade foi a notícia de que houve vítimas civis.</p>
+<p>Mas essa capacidade é algo que os sistemas já possuem há muito tempo. Existia uma munição israelense de ataque de precisão chamada Harpy, que era disparada em locais onde se temia que os radares de defesa aérea fossem ativados. Ela voava sozinha e, então, alguém ligava um radar de defesa aérea, e a Harpy o localizava e o atingia. Os estadunidenses têm um míssil de cruzeiro chamado Long-Range Anti-Ship (LRAS). Novamente, ele era disparado na direção de um comboio de navios inimigos. Então, ele escolhia autonomamente o alvo de maior valor. Ele possuía radares ou perfis dos navios e foi projetado para voar em ondas. Assim que um míssil destruísse o alvo pretendido, ele reconhecia o próximo alvo de maior valor.</p>
+<p>Fico feliz que as pessoas estejam chamando a atenção para esses sistemas, mas, nesse caso específico, o que pareceu ser novidade foi o uso de um drone desse tipo por russos, e não por ucranianos; e o fato de os russos terem usado um chip da Nvidia, que é bastante comum — demonstrando que essa é uma capacidade que outros países poderiam desenvolver — e que isso resultou na morte de civis.</p>
+<p>O <a href="https://www.nytimes.com/2026/08/24/world/europe/russia-drones-autonomous-ai-kill-ukraine-war.html?eafs_enabled=false" rel="noopener noreferrer" target="_blank">artigo do <em>The Times</em></a> faz essa distinção entre direcionamento de última milha e armas totalmente autônomas. Simplesmente não me ficou claro naquele caso específico [que o drone era totalmente autônomo], porque um ser humano havia escolhido que ele atacaria cilindros de gás. Ele havia escolhido dispará-lo; havia escolhido para qual posto de combustíveis apontá-lo no direcionamento. Parecia que o que ele estava fazendo era o que algumas das armas de drones ucranianas fazem, que é designar um alvo e então o drone perseguirá essa pessoa ou tanque em situações onde não é possível manter um humano no circuito devido ao excesso de interferência.</p>
+<p>Mas é evidente que, a menos que as pessoas se unam para impedir isso, este é o futuro da guerra: cada vez mais decisões sobre alvos sendo entregues a máquinas.</p>
+<p>NF</p>
+<p><strong>Quais são as principais questões levantadas pelos sistemas de armas autônomas, sejam elas semelhantes às utilizadas na Ucrânia ou sistemas totalmente autônomos? Com ​​todos os tipos de armas, existem consequências não intencionais. Pode-se lançar uma bomba ou disparar um projétil e atingir alvos não previstos, por exemplo. O que há nas armas autônomas ou autoguiadas que levanta questões morais específicas?</strong></p>
+<p>RS</p>
+<p>Muita coisa depende de se você está pensando em algo como uma mina antitanque. Uma mina antitanque moderna, de certa forma, escolhe seu alvo. Ela é projetada para identificar se o que passa por cima dela é um trator ou um veículo blindado inimigo. Algumas são projetadas para contar alvos, de modo que a coluna de tanques inimiga esteja dentro do campo minado quando a primeira mina explodir. É difícil se preocupar muito com isso.</p>
+<p>Por outro lado, as pessoas imaginam o <em>Exterminador do Futuro</em> ou algo como o Claude, da Anthropic, escolhendo alvos. É mais fácil perceber que há algo de errado nisso.</p>
+<p>“A menos que as pessoas se unam para impedir isso, este é o futuro da guerra: cada vez mais decisões sobre alvos sendo entregues a máquinas.”</p>
+<p>Para mim, existem dois conjuntos de problemas. Primeiro, essas tecnologias aumentam o risco de guerras acidentais de maneiras previsíveis. Imagine um futuro com submarinos autônomos — e a guerra submarina é uma área onde isso terá grande influência, porque é difícil se comunicar com submarinos, e as pessoas não gostam de estar neles. Mas imagine encontros ao estilo de <em>A Caçada ao Outubro Vermelho</em> entre submersíveis autônomos na costa da China ou na costa do Pacífico dos Estados Unidos: isso não é algo que se deva confiar a sistemas cujo comportamento na prática é bastante imprevisível.</p>
+<p>Surge então a questão do que devemos uns aos outros, mesmo em tempos de guerra, e se existiria algo como o direito de não ser morto por um robô. As pessoas têm uma intuição razoável de que, mesmo em tempos de guerra, existem limites impostos pelo respeito à vida humana. Não atacamos civis diretamente. Não usamos armas que tenham outros efeitos sobre a pessoa além dos necessários para fins militares. Há proibições, por exemplo, quanto a balas envenenadas. Existem algumas formas de matar pessoas sobre as quais a comunidade internacional simplesmente disse: “Não, não vamos fazer isso”.</p>
+<p>Então a questão é: se vai lutar em uma guerra, o que você deve ao inimigo? Uma coisa que você deve a ele é que um ser humano toma a decisão de vida ou morte. Um ser humano que precisa assumir a responsabilidade e tomar essa decisão — isso é algo que devemos uns aos outros.</p>
+<p>A situação se complica. Se você imaginar um futuro em que eu diga: “<em>Matei</em> alguém <em>com</em> um robô”, então sou eu quem está matando. E eu tomei uma decisão. Mas se você pensar nesse futuro em que o <em>robô</em> decide quem matar, você diria: “Não, isso é desrespeitoso com a humanidade do nosso inimigo.”</p>
+<p>As pessoas pensam erroneamente que a ética da guerra se resume a vencer e às consequências, mas não é bem assim. Caso contrário, atacaríamos até mesmo o jardim de infância do inimigo; minha política de defesa poderia ser: se você me atacar, eu frito seus filhos. Isso ganharia uma guerra rapidamente; traria a paz. Mas essa é a lógica do terrorismo.</p>
+<p>Existe algo como a “teoria da guerra justa”, ou o direito internacional da guerra, ou ética militar. Nesse contexto, impomos restrições aos tipos de armas que estamos dispostos a ver em uso. Espero que possamos adicionar os sistemas de armas autônomas à lista de itens absolutamente proibidos.</p>
+<p>NF</p>
+<p><strong>Como exatamente você traça a distinção que acabou de mencionar, entre uma pessoa usar um robô para matar alguém e o próprio robô fazê-lo?</strong></p>
+<p>RS</p>
+<p>Essa pergunta tem duas partes. Uma delas é prática: quanto controle eu tenho sobre o alvo do robô, sobre o que ele destrói? Por exemplo, aquele sistema russo — você poderia simplesmente ter disparado vários drones e torcido para que alguns deles pousassem nos cilindros de gás. Ou você poderia construir um sistema capaz de reconhecer cilindros de gás, e aí você teria mais certeza sobre o que está atacando.</p>
+<p>Existem situações em que as máquinas claramente superam os seres humanos. Sistemas de defesa aérea, por exemplo: abater mísseis de cruzeiro é algo que os seres humanos simplesmente não conseguem fazer. Se tentassem, abateriam aviões aliados. Abateriam aviões comerciais. É possível ter um canhão controlado por computador que seja bastante confiável.</p>
+<p>“Espero que possamos adicionar sistemas de armas autônomas à lista de coisas que são absolutamente proibidas.”</p>
+<p>Há uma questão prática sobre o grau de confiança que se pode ter de que um sistema de armas atacará um alvo designado e somente esse alvo designado. Existem alguns casos de uso em que se pode ter muito controle: guerra antissubmarino, por exemplo. Simplesmente não existem muitos submarinos civis. Minhas chances de matar civis, se eu estiver usando uma munição submarina de ataque de longo alcance, são baixas. Posso assumir a responsabilidade; sei que autorizei isso. Ela será lançada e destruirá um submarino.</p>
+<p>O reconhecimento da rendição acaba sendo um problema complexo para esses sistemas. É difícil projetá-los para que reconheçam a rendição. Mas existem tipos de conflito em que o reconhecimento da rendição já não é algo comum. Com exceção do reconhecimento da rendição, alguns desses sistemas podem obedecer ao chamado “princípio da distinção”, que consiste em atacar apenas alvos militares legítimos.</p>
+<p>Aí você tem o caso em que se diz: “Sobrevoe esta cidade e mate qualquer um que seja meu inimigo” ou “Sobrevoe a cidade e mate qualquer um que esteja segurando um rifle”. Em alguns contextos, as pessoas carregam rifles porque é algo rotineiro. Nesse contexto, você não terá muito controle sobre o ataque.</p>
+<p>Esse é o componente prático. Um ser humano consegue prever com precisão o que vai atacar? Se sim, então poderíamos dizer: “Ok, este é um exemplo de um ser humano matando outro ser humano com um robô.”</p>
+<p>Há também a questão filosófica sobre a natureza da autonomia do sistema. Se você pensar na experiência que tem ao conversar com o ChatGPT hoje em dia, é fácil cair na linguagem da autonomia: “Ele decidiu responder dessa forma” ou “Ele reservou minha viagem para mim”. </p>
+<p>Quanto mais você usa essa linguagem para descrever um sistema, menos parece que é um ser humano matando outro ser humano com um robô, e mais parece que estou enviando um robô para matar pessoas — mas que ele está matando.</p>
+<p>Portanto, parte do que é necessário aqui é prestar atenção à linguagem que as pessoas usam para descrever esses sistemas. Se os descrevem de uma forma que sugere que um ser humano não está no controle e não é responsável pelo que acontece, isso é desrespeitoso para com a humanidade do inimigo.</p>
+<p>É provável que as funções de comando sejam transferidas para sistemas de IA. Uma das coisas que me interessa no momento é se os militares estarão dispostos a permitir que decisões que possam envolver a morte de <em>seus próprios</em> soldados sejam delegadas a esses sistemas.</p>
+<p>A maioria dos militares apoia a ideia de que uma máquina possa decidir quem, entre os inimigos, vive ou morre. Mas se você perguntar: “Você estaria disposto a aceitar ordens de um sistema de comando de IA, onde esse sistema pode decidir que sua missão é ficar naquela colina, se tornar um alvo para que possamos flanquear pela esquerda e vencer? Você toparia isso?”, minha suspeita é que os militares vão resistir veementemente quando suas vidas estiverem em risco. Isso diz muito.</p>
+<p>NF</p>
+<p><strong>Vamos falar sobre essa questão de sistemas de IA no comando. Você escreveu um <a href="https://robsparrow.com/wp-content/uploads/Minotaurs-Not-Centaurs_The-Future-of-Manned-Unmanned-Teaming.pdf" rel="noopener noreferrer" target="_blank">artigo</a> em parceria com Adam Henschke em 2023 sobre a ideia de “guerra de minotauros”, um cenário bastante impactante. Poderia explicar melhor essa metáfora e por que você previu que veríamos mais casos de IA comandando tropas humanas?</strong></p>
+<p>RS</p>
+<p>Já estamos vendo isso. O filme <em>NAZA</em>, que acaba de ser lançado, aborda os sistemas israelenses que selecionavam alvos em Gaza — exatamente o que Adam e eu previmos. Temos seres humanos lançando armas contra alvos que foram escolhidos por máquinas.</p>
+<p>Ninguém vende um sistema de IA para profissionais qualificados dizendo que ele vai tirar o emprego deles. O que você diz é que ele fará o trabalho pesado; fará as tarefas que você não considera de alto valor agregado e te liberará para realizar as tarefas importantes.</p>
+<p>Há também uma forte influência de Hollywood aqui. Quando os militares começaram a planejar um futuro onde robôs desempenhariam um papel na guerra, eles optaram por uma espécie de modelo do <em>Homem de Ferro</em>, essa ideia de que haveria um ser humano cercado por uma nuvem de robôs, máquinas. O ser humano estaria no comando e os robôs executariam a vontade humana.</p>
+<p>O modelo que as pessoas desenvolveram foi a ideia de “guerra centauro”. Este é um conceito influente. A ideia é ter uma cabeça humana no corpo de um animal — esse é o centauro. Você tem uma equipe de seres humanos e máquinas, onde as máquinas seguem as ordens dos seres humanos. A alegação era de que isso, na verdade, venceria sistemas totalmente autônomos, porque os seres humanos ainda são capazes, em alguns contextos específicos, de tomar decisões superiores.</p>
+<p>“Se você vai lutar em uma guerra, o que deve ao inimigo? Uma coisa que você deve a ele é que um ser humano tome a decisão de vida ou morte.”</p>
+<p>A ideia era que equipes de humanos e robôs superariam tanto humanos quanto robôs individualmente. Isso foi verdade na história do xadrez em certo momento. As pessoas ficaram muito entusiasmadas quando os computadores de xadrez conseguiram vencer humanos. Mas depois descobriu-se que humanos trabalhando com computadores conseguiam vencer os computadores sozinhos. Por um breve período, essas equipes humano-máquina conseguiam vencer tanto humanos quanto máquinas. Isso não acontece mais no xadrez; agora as máquinas simplesmente vencem.</p>
+<p>Enfim, esse tem sido o modelo. Ele permite que os militares tranquilizem os oficiais, garantindo que eles ainda terão emprego. Isso faz parte de uma espécie de tradição iluminista, de que a mente é superior ao corpo; que, quando se trata de quem constrói o arranha-céu, é o arquiteto e não os homens nos andaimes.</p>
+<p>Adam e eu apontamos que isso é bastante improvável. As pessoas sempre pensaram que as tarefas mentais, as tarefas cognitivas, seriam muito difíceis para a IA. Planejamento, matemática, xadrez: esses eram os testes. Na verdade, as máquinas se tornaram muito boas nisso muito rapidamente. Andar — elas não conseguiam. Você ainda não consegue construir um robô que entre no seu escritório e esvazie a lixeira. As coisas que crianças pequenas conseguem fazer — correr, reconhecer e pegar objetos — se mostraram muito difíceis. E todas as tarefas cognitivas se mostraram possíveis. Mas ela não consegue fazer as tarefas físicas.</p>
+<p>Pense em lugares onde temos equipes formadas por humanos e máquinas. Pense no Uber. Por muito tempo, tivemos a ideia de que eu poderia marcar um local e um táxi robô me buscaria. Mas, na maioria das vezes, o que temos é mão de obra imigrante, seres humanos dirigindo táxis e sendo instruídos por um algoritmo sobre para onde ir. Ou nos grandes centros de distribuição do Walmart ou da Amazon, você tem pessoas que são essencialmente as mãos dos computadores. O trabalho humano consiste em ficar em pé, pegar coisas e colocá-las em uma sacola de papel. [Decidir] para onde será enviado, imprimir a etiqueta, encomendar os produtos — todo o trabalho cognitivo é feito por IA.</p>
+<p>Ao analisarmos a interação entre humanos e máquinas no mundo real, percebemos que as tarefas que uma infantaria realiza são muito mais complexas. No entanto, emitir ordens já é possível. Acreditamos que, essencialmente, os oficiais, e até mesmo os generais, serão substituídos por computadores. Mas a infantaria — as pessoas que precisam rastejar na lama e passar por arame farpado — continuará sendo composta por seres humanos. O modelo ali presente é uma cabeça monstruosa em um corpo humano, representando o Minotauro. A IA comanda os humanos, e os humanos seguem suas ordens.</p>
+<p>Acreditamos que essas tecnologias podem realmente prevalecer e que as pessoas podem preferir ser comandadas por uma máquina. Comecei a me interessar por isso ao analisar um projeto do Exército dos EUA em que todos queriam equipar seus membros com uma espécie de Microsoft HoloLens. Hoje em dia, todos usam câmeras acopladas à cabeça; todos usarão os óculos do Google. Ao analisar o que as pessoas imaginavam que esses sistemas fariam, percebi que seria avaliação de ameaças. Os óculos diriam: “Você tem trinta segundos para ir até lá e atirar naquela pessoa”. Ficou muito claro que as pessoas se tornariam marionetes desses algoritmos de avaliação de ameaças.</p>
+<p>“Os oficiais serão substituídos por computadores. Mas a infantaria — as pessoas que precisam rastejar na lama e passar por arame farpado — continuará sendo composta por seres humanos.”</p>
+<p>As pessoas partem da ideia de que as máquinas darão conselhos. Mas também acreditam que elas são capazes de alcançar um desempenho sobre-humano. Ora, se meu conselheiro for melhor do que eu, basta fazer o que ele diz. O modelo de questionar o que as máquinas dizem… é válido por um período muito limitado. Se elas forem realmente capazes de alcançar um desempenho sobre-humano, que é o que todos dizem, então os seres humanos simplesmente não deveriam mais tomar essas decisões. Se a máquina me disser para me abaixar, eu me abaixo. Se eu não me abaixar, eu morro. Prefiro que a máquina me diga isso do que um ser humano, que é mais lento e menos confiável.</p>
+<p>Novamente, o que estamos vendo agora, o papel que a IA está desempenhando na Ucrânia ou em Gaza, é que esses algoritmos essencialmente instruem sistemas de artilharia humana sobre o que atacar. Há uma integração de dados de todos os drones, de todos os satélites, e o algoritmo está basicamente repassando alvos para pessoas. Esse é um exemplo inicial de guerra do tipo Minotauro.</p>
+<p>NF</p>
+<p><strong>Isso levanta questões morais específicas, se os robôs estiverem no comando? Às vezes, as pessoas se preocupam com esse tipo de sistema, pois não há ninguém a quem responsabilizar por suas ações.</strong></p>
+<p>RS</p>
+<p>A questão da responsabilização é a mesma em todos os sistemas de armas autônomas e funções de comando de IA. O interessante é que as pessoas reagem de maneiras diferentes.</p>
+<p>Se eu enviar um enxame de drones para destruir tanques inimigos e você perguntar: “Quem é o responsável?”, eu responderei: eu, porque projetei o sistema, o incumbi de destruir tanques e verifiquei se funcionava. Portanto, o mesmo deveria valer para as pessoas que projetaram o sistema de comando de IA. Mas suspeito que as pessoas serão bem menos otimistas quanto à possibilidade de serem enviadas à morte por uma máquina, e que esperaremos que algum ser humano esteja envolvido nisso.</p>
+<p>Existe também o risco de expansão descontrolada das missões. Em áreas como a logística, as máquinas são muito eficientes na gestão de grandes operações, com muitos caminhões e contêineres. Se as máquinas estão decidindo quais tropas receberão armas, então elas já estão determinando quem vive e quem morre. Se a máquina disser: “Você é o terceiro na nossa lista de prioridades e não receberá munição hoje. Mas alguém precisa manter esta posição enquanto o resto de nós recua, e essa pessoa vai morrer”; a máquina diz que será você. Acho que as pessoas ficarão profundamente apreensivas com isso, mesmo estando bastante confortáveis ​​em enviar esses helicópteros de ataque autônomos para destruir tanques inimigos ou detectar movimentos de tropas inimigas.</p>
+<p>Esse sistema israelense, Lavender, que escolhia alvos em Gaza: alguém o construiu e, pelo que entendi, era possível ajustar o número de baixas civis [ajustando o número aceitável de baixas civis]. As pessoas verificavam os alvos, mas gastavam apenas vinte segundos nessa verificação. E alguém decidia o nível de evidência necessário para comprovar que alguém era um agente do Hamas. Portanto, havia seres humanos envolvidos, mas, em certo nível, é bastante claro que esse algoritmo escolhia os alvos e os humanos apenas faziam o que ele mandava.</p>
+<p>NF</p>
+<p><strong>Você defende a proibição de sistemas de armas autônomas e afirmou que proibi-las completamente seria mais realista do que tentar impor restrições morais e legais adequadas. Poderia explicar seu raciocínio?</strong></p>
+<p>RS</p>
+<p>Quase ninguém acha que essas coisas sejam completamente isentas de problemas. Os próprios militares estão realmente preocupados: Qual o impacto na coesão da unidade? Como posso ter certeza de que isso não vai matar meus soldados acidentalmente?</p>
+<p>Todos pensam que colocar essas pessoas no comando de um segundo ataque nuclear, por exemplo, é algo que só os verdadeiros Dr. Strangeloves teriam coragem de fazer. Existe um precedente histórico para o que se chama de “lançamento sob alerta”. Há um período em que parece que o arsenal nuclear russo foi projetado dessa forma. Você conecta os radares de alerta antecipado ao computador, ao controle de fogo, porque teme que alguém realize um ataque de decapitação, e isso lhe dá uma capacidade confiável de segundo ataque. É incrivelmente perigoso, considerando o que sabemos sobre as limitações do nosso sistema.</p>
+<p>A maioria das pessoas, ao pensar sobre isso, diz que precisa de regulamentação. Mas todos também reconhecem que essa é uma tecnologia muito difícil de regular. Você pode ter um sistema funcionando por controle remoto, com um ser humano no circuito, e então alguém conecta um pen drive e, de repente, ele está funcionando sozinho.</p>
+<p>Parece-me que, se quisermos ter um impacto no futuro da guerra, traçar linhas claras que dificultem politicamente a mobilização dessa tecnologia tem maior probabilidade de ser eficaz do que algo que, no papel, possa ser mais justificado. Há um debate sobre a proibição de minas terrestres: devemos proibir apenas minas antipessoais ou também minas que não se desativam automaticamente? Existem diferentes soluções tecnológicas para lidar com as baixas civis causadas por minas terrestres. Mas se simplesmente dissermos: “Nenhuma delas é permitida”, isso estabelece uma clara expectativa moral e facilita, por exemplo, que as pessoas se recusem a trabalhar com elas.</p>
+<p>“Gestos ousados ​​e amplos têm muito mais probabilidade de serem eficazes do que uma tentativa burocrática e gradual de ajustar as coisas.”</p>
+<p>Será realmente necessário que profissionais de engenharia digam: “Não vamos construir máquinas que escolham seus próprios alvos”. As tentativas mais sofisticadas de regulamentar esses sistemas são mais difíceis de verificar e dão margem para manobras. É como se dissessem: “Ok, meu sistema não é <em>totalmente</em> autônomo…”. Precisamos prestar atenção ao que chamamos de função expressiva da regulamentação, que consiste em deixar claro que todos concordamos com uma proibição.</p>
+<p>Se analisarmos a história, por exemplo, da proibição de gases asfixiantes, encontraremos muitas pessoas dizendo: “Este é um método de guerra muito mais humano”; “Vamos vencer guerras mais rapidamente”; “Qual a diferença entre ser morto com gás ou com armas leves? A morte por armas leves é horrível”. A proibição total elimina tudo isso.</p>
+<p>Este argumento trata de como a mudança social e política acontece nessa esfera. Gestos ousados e amplos ​​têm muito mais probabilidade de serem eficazes do que uma tentativa burocrática e gradual de ajustar as coisas. Isso apenas prolonga a discussão indefinidamente e dá margem para manobras, impedindo que as pessoas vejam o verdadeiro horror do que estão fazendo.</p>
+<p>NF</p>
+<p><strong>Gostaria de saber sua opinião sobre o recente ciclo de notícias alarmistas em relação à IA — a ideia de que ela representa uma ameaça existencial para a humanidade e que precisamos de algum tipo de pausa ou desaceleração em seu desenvolvimento.</strong></p>
+<p>RS</p>
+<p>A primeira coisa a dizer é que é incrivelmente difícil para qualquer pessoa fora do círculo íntimo dessas empresas entender realmente do que as modelos são capazes. Ainda há muita coisa sobre o incidente da <a href="https://www.nytimes.com/2026/09/03/technology/openai-hugging-face-hacking.html" rel="noopener noreferrer" target="_blank">Hugging Face</a> que não foi revelada, porque existe bastante censura interna por parte das organizações.</p>
+<p>Grande parte da nossa visão sobre o futuro foi influenciada pela ficção científica. Os engenheiros se propuseram a construir coisas futuristas. Como será o futuro? Será como na série <em>Jornada nas Estrelas</em> dos anos 1970. Há uma clara influência da ficção científica aqui, incluindo a ideia de um apocalipse robótico. Existe também uma interessante questão de raça e classe relacionada aos robôs, porque a ideia original de um robô era essencialmente a de um tipo de trabalhador. Os temores de revoltas robóticas eram temores em relação ao socialismo.</p>
+<p>Tudo isso torna difícil saber o quão fundamentados são esses pânicos. Dito isso, se eu dissesse que havia 10% de chance de a Al-Qaeda matar todo mundo no mundo — imagine que isso fosse uma ameaça terrorista e pessoas da indústria de defesa dissessem: “Acreditamos que há 10% de chance de essa organização terrorista matar todo mundo” — ninguém diria: “Vamos ver o que acontece”.</p>
+<p>Portanto, estou inclinado a acreditar neles. Figuras importantes na história da IA ​​já se manifestaram dizendo que isso representa uma ameaça existencial. Por um lado, não existe nada tão absurdo que não se possa encontrar um professor que acredite nisso. Só porque você é um físico ou cientista da computação brilhante não significa que você esteja qualificado para falar sobre o futuro, porque o futuro não é apenas uma questão técnica. É político — é algo que podemos mudar.</p>
+<p>Mas, considerando o número de pessoas que dizem que isso é um perigo, que isso vai matar a todos, acho que deveríamos fechar todos os laboratórios. Simplesmente paralisar tudo. Acho muito estranha a ideia de proceder com cautela ou fazer uma pausa, considerando o que disseram sobre a natureza dessa ameaça.</p>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>é um candidato a PhD em filosofia na Universidade de Califórnia – Berkeley e membro dos Socialistas Democráticos da América na Costa Leste.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Robert Sparrow				
+</h5>
+</p>
+
+<p>é professor de filosofia na Universidade Monash. Seus interesses de pesquisa são bioética, filosofia política e ética aplicada.</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/os-robos-assassinos-com-inteligencia-artificial-ja-estao-aqui/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

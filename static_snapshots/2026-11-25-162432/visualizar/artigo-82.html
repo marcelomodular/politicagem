@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Como o Brasil regride com a “austeridade” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Como o Brasil regride com a “austeridade”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/mercadovsdemocracia/como-o-brasil-regride-com-a-austeridade/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-24-at-18-24-57-1360009a.jpg-imagem-JPEG-500-%C3%97-610-pixels.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Como o Brasil regride com a âausteridadeâ
+                            </p>
+                            
+<p>Ala rentista do governo quer âelevar receitasâ, mas ausÃªncia do investimento pÃºblico sabota o crescimento do PIB e a arrecadaÃ§Ã£o. NÃºmeros do atual mandato deixam claro: sem protagonismo do Estado, nÃ£o hÃ¡ recuperaÃ§Ã£o da atividade econÃ´mica</p>
+
+
+
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-24-at-18-24-57-1360009a.jpg-imagem-JPEG-500-%C3%97-610-pixels.png"/>Arte: Geogers de la Tour (detalhe do quadro A Penitente Madalena, 1638-43)
+
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>O debate em torno da necessidade ou de nÃ£o aprofundar os aspectos regressivos do Novo ArcabouÃ§o Fiscal (NAF) ganhou contornos especiais a partir do momento em que o governo encaminhou recentemente ao Congresso Nacional o PLP 299/2026. Como Ã© sabido, o governo apresentou ainda durante o primeiro ano do terceiro mandato de Lula uma proposta de substituiÃ§Ã£o Ã  Emenda Constitucional nÂº 95, o conhecido Teto de Gastos de Michel Temer. Contrariando as promessas realizadas durante a campanha eleitoral, o Presidente da RepÃºblica nÃ£o promoveu simplesmente a necessÃ¡ria e urgente revogaÃ§Ã£o daquele trÃ¡gico instrumento de austeridade. Ao que tudo indica, ele foi convencido pelo seu Ministro da Fazenda, Fernando Haddad, a substituir aquele dispositivo por uma lei complementar.</p>
+<p>Na verdade, foi quase uma troca de seis por meia dÃºzia. Apesar de ter retirado o dispositivo da austeridade fiscal do corpo da ConstituiÃ§Ã£o, o fato concreto Ã© que a essÃªncia da matÃ©ria foi mantida. O NAF mantÃ©m a lÃ³gica da obtenÃ§Ã£o de superÃ¡vit fiscal primÃ¡rio, por meio de contenÃ§Ã£o das despesas nÃ£o financeiras. AlÃ©m disso, a Lei Complementar nÂº 200/2023 estabelece um teto de 2,5% do PIB como limite para o crescimento total das despesas orÃ§amentÃ¡rias primÃ¡rias. Outro aspecto regressivo do texto refere-se ao limite de crescimento das despesas a um ritmo de apenas 70% (em alguns casos Ã© reduzido a 50%) do crescimento das receitas governamentais. Assim, de nada vale a narrativa de que o governo pretende elevar as receitas para buscar o tal do equilÃ­brio fiscal. Os gastos sempre ficarÃ£o abaixo das receitas.</p>
+<p>Como existem algumas rubricas que, felizmente, tÃªm assegurado um crescimento maior por uma vinculaÃ§Ã£o explÃ­cita no texto constitucional com as receitas da UniÃ£o ou com o salÃ¡rio-mÃ­nimo, o que ocorre Ã© a compressÃ£o ainda mais drÃ¡stica de todos os demais dispÃªndios que nÃ£o sejam saÃºde, educaÃ§Ã£o e previdÃªncia social. Essa contradiÃ§Ã£o intrÃ­nseca ao NAF Ã© que tem feito com que diversos integrantes do governo e formuladores da Faria Lima tenham apresentado desde 2023 a necessidade de retirar tais âtravasâ que ainda asseguram um mÃ­nimo de recursos para algumas despesas de natureza social. Assim como Paulo Guedes pretendia fazer durante o governo Bolsonaro, eles agora querem desindexar e desconstitucionalizar a garantia de recursos para os programas de polÃ­ticas pÃºblicas voltados Ã  grande maioria da populaÃ§Ã£o.</p>
+<p>Como ainda nÃ£o conseguiram espaÃ§o polÃ­tico para promover o desastre completo, a estratÃ©gia dos conservadores de todos os matizes e tinturas Ã© ir comendo pelas beiradas. Assim, por exemplo, reduziram o valor total das despesas constitucionais com educaÃ§Ã£o por meios transversos, como foi a inclusÃ£o do Programa PÃ© de Meia no cÃ¡lculo ainda em 2025. Afinal, trata-se de um programa de natureza assistencial e nÃ£o educacional. AlÃ©m de tal manobra contÃ¡bil, agora o governo pretende obter resultado semelhante com a saÃºde. A pedalada atual reside na exclusÃ£o das receitas tributÃ¡rias extraordinÃ¡rias obtidas com a exportaÃ§Ã£o de petrÃ³leo da base de cÃ¡lculo para obter o total das despesas com saÃºde. Tanto em um caso como em outro, o resultado final Ã© a reduÃ§Ã£o do volume de despesas para as duas Ã¡reas sem nem mesmo promover nenhuma alteraÃ§Ã£o direta nos pisos constitucionais para saÃºde e educaÃ§Ã£o. Uma loucura!</p>
+<p>AlÃ©m de tais efeitos claramente perversos do ponto de vista das polÃ­ticas pÃºblicas, o PLP 299 Ã© completamente omisso no que se refere ao que fazer com a conta mais deficitÃ¡ria do orÃ§amento federal. Refiro-me ao valor de R$ 1,2 trilhÃ£o que Ã© drenado da execuÃ§Ã£o orÃ§amentÃ¡ria para os detentores de tÃ­tulos da dÃ­vida pÃºblica do governo central. Trata-se do montante pago a tÃ­tulo de pagamento de juros ao longo dos Ãºltimos 12 meses. Essa Ã© a verdadeira âgastanÃ§aâ do fundo pÃºblico e nÃ£o as aposentadorias e pensÃµes do INSS, que apresentam valores mÃ©dios pouco superiores a um salÃ¡rio-mÃ­nimo.</p>
+<p>Outro aspecto pouco debatido a respeito do NAF refere-se Ã  sua natureza essencialmente prÃ³ cÃ­clica. Isso significa que a contenÃ§Ã£o de despesas de forma indiscriminada atua para reforÃ§ar a tendÃªncia do momento da economia e nÃ£o o seu contrÃ¡rio. O Estado deve elevar seus gastos na fase de baixa do crescimento justamente para buscar alavancar o ritmo das atividades econÃ´micas de forma geral. Assim, quando a maioria dos agentes econÃ´micos retraem suas despesas e investimentos, esse Ã© o momento em que o setor pÃºblico precisa sair na frente com seu protagonismo. Mas o espÃ­rito da austeridade do NAF impede esse movimento anticÃ­clico necessÃ¡rio e, inclusive, criminaliza o gasto pÃºblico. Isso significa que esse instrumento de polÃ­tica fiscal dificulta a estratÃ©gia de buscar um maior crescimento do PIB.</p>
+<p>Os nÃºmeros relativos ao terceiro mandato sÃ£o bem elucidativos a esse respeito. O grÃ¡fico abaixo exibe os valores relativos ao crescimento do PIB durante o atual quadriÃªnio de Lula. O que se pode perceber Ã© que sÃ£o nÃºmeros bastante modestos para as expectativas geradas durante campanha e tambÃ©m para as reais necessidades do Brasil. Lembremos que Lula prometia fazer mais e melhor do que realizou ao longo dos primeiros dois mandatos (entre 2003 e 2010) e tambÃ©m fazer 40 anos em 4. Os dois primeiros anos apresentam expansÃ£o do PIB de 3,2% e 3,4%, ainda influenciados pelos efeitos da elevaÃ§Ã£o do gasto pÃºblico no Ãºltimo ano de Bolsonaro e no primeiro de Lula. No primeiro caso, o capitÃ£o abandonou a rigidez do Teto de Gastos em sua tentativa desesperada de reeleiÃ§Ã£o. No segundo caso, o espaÃ§o fiscal para Lula foi beneficiado pela chamada PEC da TransiÃ§Ã£o e pela nÃ£o vigÃªncia do Novo ArcabouÃ§o Fiscal.</p>
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-46.png"/>PIB – crescimento anual (%) (2026 e 2027 – projeÃ§Ã£o oficial) Fonte: IBGE
+
+<p><br/>No entanto, a partir da segunda metade do mandato, observa-se uma tendÃªncia de queda no ritmo de variaÃ§Ã£o do PIB. Em 2025 o IBGE registra 2,3% e as projeÃ§Ãµes oficiais para 2026 indicam apenas 1,9% de variaÃ§Ã£o no ritmo das atividades. Caso sejam incorporadas as expectativas para 2027, o MinistÃ©rio da Fazenda aponta 1,8% e a Pesquisa Focus do Banco Central (BC) sugere um valor ainda mais baixo, ou seja, 1%. O quadro Ã© preocupante se levarmos em consideraÃ§Ã£o que se trata da Ãºltima passagem de Lula pelo PalÃ¡cio do Planalto.<br/><br/>A comparaÃ§Ã£o das mÃ©dias anuais entre os 2 primeiros mandatos e aquele que se encerra agora em dezembro tampouco deixa margem para dÃºvidas. Entre 2003 e 2010, o PIB cresceu a uma mÃ©dia de 4,1% ao ano. JÃ¡ para o perÃ­odo 2023 a 2026, o crescimento anual mÃ©dio deverÃ¡ se situar em 2,7%.</p>
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/image-47.png"/><br/>PIB – crescimento anual mÃ©dio (%) – Fonte IBGE
+
+<p><br/>A possibilidade de recuperaÃ§Ã£o do ritmo de atividades econÃ´micas de forma geral depende fundamentalmente da iniciativa do Estado. O espÃ­rito do PLP 299, aprovado e aguardando sanÃ§Ã£o presidencial, impede que sejam retomados os programas de polÃ­ticas pÃºblicas de natureza social e os investimentos governamentais necessÃ¡rios para a qualquer processo de desenvolvimento econÃ´mico, social e ambiental. Caso nada seja feito para reverter as diretrizes regressivas presentes na futura lei complementar, a tendÃªncia Ã© de manutenÃ§Ã£o das grandes dificuldades para que se possa reverter o quadro de baixo crescimento do PIB ao longo dos prÃ³ximos anos.<br/></p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, contribua com um PIX para <strong><a href="https://outraspalavras.net/cdn-cgi/l/email-protection" rel="noopener noreferrer" target="_blank">[email protected]</a></strong> e fortaleÃ§a o jornalismo crÃ­tico.</em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/mercadovsdemocracia/como-o-brasil-regride-com-a-austeridade/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

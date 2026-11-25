@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guerra dos chips: o que realmente está por trás da história de espionagem na Nvidia - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Guerra dos chips: o que realmente está por trás da história de espionagem na Nvidia</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Opera</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaopera.operamundi.uol.com.br/2026/11/14/guerra-dos-chips-o-que-realmente-esta-por-tras-da-historia-de-espionagem-na-nvidia/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaopera.operamundi.uol.com.br/wp-content/uploads/2026/11/nvidia-1.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Guerra dos chips: o que realmente está por trás da história de espionagem na Nvidia
+                            </p>
+                            
+<p>A teoria sobre espionagem usada contra Jensen Huang, da Nvidia, surtiu efeito em duas semanas. Ela eliminou o adversário mais poderoso a um bloqueio total de chips à China e deu ao Congresso norte-americano o impulso necessário para transformar esse bloqueio em lei. No dia em que Huang caiu, o procurador-geral dos Estados Unidos admitiu que ninguém comprovou que a mulher no centro da história fosse uma espiã.</p>
+<p>Em 12 de novembro, a Nvidia anunciou que Huang havia renunciado aos cargos de presidente, diretor executivo e membro do conselho da empresa, com efeito imediato. Ele fundou a empresa em 1993 e a a dirigiu por 33 anos. A Nvidia não apresentou nenhum motivo para a renúncia. A <i>CNBC</i> informou que o conselho havia decidido, na noite anterior, forçá-lo a se afastar. Colette Kress, diretora financeira, é agora diretora executiva interina da Nvidia.</p>
+<p>O golpe final veio de uma reportagem do <i>New York Times</i>, de 11 de novembro, segundo a qual Huang mantinha um relacionamento com Kimberly Powell, a vice-presidente da Nvidia que se reportava diretamente a ele. A <i>Reuters</i>, em seguida, noticiou um relacionamento com uma segunda funcionária. Mas a campanha contra Jensen Huang teve início em 29 de outubro com uma acusação diferente: a alegação, feita por autoridades de inteligência não identificadas, de que Alice Huang, cidadã chinesa e ex-executiva da Megaspeed — empresa de data centers sediada em Cingapura —, teria sido recrutada pelo Ministério de Segurança do Estado da China.</p>
+<p>A alegação de espionagem continua sem comprovação. O que o governo pode apresentar é uma empresa que vendia para um cliente que os defensores do bloqueio querem isolar. A Nvidia afirma ter interrompido as vendas para a Megaspeed em junho de 2025. Essas vendas constituíram a infração de Huang desde o início, e o aparato de segurança nacional dos Estados Unidos agiu para<a href="https://www.struggle-la-lucha.org/2026/11/10/nvidia-spy-scare-ruling-class-turns-on-itself-as-chip-blockade-of-china-fails/" rel="noopener noreferrer" target="_blank"><b> colocar o monopólio na linha</b></a>.</p>
+<h1><b>“Não sei se é verdade”</b></h1>
+<p>Horas após o anúncio da renúncia, um repórter perguntou ao procurador-geral dos EUA, Todd Blanche, quando o Departamento de Justiça tomou conhecimento de que Alice Huang era suspeita de ser uma agente da inteligência chinesa. Blanche respondeu que a pergunta pressupunha “algo que eu nunca disse e que não sei se é verdade”. Nem ele, nem o Departamento de Justiça, nem o diretor do FBI, Kash Patel, chegaram a qualquer conclusão sobre quem ela é, afirmou ele.</p>
+<p>A <i>CNN </i>noticiou no mesmo dia que autoridades de inteligência estão divididas quanto às evidências e que funcionários do Gabinete do Diretor de Inteligência Nacional consideram exagerada a acusação de espionagem. O presidente Donald Trump, questionado em 12 de novembro, também não afirmou que ela fosse uma espiã.</p>
+<p>O <i>Financial Times</i> informou que uma pessoa que conhece Alice Huang foi interrogada sobre ela no início deste ano pelo Ministério de Segurança do Estado da China, a agência para a qual ela é acusada de trabalhar.</p>
+<p>Durante duas semanas, a grande mídia chamou uma mulher chinesa de espiã, citando seu nome, com base em declarações de autoridades que não revelaram seus próprios nomes. Nenhuma evidência foi divulgada. Ela não foi acusada de nada. Agora, o principal responsável pela aplicação da lei no governo afirma não saber se a acusação é verdadeira. Nenhum jornal retratou-se da notícia. Em 13 de novembro, um dia após a declaração de Blanche, o <i>The New York Times</i> ainda a descrevia como uma mulher que os serviços de inteligência dos Estados Unidos “consideravam um ativo do governo chinês”. O jornal não citou nenhuma agência, nenhuma autoridade e nenhuma prova. Jensen Huang já se foi, e a calúnia da “mulher-dragão” permanece.</p>
+<h1><b>O que resta do caso</b></h1>
+<p>Blanche disse que os investigadores ainda estão analisando a alegação de espionagem. A única possível violação que ele descreveu foi um caso de exportação: se foram vendidos chips que não deveriam ter sido. Ninguém foi acusado nesse ponto também. O <i>The New York Times</i> noticiou em 13 de novembro que o negócio da Megaspeed — a compra de chips da Nvidia para centros de dados no Sudeste Asiático que atendem a clientes chineses — é uma brecha legal nos controles de exportação. Seu principal cliente é a empresa chinesa de tecnologia Alibaba. A alegação de que a Megaspeed também contrabandeou chips para a China é uma acusação à parte. Esse é o quadro após duas semanas: nenhuma espionagem comprovada, ninguém indiciado e um negócio permitido pelas regras.</p>
+<p>A campanha não parou com Huang. Em 13 de novembro, o secretário do Tesouro, Scott Bessent, apareceu na <i>CNBC</i> e culpou o Departamento de Comércio por não ter colocado a Megaspeed em sua lista negra comercial. Ele afirmou que o Tesouro, o Pentágono, o Departamento de Estado e o representante comercial dos Estados Unidos vinham pressionando por isso há meses. Ele disse que a Nvidia deveria conhecer seu cliente e que qualquer pessoa responsável na empresa deveria ser responsabilizada. O secretário de Comércio, Howard Lutnick, é acusado dentro do governo e no Congresso de ter laços muito próximos com a Nvidia, segundo reportagem do <i>The New York Times.</i> Bessent havia se posicionado ao lado daqueles que queriam manter o comércio de chips com a China. Esse grupo está se desintegrando.</p>
+<h1><b>O Congresso assume o controle das licenças</b></h1>
+<p>Há um ano, um projeto de lei para restringir as vendas de chips à China foi retirado do projeto de lei anual de política militar, a Lei de Autorização de Defesa Nacional, sob pressão da Nvidia e da Casa Branca. A operação de lobby da Nvidia era liderada por Huang. Com a saída de Huang, o Congresso está se movimentando para concluir o trabalho.</p>
+<p>Três projetos de lei já constavam da versão do Senado do projeto de lei militar deste ano antes de o escândalo vir à tona. Um deles exigiria o rastreamento da localização de chips avançados após o envio. Outro pressionaria governos aliados a interromper a venda de maquinário para fabricação de chips à China. O terceiro trataria as vendas de chips avançados como vendas de armas, conferindo ao Congresso o poder de revisar as licenças para vendê-los à China e de bloqueá-las. O escândalo deu novo impulso a todos os três projetos.</p>
+<p>O presidente da Câmara, Mike Johnson, republicano, e o líder democrata da Câmara, Hakeem Jeffries, são a favor do endurecimento das restrições. O líder republicano no Senado, John Thune, disse ao <i>Semafor</i> que há uma “alta probabilidade” de que isso aconteça. O líder democrata no Senado, Chuck Schumer, quer que todos os três projetos sejam aprovados. Ambos os partidos apoiam a campanha contra a China, assim como faziam antes das eleições.</p>
+<p>O texto final ainda está sendo negociado entre a Câmara e o Senado, e nenhum acordo foi fechado. Se os projetos forem aprovados, Trump não poderá mais conceder licenças para chips por conta própria como parte de um acordo com a China. Ele afirmou que espera se encontrar com o presidente chinês Xi Jinping na cúpula da Cooperação Econômica Ásia-Pacífico (APEC), em Shenzhen, na China, nos dias 18 e 19 de novembro. O próprio Bessent já chamou os controles sobre chips de “moeda de troca” nesse encontro. O Congresso está agindo para retirá-la da mesa de negociações antes que Trump se sente para negociar.</p>
+<h1><b>Outros monopolistas se beneficiam</b></h1>
+<p>As agências de inteligência não são as únicas a ganhar. A Anthropic, uma das maiores empresas de inteligência artificial dos Estados Unidos, apoia publicamente todos os três projetos de lei. A Nvidia concordou, em fevereiro, em investir 30 bilhões de dólares na OpenAI, e a OpenAI não se pronunciou sobre os controles de chips. Desde que o escândalo veio à tona, ela informou aos gabinetes do Congresso que apoia todos os três projetos de lei, segundo reportagens da <i>Bloomberg</i> e do <i>Politico</i> em 12 de novembro.</p>
+<p>Ambas as empresas são grandes clientes da Nvidia. Ambas também competem com empresas chinesas que precisam de chips avançados para construir seus próprios modelos de inteligência artificial. Elas querem os chips da Nvidia para si mesmas e querem que os desenvolvedores chineses fiquem sem acesso a eles. Huang se colocou no caminho do segundo objetivo.</p>
+<p>Cada chip da Nvidia barrado na China é um chip disponível para compradores nos Estados Unidos. As ações da Microsoft, da Amazon e da Alphabet — controladora do Google, as três maiores empresas de computação em nuvem — subiram em 12 de novembro, o dia em que Huang se demitiu. O mesmo aconteceu com as ações da AMD e da Broadcom, concorrentes da Nvidia na fabricação de chips.</p>
+<p>Os compradores nos Estados Unidos representam agora a maior parte dos negócios da Nvidia. Clientes sediados nos Estados Unidos geraram mais de dois terços de suas vendas no ano encerrado em janeiro de 2026, segundo o relatório anual da empresa. Clientes sediados na China geraram menos de um décimo, uma queda em relação ao quase um quinto no ano anterior.</p>
+<p>O bloqueio é uma arma do governo dos Estados Unidos contra a China. É também uma arma comercial de alguns monopólios contra seus concorrentes e contra a Nvidia.</p>
+<h1><b>O bloqueio continua fracassando</b></h1>
+<p>O lado de Huang queria vender chips de segunda categoria à China e mantê-la dependente, para que o país não fabricasse os seus próprios. Esse lado perdeu seu líder. Mas sua derrota não faz com que o bloqueio funcione.</p>
+<p>Os senadores que apoiam as novas restrições afirmam exatamente isso. A <i>Semafor</i> relatou a preocupação no Congresso de que negar chips à China apenas a leve a fabricar mais por conta própria. Foi exatamente o que aconteceu. O governo chinês tornou a autossuficiência em chips uma prioridade de seu plano quinquenal e investiu dezenas de bilhões de dólares de recursos públicos em fábricas de chips, maquinário para fabricação e desenvolvimento. A Nvidia já teve o mercado chinês de chips de inteligência artificial praticamente só para si. No primeiro semestre de 2026, ela forneceu cerca de um terço dos chips enviados para lá, segundo dados da empresa de pesquisa IDC. Só a Huawei forneceu mais de um quarto. Depois que Trump abriu as portas para as vendas do chip H200 da Nvidia em dezembro de 2025, autoridades chinesas orientaram as empresas, em janeiro de 2026, a suspenderem seus pedidos e a não comprarem os chips, a menos que fosse necessário. A <i>Reuters</i> noticiou em 5 de novembro que cerca de 600 mil chips H200 estão retidos em Hong Kong porque o governo chinês não aprovou sua importação. Cada proibição desde 2022 entregou uma fatia maior desse mercado à Huawei e a outros fabricantes de chips da China.</p>
+<p>O aparato de segurança nacional dos Estados Unidos venceu esta rodada. Venceu com uma história de espionagem que agora não vai mais defender, e um Congresso bipartidário está transformando essa vitória em lei. A lei pode manter os chips da Nvidia fora da China. Ela não pode impedir que os engenheiros e operários chineses construam os seus próprios, conforme o plano. O bloqueio que derrubou Jensen Huang é um bloqueio que está fracassando.</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaopera.operamundi.uol.com.br/2026/11/14/guerra-dos-chips-o-que-realmente-esta-por-tras-da-historia-de-espionagem-na-nvidia/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

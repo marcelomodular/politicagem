@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“Comigo, é assim” - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">“Comigo, é assim”</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Piaui</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://piaui.uol.com.br/web/comigo-e-assim-metropoles-luiz-estevao-extorsao/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://piaui.uol.com.br/media/_versions/2026/11/luiz-estevao_yj151702862_85social.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: “Comigo, é assim” - revista piauí
+                            </p>
+                             <p>O empresário Luiz Estevão de Oliveira Neto estava radiante na tarde de 1º de fevereiro passado, no estádio Mané Garrincha, em Brasília, onde Corinthians e Flamengo disputavam o título da Supercopa do Brasil. Luiz Estevão, como é conhecido, gosta de futebol e é dono de um clube na capital federal, o Brasiliense. Mas o motivo da sua empolgação não estava propriamente no campo, mas dentro do seu próprio camarote apinhado de gente naquele domingo de Sol.</p> <p>Ali, estavam quatro ministros do Supremo Tribunal Federal (Gilmar Mendes, Alexandre de Moraes, Kássio Nunes Marques e Flávio Dino), o presidente da Câmara dos Deputados, Hugo Motta, o ministro da Saúde, Alexandre Padilha, e o presidente nacional do PT, Edinho Silva. Luiz Estevão, o organizador da partida, era o alvo central do beija-mão. Estava plenamente reabilitado dos tempos turbulentos em que se tornou o primeiro senador da República a ter seu mandato cassado e ser condenado por corrupção, crime pelo qual passou três anos na prisão.</p> <p>Sua reabilitação pública não era resultado direto de sua fortuna pessoal. Há décadas, Luiz Estevão é um bilionário, dono do Grupo Ok, que reúne duzentas empresas dos mais variados setores, do agronegócio ao mercado imobiliário e à construção civil. O dado que lhe restituiu a estima pública é outro. Em 2015, Luiz Estevão criou o <em>Metrópoles</em>, um portal de notícias que acabou se tornando uma máquina formidável de audiência. Hoje, é o quarto veículo de notícias mais acessado do Brasil, com 38,6 milhões de visitantes em setembro último, segundo a empresa americana Semrush. Em rankings que levam em conta o alcance dos portais também nas redes sociais, o <em>Metrópoles</em> aparece na liderança do segmento jornalístico. </p> <p>Como um <em>publisher</em> poderoso, Luiz Estevão habituou-se ao convívio com autoridades, como aconteceu no Mané Garrincha. É um ritual que se repete quase todas as semanas, ainda que em menor volume, quando recebe políticos e magistrados de todos os matizes ideológicos na sede do portal, que ocupa três andares do Centro Empresarial Varig, do Grupo Ok, no Setor Comercial Norte de Brasília. </p> <p>O <em>Metrópoles</em> cresceu fazendo um jornalismo ágil e dinâmico. O portal informa que tem 362 profissionais “entre jornalistas e produtores de conteúdo”, ainda que no seu expediente apareçam cerca de 200 pessoas, incluindo 27 da área comercial. Entre seus principais furos de reportagem, está a revelação do escândalo do INSS, de autoria do repórter Luiz Vassallo, que hoje trabalha no jornal <em>O Estado de S. Paulo</em>. A notícia, que saiu sob o título <em>Exclusivo: farra do desconto em aposentadorias fatura R$ 2 bi em 1 ano</em>, levou à demissão do então ministro da Previdência, Carlos Lupi, e à prisão de 28 pessoas, entre empresários e servidores públicos. O portal também publicou em primeira mão as denúncias de assédio sexual por parte do então ministro de Direitos Humanos, Silvio Almeida, em setembro de 2024. A reportagem de Guilherme Amado, Bruna Lima, Eduardo Barretto e João Pedroso de Campos levou à demissão do ministro. Em 2025, em outro exemplo de bom trabalho jornalístico, o <em>Metrópoles</em> publicou a reportagem multimídia <em>A política da bala</em>, de Artur Rodrigues e Renan Porto. A investigação sobre as mortes provocadas pela Polícia Militar de São Paulo ganhou o Prêmio Vladimir Herzog. </p> <p>Na apuração da presente reportagem, iniciada em meados de março passado, a <strong>piauí</strong> encontrou elementos concretos de que o <em>Metrópoles</em> aplica uma receita híbrida. De um lado, o portal exibe bom jornalismo, praticado por profissionais competentes e honestos, que se empenham em fazer um trabalho correto e denunciar malfeitos. De outro lado, o portal esconde uma engrenagem que recorre às denúncias publicadas para achacar os denunciados, criando uma operação que se assemelha à extorsão.</p> <p> </p> <p> </p> <p><br/><br/></p> <p>Quando o <em>Metrópoles</em> surgiu, em setembro de 2015, Lilian Tahan, então diretora executiva do portal, estabeleceu uma meta ambiciosa. Em um ano, a jornalista pretendia publicar doze grandes reportagens, “dessas que eu tenha orgulho de inscrever em prêmios”, segundo <a href="https://piaui.uol.com.br/revista/107/noticias-do-carcere/" rel="noopener noreferrer" target="_blank">disse à <strong>piauí</strong></a> na época. A realidade mostrou-se mais espinhosa. O <em>Metrópoles</em> demorou alguns anos para chegar lá e virar um site de alcance nacional, capaz de dar grandes furos ou de pautar o debate público no país. Até 2018, a cobertura era essencialmente voltada para o Distrito Federal. </p> <p>Naquele período, o portal adotou uma estratégia específica para alavancar a audiência: o uso massivo de <em>clickbaits.</em> É como são chamadas as publicações caça-cliques em redes sociais, em que os títulos exageram, falseiam ou distorcem o conteúdo da matéria apenas para atrair a atenção do público, aumentar a audiência e treinar o algoritmo a direcionar cada vez mais conteúdo para a tela do usuário que mordeu a isca.</p> <p>Os <em>clickbaits</em> são, na melhor das hipóteses, um tipo de subjornalismo, mas não são invenção do <em>Metrópoles</em> nem exclusividade do portal. No entanto, nenhum outro site de notícias recorreu tanto a esse artifício para ampliar a audiência, de acordo com Francisco das Chagas Sales Júnior, professor de jornalismo da Universidade Federal do Sul e Sudeste do Pará, autor de um estudo sobre o <em>Metrópoles</em> nas redes sociais. “O portal entendeu, provavelmente antes da concorrência, que o algoritmo das redes altera o próprio fazer jornalístico, na medida em que a chamada viralização de um conteúdo independe da boa técnica jornalística ou mesmo da preocupação com o interesse público. Depende de outros quesitos, como o exagero, a teatralidade e até a mentira”, afirmou Sales Júnior, em entrevista à <strong>piauí</strong>.</p> <p>Para dar volume de publicação ao portal, também valia copiar texto da concorrência. Um levantamento feito a pedido da <strong>piauí</strong> pela empresa de dados Lagom Data constatou que 54 textos publicados pelo <em>Metrópoles</em> ao longo do mês de março deste ano tinham pelo menos 60% de semelhança com reportagens divulgadas antes pelo jornal <em>Folha de S.Paulo</em>. E 36 títulos de reportagens do portal tinham mais de 80% de similaridade com títulos publicados antes pelo G1, portal que pertence ao Grupo Globo. Ao ser indagado pela <strong>piauí </strong>se tinha o hábito de copiar concorrentes sem dar o crédito, o <em>Metrópoles</em> respondeu que “tem o hábito de fazer jornalismo”. Em seguida, discorreu sobre as tantas vezes que seus trabalhos foram citados por outros veículos, inclusive a <strong>piauí</strong>, os prêmios que recebeu e os furos de reportagem que publicou, e encerrou dizendo que quando os concorrentes publicam assuntos exclusivos que merecem repercussão, o <em>Metrópoles</em> “registra os devidos créditos”. De fato, as citações de crédito são frequentes nestes casos, mas aparentemente não funcionam para as situações em que os assuntos não são exclusivos. Três jornalistas que trabalharam no portal disseram à <strong>piauí</strong> sob a condição de anonimato que o portal costuma contratar profissionais muito jovens para a tarefa de piratear conteúdo da concorrência.</p> <p>A estratégia deu certo. Em novembro de 2015, a audiência do portal era de 789 mil usuários mensais. Quase três anos depois, em agosto de 2018, havia disparado para 25 milhões, segundo o Google Analytics, ferramenta de medição de tráfego em sites e aplicativos. E continuou crescendo, ano após ano. A essa altura, em meio aos <em>clickbaits</em>, o <em>Metrópoles</em> também incluiu em seu cardápio um lado mais obscuro do noticiário policial, como vídeos de tentativas de suicídio, textos sobre estupros de pais contra as próprias filhas, fotos de esquartejamentos e reportagens com vídeos de sexo explícito.</p> <p>Em 2020, na tentativa de turbinar ainda mais a audiência, o <em>Metrópoles</em> contratou Leo Dias, conhecido por explorar fofocas de famosos. Durante dois anos, Dias funcionou como um poderoso motor de acesso ao portal até que, às 21 horas de 25 de junho de 2022, um sábado, publicou um texto cruel e oportunista revelando uma tragédia vivida por uma atriz quando tinha 21 anos. Ela entregou para adoção o bebê nascido de uma gravidez decorrente de estupro. Em minutos, o <em>Metrópoles</em> recebeu uma avalanche de críticas nas redes sociais. Pouco antes da meia-noite, o texto foi retirado do ar. No dia seguinte, Lilian Tahan, a diretora do site, e o próprio Leo Dias pediram desculpas públicas à atriz. Mas o <em>Metrópoles</em> manteve Leo Dias em seus quadros. Ele só saiu em maio de 2023, quando criou seu próprio portal na internet. (A vítima ingressou com uma queixa-crime contra Leo Dias. O processo tramita em segredo de Justiça.)</p> <p>Com esse noticiário de pântano, aliado aos furos jornalísticos, o <em>Metrópoles</em> cresceu em audiência e, ao mesmo tempo, tornou-se um veículo relevante na esfera pública digital. Desde 2018, o portal também vinha se beneficiando do Discover, um recurso de notícias personalizadas criado pelo Google. Como tinha uma produção massiva de conteúdo, o <em>Metrópoles</em> era favorecido pelo algoritmo, virando destaque frequente no <em>feed</em> do Discover. E ter destaque ali automaticamente valorizava os espaços de publicidade do site. Era uma bola de neve que girava a favor do negócio de Luiz Estevão.</p> <p>No segundo semestre de 2024, no entanto, o Google resolveu ajustar o algoritmo do Discover, passando a privilegiar material jornalístico original e prestação de serviços, em detrimento dos <em>clickbaits</em>. Resultado: a audiência do portal caiu em cerca de um terço, o que representava um prejuízo na casa dos milhões de reais. Luiz Estevão e Lilian Tahan reclamaram das mudanças com executivos do Google, mas não tiveram sucesso. </p> <p>Era preciso tirar a diferença de caixa de algum lugar.</p> <p> </p> <p> </p> <p><br/><br/></p> <p>As operações da Polícia Federal contra empresários enrolados se revelaram oportunidades de ouro. No dia 29 de agosto de 2025, o <em>Metrópoles </em>noticiou a operação contra um gigantesco esquema de fraude tributária e lavagem de dinheiro cujas ramificações chegaram à Faria Lima, o coração financeiro de São Paulo. Uma reportagem do portal trazia o seguinte título: <em>Os figurões da Faria Lima envolvidos pela operação da PF contra o PCC. </em>Outra: <em>Veja os fundos citados em megaesquema de lavagem de dinheiro do PCC</em>. Entre os mencionados, estava Maurício Quadrado, dono da gestora de fundos Trustee, que não foi ouvido pelo <em>Metrópoles</em>.</p> <p>Três dias depois, em 1º de setembro, Rodrigo da Silva Francisco, que se apresenta como executivo de negócios sênior do <em>Metrópoles</em>, enviou um e-mail à Trustee: “Estamos acompanhando algumas matérias sobre uma megaoperação do Ministério Público de São Paulo e da Receita Federal, acusando alguns empresários. Temos um formato no <em>Metrópoles</em> chamado Expressão de Opinião, seria uma carta aberta explicando o lado de vocês sobre as acusações. O Banco Master já nos procurou e ativou o formato. [...] Gostariam de se posicionar conosco? Se sim, enviarei uma proposta para validarmos!” Era um e-mail com um conteúdo bizarro. Os veículos de imprensa não costumam captar anúncios nestas bases. Afinal, no jornalismo, ouvir a explicação do outro lado é uma das práticas mais elementares da profissão – e não uma oportunidade de negócios. Quadrado não respondeu à mensagem. Não se tem notícia de que o portal tenha publicado outras matérias sobre o assunto nos meses seguintes. </p> <p>O empresário Ricardo Magro, dono da Refit e conhecido como um dos maiores sonegadores do país, também foi alvo de buscas da Polícia Federal. Em 3 de setembro, o <em>Metrópoles</em> publicou reportagem dizendo que, segundo a polícia, o esquema de lavagem de dinheiro que envolvia Ricardo Magro passava pela Yield Financial Services, empresa de gestão financeira em São Paulo. Logo depois, a Yield deixou de aparecer como suspeita no noticiário do <em>Metrópoles</em>. Não se sabe o que aconteceu nesse meio-tempo, mas, segundo um relatório do Coaf, o órgão que combate lavagem de dinheiro, a Yield transferiu 1 milhão de reais ao <em>Metrópoles</em> em algum momento entre 1º de setembro e 27 de outubro de 2025.</p> <p>A <strong>piauí</strong> procurou os administradores da Yield, Rafael da Cunha Carneiro e Anderson Bertoni, para saber o motivo do pagamento. Eles não se manifestaram. A revista também perguntou ao <em>Metrópoles</em> se o portal recebeu 1 milhão de reais da Yield e a razão pela qual o nome da gestora financeira deixou de aparecer no noticiário como suspeita de envolvimento em lavagem de dinheiro. Sobre o dinheiro, o<em> Metrópoles</em> disse que “todos os pagamentos [<em>que recebe</em>] decorrem de veiculação de conteúdos publicitários devidamente publicados pelo portal, em favor da empresa contratante ou qualquer outra pertencente ao mesmo grupo econômico”. Sobre o sumiço da Yield do noticiário, disse: “Não localizamos nenhuma reportagem feita pelo <em>Metrópoles</em> sobre esta empresa. Como também não localizamos reportagem dedicada ao tema na <strong>piauí</strong>.” Pesquisaram mal. O <em>Metrópoles</em> publicou quatro reportagens sobre a Yield: uma no dia 14 de dezembro de 2024, duas no dia 23 de dezembro do mesmo ano e uma no dia 3 de setembro de 2025 – a última. O <em>Metrópoles</em> também pesquisou mal no acervo da <strong>piauí</strong>, já que a revista menciona o caso da Yield na reportagem <a href="https://piaui.uol.com.br/web/o-beijo-do-magro-ricardo-refit/" rel="noopener noreferrer" target="_blank"><em>O beijo do Magro</em></a>, publicada em dezembro de 2025. Faltou ao <em>Metrópoles</em> apenas esclarecer que a <strong>piauí</strong> não recebeu qualquer tostão da Yield. </p> <p>No início de setembro do ano passado, a CPI que investigava o escândalo do INSS, fraude que foi revelada pelo próprio <em>Metrópoles</em>, virou suas baterias contra o Sindicato Nacional dos Aposentados, Pensionistas e Idosos (Sindnapi), na época suspeito de envolvimento no esquema e cujo vice-presidente, José Ferreira da Silva, o Frei Chico, é irmão do presidente Lula. No dia 2 de setembro, o <em>Metrópoles</em> informou que a Controladoria-Geral da União (CGU) iria examinar a situação de 37 entidades, entre elas o Sindnapi. Dois dias depois, o portal noticiou que a CPI aprovara requerimento solicitando informações sobre o sindicato.</p> <p>Em 8 de setembro, Rodrigo Francisco, o executivo de negócios sênior do <em>Metrópoles</em>, entrou em ação novamente. Enviou um e-mail ao assessor de imprensa do Sindnapi, Renê Luís Gardim. “Estamos acompanhando todo o processo envolvendo a CPI do INSS ”, escreveu Francisco. “Algumas confederações/sindicatos já estão nos procurando para se posicionar. Temos um formato no <em>Metrópoles</em> chamado Expressão de Opinião, no qual vocês podem se posicionar sobre o tema. Gostariam de se posicionar conosco? Se sim, enviarei uma proposta!” Gardim pediu mais detalhes. “Eu resolvi morder a isca para ver até onde aquilo ia dar”, disse à <strong>piauí</strong>. Francisco, então, detalhou a oferta: haveria uma publicação a respeito do “posicionamento do Sindnapi sobre o tema CPI do INSS”, com destaque na <em>home page</em> do portal por três dias e 21 spots (pequenas chamadas) na rádio <em>Metrópoles</em>, além de divulgação da versão do sindicato em painéis digitais espalhados por Brasília durante três dias. Preço: 97 mil reais. </p> <p>Mas o <em>Metrópoles</em> foi mais longe. Como Gardim não deu retorno a Francisco sobre a proposta, o Sindnapi então passou a sofrer um bombardeio no portal. Foram 46 reportagens ao longo de sete meses, uma média de 1 a cada 4 dias. Um dos textos dizia o seguinte: “Por que o irmão do Lula continua vice-presidente do Sindnapi? Ao permanecer como dirigente, Frei Chico reforça os argumentos na CPMI do INSS de que teria compactuado com os desvios do Sindnapi.” Outro texto, francamente mentiroso, sugeria que “carrões” das marcas Ferrari e Porsche apreendidos pela Polícia Federal pertenceriam ao sindicato. </p> <p>(Ao final da CPI, Frei Chico não foi indiciado e a comissão terminou sem aprovar um relatório final. Em setembro último, a Justiça condenou o <em>Metrópoles</em> a pagar 20 mil reais de indenização ao sindicato por danos morais, em decorrência da reportagem mentirosa sobre os “carrões”. Para a juíza da 25ª Vara Cível de São Paulo, Juliana Moraes Corregiari Bei, houve “má-fé e desvio de finalidade, revelando o propósito de induzir o leitor em erro e propalar desinformação”. Cabe recurso.)</p> <p>O formato “expressão de opinião”, segundo o próprio <em>Metrópoles</em>, foi criado há sete anos. Em nota enviada à <strong>piauí</strong>, o portal disse que “a prática, aliás, é bastante comum em qualquer veículo de comunicação” e faz parecer que se trata de um produto equivalente a um anúncio qualquer. “É usual que jornais vendam espaço em suas capas para divulgar comunicados de empresas. O banco Itaú, por exemplo, é <em>habitué</em> em fazer isso. Recentemente, comprou espaço na capa de vários jornais de circulação nacional para responder a reportagens investigativas do <em>Metrópoles</em>”. Para esclarecer o ponto central da questão, a <strong>piauí</strong> perguntou se o setor comercial do <em>Metrópoles</em> usava a “expressão de opinião” para abrir espaço à defesa de empresas e empresários que são objeto de denúncias do portal. A resposta: “Não. Todos os citados em reportagens investigativas são ouvidos por repórteres para que possam apresentar suas versões sobre os fatos sempre nas próprias matérias.”</p> <p>O fato é que a estratégia de bombardear uma empresa com notícias desfavoráveis, como aconteceu com o Sindnapi, não foi aplicada em um único caso. Em 29 de maio de 2025, o <em>Metrópoles</em> publicou uma reportagem contendo uma série de denúncias contra a Cacau Show, uma das maiores redes de lojas de chocolates do país. Dizia o título: <em>Cacau Show: franqueados afirmam que rede funciona como ‘seita’</em>. O texto é sóbrio e parece bem apurado. Além disso, a Cacau Show teve o devido espaço para se defender das críticas na reportagem, como manda a boa prática jornalística.</p> <p>Dois dias depois, a <em>Folha de S.Paulo</em> também trouxe uma matéria sobre o assunto. <em>Franqueados da Cacau Show relatam clima de medo, taxas e dívidas</em> era o título da reportagem. Diante das denúncias, o Ministério Público do Trabalho abriu inquérito para apurar o assunto, o que também foi noticiado tanto pelo <em>Metrópoles</em> quanto pela <em>Folha. </em>(Até o fechamento desta reportagem, a investigação do Ministério Público seguia em andamento.) A partir daí, começaram algumas diferenças.</p> <p>O jornal paulista tratou mais uma vez do assunto em junho, mas depois disso não voltou ao tema. No <em>Metrópoles</em>, porém, o caso da Cacau Show tornou-se uma espécie de obsessão. Entre maio e agosto de 2025, foram catorze matérias contra a empresa e seu dono, o empresário Alexandre Costa. Em um único dia, 2 de junho, saíram quatro textos. Das catorze reportagens, só quatro incluíam explicações da Cacau Show. No conjunto, as matérias traziam diversas acusações de práticas ilegais, preconceituosas, abusivas. Houve crítica até para um parque de diversões de Costa em construção no interior paulista.</p> <p>Duas fontes que pediram para não ser identificadas disseram à <strong>piauí</strong> que houve um pedido de dinheiro para que o assédio do <em>Metrópoles</em> fosse interrompido. A<strong> piauí</strong> procurou Alexandre Costa e perguntou se, durante a saraivada de acusações estampadas na coluna “Dinheiro e Negócio$”, ele havia sofrido alguma tentativa de extorsão por parte do <em>Metrópoles</em>. Costa fez uma nota dizendo o seguinte: “Foi um episódio muito triste e injusto. Não tenho intenção de revisitá-lo.” Em seguida, salientou: “Importante esclarecer que a Cacau Show jamais investiu no veículo [<em>Metrópoles</em>].” </p> <p>O portal, por sua vez, justificou a publicação das reportagens, lembrando que foram repercutidas pela imprensa, e questionou a própria <strong>piauí</strong> para saber por que a revista, tendo apurado informações preliminares sobre as denúncias, nunca publicou nada sobre o caso da Cacau Show – pergunta que carregava a insinuação de que interesses inconfessáveis teria demovido a revista de tratar do assunto. (A resposta é pueril: em sua apuração, a <strong>piauí</strong> não encontrou nada além do que já tinha saído na imprensa e, como não é um portal de notícias com cobertura sistemática sobre todos os fatos possíveis, nada publicou – o que acontece rotineiramente.)</p> <p>A <strong>piauí</strong> apurou que, em pelo menos um caso, o próprio Luiz Estevão pediu dinheiro ao alvo de uma investigação feita pelo <em>Metrópoles</em>. Em maio do ano passado, o portal revelou que a Fictor Invest estaria usando um “modelo pouco transparente para captar recursos de investidores e escapar da fiscalização da Comissão de Valores Mobiliários (CVM)”. A notícia era correta. Uma semana depois, Fabiano Jantalia, um dos advogados de Luiz Estevão, convidou Luiz Phillippe Gomes Rubini, então conselheiro da Fictor, para uma reunião com o dono do <em>Metrópoles</em> em Brasília. </p> <p>A reunião aconteceu durante o mês de maio, em uma casa de Luiz Estevão no Lago Sul, bairro rico de Brasília. A <strong>piauí</strong> teve acesso ao conteúdo da conversa. No diálogo, Luiz Estevão pediu 10 milhões de reais a Rubini para deixar de publicar novas reportagens contra a Fictor. “Eu já passei por um monte de pica, resolvi todas. E para não ter problema comigo, é assim”, disse Luiz Estevão. Rubini não só rejeitou a extorsão como trucou a ameaça. “Se sair mais matéria minha, você vai conhecer as minhas armas.” No dia 27 daquele mês de maio, saiu: documentos comprovavam que a Fictor estava mesmo escapando da fiscalização da CVM. Rubini então enviou à sede do <em>Metrópoles</em> um dossiê com acusações contra Luiz Estevão. Em seguida, o portal publicou as explicações da Fictor e as reportagens cessaram. (Em fevereiro deste ano, o <em>Metrópoles</em> voltou a publicar críticas à empresa, mas sem ouvir a versão da Fictor.) </p> <p>Em nota encaminhada à <strong>piauí</strong>, o <em>Metrópoles</em> disse que “fez uma série reportagens sobre a Fictor, tendo esta encaminhado notificações extrajudiciais que culminaram com ajuizamento de ações em face do <em>Metrópoles</em>. A possibilidade de que essa tentativa de extorsão tenha ocorrido é rigorosamente equivalente a zero”.  A <strong>piauí</strong> também procurou Rubini para confirmar a história. Ele não quis falar.</p> <p>A sucessão de reportagens – sobre a gestora de Maurício Quadrado, a Yield Financial Services, o Sindnapi, a Cacau Show ou a Fictor Invest – foram escritas por diversos jornalistas do <em>Metrópoles</em>. Na apuração, a <strong>piauí</strong> não encontrou indício de que os profissionais tivessem envolvimento com as tentativas de achaques do <em>Metrópoles</em>. Ou que soubessem que suas matérias podiam estar sendo exploradas para fins espúrios. “Não dá pra controlar a delinquência alheia e isso fragiliza muito a posição do repórter”, diz um ex-jornalista do portal, ouvido sob anonimato para evitar retaliações. “Porque você não sabe o que a cúpula do site pode fazer a partir do seu trabalho. Muita fonte coloca tudo no mesmo balaio.”</p> <p> </p> <p> </p> <p>Desde que deixou a cadeia, em 2020, Luiz Estevão faz questão de comemorar o seu aniversário na redação do <em>Metrópoles</em>. Todo dia 6 de julho, quando chega o início da noite, os cerca de cem jornalistas que trabalham na sede em Brasília (outros cinquenta ficam nas sucursais de São Paulo e Belo Horizonte) são instados a interromper seus afazeres para reverenciar o patrão. </p> <p>Nessas ocasiões, normalmente é exibido um pequeno vídeo com a história do empresário ou com depoimentos emocionados de seus familiares, seguido de um breve discurso do homenageado. Com frequência, Estevão menciona as três mulheres que marcaram a sua vida: a mãe Ilka, que morreu em decorrência de complicações do parto dele em 1949; a esposa Cleucy, com quem tem seis filhos, e a jornalista Lilian Tahan, atual presidente executiva do portal.</p> <p>Lilian Tahan construiu sua carreira na capital federal, onde nasceu. Em 2012, trabalhava como repórter do <em>Correio Braziliense </em>quando cruzou com Luiz Estevão ao entrevistá-lo para a reportagem <em>Imperador do solo</em>, que retratava o empresário como o maior dono de terras do Distrito Federal. Na época, Luiz Estevão já havia sido condenado a 31 anos de prisão por desviar 169 milhões de reais (em valores da época) na construção do Fórum Trabalhista de São Paulo, nos anos 1990, em conluio com o então juiz Nicolau dos Santos Neto, o Lalau, mas vinha protelando o cumprimento da pena por meio de sucessivos recursos judiciais.</p> <p>Dois anos depois, em abril de 2014, Tahan, então como repórter da revista <em>Veja Brasília</em>, contatou novamente Luiz Estevão para fazer um perfil sobre as extravagâncias da mulher dele, a socialite Cleucy. Meses depois, o empresário foi preso, dessa vez por falsificação de documento público, em um desdobramento das investigações dos desvios de verba pública do Fórum Trabalhista. Ficou um mês na penitenciária de Tremembé, no interior paulista, e mais cinco meses na Papuda, em Brasília. Nesse período, teve a ideia de criar um veículo jornalístico exclusivamente online.</p> <p>Em 2015, já em regime semiaberto, quando só dormia na cadeia, o empresário convidou Tahan para dirigir o site. Na época, com o fechamento da <em>Veja Brasília</em>, Tahan estava desempregada e aceitou o convite. A redação tinha então cerca de 40 jornalistas e funcionava em uma mansão de Luiz Estevão no Lago Sul, em Brasília. De início, pensou-se em batizar o portal de <em>Paralelo 15</em>, em alusão à latitude aproximada onde se situa a capital federal, mas acabou-se optando por <em>Metrópoles</em>. No dia 8 de setembro de 2015, o site fez a sua estreia.</p> <p>Logo, entre os jornalistas, o <em>Metrópoles</em> ganhou o apelido jocoso de <em>Papuda News</em>. Porque, seis meses depois de sua estreia, em março de 2016, Luiz Estevão voltou à prisão para, enfim, começar a cumprir a pena de 31 anos por corrupção ativa, peculato e estelionato em razão do caso Lalau. Antes disso, antecipando-se à prisão, o empresário havia tratado de garantir melhorias na penitenciária e mandou instalar tevê de tela plana e chuveiros elétricos, o que era ilegal. A prisão do dono não abalou o portal. Mesmo com Luiz Estevão atrás das grades, o <em>Metrópoles</em> continuou firme. </p> <p>Uma vez por semana, Tahan imprimia todo o conteúdo do portal e levava para o dono na Papuda. Também levava mimos que, pelas regras do presídio, não poderiam entrar nas celas. Em carta de maio de 2016 obtida pela <strong>piauí</strong>, Tahan cita “a questão do ovo” e diz que vai dar “uma sondada com os meninos para ver se está tudo nos conformes”. “Meninos”, ao que tudo indica, eram os carcereiros corrompidos por Luiz Estevão para garantir a ele confortos proibidos aos demais detentos, como o acesso a frios e salmão defumado, chocolate importado e café expresso. Em troca, Luiz Estevão empregou a irmã de um carcereiro como repórter do <em>Metrópoles</em> e mandou publicar reportagem elogiosa sobre a criação de pássaros de outro agente penitenciário. Em razão de tudo isso, ele e quatro servidores públicos chegaram a ser condenados pela Justiça por corrupção – Luiz Estevão pegou pena de 16 anos. Posteriormente, o Superior Tribunal de Justiça (STJ) anulou a condenação por considerar que houve cerceamento à defesa do ex-senador. </p> <p>Três anos depois de voltar à prisão, em março de 2019, Luiz Estevão migrou para o regime semiaberto, em que passava apenas as noites no presídio. Um ano mais tarde, com o início da pandemia de Covid, obteve direito à prisão domiciliar. Em setembro de 2021, quando o site fez seis anos de idade, os jornalistas deixaram o regime de trabalho remoto e voltaram à rotina na Redação, agora instalada no edifício Varig. Por essa época, Luiz Estevão ganhou o direito ao regime aberto. Até que, em dezembro de 2022, o governo Jair Bolsonaro perdoou sua condenação. Luiz Estevão havia cumprido um terço da pena e tinha mais de 70 anos.</p> <p>Livre, o empresário passou a frequentar a sede do <em>Metrópoles</em> diariamente, sempre à tarde. Costuma ficar na ampla sala de Tahan, e discute sobre os seus negócios pelo celular, sem se importar com os ouvidos alheios. Jornalistas do portal ouvidos sob anonimato pela <strong>piauí</strong> por receio de retaliação descrevem Luiz Estevão como uma figura ao mesmo tempo carismática e ameaçadora. </p> <p>Desde que foi libertado, o empresário passou a acompanhar de perto a apuração das reportagens, e cobra a equipe quando a audiência cai. Suas idiossincrasias interferem no cotidiano da Redação. Em fevereiro de 2025, por exemplo, mobilizou oito repórteres para produzir uma reportagem para o portal sobre a morte de sua sogra. Certa vez, proibiu a transmissão de partidas de futebol nos aparelhos de tevê da Redação por considerar que os jogos dispersavam a atenção dos jornalistas. Os repórteres que cobrem esportes passaram a ver os jogos em seus próprios celulares.</p> <p>Gentil e com sorriso fácil, Tahan busca contrapor os arroubos do patrão com alguma temperança. Afinal, coube a ela dar ao portal o ar de credibilidade que Luiz Estevão precisava nos primórdios do seu novo negócio. Em 2015, quando pôs o projeto de pé, Tahan tinha o prestígio de um Prêmio Esso, o maior do jornalismo na época, conquistado justamente por aquela série de reportagens no <em>Correio Braziliense</em> sobre os donos da terra no Distrito Federal. Na época de criação do site, uma reportagem da <strong>piauí</strong> informou que três repórteres só aceitaram embarcar no novo portal confiando na autoridade profissional de Tahan.</p> <p>Com o passar dos anos, porém, Tahan deixou de ser diretora de redação para assumir mais responsabilidades no <em>Metrópoles</em>. Pouco a pouco, tomou certa distância da área editorial para cuidar também dos negócios do portal. Acabou tornando-se empresária, sócia de uma loja de roupas, uma locadora de automóveis, uma empresa de consultoria e uma lavanderia. Ao fazer essa transição do mundo da notícia para o mundo do dinheiro, Tahan cruzou seu destino com o banqueiro Daniel Vorcaro, acusado de cometer a maior fraude da história bancária do país.</p> <p> </p> <p> </p> <p><br/><br/></p> <p>Lilian Tahan conheceu Daniel Vorcaro na tarde do dia 28 de maio de 2024, durante um café articulado pelo assessor de imprensa Guilherme Barros, que trabalhava para o banqueiro. “Foi ótimo te conhecer! Vamos estar juntos agora”, escreveu o banqueiro à jornalista no WhatsApp horas depois do encontro realizado em Brasília, segundo mostra a conversa do celular de Vorcaro apreendido pela Polícia Federal e reveladas em primeira mão pelo UOL.</p> <p>Pouco mais de um mês depois, em julho, Vorcaro já estava fazendo seu primeiro pagamento ao <em>Metrópoles</em>: 900 mil reais destinados a financiar projetos de “educação financeira” do grupo Master. Pelo acordo, o site devia publicar matérias patrocinadas pelo banco, identificadas com o selo de “conteúdo especial”, formato que nem sempre explicita para os leitores sua natureza publicitária. Na época, já havia rumores sobre as traficâncias de Vorcaro no mercado financeiro, mas nada tão concreto que impedisse o banqueiro de circular bem em todas as esferas.</p> <p>No início de outubro, porém, Consuelo Dieguez, repórter da <strong>piauí</strong>, publicou a <a href="https://piaui.uol.com.br/revista/217/alta-tensao-banco-master/" rel="noopener noreferrer" target="_blank">matéria</a> que mostrava os negócios extravagantes do Master e que marcou o início do fim do banco. A partir de 24 de outubro, já com a notícia das mirabolâncias do Master na praça, a relação entre Vorcaro e o <em>Metrópoles</em> estreitou-se. O banqueiro convidou Luiz Estevão e Tahan para um almoço em sua casa às margens do Lago Paranoá, em Brasília. No dia seguinte ao almoço, o <em>Metrópoles</em> publicou uma reportagem favorável ao Master. O texto negava que uma corretora de investimentos ligada ao Bradesco havia suspendido a negociação de papéis do banco. A notícia ajudava o Master, mas não era <em>fake news</em>. De fato, a corretora não havia interrompido suas negociações com o banco. </p> <p>Algumas semanas depois, Tahan enviou a Vorcaro uma nova proposta de material pago no site sobre “educação financeira”, agora com um valor estratosférico: 20 milhões de reais. Até mesmo Ana Lúcia Matos, diretora de marketing do grupo Master, assustou-se com a ousadia. “Daniel, tá caro esse <em>Metrópoles</em>. Fazendo conta aqui. Posso falar com eles? Fecho 12-15 milhões que é bastante! Em junho já pagamos 1 milhão”, escreveu. O banqueiro deu uma resposta enfática: “Não! Coisa mais importante da nossa vida é esse <em>Metrópoles</em>.” O valor exato era 20,4 milhões de reais. Na prática, Vorcaro não estava adquirindo apenas uma enorme cota de patrocínio, mas o direito de ser tratado com privilégios ocultos e o poder de ditar nos bastidores o tom da cobertura do portal sobre os seus próprios negócios, os lícitos e os ilícitos. </p> <p>Quando o Banco de Brasília (BRB) fechou acordo para comprar o Master em 28 de março de 2025, a reação negativa ao negócio foi imediata na imprensa, com economistas e analistas de mercado apontando as evidentes motivações políticas da transação, uma vez que o Master já dava sinais públicos da grave crise que vivia. Mas o tom do noticiário era outro no <em>Metrópoles</em>, que obtivera a notícia em primeira mão por meio do então presidente do BRB, Paulo Henrique Costa. “Prometi para Lilian que não falaria com ninguém antes dela”, disse Costa a Vorcaro, em mensagem de celular.</p> <p>Na reportagem sobre o negócio, o <em>Metrópoles</em> traz declaração de Costa festejando o fato de que a aquisição do Master tornaria o BRB “um dos dez maiores bancos brasileiros em carteira de crédito”. Vorcaro, também entrevistado pelo site, saúda o acordo como “início de um novo ciclo” que será positivo “para clientes e investidores”. (Até o fechamento desta reportagem, Paulo Henrique Costa continuava preso preventivamente sob a suspeita de ter recebido do banqueiro uma propina de quase 150 milhões de reais em imóveis de luxo para fechar o negócio.)</p> <p>No mês seguinte, em abril, o <em>Metrópoles</em> continuou com as boas notícias sobre o Master. Tahan fez questão de enviar ao banqueiro fotos dos painéis que o site distribuíra em Brasília com foto de Vorcaro sob o título <em>Banco Master divulga balanço de 2024 com lucro líquido de R$ 1 bilhão</em>. O banqueiro agradeceu as fotos e a manchete: “Vocês são demais.” Em seguida, Tahan enviou as notas fiscais do <em>Metrópoles</em> sobre o pagamento das quatro parcelas de 5 milhões de reais cada, referentes ao projeto de “educação financeira”. O banqueiro prometeu pagar no dia seguinte. </p> <p>Minutos depois, ainda segundo os registros encontrados pela polícia no celular de Vorcaro, Tahan enviou ao banqueiro o texto de um perfil do dono do Master. Com o título <em>Quem é Daniel Vorcaro, o homem que agitou o mercado financeiro nos últimos dias</em>, a matéria era amplamente favorável ao banqueiro (a <strong>piauí</strong> não encontrou a reportagem no portal). Mesmo com a matéria tendo um conteúdo positivo, que aparece descrito na mensagem do celular, a presidente executiva do <em>Metrópoles</em> pediu que Vorcaro passasse os olhos no texto e lhe apontasse “alguma incorreção”. “Não publicarei sem nos falarmos”, escreveu ela.</p> <p>Dias depois, Tahan compartilhou com Vorcaro a ideia de uma nova matéria para o portal, mas queria antes a aprovação do banqueiro. Deu-se então o seguinte diálogo:</p> <p>– Me diga o que acha: um comparativo entre o balanço dos bancos. Ajuda ou atrapalha? – consultou Tahan </p> <p>– Pode ser bom! – respondeu Vorcaro. – Eu conseguiria dar uma olhada antes [<em>no texto da reportagem</em>] pra checar os dados?</p> <p>– Claro! Te mando aí já, já.</p> <p>A reportagem intitulada <em>Compare os principais números dos balanços do BRB e do Banco Master</em> foi publicada horas depois. </p> <p>As consultas prévias ao banqueiro eram rotineiras. Numa ocasião, antes de publicar uma reportagem sobre um acordo de renegociação entre o Master e a rede de clínicas médicas Oncoclínicas, Tahan escreveu para o banqueiro: “Isso aqui te traz algum incômodo?” “Sim! Pessoal da Oncoclínicas é completamente maluco”, disse o banqueiro. “Deixar quieto aqui”, aquiesceu a jornalista, desistindo da ideia de publicar o material. Quando Vorcaro ameaçou processar um jornalista do <em>Estadão </em>pela publicação de uma reportagem, Tahan pareceu concordar com a medida retaliatória. “Não tem nada mais chato para o repórter que responder criminal”, disse. Em seguida, o banqueiro lhe mandou um áudio de visualização única, cujo conteúdo não foi recuperado pela PF. Tahan respondeu: “Que loucura isso!! Impressionada com a disposição da turma em atrapalhar a operação.” </p> <p>Em 26 de junho de 2025, Tahan pediu mais dinheiro ao banqueiro, dessa vez 6 milhões de reais para o patrocínio da série D do Campeonato Brasileiro, a quarta e última divisão do torneio de futebol, transmitido pelo <em>Metrópoles</em> no YouTube. Era um valor astronômico para um torneio com baixíssima audiência, tanto que nunca havia atraído patrocinadores relevantes, segundo mostrou o jornal <em>O Estado de S. Paulo</em>. Mas Vorcaro aquiesceu de imediato, sem nem negociar o valor. (Tahan chegou a fechar outro contrato com o Master no valor de 25 milhões de reais, mas, pelas conversas no celular, não fica claro qual o pretexto do acordo, nem se o valor ou parte dele chegou a ser pago pelo banqueiro.)</p> <p>Os valores das transações entre o <em>Metrópoles</em> e o Master destoam do mercado. O departamento de publicidade da <em>Folha de S.Paulo </em>informa que o jornal recebeu 516 mil reais do Master pela publicação de anúncios entre 2021 e 2025, um montante muito inferior ao do <em>Metrópoles</em>. O <em>Estadão</em>, por sua vez, recebeu 1,16 milhão de reais no mesmo período, sempre a título de publicidade. A comparação financeira, por si só, demonstra que os valores pagos ao <em>Metrópoles </em>embutiam um custo muito maior do que a publicidade regular. “São valores desproporcionais à relevância jornalística [do <em>Metrópoles</em>]”, avalia o jornalista Sérgio Dávila, diretor de redação da <em>Folha</em>. </p> <p>Certa vez, contrariando o habitual, o portal de Luiz Estêvão publicou duas reportagens contrárias ao interesse de Vorcaro. Uma tratava de uma ação civil contra a compra do Master pelo BRB e outra versava sobre uma investigação do Tribunal de Contas da União contra o banco. O banqueiro não gostou. “<em>Metrópoles</em> hoje só bateu, hein?”, reclamou ele para Ana Lúcia Matos, sua diretora de marketing, com a autoridade de quem paga para evitar críticas. “O [<em>veículo de mídia</em>] que a gente tem parceria parece que tão mais pirados. Liguei hoje pro Rafael da Lilian”, respondeu a diretora. Em seguida, ela mandou um áudio ao banqueiro relatando a conversa que teve com o tal Rafael da Lilian. No áudio, a diretora de marketing dá a entender que Rafael apenas a enrolou. “Daniel, é sempre a mesma conversa”, disse ela. “[<em>Eles dizem</em>] ‘não, pode deixar, não vai acontecer de novo’.” A diretora de marketing reproduz a resposta que teria dado a Rafael: “Eu preciso que você cuide, eu preciso que isso não aconteça.” Matos conta ainda que quis saber se Tahan havia sido previamente informada das matérias desfavoráveis e diz que, outra vez, foi enrolada. “Eu pergunto: ‘Me conta, a Lilian tá sabendo? ‘Não, não, eu vou falar com ela agora’... Enfim...”</p> <p>Enquanto a imprensa profissional duvidava da idoneidade da compra do Master pelo BRB, o <em>Metrópoles</em> cerrava fileiras a favor do negócio. Em 1º de setembro, Tahan mandou para o banqueiro o esboço de uma matéria que lançava insinuações sobre a correção técnica de Renato Gomes, o diretor do Banco Central encarregado de analisar o negócio. O título do texto do <em>Metrópoles</em> dizia: <em>Técnico ou político? Quem é Renato Gomes, diretor do BC </em><em>que vai decidir futuro do Master</em>. Vorcaro gostou: “Ficou muito bom”, respondeu. Mas fez uma observação: “Eu retiraria a parte de falência do banco. E mencionaria que reportagens disseram que há um racha no Bacen e Renato estaria contra.” Tahan obedeceu. Em seguida, Vorcaro fez outra sugestão. Pediu para incluir “especulações de que, após seu mandato [<em>de Renato Gomes</em>], estaria de malas prontas pra um dos bancões”. Era uma forma de colocar em dúvida o trabalho do diretor do BC lançando a suspeita de que ele atuava secretamente em favor dos grandes bancos. Tahan também acatou. No fim da tarde, Tahan enviou ao banqueiro dezoito fotos dos painéis do <em>Metrópoles</em> espalhados por Brasília com o título da reportagem e a foto de Gomes. No dia seguinte, a presidente executiva do <em>Metrópoles</em> submeteu ao banqueiro mais um texto com insinuações negativas sobre o servidor do Banco Central, com o título: <em>Por que um técnico de segundo escalão do BC pode definir destino do sistema financeiro</em>. </p> <p>Ainda naquele mês de setembro, o Banco Central rejeitou a compra do Master pelo BRB. Atolado em dívidas, o banco de Vorcaro ameaçava ruir. Foi então que ele tirou da cartola uma outra saída: vender o Master para o Grupo Fictor – do qual faz parte a Fictor Invest –, o mesmo de Rubini, que havia sido extorquido por Luiz Estevão. Para anunciar o negócio em primeira mão, o banqueiro escolheu Tahan. Na tarde de segunda-feira, 17 de novembro, Tahan foi até a sede do Master em São Paulo colher as informações com o banqueiro e com o próprio Rubini, que ainda mantinha alguma relação com a Fictor mas, nesta altura, já não fazia mais parte do conselho da empresa. A reportagem <em>Consórcio liderado pela Fictor compra Banco Master S.A.</em> foi publicada no <em>Metrópoles</em> às 16h53 daquele dia. Como de praxe, Tahan havia enviado o texto meia hora antes da publicação para a aprovação de Vorcaro. </p> <p>No total, com base no conteúdo do celular de Vorcaro apreendido pela Polícia Federal, Tahan submeteu ao banqueiro catorze textos, e onze deles foram alterados por ele antes da publicação. Não era uma troca jornalística entre repórter e fonte, mas uma relação de compra e venda em que o banqueiro pagava por uma mercadoria e Tahan se encarregava de dar à mercadoria uma roupagem jornalística. “Gostei, mudaria só o título”, escreveu o banqueiro a respeito de um dos textos recebidos de antemão. “Deixa comigo!”, disse Tahan. “Muito obrigado, querida! Você é demais”, agradeceu Vorcaro. </p> <p>A <strong>piauí</strong> perguntou como o <em>Metrópoles</em> classifica a relação entre a jornalista e o banqueiro. Eis a resposta: “Os diálogos tornaram-se públicos e demonstram claramente que as interlocuções foram em torno de conteúdos jornalísticos, sendo normal a checagem de informações quando essas foram repassadas pela fonte em questão. Há ainda diálogos contemplando negociações de veiculação de campanhas publicitárias no portal, <em>naming rights</em> e patrocínio de transmissões esportivas da Série D do Campeonato Brasileiro de 2025, absolutamente inerentes à função de CEO de Lilian Tahan à frente do Grupo Metrópoles.” Em seguida, a nota diz abertamente que “Daniel Vorcaro e o Banco Master foram objeto de pelo menos 3.265 matérias no portal <em>Metrópoles</em> durante o período dos diálogos em questão”. É um número bastante exótico. No Google, encontram-se apenas 81 matérias. A nota prossegue: “Os textos que foram objeto de eventuais ajustes entre o banqueiro e a jornalista equivalem a menos de 0,4% do total de matérias”. Frise-se que a conta aqui é 0,4% de 3 mil e tantos... E termina a nota: “Daniel Vorcaro tornou-se importante fonte de notícias para todos os veículos de imprensa e, principalmente, para o <em>Metrópoles,</em> a partir da sua intenção de vender o Banco Master ao Banco de Brasília”.</p> <p>(Nada da relação entre a jornalista e o banqueiro parece ter limitado o alcance do <em>Metrópoles</em> ou constrangido seus parceiros. No último dia 13 de novembro, por exemplo, o Instituto Brasileiro de Ensino, Desenvolvimento e Pesquisa (IDP), de propriedade do ministro Gilmar Mendes, decano do STF, uniu-se ao <em>Metrópoles</em> para organizar um debate entre o banqueiro André Esteves, dono do BTG, o diretor do BNDES, Nelson Barbosa, e o ex-presidente da Câmara dos Deputados, João Paulo Cunha, do PT. O tema, inspirado no pós-eleição presidencial, era “O dia seguinte: o que o Brasil escolheu?” Para fazer a moderação da conversa foram escalados o próprio ministro Gilmar e Lilian Tahan.) </p> <p>A última interação entre a jornalista e o banqueiro no WhatsApp ocorreu às 19h24 do dia 17 de novembro de 2025. Vorcaro foi preso pela Polícia Federal cerca de duas horas e meia depois no Aeroporto de Guarulhos, quando tentava embarcar para o exterior. No dia seguinte, o Banco Central anunciou a liquidação extrajudicial do Master. Depois de algumas semanas, o banqueiro foi solto, mas voltou a ser preso em março deste ano, acusado de cometer uma fraude da ordem de 60 bilhões de reais.</p> <p>Com Vorcaro atrás das grades, Luiz Estevão e Tahan perderam uma generosa fonte de dinheiro, mas logo trataram de fazer do limão uma limonada: o escândalo do Master ainda renderia bons frutos financeiros à dupla, dessa vez no Rio de Janeiro.</p> <p> </p> <p> </p> <p><br/><br/></p> <p>Já na manhã do dia seguinte à prisão do banqueiro, em 18 de novembro de 2025, corria entre os jornalistas a informação de que o Rioprevidência, fundo de pensão dos servidores públicos fluminenses, havia feito um investimento ao mesmo tempo desastroso e suspeito: colocou quase 1 bilhão de reais nas extravagantes aplicações financeiras do Master. Com a prisão de Vorcaro e a liquidação do banco, havia um risco substancial de que todo o dinheiro do funcionalismo evaporasse.</p> <p>Naquele mesmo dia, Luiz Estevão e Lilian Tahan conversaram por telefone sobre um patrocínio milionário que o <em>Metrópoles</em> vinha tentando obter junto ao governo do Rio. Talvez, mediante a notícia comprometedora do investimento que o governo fizera no Master, as coisas pudessem finalmente se desembaraçar. A <strong>piauí</strong> teve acesso ao conteúdo da conversa telefônica entre eles. A certa altura, houve o seguinte diálogo.</p> <p>– Outra coisa também é o Rio de Janeiro. Lembra da preocupação do governador [<em>Cláudio Castro</em>] com o negócio do 1 bilhão que ele botou no Master, do fundo de pensão? – perguntou Estevão.</p> <p>Tahan responde que havia esquecido do caso, mas Luiz Estevão alerta para que não deixe de lembrar. Em seguida, Tahan reforça:</p> <p>– Eu tô precisando dar um toque lá no pessoal do Rio, né? Um toque mais...</p> <p>– Mais duro – interrompeu Luiz Estevão. –Tá na hora, tá na hora.</p> <p>Em seguida, Luiz Estevão dá a entender que, antes de qualquer providência, era preciso checar se a transação com o governo do Rio seguira ou não em frente. </p> <p>– Esse é o primeiro passo – orientou Luiz Estevão.</p> <p>No mesmo dia 18, à tarde, o <em>Metrópoles</em> publicou a notícia que vinha causando preocupação ao governador. O título: <em>Rioprevidência investiu quase R$ 1 bilhão no Master sob risco, diz </em><em>TCE</em>. Não era uma notícia exclusiva do portal. Outros veículos também publicaram reportagens sobre o assunto. A peculiaridade do <em>Metrópoles</em> era que, desde o fim de outubro, seu setor de marketing vinha negociando o patrocínio do governo do estado do Rio para o Metrópoles Talks. </p> <p>O evento seria no Rio de Janeiro, consistiria em três palestras e já estava em cima da hora, com previsão para ocorrer entre os dias 24 e 26 de novembro. A programação incluía uma palestra da ex-jogadora de basquete Hortência (Lições de uma vida), outra da escritora Glória Perez (Histórias de novela) e uma terceira do antropólogo Michel Alcoforado (Coisa de rico: a vida dos endinheirados brasileiros).</p> <p>Pelo patrocínio, o <em>Metrópoles</em> pedia ao governo fluminense 5,1 milhões de reais, além da cessão do Teatro Laura Alvim, em Ipanema, que pertence ao governo estadual e tem capacidade para 190 pessoas. O valor do patrocínio, mais uma vez, era claramente superfaturado: afinal, os custos de divulgação do evento equivaliam a 82% do total pleiteado, enquanto o usual é que esse percentual gire em torno de 10%. O grosso do custo de eventos desta natureza costuma ser o cachê dos palestrantes, a contratação de equipe e o aluguel do espaço físico, e não a divulgação do evento. Para efeito de comparação, o patrocínio do governo do Pará ao Círio de Nazaré, megaevento católico que reuniu 2,3 milhões de pessoas em Belém neste ano, custou 2 milhões de reais.</p> <p>Uma análise mais minuciosa dos alegados custos de divulgação do evento deixa mais claro o desvio de dinheiro público: seriam 5,9 mil banners publicitários do evento inseridos no <em>Metrópoles</em> (gasto total de 472 mil reais) e 19 mil reais para cada citação de poucos segundos do patrocínio do governo do Rio pelo mestre de cerimônias. O <em>Metrópoles</em> também cobrava 25 mil reais para cada post do evento em suas redes sociais e outros 25 mil para cada um dos três “impulsionamentos de campanhas digitais”. De acordo com um especialista em marketing digital ouvido sob reserva pela reportagem, o custo do impulsionamento já está embutido na cobrança pelo post nas redes. </p> <p>No dia 17 de novembro, a assessoria jurídica da Casa Civil de Cláudio Castro havia dado parecer contrário à assinatura do contrato, suspeitando de superfaturamento. Dizia o parecer: “Há o risco de que tal valor [...] seja considerado irrazoável, sobretudo considerando que o estado – para além do montante da cota de patrocínio – está cedendo espaço imóvel de sua titularidade, gratuitamente, para a realização de evento.” O parecer também alegava que não havia justificativa para o patrocínio de um evento cujas palestras não diziam respeito ao estado do Rio. </p> <p>No dia 18 de novembro, depois da conversa telefônica entre Luiz Estevão e Tahan, a Casa Civil ignorou o parecer jurídico e acelerou os trâmites burocráticos do contrato, assinado na manhã do dia seguinte, 19 de novembro. O evento foi realizado. Mas não parou por aí. No dia 9 de dezembro, o portal encaminhou à mesma Casa Civil outro pedido de patrocínio para outro Metrópoles Talks, agora com o nome: “Rio que encanta o mundo”. O evento, de novo, estava em cima. Seria realizado dali a seis dias, todo numa única tarde, dessa vez no hotel Prodigy, ao lado do aeroporto Santos Dumont, outra vez consistindo de três palestras – do carnavalesco Gabriel David, do ator Rafael Zulu e do executivo do Rock in Rio, Luis Justo – e de novo no valor de 5,1 milhões de reais. (Para um evento no mesmo formato ocorrido em São Paulo em maio deste ano, o <em>Metrópoles</em> cobrou 500 mil do governo Tarcísio de Freitas). </p> <p>Desta vez, o contrato nem teve parecer jurídico e foi assinado entre 18h30 e 19h30 do dia 15 de dezembro, quando o evento já havia terminado. Houve ainda um terceiro Metrópoles Talks em 29 de janeiro, também no hotel Prodigy. A proposta foi formalizada pelo marketing do portal apenas sete dias antes do evento, em 22 de janeiro. Nesse intervalo, entre formalizar a ideia do patrocínio e a data do evento, o <em>Metrópoles</em> retomou a cobertura do caso Rioprevidência e publicou cinco reportagens consecutivas. Depois, voltou a silenciar. O governo Cláudio Castro cedeu pela terceira vez, despejando outros 5,1 milhões de dinheiro público de patrocínio ao evento. O contrato, de novo, foi assinado minutos depois do fim das palestras.</p> <p>Em três meses, o <em>Metrópoles</em> fez três eventos no Rio e faturou mais de 15 milhões de reais. Nesse período todo, o investimento de 1 bilhão do Rioprevidência no Master, que Luiz Estevão sabia ser uma preocupação do governador, foi retratado pelo <em>Metrópoles</em> em apenas sete reportagens (incluindo as cinco concentradas em janeiro) – uma das quais era elogiosa ao governador, ao afirmar que coube a ele evitar que as perdas fossem piores. Outros sites dedicaram atenção bem maior ao assunto. No mesmo período de três meses, a <em>Folha</em> publicou 22 matérias. No G1, foram 23. </p> <p>Os três contratos entre o portal e o governo do Rio foram assinados pela Metrópoles Produções, uma organização da sociedade civil (OSC) criada em 2019 em nome de dois filhos de Luiz Estevão. A Metrópoles Produções fica no mesmo edifício Varig, onde está sediado o site e, em seus contratos, sempre prevê que a divulgação dos seus eventos será feita pelo portal. </p> <p>Procurada pela <strong>piauí</strong> para falar dos três patrocínios com suspeitas de superfaturamento, a assessoria do ex-governador Cláudio Castro, que está inelegível até 2030, não explicou os valores elevados. Em nota, disse: “O ex-governador Cláudio Castro esclarece que os patrocínios mencionados não tiveram qualquer relação com a cobertura jornalística sobre o Rioprevidência ou com outros temas de interesse do governo. A relação com o <em>Metrópoles</em> sempre foi institucional, assim como ocorreu com diversos outros veículos de comunicação. Ao longo da gestão, o governo do Estado participou e apoiou fóruns, debates e eventos promovidos por diferentes grupos de mídia, sempre preservando a independência editorial. Não houve qualquer tipo de interferência na cobertura jornalística em razão desses patrocínios. A contrapartida deu-se pela divulgação de pautas de interesse do estado do Rio de Janeiro, especialmente a cidade do Rio de Janeiro, que, como todos sabem, tem no turismo o ponto forte de sua economia. A opção pelo <em>Metrópoles</em> e outros veículos deu-se em função da audiência, tiragem e alcance destas diferentes plataformas, cabendo ressaltar que o Metrópoles é o maior portal de notícias do país com mais de 10 bilhões de impressões mensais.”</p> <p>O <em>Metrópoles</em>, procurado para esclarecer como conseguiu patrocínios tão elevados para três eventos consecutivos, disse que “os eventos não se resumiram a ciclos de palestras e foram devidamente realizados”. E, fazendo eco a nota do ex-governador, acrescentou que “os contratos incluem, também, divulgação de campanhas publicitárias de interesse do estado e, especialmente, da cidade do Rio de Janeiro, cuja vocação é o turismo. Quanto aos valores cobrados, são proporcionais ao alcance do <em>Metrópoles</em>, com mais de 15 bilhões de páginas acessadas por mês, de acordo com dados oficiais das plataformas que veiculam o conteúdo do portal de notícias”.</p> <p> </p> <p> </p> <p><br/><br/></p> <p>Se usa o noticiário como gazua para fazer negócios, o <em>Metrópoles</em> também mostra os dentes quando é alvo de alguma denúncia. No dia 8 de abril passado, uma reportagem do jornal <em>O Estado de S. Paulo</em> examinou relatórios do Coaf, órgão de combate à lavagem de dinheiro, e descobriu que o <em>Metrópoles</em> havia recebido 27,2 milhões de reais do Banco Master, em transações consideradas “inusitadas”. Passados alguns dias, em 23 de abril, o <em>Metrópoles</em> publicou uma matéria retaliatória contra o jornal. </p> <p>Na matéria, o portal dava ares de denúncia ao fato de que o <em>Estadão</em> havia recebido 1,1 milhão de reais do Master e classificava o veículo como “jornal dos banqueiros”, em alusão a uma operação financeira em que o veículo captou 45 milhões de reais de três grandes bancos – o Bradesco, o Santander e o Itaú Unibanco. Em resposta, o <em>Estadão </em>informou que os valores recebidos do Master eram decorrentes de publicidade e deu uma estocada no <em>Metrópoles</em>. Afirmou que “não negocia venda de mídia e patrocínios por valores incompatíveis com as práticas de mercado”.</p> <p>No dia seguinte, 24 de abril, o <em>Metrópoles</em> voltou à carga – e desta vez, informou que o <em>Estadão</em> não era o “único veículo de comunicação sobre o qual o Itaú exerce poder de influência”. E completava: “O Itaú também exerce forte influência editorial na revista <strong>piauí.</strong>” A afirmação vinha desacompanhada de qualquer evidência, e por uma razão elementar: é inverídica. A família do fundador da <strong>piauí</strong> é acionista integrante do bloco de controle do Itaú, mas o banco nunca exerceu um fiapo de influência editorial sobre o conteúdo publicado pela revista.* O <em>Metrópoles</em> tinha, no entanto, um motivo oculto para tentar atacar a independência editorial da <strong>piauí</strong>.</p> <p>Por volta dessa época, chegou aos ouvidos de Luiz Estevão que a<strong> piauí</strong> estava fazendo a reportagem que agora publica – uma apuração que começou em meados de março deste ano. O dono do<em> Metrópoles</em> então, ao saber da investigação em curso, entrou em modo bombardeio contra o Itaú sob a ilusão de que os ataques à instituição financeira demoveriam a revista de seguir em frente com a reportagem. A artilharia durou alguns meses. O <em>Metrópoles</em> publicou tantas matérias com acusação contra o Itaú que, em junho, o banco resolveu criar um site para respondê-las. Chama-se <em>Factópoles</em> e destina-se a rebater “informações deturpadas e sem o espaço de resposta condizente com a prática jornalística”. Em nove dias, entre 29 de junho e 7 de julho, o <em>Factópoles</em> publicou dezesseis respostas.</p> <p>Em reação à criação do <em>Factópoles</em>, o <em>Metrópoles</em> defendeu-se dizendo que vinha cumprindo “seu dever jornalístico, informando o público e as autoridades sobre o condenável procedimento do banco”. Era um dever seletivo. Um levantamento da empresa de dados Lagom Data feito a pedido da <strong>piauí</strong> encontrou 200 notícias publicadas pelo <em>Metrópoles</em> no primeiro semestre deste ano que mencionam os cinco maiores bancos brasileiros: Caixa (99 textos), Itaú (49), Banco do Brasil (28), Bradesco (14) e Santander (10). No caso do Itaú, 70% das reportagens são críticas ao banco, de acordo com a análise, enquanto no caso das demais instituições todas as matérias são de serviço, como resultado da loteria ou instabilidade no aplicativo do banco, ou textos informativos sobre os resultados financeiros divulgados pelas próprias instituições.</p> <p>A certa altura, segundo repórteres do <em>Metrópoles</em> ouvidos sob a condição de ficarem anônimos, o site preparou previamente um conjunto de matérias de ataque à revista, que deveria ser divulgado assim que a reportagem sobre <em>o Metrópoles</em> fosse publicada. Em agosto, no entanto, o <em>Metrópoles</em> repentinamente não publicou mais matérias sobre o Itaú ou a <strong>piauí</strong>. Os mesmos repórteres contaram que o portal estava convencido de que a sucessão de ataques à instituição financeira havia surtido o efeito desejado, e a revista havia desistido da apuração sobre o <em>Metrópoles</em> e da publicação da reportagem para proteger o banco – o que, como se pode constatar nestas páginas, nunca aconteceu.</p> <p>No dia 16 de novembro, segunda-feira, a <strong>piauí</strong> enviou uma série de perguntas ao <em>Metrópoles</em> e recebeu as respostas no dia seguinte – as respostas que estão contempladas ao longo desta reportagem. Junto com seus esclarecimentos, o <em>Metrópoles</em> enviou 24 perguntas à <strong>piauí</strong> para constar no tal conjunto de matérias de ataque à revista que – mediante a publicação de agora – deve finalmente sair da gaveta (saiu na noite de terça-feira, dia 17, sem assinatura de qualquer repórter, e adotando uma prática que despreza o bom jornalismo: não aguardou as respostas da <strong>piauí</strong>). Das 24 perguntas, nada menos que 20 são formuladas com base em insinuações de que o Itaú interfere ou mesmo comanda o conteúdo editorial da <strong>piauí</strong>. Todas as 20 perguntas carecem de qualquer indício ou base factual e destinam-se apenas a levantar uma suspeita vã. Dentro do prazo estipulado pelo <em>Metrópoles</em>, todas elas serão devidamente respondidas.</p> <p>Outro capítulo recente do esforço do <em>Metrópoles</em> em reagir ao noticiário de outros veículos veio em meados de outubro. Na ocasião, a <em>Folha</em> e o <em>Estadão</em> repercutiram a revelação publicada pelo UOL sobre as conversas entre o banqueiro Daniel Vorcaro e Lilian Tahan. Em retaliação ao noticiário, o <em>Metrópoles</em> publicou um texto com o seguinte título: <em>Daniel Vorcaro pagou R$ 1 milhão para “adiar” e “amenizar” matéria na Folha de S.Paulo,</em> seguida de uma montagem dos rostos do banqueiro e do diretor da <em>Folha</em>, Sérgio Dávila. </p> <p>Era um título claramente mal-intencionado porque dava a entender que o jornal teria pedido propina ao banqueiro para “amenizar” o teor crítico de uma reportagem. Na verdade, a conversa no celular de Vorcaro mostra que o banqueiro ofereceu 1 milhão de reais ao seu assessor de impressa, Guilherme Barros, caso ele conseguisse “adiar” e “amenizar” a matéria na <em>Folha</em>. “Nem a <em>Folha</em> nem qualquer profissional seu recebeu esse dinheiro; a reportagem não teve publicação cancelada ou adiada, nem seu teor foi amenizado, porque não estava escrita; e seu conteúdo jamais foi lido antes da publicação exceto pelas repórteres e pela cadeia hierárquica normal acima delas na Redação. Mesmo o conteúdo das mensagens vazadas, o único elemento fático de que dispunha o portal, além das negativas peremptórias da <em>Folha</em>, foi distorcido para se encaixar na tese”, disse Dávila à <strong>piauí</strong>. </p> <p>(O <em>Metrópoles</em> também revelou, desta vez corretamente, que a <em>Folha</em> suprimira um trecho da reportagem sobre a Fictor minutos depois de publicar o texto – e sem avisar os leitores sobre a supressão, contrariando o que preconiza o <em>Manual de Redação</em> do jornal. Os parágrafos cortados tratavam de captações financeiras da Fictor por meio de sociedades em conta de participação (SCPs). À <strong>piauí</strong>, Dávila disse que “os editores julgaram que os trechos – que não eram centrais para o objetivo do texto – necessitavam de mais didatismo e apuração, e os suprimiram, em respeito à precisão da informação”. Sobre o fato de a reportagem não informar o leitor sobre a mudança, o diretor afirmou que “a reportagem foi editada apenas para ganhar precisão” e que, portanto, “não havia razão para informar isso ao leitor”.)</p> <p>No caso do <em>Estadão</em>, o <em>Metrópoles</em> reagiu com um texto sob o título <em>No</em> <em>“Estadão</em> <em>estamos em casa, temos crédito lá”, disse sócio a Daniel Vorcaro</em>. Na matéria, eram reproduzidos trechos de diálogos do dono do Master com o empresário Flávio Carneiro, também encontrados pela PF no celular de Vorcaro. Era uma conversa de terceiros referindo-se ao jornal paulista, ao contrário do caso de Tahan e Vorcaro, que tinham diálogos diretos sobre o <em>Metrópoles</em>. (Em reportagem-resposta, o <em>Estadão</em> negou que Vorcaro tivesse influência editorial na publicação.)</p> <p>O <em>Metrópoles</em> não tocou mais no assunto.</p> <p> </p> <p><strong>*</strong></p> <p><br/><br/>*<em>Em outubro de 2021, a <strong>piauí</strong> tornou-se um caso único no Brasil e raro no mundo: passou a ser mantida por uma dotação patrimonial feita em caráter irrevogável e, desde então, adotou um mote – “<strong>piauí</strong>, dona do próprio nariz”. O mote expressa a independência editorial radical da revista e reforça a realidade segundo a qual não tem patrão, nem dono, nem controlador. (N. R.)</em></p> <p></p>  
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://piaui.uol.com.br/web/comigo-e-assim-metropoles-luiz-estevao-extorsao/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

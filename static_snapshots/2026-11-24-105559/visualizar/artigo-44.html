@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your “responsible” seafood isn’t what it seems - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Your “responsible” seafood isn’t what it seems</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/future-perfect/511788/seafood-aquaculture-fish-farms-responsible-sustainable" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/GettyImages-2305944251.jpg?quality=90&strip=all&crop=0%2C15.10310930655%2C100%2C69.7937813869&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Why you should be skeptical of “responsible” seafood
+                            </p>
+                            <p><em>This story is part of a series supported by Animal Charity Evaluators, which received a grant from EarthShare.</em></p><p>Seafood is sort of having a moment.</p><p>Influencers are talking up the benefits of <a href="https://www.vox.com/culture/476664/sardines-looksmaxxing-tiktok-girl-dinner-protein-skincare" rel="noopener noreferrer" target="_blank">tinned sardines</a>, <a href="https://robbreport.com/food-drink/dining/dry-aging-fish-fine-dining-restaurants-1235610008/" rel="noopener noreferrer" target="_blank">dry-aged fish</a> is all the rage in fine dining, the poke bowl trend of the 2010s is still going strong, and <a href="https://tampamagazines.com/taste-the-trend-caviar/" rel="noopener noreferrer" target="_blank">“caviar bumps”</a> are a thing.</p><p>These dishes may be getting much of the media attention, though it’s staples like bagged shrimp and filets of salmon or tuna that usually end up in shoppers’ carts. While seafood makes up a small share of the typical US diet on balance, it’s been slowly <a href="https://www.ers.usda.gov/data-products/chart-gallery/108443" rel="noopener noreferrer" target="_blank">increasing</a> over the past few decades. Now, everyone from <a href="https://www.noaa.gov/news-release/trump-administration-releases-america-first-seafood-strategy" rel="noopener noreferrer" target="_blank">the Trump administration</a> to <a href="https://www.weforum.org/stories/food-water-and-clean-air/increasing-production-of-aquatic-foods-win-people-planet" rel="noopener noreferrer" target="_blank">the World Economic Forum</a> to <a href="https://aquaticbluefood.org/about-us/" rel="noopener noreferrer" target="_blank">major environmental groups</a> wants to accelerate this trend and put more seafood at the center of the plate. And they want a lot of that fish to come not from the ocean but from farms.</p><p>Fish farming, also known as aquaculture, is often touted as a more sustainable alternative to wild-caught fish — a way to give oceans a break after centuries of <a href="https://www.theguardian.com/uk/2001/jul/27/highereducation.biologicalscience" rel="noopener noreferrer" target="_blank">heavy exploitation</a>. And so it’s not uncommon to see claims like “sustainably farmed” and “responsibly raised” on packages of farm-raised salmon or shrimp.</p><p></p><ul><li>More than half of the world’s seafood now comes from farms, and a lot of farmed fish is marketed as “responsibly raised” or “sustainably farmed.” </li><li>Two nonprofits analyzed these types of marketing claims on over 300 seafood products in US grocery stores and online. They found that many weren’t backed up by third-party certifications, or when they were, those certifiers had low standards that are hard to defend as responsible, sustainable, or ethical. </li><li>Some experts say that certification programs <em>can</em> help to raise standards on fish farms for workers, animals, and the environment, but they also leave major gaps, and that marketing claims can be misleading.</li></ul><p>But what do those labels really mean — and who is certifying that they mean what we think they do?</p><p>These are some of the questions posed in a <a href="https://www.farmforward.com/publications/responsibly-farmed-according-to-whom-how-major-grocers-and-an-industry-run-certifier-vouch-for-their-own-sustainable-seafood/" rel="noopener noreferrer" target="_blank">new report</a> by the animal welfare nonprofits Farm Forward and Aquaculture Accountability Project, which calls into question the legitimacy of these feel-good — yet often vague — claims. The organizations analyzed the labels of more than 300 seafood products produced around the world and sold in major US grocery stores and online bearing “responsible farming” type marketing claims.</p><p>About half of the products from grocery stores analyzed in the report bore third-party “certification” seals, which indicate they had to follow outside standards and periodically be audited. Most of these certified products were certified by Best Aquaculture Practices, a program created by a <a href="https://www.globalseafood.org/" rel="noopener noreferrer" target="_blank">seafood industry group</a> that advocates on behalf of seafood businesses. Critics argue their standards are low and their auditing process isn’t transparent, while investigations have alleged inhumane treatment of workers and animals.</p><p>Meanwhile, about one-fifth of the products reviewed in the report included “claims” about how the animals inside them were raised, such as “sustainably” or “responsibly” farmed, but with no clear third-party certification on the package to back up those claims.</p><p><a href="https://www.tlusty.solutions/" rel="noopener noreferrer" target="_blank">Michael Tlusty</a>, a professor of sustainability and food solutions at the University of Massachusetts at Boston who reviewed the report, told me that “sustainable, responsible — those are really bad words” to use on food packaging because they’re not explicitly defined and “there is so much packed” into them.</p><p>Aerial view of a grid of floating cages on a tilapia farm in Indonesia. Lilly Agustina/Act For Farmed Animals/We Animals</p><p>A crowded group of carp inside a floating net cage on an Indonesian fish farm. Lilly Agustina/Act For Farmed Animals/We Animals</p><p><a href="https://samforsk.no/en/employees/tonje-osmundsen" rel="noopener noreferrer" target="_blank">Tonje Osmundsen</a>, a research director at NTNU Social Research, part of the Norwegian University of Science and Technology, told me over email that companies use these phrases because they’re trying to communicate that they went beyond the minimum legal requirements and that environmental and social concerns were considered during production. But because “these phrases are rarely defined, and there is no universally agreed meaning” for them, “consumers often interpret them much more broadly than the underlying standards justify.”</p><p>It’s not necessarily surprising that many companies may exaggerate how responsible and sustainable they are, especially in the <a href="https://www.vox.com/22838160/animal-welfare-labels-meat-dairy-eggs-humane-humanewashing" rel="noopener noreferrer" target="_blank">meat</a> <a href="https://www.vox.com/future-perfect/496846/costco-chicken-cruelty-investigation-pilgrims-pride" rel="noopener noreferrer" target="_blank">industry</a>. But seafood overall has a <a href="https://www.newyorker.com/magazine/2023/10/16/the-crimes-behind-the-seafood-you-eat" rel="noopener noreferrer" target="_blank">notoriously</a> <a href="https://www.fisheries.noaa.gov/feature-story/tackling-challenges-global-seafood-traceability-programs" rel="noopener noreferrer" target="_blank">opaque</a> <a href="https://openknowledge.fao.org/items/6647568a-d1f8-4957-bd1d-3df5a28e759e" rel="noopener noreferrer" target="_blank">supply</a> <a href="https://www.europarl.europa.eu/RegData/etudes/BRIE/2025/775877/EPRS_BRI%282025%29775877_EN.pdf" rel="noopener noreferrer" target="_blank">chain</a>, and investigations have revealed everything from <a href="https://www.fisheries.noaa.gov/international/international-affairs/forced-labor-and-seafood-supply-chain" rel="noopener noreferrer" target="_blank">forced labor</a> to <a href="https://insideclimatenews.org/news/14102026/ethoxyquin-fire-retardant-in-seafood-chain/" rel="noopener noreferrer" target="_blank">illegal chemical use</a> to <a href="https://www.vox.com/future-perfect/490786/fish-farm-cooke-meat-industry-trust" rel="noopener noreferrer" target="_blank">animal cruelty</a> (and <a href="https://foodforfeed.theoutlawocean.com/" rel="noopener noreferrer" target="_blank">much more</a>). That — combined with the fact that fish farming is the <a href="https://www.fisheries.noaa.gov/feature-story/united-nations-endorses-new-guidelines-sustainable-aquaculture" rel="noopener noreferrer" target="_blank">fastest-growing</a> part of the food sector globally — makes what appears on seafood packages all the more important to scrutinize.</p><p><h2><strong>How fish farming took over the seafood aisle</strong></h2></p><p>The rise of fish farming over the last 40 years represents one of the most rapid transformations of the global food system.</p><p>Throughout the <a href="https://www.fao.org/4/y5600e/y5600e06.htm" rel="noopener noreferrer" target="_blank">20th century</a>, <a href="https://www.cambridge.org/core/journals/journal-of-global-history/article/fisheries-collapse-and-the-making-of-a-global-event-1950s1970s/AB194DC3E92CCD7A7379F4206E059D63" rel="noopener noreferrer" target="_blank">scientists increasingly warned</a> of wild fish populations collapsing due to the overexploitation of the oceans for seafood. Fish farming emerged as a solution: Instead of taking fish from the sea, industry could instead farm them. In the 1980s, fish farming was a niche part of the seafood sector; today, more than half of all seafood comes from aquaculture.</p><p>In these operations, fish and crustaceans — like shrimp — are typically raised in large ponds, offshore pens, or in tanks on land. The scale is huge. By <a href="https://fishcount.org.uk/fish-count-estimates-2/numbers-of-farmed-fish-slaughtered-each-year" rel="noopener noreferrer" target="_blank">one</a> <a href="https://fishcount.org.uk/fish-count-estimates-2/numbers-of-farmed-decapod-crustaceans" rel="noopener noreferrer" target="_blank">estimate</a>, as of 2022, there were about 760 <em>billion</em> crustaceans and fish being slaughtered for food around the world each year (and the numbers have only climbed since). That’s more than nine times the number of farmed chickens, pigs, turkeys, and cows combined.</p><p>One of the most controversial questions in fish farming revolves around whether it does what it’s supposed to do: relieve pressure on oceans. But some of the most popular species of fish — at least in the US — like salmon and trout, are still <a href="https://www.vox.com/future-perfect/379564/fish-farming-sustainable-wild-caught" rel="noopener noreferrer" target="_blank">fed <em>a lot</em> of wild-caught fish</a>. Estimates vary widely, but <a href="https://www.science.org/doi/epdf/10.1126/sciadv.adn9698?referrer=https%3A%2F%2Fwww.vox.com%2Ffuture-perfect%2F379564%2Ffish-farming-sustainable-wild-caught" rel="noopener noreferrer" target="_blank">one comprehensive study</a> found that to produce a single pound of farmed salmon, seafood producers might feed the salmon anywhere from about 1.5 pounds to more than 6 pounds of wild-caught fish.</p><p><a href="https://foodforfeed.theoutlawocean.com/" rel="noopener noreferrer" target="_blank">Investigations</a> into the wild-caught “feed” fish link of the supply chain have documented how aquaculture is <a href="https://enewspaper.latimes.com/infinity/article_share.aspx?guid=375a00de-9767-4d9d-99a1-872b221f58b9" rel="noopener noreferrer" target="_blank">exacerbating other longstanding problems in seafood production</a>, like seabed destruction and forced labor on fishing vessels and in factories.</p><p>And these feed fish are going to what many environmental and animal welfare advocates argue are merely underwater factory farms. On fish farms, welfare problems include overcrowding, high disease rates, poor water quality, and abusive practices, like <a href="https://www.vox.com/future-perfect/461008/shrimp-welfare-project-controversy" rel="noopener noreferrer" target="_blank">burning out shrimps’ eyes</a> and <a href="https://www.hsa.org.uk/downloads/hsafishslaughterreportfeb2018.pdf" rel="noopener noreferrer" target="_blank">inhumane slaughter</a> and <a href="https://www.vox.com/future-perfect/490786/fish-farm-cooke-meat-industry-trust" rel="noopener noreferrer" target="_blank">euthanasia</a>.</p><p>Some farmed fish, especially salmon, can be plagued by <a href="https://www.nhm.ac.uk/discover/the-problem-of-sea-lice-in-salmon-farms.html" rel="noopener noreferrer" target="_blank">sea lice</a> — parasites that bite the fish, leaving open wounds. And it’s not uncommon for salmon to escape their pens and mate with wild salmon, <a href="https://link.springer.com/article/10.1007/s10592-025-01672-8" rel="noopener noreferrer" target="_blank">contributing to harms</a> in wild populations.</p><p>But is it possible that many of the seafood products sold in US grocery stores avoid such issues, and can justify the sustainable and “responsible farming” claims on their packaging?</p><p><h2><strong>What “responsible” seafood claims really mean</strong></h2></p><p>The US doesn’t farm a lot of fish and crustaceans domestically; much of what’s sold in American grocery stores is imported from Chile, Canada, Norway, India, Indonesia, and Vietnam (with global production concentrated in Asia). And getting fish to market isn’t as simple as it might have once been.</p><p>For farmed fish, breeder animals lay and fertilize eggs at hatcheries. Once those eggs mature, the animals are moved to a farm where they’ll live for anywhere from a few months to a couple years. While on that farm, they’re fed a diet of wild-caught fish, plant-based protein like soy, or a mix of both.</p><p>Finally, they’re slaughtered, packaged, and sold either under brand names or grocery stores’ private labels, like Walmart’s Great Value. For some products, the fish might’ve been owned by the same company, from hatchery to slaughter to packaging it for a store. For other products, the animal might’ve passed through several links: farmer, processor, importer, and finally, the store-branded product.</p><p>Aquaculture is generally <a href="https://www.fao.org/4/cc0461en/online/sofia/2022/expanding-sustainable-aquaculture-production.html" rel="noopener noreferrer" target="_blank">poorly</a> <a href="https://link.springer.com/article/10.1007/s13593-018-0511-9" rel="noopener noreferrer" target="_blank">regulated</a> around the world, and where there <em>are</em> laws in place, they tend to be <a href="https://www.riksrevisjonen.no/rapporter-mappe/no-2022-2023/myndighetenes-arbeid-med-fiskehelse-og-fiskevelferd-i-havbruksnaringen/" rel="noopener noreferrer" target="_blank">poorly</a> <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/rra.4092" rel="noopener noreferrer" target="_blank">enforced</a>. And in this regulatory void, companies have a lot of leeway about claims they can make about their products.</p><p>Several organizations have set environmental, labor, and animal welfare standards, and seafood companies can pay to have their operations audited against those standards. In return, the seafood companies can put a certification seal on their packaging and charge more for their products.</p><p>In their new report, Farm Forward and the Aquaculture Accountability Project analyzed 250 farm-raised seafood products with these types of certifications and other feel-good claims on packages at grocery stores in Washington, DC, and several states. The stores included Walmart, Aldi, Costco, Trader Joe’s, Whole Foods Market, Kroger subsidiaries (Fred Meyer, Ralphs, and Smith’s), and Albertsons subsidiaries (Safeway, Pavilions). They also looked at 63 products available on Amazon.</p><p>Most of the products were salmon, shrimp, tilapia, trout, and catfish.</p><p>“The [seafood] industry uses labels and certifications to gain consumer trust,” <a href="https://aquacultureaccountability.org/personnel/laura-lee-cascada/" rel="noopener noreferrer" target="_blank">Laura Lee Cascada</a>, founder and director of the Aquaculture Accountability Project, told me. “We wanted to take a closer look at what that actually was like in practice.”</p><p>About half of the products reviewed in the analysis <em>were</em> certified by an outside organization, with about 80 percent of those products certified by <a href="https://www.bapcertification.org/" rel="noopener noreferrer" target="_blank">Best Aquaculture Practices</a>, or BAP. BAP is operated by the Global Seafood Alliance, a seafood industry trade group that has as its CEO a longtime seafood industry executive and a board that includes many seafood and grocery industry leaders. Farm Forward and Aquaculture Accountability Project say this amounts to a case of the industry simply evaluating itself. BAP does have an oversight committee of outside experts — which Tlusty, the University of Massachusetts researcher, formerly served on — that gives input on its standards, and a spokesperson told me that BAP ensures independence by hiring a third party to audit the farms.</p><p>Ideally, aquaculture reformers say, certifying bodies should conduct surprise — rather than scheduled — audits, make the audit results public, drop companies that repeatedly violate them, and set higher standards for the entire supply chain.</p><p>Decomposing rainbow trout float inside a sea cage at a fish farm in Finland. Disease and injuries can result in large die-offs at fish farms. Rontti Varjola/We Animals</p><p>But BAP’s audits are generally announced ahead of time, and audit results aren’t made public. BAP also doesn’t set requirements — or sets demonstrably weak requirements — for some of the <a href="https://onlinelibrary.wiley.com/doi/10.1111/jfb.70423" rel="noopener noreferrer" target="_blank">most important welfare issues</a> according to fish welfare experts, such as overcrowding, premature animal deaths, and injuries. It also allows for some species — including Atlantic salmon, black tiger shrimp, and rainbow trout — to be fed more pounds of wild-caught fish than they produce.</p><p>Last year, the nonprofit Aquatic Life Institute <a href="https://drive.google.com/file/d/1ubphTjWAJkzcSfPvmqZZXYlXSV2CPk1Q/view?pli=1" rel="noopener noreferrer" target="_blank">ranked</a> BAP as having the lowest animal welfare standards of nine certifiers it reviewed.</p><p>Additionally, BAP standards only partially cover what happens in the fish feed link of the global supply chain, where labor violations and environmentally destructive practices on wild-catch fishing vessels aren’t uncommon. So it’s entirely possible that fish sold with their certification seals have been fed with food that had been harvested in ways that exacerbate these issues.</p><p>Essentially, “they’re certifying factory farming practices,” as responsible and sustainable, Cascada of the Aquaculture Accountability Project told me of BAP. These practices are just happening underwater, and in a farming system the public is much less familiar with. The organizations found that, among the certified seafood products sold at Walmart and Aldi, most were certified by BAP. Neither retailer responded to questions from Vox.</p><p>BAP told Vox that it requires fish farms to develop animal health management plans, have biosecurity controls in place, monitor water quality, measure animal behavior indicators, and train workers on animal welfare. It’s worth noting that these are examples of processes, not specific sustainability or animal welfare outcomes that BAP requires. What this means in practice is that companies are required to <em>measure</em> attributes like water quality and animal behavior, but not necessarily required to make changes if the results of this monitoring don’t look good. (For example, it states that water quality must be maintained within “tolerance limits,” but doesn’t put numbers to those limits).</p><p>Auditors can miss a lot, too. In 2024, a <a href="https://corpaccountabilitylab.org/hidden-harvest" rel="noopener noreferrer" target="_blank">harrowing investigation</a> into shrimp production in India documented human rights abuses and environmental pollution, including at facilities that later sold seafood to the US that was certified under BAP. The organization that conducted the investigation, the nonprofit Corporate Accountability Lab, argued that BAP and another certifier it reviewed (Aquaculture Stewardship Council) function as “little more than marketing ploys that fail to protect workers or the environment.” In response, BAP expanded its standards to include additional parts of the shrimp processing chain.</p><p>Issues at US-based, BAP-certified fish farms have surfaced, too. In 2019 and 2025, an animal rights group investigated a Maine salmon hatchery owned and operated by Cooke Aquaculture, one of the largest seafood producers in the world, whose farmed salmon is certified by BAP. The <a href="https://www.vox.com/future-perfect/490786/fish-farm-cooke-meat-industry-trust" rel="noopener noreferrer" target="_blank">investigations</a> revealed workers at the Maine fish farm beating fish with metal rods, leaving live fish to suffocate to death in buckets, and shooting and bleeding out fish that weren’t fully anesthetized, among other issues. Cooke has a seat on the board of the group that runs BAP.</p><p>BAP announced its own investigations into the allegations, but ultimately, didn’t drop Cooke’s hatchery certification. BAP didn’t respond to questions from Vox about Cooke.</p><p>Osmundsen, of NTNU Social Research, said that she doesn’t think of BAP as industry self-certification. But, she added that in the aquaculture industry there are continually “questions about who writes standards, who gets represented, and who benefits from certification.”</p><p>Farm Forward and AAP’s new report focuses on the legitimacy of certification, but Osmundsen said a better question to ask is whether certified farms perform better on sustainability metrics than similar non-certified farms.</p><p>A female shrimp’s severed eyestalk is removed after being cut off with a pair of hot scissors at a shrimp hatchery in Indonesia. Ulet Ifansasti/Animal Welfare Observatory/We Animals</p><p>Workers hand-peel bowls of shrimp at a shrimp processing and packing plant. Marcos Zegers/Animal Welfare Observatory/We Animals</p><p>The report also found that another certifier, the Aquaculture Stewardship Council, has higher transparency than BAP; for example, ASC makes its audits public. Even though the groups have critiques over ASC’s environmental and animal welfare standards, they say they’re better than BAP’s.</p><p>Still it seems that some ASC-certified farms don’t meet its higher standards. Earlier this year, Scottish news outlet The Ferret published an <a href="https://www.theferret.scot/three-quarters-of-sustainable-salmon-farms-broke-environmental-rules-none-lost-their-accreditation/" rel="noopener noreferrer" target="_blank">investigation into 2025 ASC audits</a> of salmon farms in Scotland and found that more than three-quarters of ASC-certified farms had broken ASC environmental requirements. Violations included months-long sea lice infestations, chemical overuse, and misreported fish death tolls.</p><p>An ASC spokesperson told Vox that where the investigation found issues, it will “take appropriate follow-up action,” adding that certified farms are required to address violations and share evidence that they’ve corrected them; those that fail to do so can be suspended or have their certification withdrawn.</p><p>As for the many products that the nonprofit organizations reviewed that did not have clear certification labels but did make some sort of “responsible” or “sustainable” farming claim, it was unclear what standards these were based on.</p><p>For example, Kroger-branded products labeled “Sustainably Sourced” could have been certified by either ASC or BAP, but the packages didn’t specify which one. Meanwhile, its “Responsibly Sourced” label doesn’t require third-party certification; the company simply says it’s used for farms that <a href="https://go.skimresources.com/?id=1025X1701643&amp;xs=1&amp;url=https%3A%2F%2Fwww.kroger.com%2Fblog%2Ffood%2Fseafood-sustainability-at-kroger" rel="noopener noreferrer" target="_blank">“demonstrate sustainable practices”</a> — without defining exactly what those practices might be.</p><p>It was also unclear if Albertsons’ seafood labeled as “Responsible Choice” was certified by any of the certifying organizations that conduct audits, or received a rating by Seafood Watch (which doesn’t audit farms), or none at all. The company qualifies its sourcing by <a href="https://s29.q4cdn.com/239956855/files/doc_downloads/2026/05/Albertsons_Companies_Responsible_Seafood_Policy_2026.pdf" rel="noopener noreferrer" target="_blank">stating</a> that it merely “endeavors to source seafood” from these programs.</p><p>Whole Foods Market has its own in-house “Responsibly Farmed” standard and certification program. But the report authors say that its auditing process, like BAP’s, is opaque and that its welfare and environmental standards could be much stronger.</p><p>Whole Foods declined to answer detailed questions. “Our Responsibly Farmed standards are public, and every supplier is audited by independent, accredited auditors,” a spokesperson told Vox over email. “When products don’t meet our standards, we remove them.”</p><p><h2><strong>The catch-22 of certifying meat </strong></h2></p><p>Given that seafood production is so weakly regulated, certification <em>can</em> provide some value. Osmundsen argued that certification has driven real improvements on fish farms; <a href="https://www.sciencedirect.com/science/article/abs/pii/S0269749116316190" rel="noopener noreferrer" target="_blank">some</a> <a href="https://www.mdpi.com/2071-1050/12/11/4520" rel="noopener noreferrer" target="_blank">studies</a> have found that certified farms perform better on some environmental metrics than non-certified farms, for example, while <a href="https://link.springer.com/article/10.1007/s10745-023-00424-x" rel="noopener noreferrer" target="_blank">other</a> <a href="https://www.sciencedirect.com/science/article/pii/S0308597X2030169X" rel="noopener noreferrer" target="_blank">research</a> <a href="https://www.sciencedirect.com/science/article/pii/S2666049021000451" rel="noopener noreferrer" target="_blank">is</a> <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/raq.12763" rel="noopener noreferrer" target="_blank">mixed</a>. Osmundsen said that certification has also increased traceability in the supply chain, like chain-of-custody requirements, supplier screening, and audit trails, adding that “these are not trivial achievements.”</p><p>But there are many inherent problems with certification that the report, and other researchers I spoke with, raised. One is that private certifiers can select which problems to address in the supply chain and ignore others: “Whatever gets measured becomes the focus of attention, and important issues can become invisible if they are omitted from the standards,” Osmundsen said.</p><p>A University of St. Andrews scientist removing a specimen of sea lice from a wild salmon captured at Strathy salmon netting station. Colin McPherson/Corbis via Getty Images</p><p>Both certification programs and their auditors financially depend on seafood companies, which could disincentivize them from cracking down on bad actors or considerably raising standards, lest they lose clients.</p><p>“If it is too rigorous, not enough companies will be able to become certified, and if it is too lenient very many will be certified and credibility will be low,” Osmundsen said. “This is a classic dilemma, and one which most certification schemes are highly aware of.”</p><p>“The business model for improvement [of standards] isn’t great,” Tlusty said.</p><p>Osmundsen would like to see improvements in the process, including certifiers publishing more audit information and reporting more outcomes (as opposed to just measurements).</p><p>Strong claims — like “sustainable,” “responsible,” “ethical,” and “seafood you can trust” — require strong evidence. But an examination of what happens in seafood supply chains reveals that these claims likely don’t live up to a reasonable consumer’s expectations. The results of undercover investigations have suggested they have to do more with marketing than reality.</p><p>This doesn’t mean certification is worthless, especially in light of governments’ failure to meaningfully regulate fish farming. But it far from guarantees that consumers are getting what they think they are when they buy nicely labeled or certified seafood.</p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/future-perfect/511788/seafood-aquaculture-fish-farms-responsible-sustainable" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

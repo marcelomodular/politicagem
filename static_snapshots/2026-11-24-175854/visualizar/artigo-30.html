@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minas e Energia: a mudança necessária - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Minas e Energia: a mudança necessária</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/crise-brasileira/minas-e-energia-a-mudanca-necessaria/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_4913822056034536711_y.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Minas e Energia: a mudanÃ§a necessÃ¡ria
+                            </p>
+                            
+<p>MinistÃ©rio central na transiÃ§Ã£o energÃ©tica Ã© cercado por polÃªmicas e antagonismos ao meio ambiente. Pasta tambÃ©m assanha privatizaÃ§Ãµes nos setores de energia, nuclear e fÃ³ssil. O Brasil espera de Lula um balanÃ§o crÃ­tico na Ã¡rea, que mire um paÃ­s moderno e sustentÃ¡vel</p>
+
+
+
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/photo_4913822056034536711_y.jpg"/>Imagem: ReproduÃ§Ã£o/CooperacciÃ³n
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Ao convidar para o comando de pastas ministeriais (com seus cargos, orÃ§amentos e poder de influÃªncia) nomes indicados pelos partidos polÃ­ticos em troca de apoio no Congresso Nacional (garantindo votos para aprovar leis, reformas e projetos de interesse do governo) o presidente Lula tem experimentado derrotas, principalmente quando este MinistÃ©rio Ã© estratÃ©gico para o desenvolvimento do paÃ­s, caso do MinistÃ©rio de Minas e Energia (MME).</p>
+<p>Ao longo dos anos, o MME Ã© um desses ministÃ©rios marcados por polÃªmicas, crises no setor elÃ©trico, embates com empresas, episÃ³dios polÃ­ticos peculiares e mesmo destaque no noticiÃ¡rio policial, que chamam a atenÃ§Ã£o do pÃºblico. Sem falar na falta de transparÃªncia e de participaÃ§Ã£o da sociedade organizada nas decisÃµes monocrÃ¡ticas tomadas por este ministÃ©rio, que repercutem negativamente na vida das pessoas.</p>
+<p>Um dos aspectos mais sensÃ­veis do setor elÃ©trico nacional Ã© a influÃªncia exercida pelos lobistas, que tem comprometido a gestÃ£o, a eficiÃªncia, a transparÃªncia e a modicidade tarifÃ¡ria. Esta situaÃ§Ã£o chega a nÃ­veis intolerÃ¡veis provocando desarranjos importantes na governanÃ§a do setor. Por tais abusos quem paga a conta, literalmente, Ã© o consumidor.</p>
+<h3><strong>Contrabando das joias</strong></h3>
+<p>Ao retroagir ao desgoverno do agora presidiÃ¡rio Jair Bolsonaro, o Brasil teve dois ministros de Minas e Energia: o Almirante de Esquadra da Marinha, Bento Albuquerque, que comandou a pasta por mais de trÃªs anos, de janeiro de 2019 a maio de 2022. Desde que tomou posse sua prioridade foi o setor nuclear e avanÃ§ar no processo de privatizaÃ§Ã£o da Eletrobras. Seu nome explodiu no noticiÃ¡rio, e teve que deixar o cargo devido ao escÃ¢ndalo que ficou conhecido como o âCaso do Contrabando das Joias da ArÃ¡bia Sauditaâ. A comitiva liderada pelo eminente integrante das ForÃ§as Armadas foi pega em flagrante delito pela Receita Federal, tentando contrabandear joias milionÃ¡rias (avaliadas em milhÃµes de reais) presenteadas pelo regime saudita. Mas sua demissÃ£o foi por nÃ£o atender o ex-presidente que demandava publicamente intervenÃ§Ã£o na Petrobras para congelar ou mesmo reduzir os preÃ§os da gasolina e do diesel.</p>
+<p>O militar da Marinha do Brasil acabou sendo substituÃ­do por Adolfo Sachsida, indicado pelo ministro da Economia Paulo Guedes. Teve uma passagem meteÃ³rica, de maio de 2022 a dezembro de 2022 (8 meses). Ficou conhecido por ter entregue um pedido formal para iniciar os estudos de privatizaÃ§Ã£o da Petrobras e da PrÃ©-Sal PetrÃ³leo S.A. no seu primeiro dia Ãºtil no cargo. O movimento foi visto muito mais como um aceno ideolÃ³gico ao mercado em ano eleitoral, do que um plano factÃ­vel a curto prazo. Depois dessa bizarra iniciativa, foi blindado no cargo com o objetivo exclusivo de conter a escalada de preÃ§os do diesel e da gasolina, que estavam minando a popularidade do governo na Ã©poca.</p>
+<h3><strong>Conflitos institucionais</strong></h3>
+<p>Depois destas ânotÃ³riasâ figuras, em janeiro de 2023 atÃ© os dias atuais chegou ao MME Alexandre Silveira. Ex-delegado e ex-senador pelo PSD de Minas Gerais, assumiu o cargo enfrentando disputas de grande repercussÃ£o. Tornou-se o principal antagonista de Marina Silva (Meio Ambiente) no governo ao defender veementemente a exploraÃ§Ã£o de petrÃ³leo na foz do Rio Amazonas, a expansÃ£o de usinas nucleares na regiÃ£o AmazÃ´nica, e a retomada do âelefante brancoâ Angra 3.</p>
+<p>Um balanÃ§o crÃ­tico da gestÃ£o Silveira Ã© necessÃ¡rio pela relevÃ¢ncia deste ministÃ©rio na transiÃ§Ã£o energÃ©tica, no contexto do combate ao negacionismo da ciÃªncia e das tomadas de decisÃµes estratÃ©gicas, sem a participaÃ§Ã£o da sociedade. A gestÃ£o de Alexandre Silveira Ã  frente do MinistÃ©rio de Minas e Energia tem sido marcada por conflitos institucionais com agÃªncias reguladoras, leilÃµes de energia contestados e investigaÃ§Ãµes policiais envolvendo aliados, indicados por ele.</p>
+<p>VÃ¡rias polÃªmicas marcaram sua passagem pelo MME. A “MÃ¡fia do Asfalto e do CarvÃ£oâ, assim chamada pela imprensa que apontou leilÃµes de energia tÃ©rmica, estruturados em sua gestÃ£o, priorizando usinas a gÃ¡s e carvÃ£o. Assim, favoreceu grandes grupos empresariais, como os irmÃ£os Batista (J&amp;F), encarecendo a conta de luz dos consumidores a longo prazo.</p>
+<h3><strong>Voz dissonante</strong></h3>
+<p>Sua postura pÃºblica em relaÃ§Ã£o aos combustÃ­veis fÃ³sseis Ã© notÃ³ria, assim como a defesa da energia nuclear para produÃ§Ã£o de eletricidade em sistemas isolados (como na AmazÃ´nia) e para a defesa nacional (fabricar bomba nuclear), indo de encontro ao ministÃ©rio do Meio Ambiente e Sustentabilidade, criando um desacordo evidente sobre a posiÃ§Ã£o do governo frente ao processo de transiÃ§Ã£o energÃ©tica.</p>
+<p>Sua gestÃ£o no MME nÃ£o vai deixar nenhuma boa lembranÃ§a de sua passagem por um dos ministÃ©rios mais importantes da RepÃºblica. Sua gestÃ£o de quatro anos foi marcada por uma sÃ©rie de polÃªmicas, declaraÃ§Ãµes controversas e investigaÃ§Ãµes de corrupÃ§Ã£o envolvendo seus indicados. Portanto, nÃ£o hÃ¡ mais espaÃ§o para ele, que jÃ¡ sai tarde!</p>
+<p>Neste quarto mandato do presidente Lula, como jÃ¡ mencionou em seu discurso da vitÃ³ria, a sociedade espera que se democratize as relaÃ§Ãµes de poder, que haja transparÃªncia e maior participaÃ§Ã£o social, atravÃ©s do debate pÃºblico, responsÃ¡vel e competente da polÃ­tica e programas energÃ©ticos para que as decisÃµes tomadas por este MinistÃ©rio venham a responder aos desafios colocados pelo colapso climÃ¡tico.</p>
+<p></p>
+<h1><br/><br/></h1>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/crise-brasileira/minas-e-energia-a-mudanca-necessaria/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

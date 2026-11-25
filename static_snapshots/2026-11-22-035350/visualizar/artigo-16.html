@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela do Brasileirão: Flamengo abre seis pontos na ponta - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Tabela do Brasileirão: Flamengo abre seis pontos na ponta</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Brasil 247</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.brasil247.com/esporte/tabela-do-brasileirao-flamengo-abre-seis-pontos-na-ponta/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.brasil247.com/wp-content/uploads/2026/11/osn-image-20261122-041638.png?w=1200&quality=88&strip=all" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Tabela do Brasileirão: Flamengo abre seis pontos na ponta
+                            </p>
+                            <h2>Classificação do Brasileirão após a 36ª rodada</h2>
+<p>O Flamengo segue na liderança do Brasileirão, com 80 pontos em 36 jogos, após empatar por 1 a 1 com o Palmeiras neste sábado, 21 de novembro. O time paulista permanece em segundo lugar, com 74 pontos, a seis de distância do líder.</p>
+<p>Nos outros resultados do dia, o Coritiba venceu o Bahia por 1 a 0 fora de casa, enquanto o Cruzeiro derrotou a Chapecoense-sc por 2 a 1. Com o triunfo, o Cruzeiro chegou a 66 pontos e ocupa a terceira posição.</p>
+<p>Os quatro primeiros colocados estão na zona de classificação para a fase de grupos da Copa Libertadores: Flamengo, Palmeiras, Cruzeiro e Fluminense. Atletico Paranaense e Bahia aparecem nas posições destinadas à fase qualificatória da Libertadores.</p>
+<p>Da sétima à 12ª posição, Atletico-MG, Santos, RB Bragantino, Vasco DA Gama, Coritiba e Sao Paulo estão na zona de classificação para a fase de grupos da Copa Sudamericana. Na zona de rebaixamento para a Serie B estão Internacional, Gremio, Remo e Chapecoense-sc.</p>
+<h2>Classificação</h2>
+
+
+
+
+#
+Time
+P
+J
+V
+E
+D
+GP
+GC
+SG
+
+
+
+
+1
+Flamengo
+80
+36
+24
+8
+4
+74
+31
+43
+
+
+2
+Palmeiras
+74
+36
+21
+11
+4
+64
+26
+38
+
+
+3
+Cruzeiro
+66
+36
+20
+6
+10
+59
+50
+9
+
+
+4
+Fluminense
+60
+35
+17
+9
+9
+56
+42
+14
+
+
+5
+Atletico Paranaense
+54
+35
+15
+9
+11
+52
+45
+7
+
+
+6
+Bahia
+54
+36
+14
+12
+10
+50
+46
+4
+
+
+7
+Atletico-MG
+51
+35
+14
+9
+12
+44
+40
+4
+
+
+8
+Santos
+50
+35
+13
+11
+11
+51
+49
+2
+
+
+9
+RB Bragantino
+47
+35
+13
+8
+14
+45
+41
+4
+
+
+10
+Vasco DA Gama
+47
+35
+13
+8
+14
+47
+51
+-4
+
+
+11
+Coritiba
+45
+36
+12
+9
+15
+41
+52
+-11
+
+
+12
+Sao Paulo
+44
+35
+12
+8
+15
+39
+40
+-1
+
+
+13
+Botafogo
+42
+35
+11
+9
+15
+46
+57
+-11
+
+
+14
+Vitoria
+41
+35
+11
+8
+16
+37
+52
+-15
+
+
+15
+Mirassol
+41
+35
+10
+11
+14
+39
+48
+-9
+
+
+16
+Corinthians
+40
+35
+10
+10
+15
+40
+42
+-2
+
+
+17
+Internacional
+38
+35
+9
+11
+15
+39
+44
+-5
+
+
+18
+Gremio
+38
+35
+9
+11
+15
+38
+47
+-9
+
+
+19
+Remo
+32
+35
+7
+11
+17
+39
+57
+-18
+
+
+20
+Chapecoense-sc
+21
+36
+4
+9
+23
+34
+74
+-40
+
+
+
+
+<p><em>P: pontos; J: jogos; V: vitórias; E: empates; D: derrotas; GP: gols pró; GC: gols contra; SG: saldo de gols.</em></p>
+
+
+<p>
+		❗ Se você tem algum posicionamento a acrescentar nesta matéria ou alguma correção a fazer, entre em contato com <a href="https://www.brasil247.com/cdn-cgi/l/email-protection#f48691909597959bb4968695879d98c6c0c3da979b99da9686" rel="noopener noreferrer" target="_blank">[email protected]</a>.	</p>
+<p>
+		✅ Receba as notícias do Brasil 247 e da TV 247 no <a href="https://t.me/s/brasil247oficial" rel="noopener noreferrer" target="_blank">Telegram do 247</a> e no <a href="https://whatsapp.com/channel/0029Va5CrrPD38COKOxDbM1M" rel="noopener noreferrer" target="_blank">canal do 247</a> no WhatsApp.	</p>
+
+<p>Marque o Brasil 247 como fonte preferida no Google:</p>
+
+
+<p>Apoie o jornalismo independente do 247:</p>
+
+<p>
+<h3>Cortes 247</h3>
+</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.brasil247.com/esporte/tabela-do-brasileirao-flamengo-abre-seis-pontos-na-ponta/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

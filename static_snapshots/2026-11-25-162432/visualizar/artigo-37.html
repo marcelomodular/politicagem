@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O discurso que virou fumaça - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O discurso que virou fumaça</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/leia-tambem/o-discurso-que-virou-fumaca/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2024/12/opzinho.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O discurso que virou fumaÃ§a
+                            </p>
+                            
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Era uma vez, uma proposta de ajuste fiscal apresentada ao Senado. NÃ£o qualquer ajuste, nem qualquer Senado e muito menos qualquer Executivo. No dia 13/11/2026, amanhecemos com a notÃ­cia de que a proposta de ajuste fiscal do governo federal (PLP 299/2026) havia sido tramitada sob regime de urgÃªncia no PlenÃ¡rio da Casa, sem antes passar pelas comissÃµes temÃ¡ticas. Seus proponentes tinham pressa.</p>
+<p>Depois da histÃ³rica “vitÃ³ria” nas urnas antecedida por semanas de mobilizaÃ§Ã£o nas ruas, nas redes, aquele vira voto, o boca a boca, debates calorosos no Ã´nibus, no metrÃ´, suor, bandeiras, adesivos, brigas familiares, urgÃªncia, coletividade, unidade de aÃ§Ã£o, exuberÃ¢ncia em ato e toda a libido que incendiou o imaginÃ¡rio polÃ­tico, reverberando mundo afora, a ponto de transformar o “L” em sÃ­mbolo de resistÃªncia, acordar com a notÃ­cia da proposta de Jaques Wagner caiu mal. Bem mal.</p>
+<p>A esquerda radical baixou em peso nas redes e cumpriu a agenda do voto crÃ­tico, necessÃ¡rio, se nÃ£o quisÃ©ssemos um governo fascista onde o debate de ideias nÃ£o teria vez. Ou seja, votamos para poder cobrar. A resposta da militÃ¢ncia lulista e de parte da bancada governista foi a de sempre diante de crÃ­ticas ao governo Lula. “Agora nÃ£o, nÃ£o Ã© hora de criticar”. O reacionarismo diante das crÃ­ticas ao ajuste fiscal mostrou que a corda bamba que sustenta o governo Ã© garantir que a crÃ­tica nÃ£o seja feita. Nunca. A narrativa do “agora nÃ£o” retornou que nem fantasma, o mesmo que nos trouxe atÃ© aqui, nesse limbo entre discurso lulista e prÃ¡tica de governo.</p>
+<p>A histÃ³rica tÃ¡tica de esvaziar a oposiÃ§Ã£o Ã  esquerda como garantia de governabilidade nos trouxe um impasse. A governabilidade conquistada Ã s custas da interdiÃ§Ã£o da crÃ­tica transformou o governo Lula em seu principal inimigo. Esse impasse Ã© o que se coloca com a proposta de ajuste fiscal, aprovada no Senado em 18/11/26. A incompatibilidade entre aquilo que Lula promete e o que o ajuste fiscal prepara fica latente, difÃ­cil de mascarar. E Ã© justamente isso que as tentativas de esclarecimento por parte da esquerda radical escancaram nas redes. Ã a exposiÃ§Ã£o dessa incompatibilidade que lulistas precisam silenciar.</p>
+<p>O reacionarismo diante da crÃ­tica ao ajuste revela a denegaÃ§Ã£o progressista em assumir que a interdiÃ§Ã£o do debate Ã  esquerda vem afundando o governo. E mais, hÃ¡ uma recusa em ver que a proposta do ajuste prepara um cenÃ¡rio de arrocho contÃ­nuo, que recairÃ¡ sobre grande parte dos eleitores de Lula, enfraquecendo seu apoio popular. O que nÃ£o se quer ver Ã© que a crÃ­tica Ã  esquerda poderia fortalecer o governo, nÃ£o o contrÃ¡rio. E Ã© curioso, para nÃ£o dizer sintomÃ¡tico, que a crÃ­tica seja recebida pelos governistas como ataque.</p>
+<p>Mas essa espÃ©cie de “cegueira lulista” Ã© efeito de algo recorrente no Ãºltimo governo Lula, a incompatibilidade entre o discurso e sua prÃ¡tica de governo. HÃ¡ quem diga que isso Ã© erro de comunicaÃ§Ã£o, coisas que Lula nÃ£o ficou sabendo, projetos sendo implementados sem sua consciÃªncia, traiÃ§Ãµes internas, chantagens econÃ´micas. DifÃ­cil de acreditar. Afinal, Lula jÃ¡ disse “quem quer esse ajuste sou eu”. HÃ¡ uma recorrÃªncia nessa incompatibilidade e que se reafirma como tÃ¡tica governista. TÃ¡tica essa que precisa (a todo custo) fazer a manutenÃ§Ã£o de conciliaÃ§Ãµes histÃ³ricas, prometidas como garantia de governabilidade, mas que se revelam, cada vez mais, como sabotagem contÃ­nua da possibilidade de um governo Ã  esquerda.</p>
+<p>Uma tÃ¡tica que virou impasse, confundindo o eleitorado e alienando conceitos de suas prÃ¡ticas. Essa despolitizaÃ§Ã£o produz aberraÃ§Ãµes analÃ­ticas como as que qualificam crÃ­ticas Ã  um ajuste fiscal como “extremismo de esquerda” ou, ainda, aquelas que cinicamente responsabilizaram o “pobre de direita” pelo resultado do primeiro turno.</p>
+<p>Esse impasse, entre discurso e prÃ¡tica, fica bastante evidente com a proposta do ajuste fiscal. Quer dizer, hÃ¡ uma lÃ³gica no interior da PLP299/2026 incompatÃ­vel com a promessa emblemÃ¡tica de Lula IV. Em <em>live</em> organizada pelo “general” no dia 21/11/26, o presidente fala diretamente com seu “exÃ©rcito” e ao responder as crÃ­ticas ao ajuste, afirma, âeles se preocuparam com corte no dinheiro educaÃ§Ã£o, que nÃ£o vai ter, eles se preocuparam com corte no dinheiro da saÃºde, que nÃ£o vai ter e eles se preocuparam com corte no salÃ¡rio-mÃ­nimo que nÃ£o vai terâ. Em seguida fala sobre a tributaÃ§Ã£o e pondera, âao invÃ©s de estarmos tirando dinheiro da educaÃ§Ã£o e da saÃºde estamos tirando dos ricosâ (…) isso significa que quando vocÃª tem pressa de julgamento, vocÃª pode condenar a pessoa erradaâ. Curioso pensar que um projeto de lei complementar dessa magnitude tenha sido tramitado sob regime de urgÃªncia, sem debate com a populaÃ§Ã£o, mas sÃ£o os crÃ­ticos Ã  esquerda, aqueles que tem pressa. Em uma fala genÃ©rica de proteÃ§Ã£o a saÃºde e educaÃ§Ã£o, permeada pelo mantra de “responsabilidade fiscal”, Lula nÃ£o toca no principal e deixa o teto de gastos fora da conversa.</p>
+<p>As manifestaÃ§Ãµes crÃ­ticas ao ajuste foram significativas. Diversas entidades ligadas a saÃºde e educaÃ§Ã£o, economistas e intelectuais de diferentes tendÃªncias polÃ­ticas criticaram os cortes no orÃ§amento deixando claro que a oposiÃ§Ã£o vai muito alÃ©m do campo da “esquerda radical”. AnÃ¡lises rigorosas foram produzidas, assim como propostas alternativas. Diante desse acÃºmulo, nÃ£o adentrarei nos meandros tÃ©cnicos desse debate, apenas ressalto o que parece ser o ponto nevrÃ¡lgico do impasse entre o discurso e a prÃ¡tica governista, a saber, o teto de gastos. NÃ£o hÃ¡ como negar a existÃªncia de cortes em educaÃ§Ã£o e saÃºde enquanto houver teto de gastos. O aumento de receita pela tributaÃ§Ã£o, Ã© importante, mas nÃ£o pode ser reinvestida enquanto o teto nÃ£o for revogado. NÃ£o hÃ¡ como preservar os investimentos em saÃºde e educaÃ§Ã£o com uma diminuiÃ§Ã£o ainda maior do teto de 2,5% para 2%. Ou seja, haverÃ¡ corte. Lento e constante. Como bem sintetiza a economista Denise Gentil sobre o cerne da proposta do ajuste: “a austeridade deixa de ser apresentada como um sacrifÃ­cio temporÃ¡rio e passa a ser um horizonte permanente”, sua real funÃ§Ã£o.</p>
+<p>A discussÃ£o meramente tÃ©cnica do ajuste fiscal tem um limite. Ela deixa de lado a economia polÃ­tica da austeridade. Ou seja, o conjunto de decisÃµes e acordos que organiza os gastos a longo prazo. E isso Ã© feito atravÃ©s de uma linguagem burocrÃ¡tica que nos aliena da participaÃ§Ã£o polÃ­tica. Enquanto isso, o processo de intensificaÃ§Ã£o da austeridade vai se armando na nossa frente. Tirando daqui, colocando um pouquinho ali, propondo um projeto cheio de brechas para a intensificaÃ§Ã£o de arrocho. O esforÃ§o que parte da oposiÃ§Ã£o Ã  esquerda tem feito Ã© exatamente abrir essa linguagem obtusa, traduzir, informar, democratizar o debate.</p>
+<p>HÃ¡ um impasse incontornÃ¡vel diante daqueles que negam haver uma projeÃ§Ã£o de cortes na Ã¡rea da saÃºde e educaÃ§Ã£o. Dizer que nÃ£o haverÃ¡ Ã© manter a populaÃ§Ã£o na lamuria da crenÃ§a daquilo que Lula diz, mesmo que a proposta fiscal vÃ¡ na contramÃ£o. Ã nesse sentido que a incompatibilidade entre discurso e prÃ¡tica se revela como funÃ§Ã£o e nÃ£o efeito. Discurso como cortina de fumaÃ§a, ofuscando a atenÃ§Ã£o, como uma tÃ¡tica da arte ilusionista que distrai o pÃºblico enquanto se falseia a mÃ¡gica. NÃ£o cortar da saÃºde e da educaÃ§Ã£o com esse ajuste fiscal, serÃ¡ como mÃ¡gica falseada.</p>
+<p>Em tempos de organizaÃ§Ã£o polÃ­tica identificada com um “exÃ©rcito”, o histÃ³rico militar da expressÃ£o “cortina de fumaÃ§a”, pode nos interessar. Explode!!! O nevoeiro que desvia o olhar do pÃºblico, expressÃ£o metafÃ³rica sobre as estratÃ©gias retÃ³ricas, escÃ¢ndalos e polÃªmicas criadas por atores polÃ­ticos para ofuscar a visÃ£o e camuflar, esconder decisÃµes impopulares, crises ou problemas estruturais. Essa expressÃ£o, que teve origem no contexto militar da Primeira Guerra Mundial onde tropas, navios e aviÃµes, lanÃ§avam compostos quÃ­micos criando a nÃ©voa necessÃ¡ria para driblar o olhar do inimigo entra na gramÃ¡tica polÃ­tica moderna para detectar o desvio de nossa atenÃ§Ã£o.</p>
+<p>Janones foi sem dÃºvida importante no processo de vira voto, mas sua reatividade despolitizadora em relaÃ§Ã£o Ã s crÃ­ticas ao ajuste, deixa claro que em “seu” exÃ©rcito nÃ£o cabe crÃ­tica, a identificaÃ§Ã£o com “painho” Ã© grande demais, ofusca qualquer possibilidade de debate e daÃ­ jÃ¡ nÃ£o Ã© mais sobre polÃ­tica, vira seita. A mobilizaÃ§Ã£o de “seus” soldados – que prometia ser uma poderosa ferramenta de diÃ¡logo com Lula, abrindo espaÃ§o para que seu eleitorado fizesse pressÃ£o, desestabilizando a chantagem do poder econÃ´mico representada pela maioria do congresso que temos, dando seguranÃ§a ao presidente que guinadas Ã  esquerda teriam apoio popular – corre o risco de virar, justamente, a massa de manobra daqueles que chantageiam o governo. A nÃ£o crÃ­tica, blinda o presidente da pressÃ£o popular, deixando-o solto para responder somente a pressÃ£o do mercado.</p>
+<p>A Ãºltima <em>live</em> do presidente mostrou a aversÃ£o governista ao pensamento crÃ­tico como ingrediente de participaÃ§Ã£o popular. Ã como se a crÃ­tica Ã  esquerda fosse vista enquanto elucubraÃ§Ã£o meramente teÃ³rica, como se desvinculada da materialidade concreta da vida cotidiana. Ou pior, como “preocupaÃ§Ãµes de companheiros da esquerda” sem embasamento analÃ­tico. Lula, em discurso diversionista, fala com seu “exÃ©rcito” sem tocar nos meandros do debate real, faz parecer que seria possÃ­vel um ajuste fiscal sem ser Ã s custas da populaÃ§Ã£o, desvirtua a atenÃ§Ã£o com promessas amparadas pela nostalgia de governos passados. Mais ainda, usa sua oposiÃ§Ã£o aos âyupies da Faria Limaâ como camuflagem que esconde a real alianÃ§a do governo com o mercado financeiro, tal seja, a Febraban (FundaÃ§Ã£o Brasileira de Bancos). O que o discurso de Lula esconde Ã© que a proposta de ajuste fiscal prepara todas as condiÃ§Ãµes para que aquilo que aparece em seu texto como exceÃ§Ã£o seja a regra. Corte.</p>
+<p>JÃ¡ que estamos em tempos de identificaÃ§Ã£o militar como forma de organizaÃ§Ã£o polÃ­tica recorro aos zapatistas como inspiraÃ§Ã£o possÃ­vel, para fora da versÃ£o de exÃ©rcito como clube. Para o ExÃ©rcito Zapatista de LibertaÃ§Ã£o Nacional (EZLN) o pensamento crÃ­tico nasce da prÃ¡tica do vigia, daquele que no “Posto de observaÃ§Ã£o” protege o territÃ³rio de possÃ­veis ameaÃ§as. Trata-se de uma prÃ¡tica que pensa. “Para nÃ³s, Zapatistas, a reflexÃ£o teÃ³rica e o pensamento crÃ­tico desempenham esse papel de sentinela. […] A quem trabalha com o pensamento analÃ­tico, cabe o turno de guarda no posto de vigia”. Mas claro, o vigia se cansa, se acostuma com a imagem desde onde a ameaÃ§a se organiza, corre o risco de ser absorvido pela “sÃ­ndrome de sentinela”, aquela que ofusca o olhar diante dos deslocamentos que a ameaÃ§a faz. O vigia, jÃ¡ nÃ£o consegue mais antecipar as possÃ­veis tormentas, deixa de ler os sinais que preparam a chegada daquilo que os coloca em risco.</p>
+<p>Ã diante dessa “sÃ­ndrome” que os zapatistas organizam tÃ¡ticas a fim de garantir sua principal estratÃ©gia de defesa; a proteÃ§Ã£o, nÃ£o somente de seu territÃ³rio, mas de seu mundo. De tempos em tempos, os vigiais precisam ser trocados e o “olhar de soslaio” Ã© a qualidade necessÃ¡ria daqueles que guardam o territÃ³rio. O olhar de canto de olho, capaz de antecipar sinais da tormenta que se prepara nÃ£o apenas ao longe, mas nas proximidades, logo ao lado, onde menos se espera, nÃ£o mais somente fixada na imagem que se caracterizou como origem do perigo.</p>
+<p>O diversionismo polÃ­tico de Lula preocupa. Sua nÃ£o resposta Ã s crÃ­ticas ao ajuste fiscal revelam um governo que nÃ£o aceita o contraditÃ³rio, o debate real de ideias e desconsidera os 64 milhÃµes de votos que sustentaram um projeto polÃ­tico contrÃ¡rio a lÃ³gica do ajuste fiscal. Nesse caso, Ã© preciso olhar de soslaio. Por que ouvir primeiro o mercado? Lula se empenha em tranquilizar o mercado financeiro, o agronegÃ³cio e as elites econÃ´micas. Seu discurso vira fumaÃ§a, ofusca o olhar, dribla a atenÃ§Ã£o, falseia a mÃ¡gica.</p>
+<p>Apoiar um governo nÃ£o significa renunciar ao pensamento crÃ­tico, muito menos abrir mÃ£o do direito de cobrar coerÃªncia com o projeto que foi apresentado nas urnas. Lula prometeu fazer um governo em conversa com a populaÃ§Ã£o. A pergunta que fica Ã© incÃ´moda, mas necessÃ¡ria: o povo sÃ³ Ã© chamado a participar quando chega a hora de votar?</p>
+
+<p><strong>Notas</strong></p>
+<p> âMais recursos para o SUS, nÃ£o Ã  austeridade fiscal!: 90 entidades se posicionam contra ajuste fiscal de Jaques Wagnerâ Thayan Mina – <a href="https://noticiapreta.com.br/mais-recursos-para-o-sus-nao-a-austeridade-fiscal-90-entidades-se-posicionam-contra-ajuste-fiscal-de-jaques-wagner/" rel="noopener noreferrer" target="_blank">https://noticiapreta.com.br/mais-recursos-para-o-sus-nao-a-austeridade-fiscal-90-entidades-se-posicionam-contra-ajuste-fiscal-de-jaques-wagner/</a></p>
+<p> âAjuste fiscal nÃ£o baixa juros e impede crescimentoâ JosÃ© Sergio Gabrielli de Azevedo – <a href="https://outraspalavras.net/outrasaude/ajuste-fiscal-nao-baixa-juros-e-impede-crescimento/" rel="noopener noreferrer" target="_blank">https://outraspalavras.net/outrasaude/ajuste-fiscal-nao-baixa-juros-e-impede-crescimento/</a></p>
+<p> âO problema do Brasil sÃ£o os gastos pÃºblicos?â Fora da Cartilha – <a href="https://www.youtube.com/live/gPV2SaEW9Z4?is=H2JFvB6YxijRbf6Q" rel="noopener noreferrer" target="_blank">https://www.youtube.com/live/gPV2SaEW9Z4?is=H2JFvB6YxijRbf6Q</a></p>
+<p> âO ajuste fiscal que vai destruir o Brasilâ Jones Manoel – <a href="https://youtu.be/hb1oy_sxeSE?is=hFvSRXq8E9hm02Tj" rel="noopener noreferrer" target="_blank">https://youtu.be/hb1oy_sxeSE?is=hFvSRXq8E9hm02Tj</a></p>
+<p> Denise Gentil â a partir de 2h34min</p>
+<p><a href="https://www.youtube.com/live/gPV2SaEW9Z4?is=H2JFvB6YxijRbf6Q" rel="noopener noreferrer" target="_blank">https://www.youtube.com/live/gPV2SaEW9Z4?is=H2JFvB6YxijRbf6Q</a></p>
+<p> SupGaleano, 2016, p. 19. El Pensamiento CrÃ­tico frente a la Hidra Capitalista</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/leia-tambem/o-discurso-que-virou-fumaca/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

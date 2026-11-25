@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitalismo de desconstrução e solidão - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Capitalismo de desconstrução e solidão</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Fundação Perseu Abramo</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://fpabramo.org.br/capitalismo-de-desconstrucao-e-solidao/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://fpabramo.org.br/wp-content/uploads/2026/11/pexels-karola-g-4386420-683x1024.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Capitalismo de desconstrução e solidão
+                            </p>
+                            
+<p></p>
+<p><strong>1.</strong></p>
+<p>A “solidão” distingue-se sob as formas: (i) emocional, por falta de companheiros; (ii) social, pela ausência total de vínculos; (iii) situacional, motivada pelo luto ou mudança de cidade. Provoca anomalias cardíacas, transtornos psíquicos e diabetes tipo 2. De acordo com a Organização Mundial da Saúde (OMS), a solidão atinge uma em seis pessoas, em um desafio constante à saúde pública e aos direitos. Ver o “Portal do Envelhecimento e do Longeviver”.</p>
+<p>Para enfrentar os efeitos da solidão sobre a expectativa de vida, o Reino Unido criou um Ministério da Solidão ainda em 2018. Então nove milhões padeciam em uma situação crítica e duzentos mil idosos não conversavam com os amigos ou os familiares havia no mínimo um mês. Noutras palavras, morria-se prematuramente e muito sozinho nos domínios do rei Charles III.</p>
+<p>As políticas da dama de ferro Margaret Thatcher – privatizações, flexibilização trabalhista, reforma da previdência, redução dos serviços de proteção social – produziram consequências calamitosas individualmente e abriram caminho para o <em>Brexit</em> e o para o autoritarismo da extrema direita.    </p>
+<p>O Japão instituiu o Ministério da Solidão, em 2021, para combater o isolamento. Na pandemia do coronavírus registrou mais de vinte mil suicídios, sobretudo de mulheres e estudantes. A revolução da longevidade nos países desenvolvidos expôs, com a “latinização” dos indicadores sociais, um descompasso entre os recursos técnicos disponíveis e as condições de vida.  </p>
+<p>O abandono do “capitalismo de reconstrução” cobrou um preço elevado em desigualdade e morte. O “capitalismo de desconstrução”, como Thomas Piketty denomina o desastre civilizatório causado pelo neoliberalismo, alimenta a necropolítica que normaliza a exclusão. O canto de sereia das finanças sobre a “modernização” leva ao apocalipse. Vidas humanas contam menos quando a acumulação do capital se torna um fim em si mesma.</p>
+<p><strong>2.</strong></p>
+<p>Em <em>História da solidão e dos solitários</em>, <a href="https://editoraunesp.com.br/catalogo/9788539307951,historia-da-solidao-e-dos-solitarios" rel="noopener noreferrer" target="_blank">Georges Minois</a> observa que, na Grécia e na Roma antigas, prevalecia a concepção aristotélica do ser humano como <em>zoon politikon</em>, animal social destinado à vida na <em>Pólis</em>. A solidão não era um valor positivo. Pensadores, em retiro no campo, justificavam-se com reflexões sobre manter o espírito sereno na existência em comunidade.</p>
+
+<p>No cristianismo, o afastamento do mundo protegia das perseguições. Após a sua conversão em religião oficial, difundiram-se os “padres do deserto”, dedicados a uma purificação da alma pela fé. O isolamento se verifica com uma tolerância ao convívio (cenobitismo) ou em clausura (eremitismo). Na Idade Média, os mosteiros impunham regras rígidas à solidão impregnada de misoginia e supremacismo. Os preconceitos atravessavam séculos, impunes.  </p>
+<p>Na Renascença, com a Reforma Protestante, desenrolou-se a solidão humanista fundada na interioridade e no contato pessoal com o divino. Contestava-se a estrutura hierárquica da Igreja, a começar pelo papado. Os retiros serviam para rezar, ler e escrever. O deserto hostil foi substituído pelo jardim das musas. A devoção combinava o individualismo e o prazer.</p>
+<p>Nos séculos XVII e XVIII, a laicidade do Estado e o enfrentamento ao Absolutismo ganharam força. A “Revolução Gloriosa” converteu os direitos civis no aríete de mudanças. A autonomização se transformou em um ideal. Contra a misantropia filosófica firmou-se a consciência de que o <em>Homo sapiens</em> é um ser social. A purificação dependia do engajamento político.</p>
+<p>No século XIX, os indivíduos conquistaram um protagonismo histórico. Henry D. Thoreau, mestre da “desobediência civil”, refugiou-se em uma cabana no bosque. O solitário tornou-se herói da máxima: “A independência individual é a primeira das necessidades modernas”. Na atmosfera do cada um por si, a individualidade recebeu um salvo-conduto para o Eu soberano. Sequer os mortos escaparam à individuação dos túmulos com fotos na lápide.</p>
+<p><strong>3.</strong></p>
+<p>O século XX foi o século das massas. guerras, esportes, lazer, partidos, consumo. Os números passaram a ditar as leis. Era a época da “multidão solitária”. Se antes a solidão implicou isolamento físico, agora ocultava-se no silêncio das mulheres, pretos, jovens, aposentados. Não por acaso, o existencialismo emergiu sob o signo da emancipação individual. A sociedade orgulhava-se de seus traços narcísicos e hipervalorizava a aprovação alheia.</p>
+<p>O anti-individualismo surge na encíclica do Papa Pio XI e nos discursos socialistas em prol do coletivo. Os <em>hippies</em> produziram o refrão. Em um polo oposto, Milton Friedman enalteceu o ultraliberalismo econômico e Robert Nozick exaltou os indivíduos em detrimento das nações e dos Estados.</p>
+<p>Com o <em>Homo communicans</em> estabeleceu-se o trialismo corpo-alma-celular. Eu me comunico, logo existo. Com um clique, o internauta julga não estar só. Sente-se solidário na rede social. A solidão vira solidariedade. Pena acordar do transe para confrontar a realidade. Haja ansiolíticos.</p>
+<p>Georges Minois não responsabiliza diretamente o individualismo pelo isolamento social. Denuncia a solidão paroxística na “sociedade da hiperconexão”. No ensaio publicado em 2013 pela Arthème Fayard e traduzido em 2019 pela Editora Unesp (<em>op. cit.</em>), examina “as coerções da vida contemporânea, suas exigências, seus valores, suas normas” (p. 417), sem de modo explícito interpretar o fenômeno à luz da marcha do capitalismo de desconstrução.</p>
+<p>Não obstante, a competição no empreendedorismo — a última chance de alçar a dignidade — gera o mal-estar na “nova razão do mundo”. A descontextualização do fracasso laboral compromete a autoestima do trabalho, enquanto o mercado aprofunda as desigualdades na ordem do egoísmo.</p>
+<p>O presidente Lula acerta propondo o Ministério dos Idosos. Afinal, a solidão etária é o espectro assombroso que ronda o século XXI.</p>
+<p><em><strong>Luiz Marques</strong> é docente de Ciência Política na Universidade Federal do Rio Grande do Sul (UFRGS) e ex-secretário de Estado da Cultura do RS</em></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://fpabramo.org.br/capitalismo-de-desconstrucao-e-solidao/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
