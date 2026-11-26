@@ -18,8 +18,7 @@ python3 snapshot_generator.py --output static_snapshots/2026-09-02-120000 --limi
 - `--no-extract`: Não extrair conteúdo dos artigos (gera apenas index.html)
 
 **O que é gerado:**
-- `index.html`: Página principal com todas as notícias
-- `visualizar/artigo-X.html`: Páginas estáticas individuais para cada artigo
+- `index.html`: Snapshot **autocontido** — página única com todas as notícias e o conteúdo completo dos artigos embutido (as matérias expandem dentro da própria página, sem arquivos separados)
 - `snapshot_metadata.json`: Metadata do snapshot
 
 ## Upload Manual para IPFS

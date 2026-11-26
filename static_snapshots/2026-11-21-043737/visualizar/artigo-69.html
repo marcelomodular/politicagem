@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entre o discurso democrático e a prática hegemônica - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Entre o discurso democrático e a prática hegemônica</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Observatorio da Imprensa</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.observatoriodaimprensa.com.br/imprensa/entre-o-discurso-democratico-e-a-pratica-hegemonica/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/11/img_3810.webp" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Entre o discurso democrático e a prática hegemônica
+                            </p>
+                            
+<img alt="" src="https://www.observatoriodaimprensa.com.br/wp-content/uploads/2026/11/img_3810.webp"/><p>(Foto: Rovena Rosa/Agência Brasil)</p>
+<p>A relação entre a grande imprensa brasileira e os movimentos trabalhistas expõe uma tensão do jornalismo contemporâneo, pois os veículos de comunicação se apresentam como pilares da democracia e defensores do pluralismo, mas a cobertura de greves e mobilizações sindicais tende a privilegiar os transtornos à população e as fontes oficiais e empresariais em detrimento das reivindicações de quem paralisa. Este artigo sustenta que esse padrão não é mero acidente editorial nem resultado de ordens diretas, e sim efeito de condições estruturais, como a dependência publicitária, a concentração da propriedade e rotinas de produção que favorecem fontes organizadas. Sustenta-se também que se trata de uma tendência, e não de uma regra, a cobertura admite exceções e disputas, e o caso do fim da escala 6×1 indica que a pauta pode se impor às redações quando a pressão social é suficientemente forte.</p>
+<p>Quando eclodem paralisações no transporte público, na educação ou na saúde, a narrativa jornalística dominante segue um roteiro previsível com ênfase nos transtornos à população, imagens de ruas congestionadas, entrevistas com usuários insatisfeitos, pouquíssimo espaço para as reivindicações dos grevistas. Esse enquadramento não é neutro. Ao eleger os “prejuízos sociais” como ângulo principal, a cobertura opera uma inversão, transforma trabalhadores que reivindicam direitos em vilões que prejudicam a coletividade. As causas da greve tornam-se ruído de fundo, quando não são completamente omitidas.</p>
+<p>É preciso lembrar que os grandes conglomerados de mídia não operam no vazio, dependem de receitas publicitárias de empresas privadas, mantêm vínculos com grupos econômicos e respondem a lógicas de mercado que privilegiam a estabilidade institucional. Essa arquitetura material condiciona, inevitavelmente, a produção da notícia. Não se trata necessariamente de censura explícita ou de ordens diretas vindas de cima, mas de uma cultura editorial sedimentada, em que certos enquadramentos parecem “naturais” e outros, impensáveis. Essa naturalização é particularmente eficaz na construção de uma cisão artificial entre a sociedade e os grevistas. A operação retórica é sutil, apresenta-se a população como vítima inocente dos trabalhadores mobilizados, nunca como potencialmente solidária ou, ela própria, prejudicada pelas mesmas políticas que motivam as greves. Cria-se assim uma falsa dicotomia que deslegitima a ação coletiva e fortalece a narrativa de que qualquer perturbação da ordem é inaceitável, independentemente de suas motivações. O padrão da cobertura revela um paradigma de protesto que é sistematizado na seleção de fontes oficiais, apelo a uma opinião pública hostil, deslegitimação das demandas e demonização dos manifestantes, que prioriza as consequências das greves sobre suas causas. O resultado é uma inversão de papéis: quem reivindica salário e direitos aparece como agressor da coletividade, e quem decide sobre salários, direitos e privatizações sai de cena.</p>
+<p>As greves gerais de 28 de abril e 30 de junho de 2017, contra as reformas trabalhista e previdenciária de Michel Temer, formam o caso mais bem documentado. Feres Júnior <i>et al.</i> (2019) examinaram capas e páginas de opinião dos jornais <i>Folha</i>, <i>Estadão</i> e <i>O Globo</i>, além do Jornal Nacional, nos três dias em torno de cada paralisação, e concluíram pela ocorrência de um paradigma de protesto de manual, intenso e sem atenuantes. Os autores identificaram cinco enquadramentos dominantes: violência e vandalismo, malandragem e ação egoísta, transtorno ao espaço público, prejuízo à economia e ausência de legitimidade popular. <i>O Globo</i> estampou na capa de 29 de abril uma foto de ônibus incendiados que ocupava cerca de um quarto da página, sob uma manchete que falava em “protesto de centrais” e evitava a palavra greve. O <i>Estadão</i> cunhou o termo “ergofobia” para qualificar sindicalistas e, em editorial de 1º de julho, chamou os organizadores da segunda greve de arruaceiros. A <i>Folha</i> publicou, no dia da paralisação, uma charge que retratava os grevistas como malandros. Entre as dezoito capas analisadas, uma única, da <i>Folha</i>, mostrou uma concentração de grevistas.</p>
+<p>A televisão seguiu o mesmo caminho. O Jornal Nacional dedicou 1.242 segundos à primeira greve e 121 a explicar as mudanças das reformas, e o contraditório ocupou 30 segundos, com a última palavra concedida ao governo. O ministro da Justiça falou por 98 segundos, o presidente da Força Sindical por 57 e o da CUT do Rio de Janeiro por 13. O <a href="https://brazil.mom-gmr.org/br/" rel="noopener noreferrer" target="_blank">monitoramento do Intervozes</a> registrou que o Jornal Hoje, da Globo, exibiu cerca de 40 minutos de reportagens sobre a mobilização sem pronunciar a palavra greve, e o Jornal da Record não deu voz a um único sindicalista. A segunda greve recebeu tratamento ainda mais esquivo: 58 referências nas capas e primeiras páginas dos jornais em abril, 14 em junho, nenhuma em <i>O Globo</i>, e uma cobertura de 176 segundos no Jornal Nacional, sete vezes menor, que a rebatizou de tentativa de greve geral. Os movimentos de mulheres e de trabalhadores rurais, com atuação relevante contra as mesmas reformas, nem sequer foram mencionados.</p>
+<p>A greve do Metrô de São Paulo, de 5 a 9 de junho de 2014, às vésperas da abertura da Copa do Mundo, percorreu o ciclo inteiro. Entre 5 e 12 de junho, o Tribunal Regional do Trabalho declarou a greve abusiva, 42 grevistas foram demitidos por justa causa, as contas do sindicato foram bloqueadas e a ameaça de novas demissões levou a categoria a desistir de retomar a paralisação no dia da abertura do torneio. O noticiário da fase aguda encontrou seu protagonista no desconforto de dirigentes da Uefa e da Fifa, e Michel Platini, presidente da Uefa, reclamou de ter levado duas horas e meia do aeroporto ao hotel. A punição aos trabalhadores apareceu depois, como desfecho. Em 12 de junho, a <i>Folha</i> descreveu os metroviários como acuados por ameaças de novas demissões e pelo bloqueio das contas do sindicato. A presidente do sindicato em 2023, Camila Lisboa, foi demitida por causa daquela greve e <a href="https://apublica.org/2023/10/e-um-movimento-poderoso-em-sao-paulo-diz-presidente-de-sindicato-sobre-greve-unificada/" rel="noopener noreferrer" target="_blank">readmitida por ordem judicial apenas em 2018</a>.</p>
+<p>Em 3 de outubro de 2023, metroviários, ferroviários da CPTM e trabalhadores da Sabesp pararam por 24 horas contra o programa de privatizações do governador Tarcísio de Freitas e exigiram um plebiscito. O TRT-2 impôs funcionamento integral nos horários de pico e de 80% nos demais, e as multas aplicadas aos sindicatos chegaram a R$ 3,5 milhões. O governador atribuiu a greve a motivações políticas e ideológicas e o presidente do Metrô a classificou de político-partidária, acusando os grevistas de fazer do passageiro um refém. <a href="https://www.intercept.com.br/2023/10/07/jornalistas-liberais-atacam-greve-do-metro-fingindo-ser-isentos-e-como-paulista-quando-diz-nao-ter-sotaque/" rel="noopener noreferrer" target="_blank">A análise do jornalista João Filho, no Intercept Brasil</a>, registrou que os jornais do Grupo Globo criticaram duramente a paralisação e endossaram o discurso privatista do governo.</p>
+<p>A greve dos Correios, em setembro de 2026, repetiu a lógica em escala menor. A paralisação começou na noite de 10 de setembro, depois de rodadas de campanha salarial sem acordo, e durou quinze dias. Em parte das notas, a crise financeira da estatal, com 15 meses consecutivos de resultado negativo e prejuízo de R$ 5,6 bilhões no primeiro semestre, serviu de moldura que deslocava o foco para a conta da empresa, e o plano de contingência acionado pela direção ocupou espaço em outras. Mesmo na <a href="https://exame.com/brasil/greve-dos-correios-chegou-ao-fim-veja-o-que-decidiram-o-tst-e-os-trabalhadores/" rel="noopener noreferrer" target="_blank">reportagem de balanço da revista <i>Exame</i></a> sobre a decisão do tribunal, a crise financeira da empresa ganhou seção própria. O impasse central, o modelo do plano de saúde de funcionários, aposentados e dependentes, aparecia em posição variável. O Tribunal Superior do Trabalho mandou manter 80% do efetivo, concluiu que a abusividade apontada pela empresa não ficou demonstrada, rejeitou o pedido de multa de R$ 100 mil aos sindicatos, fixou reajuste de 4,09% e manteve 73 cláusulas do acordo coletivo anterior, conforme o sindicato paulista. A leitura da reportagem se apoia em amostra pequena de notas e carece de levantamento sistemático, mas coincide com o roteiro documentado em 2017.</p>
+<p>Atribuir o padrão a conspiração explica pouco, e atribuí-lo ao acaso explica menos. Os grandes conglomerados vivem de publicidade de empresas privadas, pertencem a grupos econômicos e respondem a uma lógica de mercado que trata a estabilidade como valor editorial, e os 50 veículos de maior audiência do país pertencem a 26 grupos. Feres Júnior <i>et al.</i> observam que a quase totalidade da grande mídia se concentra em uma faixa estreita do espectro, da centro-direita à direita, o que inviabiliza tratar a ideologia como variável de controle. Essa arquitetura dispensa ordens e censura, ela produz uma cultura de redação em que o transtorno do usuário parece notícia e a demanda do grevista parece opinião, e rotinas de prazo curto, equipes enxutas e dependência de fontes oficiais completam o serviço.</p>
+<p>A cobertura do debate sobre o fim da escala 6×1 oferece indícios dessas rotinas operando sobre fontes organizadas. Entre janeiro e fevereiro de 2026, o <a href="https://noticias.portaldaindustria.com.br/na-midia/escala-6x1-levantamento-da-cni-domina-repercussao-na-imprensa/" rel="noopener noreferrer" target="_blank">levantamento da Confederação Nacional da Indústria</a> sobre o custo da redução da jornada, estimado pela entidade em até R$ 267 bilhões por ano, mobilizou mais de cem veículos, e a Agência de Notícias da Indústria contabilizou 671 matérias que mencionavam o posicionamento da CNI entre 11 de janeiro e 24 de fevereiro. Esse número mede a presença da fonte no noticiário, não o enquadramento das matérias, e por isso não permite concluir que a cobertura adotou a perspectiva patronal. Os dados vêm da própria entidade, parte interessada, e registram o alcance que ela atribui à sua atuação. Servem, portanto, como indício de pauta, mostram a facilidade com que uma organização patronal estruturada converte um estudo próprio em assunto nacional, e saber como os veículos o trataram exigiria análise de conteúdo das matérias. O governo federal procedeu de modo análogo ao divulgar o estudo da economista Marilane Teixeira, da Unicamp, <a href="https://agenciagov.ebc.com.br/noticias/202602/estudo-aponta-que-reducao-da-jornada-pode-gerar-4-5-milhoes-de-empregos-e-reforca-debate-sobre-o-fim-da-escala-6x1" rel="noopener noreferrer" target="_blank">que projetava até 4,5 milhões de novos empregos,</a> e a ministra Gleisi Hoffmann qualificou parte do noticiário de “noticiário do terror”, por associar a redução de jornada a danos econômicos. Cifras de procedência interessada circularam nos dois sentidos, e a imprensa parece ter funcionado, em parte, como canal de estudos produzidos por assessorias, enquanto sindicatos e movimentos sociais raramente dispõem de aparato comparável.</p>
+<p>Sobre essa disputa de cifras se superpôs o enquadramento episódico que <a href="https://www.observatoriodaimprensa.com.br/jornalismo/como-o-enquadramento-episodico-empobrece-o-debate-sobre-o-fim-da-escala-6x1/" rel="noopener noreferrer" target="_blank">analisei em artigo anterior</a>. Iyengar (1991) distingue os enquadramentos episódicos, centrados em eventos e personagens, dos temáticos, que situam os problemas em contextos e tendências, e demonstra que cada um induz atribuições diferentes de responsabilidade, a indivíduos no primeiro caso, a condições sociais e ao poder público no segundo. A tramitação da PEC 221/2019 favoreceu o primeiro: 472 votos a 22 no primeiro turno da Câmara, 461 a 19 no segundo, 75 a 1 nos dois turnos do Senado, e a promulgação, em 16 de outubro, como Emenda Constitucional 141/2026, nove dias antes do segundo turno da eleição presidencial. A moldura mudou com o calendário. Na etapa final, despachos da imprensa internacional reproduzidos no Brasil leram a aprovação como vitória política de Lula e registraram a adesão de Flávio Bolsonaro e de aliados, antes opositores, enquanto manchetes daquelas semanas noticiavam que o candidato sinalizara a empresários a revisão da medida, caso eleito, e que o PL articularia uma proposta para inviabilizá-la. O enquadramento eleitoral substituiu o do custo econômico sem abandonar o foco no jogo político, e o contingente de cerca de 14,8 milhões de trabalhadores submetidos à escala 6×1, segundo levantamentos do Ministério do Trabalho e do Dieese com base no eSocial, continuou raramente desagregado por setor, como apontado no artigo.</p>
+<p>Os mesmos dados mostram os limites do poder editorial. A <i>Folha</i> publicou, em 2017, a única capa com multidão de grevistas, e o Jornal Nacional deu voz, ainda que desigual, a sindicalistas. A emenda do fim da escala 6×1 foi aprovada por margens quase unânimes, contra a posição de entidades patronais como a CNI, cujo presidente pediu ao presidente do Senado que a discussão fosse “técnica” e posterior às eleições, e o noticiário centrado nos custos coexistiu com apoio de 71% dos entrevistados no Datafolha de 3 a 5 de março. A hegemonia, no sentido gramsciano, é um consenso em reconstrução permanente, e a aprovação da emenda mostra o seu desgaste. Uma hipótese plausível, que exigiria pesquisa específica, é que a pauta se impôs às redações de fora para dentro, por força de uma mobilização social de escala suficiente para tornar inviável o silêncio.</p>
+<p>A fragmentação do ecossistema midiático altera a posição relativa dos atores. De acordo com artigo de Eduardo Suárez, publicado no <a href="https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/how-brazilians-get-their-news" rel="noopener noreferrer" target="_blank">Digital News Report 2026</a>, a confiança no noticiário caiu 23 pontos em uma década no Brasil e chegou a 36%, embora as marcas jornalísticas individuais examinadas variem entre 47% e 62%. Um terço dos brasileiros recorreu a criadores de conteúdo noticioso na semana anterior à pesquisa, e apenas 17% afirmam que eles cobrem todas ou a maior parte de suas necessidades. Atualmente, sindicatos e movimentos sociais dispõem de canais próprios para difundir suas narrativas. Porém, o mesmo ambiente traz vieses informacionais, dificuldade para estabelecer fatos consensuais e oferta de militância sem mediação profissional, de modo que a alternativa à cobertura tradicional reproduz parte dos problemas em outro registro.</p>
+<p>Em síntese, os casos examinados indicam que a grande imprensa tende a deslocar o foco das greves das causas para os transtornos e a conceder espaço desigual a fontes oficiais e empresariais, efeito menos de intenção deliberada do que de uma arquitetura econômica e de rotinas profissionais que tornam certos enquadramentos naturais. A tendência, porém, não é destino: o fim da escala 6×1 foi aprovado apesar de um noticiário centrado nos custos, o que sugere que a pressão social e a opinião pública podem reabrir a pauta e desgastar o consenso editorial. O ambiente digital amplia as vozes dos trabalhadores, mas não substitui a mediação profissional e a verificação de fatos que sustentam um debate público qualificado. Cabe à pesquisa testar essas hipóteses com análise de conteúdo sistemática, sobretudo nos casos mais recentes, em que o argumento ainda se apoia em indícios.</p>
+<p><strong>Referências</strong></p>
+<p>FERES JÚNIOR, J.; CANDIDO, M. R.; MELO, P. B.; VIEIRA, L. R. A cobertura jornalística das greves gerais de 2017. Opinião Pública, Campinas, 25 (3), p. 495-530, 2019. DOI: <a href="https://doi.org/10.1590/1807-01912019253495" rel="noopener noreferrer" target="_blank">https://doi.org/10.1590/1807-01912019253495</a>.</p>
+<p>IYENGAR, S. Is anyone responsible?. Chicago: University of Chicago Press, 1991.</p>
+<p><strong>***</strong></p>
+<p><strong>Ramsés Albertoni é</strong> Professor, pesquisador de pós-doutorado em Comunicação (PPGCOM-UFJF), Pós-doutorado em Artes (PPGCA-UFF), doutor em Artes (PPGACL-UFJF).</p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.observatoriodaimprensa.com.br/imprensa/entre-o-discurso-democratico-e-a-pratica-hegemonica/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Other Summitry in Shenzhen - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">The Other Summitry in Shenzhen</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/20/apec-summit-chile-mexico-peru-china-xi/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/Claudia-Sheinbam-Xi-Jinping-GettyImages-2305259908.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: APEC Summit: Chile, Mexico, and Peru Leaders Travel to Shenzhen
+                            </p>
+                            
+<p>Welcome back to <em>Foreign Policy</em>’s Latin America Brief.</p>
+<p>The highlights this week: Three regional presidents <strong>travel to China</strong>, the United States and Venezuela strike a <strong>military deal</strong>, and the region weighs fossil fuel phaseout plans at <strong>COP31</strong>.</p>
+<p>
+</p>
+
+<p>This week, many observers focused on the <a href="https://foreignpolicy.com/2026/11/19/trump-xi-putin-trilateral-talks-nuclear-disarmament-un-icc-oil/" rel="noopener noreferrer" target="_blank">trilateral meeting</a> among the presidents of China, Russia, and the United States on the sidelines of the Asia-Pacific Economic Cooperation (APEC) summit. Three Latin American presidents were also in Shenzhen, China, for the meetings: those of Chile, Mexico, and Peru.</p>
+<p>All six countries are APEC members. Though the bloc’s Latin American leaders <a href="https://www.koreatimes.co.kr/foreignaffairs/20251028/which-world-leaders-are-skipping-apec-summit" rel="noopener noreferrer" target="_blank">don’t always attend</a> the annual summit in person, they did this year—and held separate bilateral <a href="https://latinamericareports.com/latin-american-leaders-get-face-time-with-china-at-apec-summit-2026/15638/" rel="noopener noreferrer" target="_blank">meetings</a> with Chinese President Xi Jinping. The 2028 APEC conference, hosted by Mexico, will see Asian leaders travel to Latin America.</p>
+<p>In their trips to Shenzhen, the three presidents signaled that they value relations with China despite pressure from the United States to spurn the country.</p>
+<p>The U.S. National Security Strategy issued by the Trump administration last year <a href="https://www.whitehouse.gov/wp-content/uploads/2025/12/2025-National-Security-Strategy.pdf?utm_source=substack&amp;utm_medium=email" rel="noopener noreferrer" target="_blank">said</a> that allowing “non-Hemispheric competitors” to grow their presence in the Americas was a “strategic mistake.” And the U.S. ambassadors to both <a href="https://x.com/USAmbMex/status/2121286172441997632?a=NGgQ64xfdnsPiplqVdY&amp;s=20" rel="noopener noreferrer" target="_blank">Mexico</a> and <a href="https://x.com/USAmbPeru/status/2123089615636832742?a=Q0HkuUPopjVhQ1_v50Y&amp;s=20" rel="noopener noreferrer" target="_blank">Peru</a> disparaged China in social media posts this week.</p>
+<p>Mexico has <a href="https://www.bbc.com/news/articles/c36z43ll06zo" rel="noopener noreferrer" target="_blank">applied</a> new tariffs on Chinese goods since U.S. President Donald Trump returned to office, with some as high as 50 percent. But China remains Mexico’s No. 2 trade partner, and Mexican President Claudia Sheinbaum <a href="https://www.bloomberg.com/news/articles/2026-11-17/sheinbaum-offers-new-era-of-mexico-china-ties-after-trade-spat" rel="noopener noreferrer" target="_blank">said</a> in Shenzhen that she hoped her trip would yield more Mexican avocado and tequila <a href="https://mexiconewsdaily.com/politics/sheinbaum-xi-meet-shenzhen-mexico-china-relations/" rel="noopener noreferrer" target="_blank">exports</a> to China and new <a href="https://www.infobae.com/mexico/2026/11/17/sheinbaum-continuara-su-agenda-en-china-con-visita-a-hospital-inteligente-y-reunion-con-presidente-de-vietnam/" rel="noopener noreferrer" target="_blank">cooperation</a> on smart hospitals.</p>
+<p>For Mexico, “integration with the United States and market access to the United States is priority No. 1,” said Diego Marroquín, a fellow in the Americas program at the Center for Strategic and International Studies. But “they can achieve that and at the same time, they can engage more with China,” he said, especially on issues that aren’t central to U.S. interests.</p>
+<p>In more sensitive areas, such as critical infrastructure and telecommunications, Mexico “will most likely accommodate U.S. demands,” Marroquín <a href="https://northamericacompass.substack.com/p/sheinbaum-meets-xi-jinping-is-mexico?utm_source=share&amp;utm_medium=android&amp;r=1qf6bh" rel="noopener noreferrer" target="_blank">wrote</a> this week.</p>
+<p>Chile has not imposed tariffs on Chinese goods, though it has seen tensions with China flare in other ways. This month, Chile and Belgium jointly <a href="https://www.scmp.com/news/china/diplomacy/article/3374252/china-slams-chile-belgium-bid-host-high-seas-treaty-body-pushes-rival-xiamen-proposal" rel="noopener noreferrer" target="_blank">challenged</a> a Chinese bid to permanently host the secretariat of the new United Nations High Seas Treaty.</p>
+<p>The dispute over hosting rights is still unresolved, and Chilean President José Antonio Kast did not mention it in his bilateral meeting with Xi, according to <a href="https://www.ex-ante.cl/politica/kast-profundizar-comercio-china-xi-jinping/" rel="noopener noreferrer" target="_blank">multiple</a> <a href="https://www.scmp.com/news/china/diplomacy/article/3374810/chiles-kast-meets-chinas-xi-first-time-steady-ties-strained-us-pressure" rel="noopener noreferrer" target="_blank">reports</a>. The two countries announced a new economic cooperation road map without providing specifics. The partnership is potentially promising news for Chile as it experiences a <a href="https://finance.yahoo.com/economy/articles/chiles-economy-shrinks-1-1-212122904.html" rel="noopener noreferrer" target="_blank">recession</a>.</p>
+<p>Peruvian President Keiko Fujimori, meanwhile, walked away with a more concrete commitment from China: a $22.5 million <a href="https://www.bloomberg.com/news/articles/2026-11-17/peru-s-fujimori-appeals-to-xi-for-chinese-help-against-el-nino" rel="noopener noreferrer" target="_blank">pledge</a> to help Peru deal with the fallout of <a href="https://foreignpolicy.com/2026/11/10/el-nino-economy-agriculture-cost/" rel="noopener noreferrer" target="_blank">El Niño</a>. Both countries also celebrated an <a href="https://www.bloomberg.com/news/articles/2026-11-01/china-s-upgraded-peru-trade-deal-takes-effect-widening-ties" rel="noopener noreferrer" target="_blank">update</a> to their free trade deal that took effect this month, which officials said could help trade and investment rise by streamlining import- and export-related bureaucracy.</p>
+<p>“Our meeting allows us to strengthen relations between Peru and China,” Fujimori <a href="https://x.com/KeikoFujimori/status/2122657188107719044?a=cRfd-DuWVm6DWKprHmI&amp;s=20" rel="noopener noreferrer" target="_blank">wrote</a> on social media after meeting with Xi. The Chinese readout <a href="https://www.fmprc.gov.cn/mfa_eng/xw/zyxw/202611/t20261117_12061365.html" rel="noopener noreferrer" target="_blank">said</a> that Fujimori praised the majority-Chinese-operated <a href="https://foreignpolicy.com/2024/11/15/peru-port-chancay-china-bri-economics-shipping-us/" rel="noopener noreferrer" target="_blank">port</a> in the Chancay, Peru—an investment that the Trump administration has <a href="https://www.nytimes.com/2026/09/07/world/americas/peru-trump-china-economy.html" rel="noopener noreferrer" target="_blank">criticized</a>.</p>
+<p>Fujimori, Kast, and Sheinbaum held additional bilateral meetings at APEC. Sheinbaum met with <a href="https://www.reuters.com/world/americas/mexicos-sheinbaum-says-she-had-very-good-meeting-with-trump-2026-11-18/" rel="noopener noreferrer" target="_blank">Trump</a>, while all three Latin American presidents sat down with other Asian leaders, including those of <a href="https://asia.nikkei.com/politics/international-relations/japan-to-bolster-defense-ties-with-chile-paving-way-for-exports" rel="noopener noreferrer" target="_blank">Japan</a>; <a href="https://vietnamlawmagazine.vn/top-vietnamese-leader-meets-with-mexican-president-in-china-81307.html" rel="noopener noreferrer" target="_blank">Vietnam</a>; the <a href="https://www.pna.gov.ph/article/ph-chile-sign-landmark-free-trade-agreement" rel="noopener noreferrer" target="_blank">Philippines</a>, with which Chile signed a free trade agreement; and <a href="https://andina.pe/agencia/noticia-perus-government-signs-free-trade-agreement-with-thailand-1100635.aspx#google_vignette" rel="noopener noreferrer" target="_blank">Thailand</a>, with which Peru did the same.</p>
+<p>The meetings show that the three leaders hope to deepen ties not only with China but also more broadly with Asia. They are not alone in their neighborhood: Last weekend, Brazilian President Luiz Inácio Lula da Silva <a href="https://agenciabrasil.ebc.com.br/en/internacional/noticia/2026-11/lula-attend-association-southeast-asian-nations-summit" rel="noopener noreferrer" target="_blank">addressed</a> the opening session of the Association of Southeast Asian Nations summit in Manila, Philippines.</p>
+<p>These countries’ trade flows are beginning to reflect the presidential trips. To give one example, Mexico’s total goods traded with Japan between January and September of this year was 9 percent higher than over the same period in 2025, according to Mexican <a href="https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?sector=1&amp;accion=consultarCuadroAnalitico&amp;idCuadro=CA6&amp;locale=en" rel="noopener noreferrer" target="_blank">government</a> <a href="https://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?sector=1&amp;accion=consultarCuadroAnalitico&amp;idCuadro=CA7&amp;locale=en" rel="noopener noreferrer" target="_blank">statistics</a>. With Thailand, trade grew by 50 percent, and with Malaysia, by 78 percent.</p>
+
+<p><strong>Friday, Nov. 20: </strong>Fujimori meets Japanese Prime Minister Sanae Takaichi in Tokyo.</p>
+<p><strong>Monday, Nov. 23, to Friday, Nov. 27: </strong>Polish President Karol Nawrocki visits Argentina and Chile.</p>
+<p><strong>Thursday, Dec. 3, to Friday, Dec. 4: </strong>Uruguay hosts the Mercosur leaders’ summit.</p>
+
+<p><strong>U.S. military deals.</strong> Less than a year after removing Venezuela’s president by force, the United States <a href="https://edition.cnn.com/2026/11/18/americas/us-venezuela-military-deal-hegseth-latam-intl" rel="noopener noreferrer" target="_blank">signed</a> a military partnership with the country’s acting leaders on Wednesday. In Caracas to ink the deal, U.S. Defense Secretary Pete Hegseth called Venezuela a “compliant security partner” and said the arrangement would allow both countries to better combat drug gangs.</p>
+<p>Former Venezuelan President Hugo Chávez ended Venezuelan military cooperation with the United States in 2005, and his successors in the <em>chavismo </em>movement have used their control over Venezuela’s military apparatus to <a href="https://www.sipri.org/commentary/topical-backgrounder/2019/crucial-role-military-venezuelan-crisis" rel="noopener noreferrer" target="_blank">cling to power</a> and <a href="https://www.aljazeera.com/news/2026/1/10/analysis-why-venezuelas-military-holds-the-key-to-countrys-future" rel="noopener noreferrer" target="_blank">crush dissent</a>.</p>
+<p>Rocío San Miguel, a top Venezuelan human rights advocate, <a href="https://www.youtube.com/watch?v=maF6wXCnQK0" rel="noopener noreferrer" target="_blank">told</a> Union Radio that the U.S. partnership could be an opportunity to rein in Venezuela’s military, relegating it to its intended constitutional role.</p>
+<p>The Venezuela deal comes as U.S. military cooperation with neighboring Colombia appears to be falling short of Trump’s vision. The <em>New York Times </em><a href="https://www.nytimes.com/2026/11/18/world/americas/colombia-us-joint-military.html" rel="noopener noreferrer" target="_blank">reported</a> on Wednesday that Hegseth altered his travel plans to Colombia this week after the country’s government said it lacked the congressional votes to greenlight U.S. military operations on its soil.</p>
+<p>Colombian President Abelardo de la Espriella <a href="https://x.com/ABDELAESPRIELLA/status/2123227348770168857?a=C8n3hjCQm9QjBCka-lQ&amp;s=20" rel="noopener noreferrer" target="_blank">wrote</a> on social media afterward that he did not reject a specific plan but added that any U.S. military cooperation must follow Colombian law.</p>
+<p><strong>Shifting regional affinities.</strong> A gathering of Latin America scholars and policymakers in Rio de Janeiro last week highlighted the cross-border integration that is often excluded from headlines about the region. This newsletter writer attended the event, <a href="https://conversatoriolatinoamericano.org" rel="noopener noreferrer" target="_blank">Conversatorio Latinoamericano</a>.</p>
+<p>One speaker flagged a recent University of Buenos Aires opinion <a href="https://pulsar.uba.ar/wp-content/uploads/2026/11/El-mapa-de-las-preferencias-globales_-que-paises-admiran-y-eligen-los-argentinos.-Tercer-informe-Creencias-Sociales-2026.pdf" rel="noopener noreferrer" target="_blank">survey</a> about Argentines’ attitudes on geopolitics. Between 2025 and 2026, Brazil surpassed the United States to top respondents’ answers to two questions: “Which country do you think Argentina should have relations with?” and “Which country do you think Argentina should be like?”</p>
+<p>The shift suggests that average Argentines don’t fully embrace President Javier Milei’s <a href="https://www.theguardian.com/world/2026/jul/25/javier-milei-latin-america-tour-far-right" rel="noopener noreferrer" target="_blank">pro-Trump pivot</a>—or his <a href="https://www1.folha.uol.com.br/internacional/en/world/2026/08/brazil-argentina-crisis-hits-lowest-point-in-40-years-of-good-relations.shtml" rel="noopener noreferrer" target="_blank">chilled relations</a> with Brazil.</p>
+<p>Natalia Saltalamacchia Ziccardi of the Mexico Autonomous Institute of Technology said that Brazil and Mexico are turning the page on years of distrust, experiencing a “springtime” of warming ties since around 2024. She cited increased high-level visits, coordination <a href="https://www.gob.cl/en/news/brazil-mexico-and-chile-we-officially-announce-candidacy-of-former-president-bachelet-for-un-secretary-general/" rel="noopener noreferrer" target="_blank">in response</a> to Venezuela’s crisis, and shared <a href="https://www.gob.cl/en/news/brazil-mexico-and-chile-we-officially-announce-candidacy-of-former-president-bachelet-for-un-secretary-general/" rel="noopener noreferrer" target="_blank">support</a> for a Chilean U.N. secretary-general candidate.</p>
+<p>These sympathies show that dividing the region into pro- and anti-Trump camps is an oversimplification.</p>
+ 
+<img alt="Lelio, a man in a black tuxedo with a bow tie, smiles while holding a gold statuette. He stands in front of a white and gold geometric backdrop with a large gold statue to the right." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Sebastian-Lelio-GettyImages-927311222.jpg?w=800"/>
+
+Lelio, a man in a black tuxedo with a bow tie, smiles while holding a gold statuette. He stands in front of a white and gold geometric backdrop with a large gold statue to the right.
+<p>Chilean director Sebastián Lelio, winner of the best foreign language film award for <i>A Fantastic Woman</i>, poses in the press room during the 90th Academy Awards in Hollywood, California, on March 4, 2018.Alberto E. Rodriguez/Getty Images</p>
+<p><strong>Chilean cinema pioneer.</strong> This month, Chileans are <a href="https://www.youtube.com/watch?v=2h0qvNovc4I" rel="noopener noreferrer" target="_blank">remembering</a> star film director Sebastián Lelio, who <a href="https://elpais.com/chile/2026-11-07/chile-despide-a-sebastian-lelio-punta-de-lanza-del-novisimo-cine-chileno-y-cineasta-global.html" rel="noopener noreferrer" target="_blank">died</a> on Nov. 6 at the age of 52. Lelio got his start as part of a wave of indie Chilean filmmaking in the 2000s that focused on small-scale, interpersonal plotlines and was <a href="https://cinechile.cl/biblioteca/publicacion/el-novisimo-cine-chileno/" rel="noopener noreferrer" target="_blank">dubbed</a> <em>Novísimo Cine Chileno</em> by critics.</p>
+<p>Lelio’s most beloved works <a href="https://www.theguardian.com/film/2026/nov/06/sebastian-lelio-chilean-director-dies" rel="noopener noreferrer" target="_blank">include</a> the 2013 film <em>Gloria</em>, which shows the ups and downs of dating as a 58-year-old divorcée in the capital of Santiago, and the 2017 film <em>A Fantastic Woman, </em>which follows a transgender singer dealing with the logistics triggered by the death of her partner—and the prejudice that she faces from his conservative family.</p>
+<p><em>A Fantastic Woman </em><a href="https://www.theatlantic.com/entertainment/archive/2018/03/a-fantastic-woman-oscar-chile-gender-identity-bill/555461/" rel="noopener noreferrer" target="_blank">won</a> Chile its first-ever Oscar for best foreign language film and helped pave the way for the <a href="https://www.france24.com/en/20181128-chile-enacts-law-allowing-sex-change-14-years-age" rel="noopener noreferrer" target="_blank">passage</a> of a 2018 trans rights law. Though Lelio worked across genres, <em>La Tercera</em>’s Gonzalo Valdivia <a href="https://www.latercera.com/culto/noticia/la-construccion-de-sebastian-lelio-esplendor-resistencia-y-una-ultima-cinta/" rel="noopener noreferrer" target="_blank">wrote</a> that he “found his natural habitat in portraits of female characters who don’t give in or apologize.”</p>
+
+
+
+
+<p>Which Latin American country was the first to strike a free trade deal with China?</p>
+
+
+
+
+
+
+
+<p>The two countries signed the agreement in <a href="https://edit.wti.org/document/show/36e4e8a8-416a-4389-a6b9-08c388a63562" rel="noopener noreferrer" target="_blank">2005</a>.</p>
+
+
+
+
+
+
+ 
+<img alt="Navarro, a man in a dark business suit and red tie, speaks behind a white podium bearing the U.N. Climate Change and COP31 Türkiye Antalya logos. A large blue circular logo with olive branches appears on a screen behind him." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Juan-Carlos-Navarro-Panama-COP31-GettyImages-2305705867.jpg?w=800"/>
+
+Navarro, a man in a dark business suit and red tie, speaks behind a white podium bearing the U.N. Climate Change and COP31 Türkiye Antalya logos. A large blue circular logo with olive branches appears on a screen behind him.
+<p>Panamanian Environment Minister Juan Carlos Navarro speaks during a press conference discussing electrification at COP31 in Antalya, Turkey, on Nov. 18. Chris McGrath/Getty Images</p>
+<p>The leaders of Antigua and Barbuda, the Bahamas, Barbados, Bolivia, Brazil, St. Lucia, and Venezuela all traveled to this year’s U.N. climate summit in Antalya, Turkey, known as COP31. The conference is due to wrap up on Friday.</p>
+<p>COP31 has moved the ball forward on some initiatives from last year’s U.N. climate summit, which Brazil <a href="https://foreignpolicy.com/2025/11/13/cop30-un-climate-conference-brazil-us-china-lula-trump-belem/" rel="noopener noreferrer" target="_blank">host</a>ed. For example, a planned <a href="https://www.nytimes.com/2025/11/05/climate/cop30-amazon-brazil-forest-fund.html" rel="noopener noreferrer" target="_blank">investment fund</a> that would pay countries to keep tropical forests intact has now <a href="https://tfffwatch.org" rel="noopener noreferrer" target="_blank">raised</a> more than $8 billion, thanks to a new <a href="https://www.reuters.com/sustainability/cop/canada-pledges-up-3925-million-brazil-led-tropical-forest-fund-2026-11-15/" rel="noopener noreferrer" target="_blank">pledge</a> from Canada.</p>
+<p>Last week, Brazil <a href="https://www.theguardian.com/environment/2026/nov/03/brazil-first-global-roadmap-phasing-out-fossil-fuels" rel="noopener noreferrer" target="_blank">published</a> a <a href="https://cop30.br/pt-br/noticias-da-cop30/mapa-do-caminho-internacional-da-presidencia-da-cop30" rel="noopener noreferrer" target="_blank">framework</a> for countries to create national plans for transitioning away from fossil fuels, a topic that generated buzz at last year’s summit but was cut from the final agreement. Its potential inclusion in the COP31 agreement is still being haggled over.</p>
+<p>While Brazil has left a big mark on COP31, so too has a previous Latin American government: that of Colombian President Gustavo Petro, who departed in August. Unsatisfied with last year’s event, the Petro administration <a href="https://foreignpolicy.com/2026/05/01/santa-marta-climate-conference-fossil-fuels-colombia-netherlands-un-cop/" rel="noopener noreferrer" target="_blank">hosted</a> a new global conference in April that was devoted entirely to quitting fossil fuels, which will see a second edition next year in Tuvalu.</p>
+<p>A group of countries that was heavily involved in planning both conferences has also committed to creating a binding treaty on moving away from fossil fuels. Though Colombia has stayed quiet about the fossil fuel treaty initiative under de la Espriella, countries including Guatemala and Panama had <a href="https://www.fossilfueltreaty.org/thirty-countries-cop31" rel="noopener noreferrer" target="_blank">joined</a> it by the time that COP31 arrived.</p>
+<p>“We are being held hostage by the petroleum mafia,” Panamanian Environment Minister Juan Carlos Navarro <a href="https://unfccc.int/event/vanuatu-the-future-of-international-cooperation-on-a-fossil-fuel-phaseout" rel="noopener noreferrer" target="_blank">said</a> at COP31.</p>
+<p>Many Latin American countries are currently led by right-wing leaders who have not styled themselves as climate champions. But they are nevertheless moving forward on an issue that has been proposed as a main outcome of COP31: <a href="https://www.nytimes.com/2026/11/17/climate/cop31-turkey-electrification.html" rel="noopener noreferrer" target="_blank">electrification</a>.</p>
+<p>This year, Brazil is on track to more than <a href="https://www.uol.com.br/carros/noticias/redacao/2026/11/13/carros-eletricos-ja-venderam-em-2026-mais-que-o-dobro-de-todo-o-ano-passado.ghtm" rel="noopener noreferrer" target="_blank">double</a> the number of electric vehicles, or EVs, sold since last year, while Mexico’s EV sales <a href="https://latamobility.com/en/evolvx-mexico-exceeds-full-year-2025-100-electric-vehicle-sales-in-just-nine-months/" rel="noopener noreferrer" target="_blank">are up</a> by more than 25 percent. Countries across the region are <a href="https://www.woodmac.com/press-releases/latin-americas-energy-storage-market-to-grow-13-fold-by-2035-from-2.5-gw-to-34-gw" rel="noopener noreferrer" target="_blank">planning</a> large-scale battery storage build-outs to support larger electric grids.</p>
+<p>The attractive price of green energy—and its insulation from global price shocks—is keeping the region’s green transition gradually moving forward.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/20/apec-summit-chile-mexico-peru-china-xi/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

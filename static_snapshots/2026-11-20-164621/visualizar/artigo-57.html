@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Uruguay built a national care system from the ground up - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">How Uruguay built a national care system from the ground up</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Vox</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://www.vox.com/policy/511386/childcare-care-uruguay-build-back-better-paid-leave-families-daycare-families-children-seniors-infrastracture" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://platform.vox.com/wp-content/uploads/sites/2/2026/11/LucyJones_Vox_UruguayChildcare.jpg?quality=90&strip=all&crop=0%2C0.35938470570016%2C100%2C78.534031413613&w=1200" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: One small country has a big idea for America’s caregiving crisis
+                            </p>
+                            <p>Imagine a family with two working parents who can drop off their 2-year-old at a neighborhood childcare center for the workday for little to no fee. Their 4-year-old goes to a free public preschool nearby. Across town, the mother’s 82-year-old father, who can no longer bathe or dress himself, is visited by a personal assistant the government mostly pays for, 80 hours a month.</p><p>It’s not a daydream, it’s just a normal day for many families in Uruguay.</p><p>And it is not just for lower-income households. A little more than a decade ago, <a href="https://www.impo.com.uy/bases/leyes-originales/19353-2015/1" rel="noopener noreferrer" target="_blank">Uruguay passed a law</a> declaring that care for children, seniors, people with disabilities, and caregivers themselves is a right, and has been working to make good on that promise ever since. The resulting National Integrated Care System, known as SNIC (Sistema Nacional Integrado de Cuidados), has become a model around the world for treating care not as a privilege but as public infrastructure.</p><p>Across the country of about 3.4 million people, the system now provides early childhood care for <a href="https://www.gub.uy/sistema-cuidados" rel="noopener noreferrer" target="_blank">some 78,000 children</a>, <a href="https://www.gub.uy/presidencia/comunicacion/noticias/mides-inacoop-avanzan-profesionalizacion-asistentes-personales-cooperativos" rel="noopener noreferrer" target="_blank">subsidized home assistants</a> for more than 6,000 people with severe disabilities, and day centers and emergency call services for older adults — through a network of community-run childcare centers, certified care workers, and a national agency that coordinates it all.</p><p>The undertaking has been huge, and the buildout is still in process. But the reasons for it echo across other high-income countries right now, including the United States, namely: falling birth rates, an aging population, and generations of women who are no longer willing or able to provide care for free.</p><p></p><ul><li>Uruguay was the first Latin American country to make care a legal right, with one national system covering children, older adults, people with disabilities, and caregivers themselves.</li><li>It took decades of feminist organizing, so the plan was ready when a sympathetic government took power.</li><li>Writing it into law helped it survive a change in government, but Uruguay is still working out how to pay for broader access.</li><li>The US faces the same demographic squeeze and has started building some of the same pieces, from Washington’s long-term care insurance to universal childcare in New Mexico.</li></ul><p>Uruguay sees this sprawling care system as a matter of rights but also as an economic investment, creating paid care jobs and enabling more women to enter formal employment, where they can then pay into the pension and health systems that an otherwise shrinking workforce needs to support. (The law itself lists among its goals changing “the current sexual division of labor” — the fact that care work falls overwhelmingly on women and is usually unpaid.) Leaders now describe SNIC <a href="https://www.gub.uy/sistema-cuidados/comunicacion/noticias/junta-nacional-cuidados-comienza-trabajar-tercer-plan-nacional-cuidados" rel="noopener noreferrer" target="_blank">as the “fourth pillar”</a> of its social protection system, alongside education, social security, and healthcare.</p><p>“It’s the closest thing I could find globally to an idea that family care — not unlike Social Security and Medicare — could be addressed through social insurance,” Ai-jen Poo, co-founder of US-based advocacy group Caring Across Generations, told me. Although Uruguay describes this care system as a right rather than an insurance program, she said, “the material manifestation is very similar.”</p><p>Poo isn’t the only care activist in the US looking to Uruguay’s example. Holly Milburn-Smith, the co-executive director of the City Hub and Network for Gender Equity (CHANGE), which works with cities on care policy, told me Uruguay’s appeal is partly that its example can’t be waved away the way policies in Nordic countries often are for relying on high taxation rates Americans would be hard pressed to accept. “We’re not talking about Scandinavian countries, we’re talking about Latin American countries,” she said. And in Uruguay, “they have found a way to do something that we haven’t.”</p><p>Uruguay’s system is neither perfect nor finished. It still mostly serves children, the waitlist for home assistants is long, and its leaders are still fighting over how to fully pay for it. But the country has built something with lessons for all of us, revealing both the promise and the challenges of treating caregiving as a public good.</p><p><h2>How did Uruguay get this done?</h2></p><p>Uruguay’s ambitious public care system was decades in the making. The country has had both the needs and many of the means to make it happen. It has <a href="https://www.cepal.org/es/enfoques/panorama-envejecimiento-tendencias-demograficas-america-latina-caribe" rel="noopener noreferrer" target="_blank">one of the oldest populations</a> in the region, and its fertility rate is estimated at just <a href="https://www.gub.uy/instituto-nacional-estadistica/comunicacion/noticias/estimaciones-proyecciones-poblacion-revision-2025" rel="noopener noreferrer" target="_blank">1.2 children per woman</a>, well below the roughly two needed for each generation to replace itself. So Uruguay has more older people who need help, fewer workers to pay for it, and smaller families to fall back on — the same squeeze the US is heading into. The country is also among the most wealthy <a href="https://www.worldbank.org/ext/en/country/uruguay" rel="noopener noreferrer" target="_blank">and most economically equal nations</a> in Latin America, and has had a proud welfare state tradition dating back to the early 1900s, with left-leaning governments for most of the last two decades.</p><p>But Argentina, Brazil, and Chile all also had left-wing governments in the late 2000s and early 2010s, and none of them built a national care system then. What set Uruguay apart was “decades of political organizing” by feminist organizations, researchers, care advocates, and public officials who built a shared agenda, Michael Touchton, a political scientist who has spent two decades studying Latin American governance, told me.</p><p>The feminist organizing was fueled by data. Sociologists at the<a href="https://www.gub.uy/ministerio-desarrollo-social/sites/ministerio-desarrollo-social/files/documentos/publicaciones/896.pdf" rel="noopener noreferrer" target="_blank"> Universidad de la República</a>, the country’s public university, ran <a href="https://repositorio.cepal.org/entities/publication/28893d77-e2fe-4e4d-92f9-b318eea214ce/full" rel="noopener noreferrer" target="_blank">the country’s first time-use survey</a> in 2003, which aimed to identify the kinds of unpaid care work and household labor that so often goes unmeasured and unnoticed in economic analyses. Led by researchers Rosario Aguirre and Karina Batthyány, the survey found that women in Montevideo and its metropolitan area were doing about <a href="https://repositorio.cepal.org/server/api/core/bitstreams/bd181e28-6703-472f-86b4-a2cc12f8a9d6/content" rel="noopener noreferrer" target="_blank">two-thirds of all unpaid work</a>, and that once paid and unpaid work were added together, women were working six hours a week more than men.</p><p>(The US launched its own <a href="https://www.bls.gov/news.release/history/atus_09142004.txt" rel="noopener noreferrer" target="_blank">first national time-use survey</a> the same year and found a similar pattern: For example, in homes with a child under 6, women worked on average 2.7 hours a day on childcare to men’s 1.2.)</p><p>Following that early research, feminist organizations, other academics, union members, and female legislators in Uruguay spent the late 2000s pushing care onto the national agenda, holding public forums, and working through a cross-party caucus of female legislators ahead of the 2009 election. Their pressure was successful, <a href="https://www.gub.uy/ministerio-desarrollo-social/comunicacion/publicaciones/cuidados-sistema-propuesta-para-modelo-solidario-corresponsable-cuidados" rel="noopener noreferrer" target="_blank">with all four parties</a> that had seats in parliament ultimately mentioning care in their platforms. But it was women inside the <a href="https://en.wikipedia.org/wiki/Broad_Front_(Uruguay)" rel="noopener noreferrer" target="_blank">Frente Amplio</a>, the left-wing coalition that had governed Uruguay since 2005, who got their party to commit to something more concrete. <a href="https://www.gub.uy/sistema-cuidados/sites/sistema-cuidados/files/documentos/publicaciones/aguirre---la-construccion-del-sistema-de-cuidados-en-uruguay.pdf" rel="noopener noreferrer" target="_blank">Frente Amplio’s 2009 platform</a> promised “a truly comprehensive system of family care,” and when the party won again that year, it finally had a mandate to build one.</p><p>Still, it took six more years. After a national debate over what “care” even meant — teachers didn’t want to be lumped in with care workers, and feminists fought to keep gender at the center of the legislation — the law <a href="https://www.gub.uy/sistema-cuidados/comunicacion/noticias/parlamento-aprobo-ley-crea-sistema-nacional-cuidados" rel="noopener noreferrer" target="_blank">passed in 2015,</a> with support across party lines.</p><p>These coalitional fights helped shape what the law itself ultimately said, with three decisions standing out. First, the SNIC would provide services rather than cash to families, out of concern that paying families would simply subsidize the status quo, with women still doing the lion’s share of the work. Second, the SNIC would treat care as a right for everyone rather than a benefit for the poorest — a break from the means-based approach Latin American welfare states have usually embraced. And third, Uruguay’s care infrastructure would be written into law rather than left to regulation, which is harder to overturn.</p><p>The first big fight had been won. The next was turning the law into something real — and that would last.</p><p><h2>Inside Uruguay’s care system</h2></p><p>The Scandinavian countries are often held up as the pinnacle of public caregiving, with childcare and eldercare guaranteed as entitlements and funded by some of the highest taxes in the world. Uruguay, however, does not have such markedly high tax rates as northern Europe. It has instead positioned care as what the law calls a “co-responsibility,” in which the state regulates and helps fund care but shares the jobs with families, communities, employers, and private providers.</p><p>To do this, the government pulled existing services into a single system. In practice, this looks like neighborhood childcare centers run by community organizations under contract with the state, home assistants hired by families and subsidized on a sliding scale by income, and, for example, a childcare center for construction workers’ children <a href="https://www.citieschange.org/updates/building-care-systems-lessons-from-uruguay-and-across-latin-america/" rel="noopener noreferrer" target="_blank">funded by the industry’s employers</a> under an agreement with their union.</p><p>Uruguay’s care infrastructure remains a work in progress. The country spends less than 0.1 percent of its GDP on long-term care (ongoing help with daily life for older adults and people with disabilities), but a government-convened commission estimated that universal coverage would require roughly 10 times that. More than 7,000 people are currently on a <a href="https://www.gub.uy/sistema-cuidados/sites/sistema-cuidados/files/2026-05/Acta%2068%20Comit%C3%A9%20Consultivo%20Cuidados.pdf" rel="noopener noreferrer" target="_blank">waitlist for subsidized personal care assistants</a>.</p><p>Part of the challenge is the National Integrated Care System has no dedicated revenue stream, unlike pensions (funded by mandatory wage contributions), healthcare (which runs through social security), or education (which has its own budget). When it was originally passed, the funding came from a combination of general revenue set aside in the national budget, the existing budgets of agencies already running childcare and preschool, and sliding-scale payments from families using the new home-assistant program.</p><p>But funding remains fungible. “When the battle comes regarding resources, it usually gets the short stick,” Fernando Filgueira, a sociologist who helped design Uruguay’s care system and <a href="https://uruguay.un.org/en/about/our-team" rel="noopener noreferrer" target="_blank">now heads the UN Population Fund,</a> told me. The system is “absolutely underfunded.”</p><p>Activists say getting SNIC into law was important to help it survive a more conservative government that was elected in 2020, which didn’t repeal the care law but kept <a href="https://www.busqueda.com.uy/informacion/onu-mujeres-propone-un-fondo-solidario-aportes-generales-el-sistema-cuidados-similar-al-fonasa-n5394013" rel="noopener noreferrer" target="_blank">SNIC spending flat</a>. Yes a law can be starved of money, Touchton said, but “unless you pass a new law — and that’s not easy to do — you have the old system in place, and it’s just likelier to survive.” Nevertheless, activists acknowledge laws alone are not enough.</p><p>Carmen Estrades, an economist at the Universidad de la República, told me that she urges policymakers to see spending on care as “investment, not expenditure” because the country gets returns. In one recent study, she and colleagues <a href="https://redi.anii.org.uy/jspui/bitstream/20.500.12381/5564/1/Infograf%c3%ada.pdf" rel="noopener noreferrer" target="_blank">projected that a major expansion of SNIC</a> through 2050 — one that would cover every person with high care needs, extend public childcare to most children under 3, and raise care spending from about 0.1 percent of GDP to 1.8 percent — would produce a larger economy, higher household incomes, about 2,000 more jobs a year (most of them for women), and a system that pays backup to a fifth of its cost in tax revenue alone, even before counting any long-term benefits to (and other increased productivity from) the families themselves.</p><p>“We are trying to make the case to policymakers, but it’s still hard [for them] to think about the long term,” she said. “The problem is that here the government cycle is only five years.”</p><p>But the system <em>is</em> working for a large number of Uruguay’s households. Around <a href="https://www.elobservador.com.uy/nacional/los-ninos-tres-anos-el-nuevo-botin-que-se-disputan-el-terreno-las-instituciones-uruguay-n6042603" rel="noopener noreferrer" target="_blank">90 percent of 3-year-olds</a> are now in an educational program, though some credit for that goes to falling birth rates. And there are the roughly <a href="https://www.gub.uy/presidencia/comunicacion/noticias/mides-inacoop-avanzan-profesionalizacion-asistentes-personales-cooperativos" rel="noopener noreferrer" target="_blank">6,000 people</a> with severe disabilities who have a paid helper for 80 hours a month under the <a href="https://www.gub.uy/sistema-cuidados/node/640" rel="noopener noreferrer" target="_blank">personal assistants program</a>, with the state covering all or part of the cost depending on household income.</p><p>The SNIC model has inspired leaders all over the world, including in Colombia’s capital city. Over the last five years Bogotá has opened more than two dozen “<a href="https://www.vox.com/..." rel="noopener noreferrer" target="_blank">care blocks</a>” — pioneering neighborhood hubs where women can drop off laundry, finish school, see a lawyer or a psychologist, or just rest, while their children or elderly relatives they care for are looked after on site. These are run by the city’s government, which has put about $1.3 billion into them since 2020, largely by repurposing existing buildings and budgets. Brazil passed a national care policy in December 2024, and Chile’s own national care system became law in February. Both countries cited Uruguay as providing a blueprint.</p><p>“The way that a lot of people refer to Uruguay in Latin America is it’s the laboratory for all these social policies,” said Eloisa Cardona, who previously worked at Bogotá’s Secretariat for Women’s Affairs where she helped build her city’s care infrastructure. Could the experiment also travel north?</p><p><h2>Could the US build a similar family care system?</h2></p><p>Efforts in the US to roll out national care systems have repeatedly stalled in Congress, most recently in 2021, when the Build Back Better bill’s childcare, pre-K, and home care provisions failed to pass the Senate.</p><p>The US is of course a very different country from Uruguay — from its size to its government system to its politics. But the US has been developing many of the same ingredients, and some of the momentum, that would be key to its own national care system.</p><p>For example, state and federal lawmakers in the US have also been thinking more about care infrastructure in recent years, and the US does have an increasingly well-funded, and well-organized movement pushing for reform. In 2019, Washington became the first state in the US to <a href="https://theintercept.com/2019/04/26/washington-state-long-term-care/" rel="noopener noreferrer" target="_blank">pass a public insurance program</a> to help families afford long-term care. And in 2025, New Mexico became the <a href="https://www.vox.com/the-highlight/489750/universal-child-care-new-mexico-demand-supply" rel="noopener noreferrer" target="_blank">first state to offer universal no-cost childcare</a>.</p><p>At the federal level, the Build Back Better bill would have created universal pre-K, capped childcare costs for most families, and put $150 billion into home care for older adults and people with disabilities. At the time, President Joe Biden explicitly called the investments “<a href="https://en.wikisource.org/wiki/Remarks_by_President_Biden_at_an_Event_to_Mark_Equal_Pay_Day" rel="noopener noreferrer" target="_blank">care infrastructure</a>.” More recently, the Republican sponsor of a bipartisan federal immigration bill, the Dignity Act, pitched her legislation partly <a href="https://www.vox.com/life/507156/caregiving-caregivers-visa-immigration-elderly-seniors-care-congress" rel="noopener noreferrer" target="_blank">as an answer to U.S.’s aging population</a>, arguing the country can’t meet its care needs without more paid care workers — many of whom are immigrants — for seniors and people with disabilities.</p><p>And other policy proposals abound. Poo, of Caring Across Generations, has spent years arguing that care in the US should be thought of in a more comprehensive way. Back in 2019 she proposed a policy idea for a <a href="https://universalfamilycare.org/" rel="noopener noreferrer" target="_blank">new social insurance program</a> that would provide childcare, paid leave, assistance for people with disabilities, and eldercare all together. She told me her group is now exploring ways to bring that universal family care pitch back to the national agenda.</p><p>In red and blue states alike, there’s also growing recognition that care should be understood, as in Uruguay, as a responsibility shared among families, government, and the private sector. More companies are <a href="https://www.vox.com/child-care/401260/child-care-daycare-employer-ceo-kindercare-bright-horizons-pittsburgh" rel="noopener noreferrer" target="_blank">stepping up on employer-child care programs</a>, and more cities are viewing the dearth <a href="https://www.vox.com/policy/469816/cities-made-a-bet-on-millennials-but-forgot-one-key-thing" rel="noopener noreferrer" target="_blank">of childcare options</a> as a threat to their local economies.</p><p>One of the big transferable lessons, Milburn-Smith of CHANGE said, “is this question of how we want to organize our shared and collective life — and exposing that our economies and our societies are completely dependent on a labor that is largely invisible.” Bringing care into the light and broadening it from being seen only as an individual responsibility, she said, “is absolutely the first step.”</p><p>Uruguay shows the road is winding, but with a law behind it and a movement willing to relentlessly defend it, a system that lasts is possible.</p><p><em>This story was supported by a grant from Arnold Ventures. Vox had full discretion over the content of this reporting.</em></p>
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://www.vox.com/policy/511386/childcare-care-uruguay-build-back-better-paid-leave-families-daycare-families-children-seniors-infrastracture" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

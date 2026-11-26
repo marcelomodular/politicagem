@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O saque verde da biodiversidade brasileira - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">O saque verde da biodiversidade brasileira</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/terraeantropoceno/o-saque-verde-da-biodiversidade-brasileira/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/ISAEDC_-173_CENA11.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: O saque verde da biodiversidade brasileira
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/ISAEDC_-173_CENA11.png"/><em>Arte: Adams Carvalho/Cama Leão/ISA</em>
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicações do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>Você já está inscrito e começará a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>A disputa pelos recursos naturais do século XXI não se limita ao subsolo. Ao lado do lítio, do nióbio e das terras raras, ganhou valor estratégico um recurso que não se mede em toneladas. Plantas, fungos, microrganismos e as informações contidas em seu material genético abastecem hoje as indústrias de medicamentos, cosméticos, alimentos e biotecnologia, que estão entre as mais lucrativas da economia mundial. O Brasil ocupa nessa disputa uma posição singular. É o país de maior biodiversidade do planeta e abriga povos e comunidades que acumularam, ao longo de gerações, conhecimento sobre o uso dessas espécies. A promessa de transformar esse patrimônio em desenvolvimento recebeu o nome de bioeconomia. A palavra entrou nos planos oficiais, nos relatórios empresariais e nos discursos de sustentabilidade. Falta examinar quem fica com o valor que ela promete.</p>
+<p>Um estudo publicado em janeiro de 2026 pelo Instituto Escolhas sobre os medicamentos à base de plantas, os fitoterápicos, oferece uma medida da distância entre a promessa e a realidade. Em 2023, esse mercado movimentou na Alemanha um valor quase quinze vezes maior que no Brasil. A Alemanha tem menos habitantes e uma fração mínima da flora brasileira. O mesmo levantamento registra que o Brasil acumula mais patentes na área do que os alemães, mas que elas raramente avançam até a fabricação e a venda. O conhecimento existe. O que falta, no caso dos medicamentos, é a indústria capaz de transformá-lo em produto.</p>
+<p>O comércio entre os dois países mostra como essa diferença se forma. Em 2024, o Brasil vendeu à Alemanha menos de cinco milhões de dólares em plantas, sucos e extratos de uso variado. No mesmo ano, comprou de lá quase dez milhões em extratos vegetais prontos para a fabricação de medicamentos. O estudo resume a situação ao afirmar que “exportamos matéria bruta para importarmos inovação”. O país figura como importador líquido em todos os elos dessa cadeia. Mesmo na hipótese mais favorável de leitura dos dados, as exportações ficariam mais de três vezes abaixo das importações.</p>
+<p>O desenho se repete fora das farmácias. O açaí saiu das comunidades ribeirinhas do Pará e ganhou o mercado internacional, vendido como alimento, suplemento e ingrediente de cosméticos. Um dirigente do Idesam, organização dedicada ao desenvolvimento sustentável da Amazônia, estimou no fim de 2024 que cerca de noventa por cento do valor agregado ao fruto é gerado fora da região. Na outra ponta, o preço mínimo oficial do quilo do açaí extrativo para a safra de 2026 foi fixado em R$ 2,28. A Amazônia fica com a colheita, o transporte e os problemas. A fábrica, a marca e o lucro ficam em outro lugar.</p>
+<p>A diferença entre vender a planta e vender o produto não é apenas de preço. A etapa industrial concentra os empregos qualificados, a pesquisa científica, o registro de marcas e a arrecadação de impostos. Um estado que exporta polpa congelada emprega colhedores e transportadores. Um estado que fabrica o alimento processado, o cosmético e o extrato padronizado emprega também químicos, engenheiros e técnicos de laboratório, e cria demanda para as universidades e os institutos de pesquisa da própria região. A primeira situação mantém a população na dependência de um preço definido por outros. A segunda dá à região poder de decisão sobre a própria economia.</p>
+<p>A história econômica brasileira conhece esse roteiro. Foi assim com a borracha, que enriqueceu Manaus e Belém enquanto o látex saía bruto dos portos e que entrou em colapso quando a produção foi organizada em outros países. Foi assim com o minério de ferro, e o mesmo risco se apresenta agora com os minerais da transição energética, cuja exploração ainda está em fase de definição. A novidade está na linguagem. O que antes se chamava exportação de produtos primários aparece hoje acompanhado de selos de sustentabilidade, relatórios de impacto e compromissos voluntários. O mecanismo permanece o mesmo. O território fornece o recurso e arca com os custos de conservá-lo, enquanto o valor é realizado longe dali. Quando o recurso é retirado sem que o valor retorne a quem o conserva, a palavra adequada é saque, ainda que venha acompanhada de vocabulário ambiental. Três grupos econômicos sustentam esse arranjo, e cada um deles pode ser identificado.</p>
+<p>O primeiro é formado pelas grandes corporações farmacêuticas, sediadas nos países ricos. A consultoria Zero Carbon Analytics calculou que as quinze maiores empresas do setor somaram cerca de 161 bilhões de dólares em lucros em 2025. Parte expressiva de seus produtos tem origem em compostos naturais ou nas informações genéticas de organismos encontrados nos países megadiversos. Para que uma fração desse ganho retornasse à conservação, os países reunidos na Convenção sobre Diversidade Biológica criaram em 2024 o Fundo de Cali, com a meta de arrecadar um bilhão de dólares por ano. Pela regra indicativa, de 1% do lucro ou 0,1% da receita, aquelas quinze empresas teriam recolhido 756 milhões de dólares apenas em 2025. Ao fim da conferência das partes realizada em outubro de 2026, na Armênia, o fundo registrava pouco mais de dez mil dólares em compromissos. Nenhuma grande farmacêutica havia contribuído. Segundo a mesma consultoria, o valor distribuído aos acionistas dessas empresas em 2025 superou em 175 vezes a contribuição sugerida.</p>
+<p>Documentos tornados públicos no início da conferência mostram que essa recusa foi organizada. A federação internacional da indústria farmacêutica, que afirma representar mais de noventa por cento das principais empresas de pesquisa do setor, classificou as taxas indicativas como prematuras e “comercialmente irrealistas”. A entidade propôs que cada empresa contribuísse com o valor que julgasse adequado e pediu a garantia de que o pagamento ao fundo a dispensaria de obrigações previstas em leis nacionais. O caráter voluntário do mecanismo, apresentado como limitação técnica, foi portanto uma conquista política do setor. Um fundo ao qual só contribui quem quer, no valor que quer, não funciona como mecanismo de repartição de benefícios. Funciona como um pedido de doação, sem prazo, sem valor mínimo e sem punição para quem não paga. As empresas que mais lucram com a informação genética da biodiversidade não atenderam ao pedido, e nada lhes aconteceu por isso.</p>
+<p>O que essas empresas utilizam, cada vez mais, não é a planta. É a sequência genética digitalizada e depositada em bancos de dados de acesso aberto, que permite estudar as propriedades de um organismo sem coletá-lo de novo e sem pedir autorização ao país de origem. As regras tradicionais de repartição de benefícios foram pensadas para amostras físicas e não alcançam esse uso. O resultado é uma forma de extração que dispensa navio, porto e alfândega. O país megadiverso arca com o custo de manter a floresta em pé, e a informação que ela contém circula sem deixar retorno. Pelo desenho do Fundo de Cali, ao menos metade dos recursos deveria chegar a povos indígenas e comunidades locais. Com o caixa vazio, essa metade não passa de uma intenção.</p>
+<p>O segundo grupo reúne quem detém a patente, a fábrica e a marca. Um levantamento divulgado em 2024 pelo Instituto Nacional da Mata Atlântica, órgão federal de pesquisa, examinou mais de sete mil patentes registradas no mundo com plantas nativas dos biomas brasileiros. No caso da flora da Mata Atlântica, 92% delas foram desenvolvidas e depositadas fora do país. Entre os titulares brasileiros predominam universidades públicas e institutos de pesquisa, que não fabricam nem vendem produtos. A ciência nacional identifica a espécie, descreve o composto e publica o resultado. A exploração comercial fica com empresas de outros países, que convertem esse conhecimento em propriedade exclusiva.</p>
+<p>A indústria de cosméticos e de cuidados pessoais é a face mais visível desse grupo no mercado interno, porque faz da biodiversidade brasileira um argumento de venda. O setor se apresenta como responsável por cerca de 2% do PIB nacional e informa ter exportado mais de um bilhão de dólares em 2025. Segundo sua própria associação, o total destinado até agora à conservação e ao uso sustentável da biodiversidade, por meio da repartição de benefícios, supera os dez milhões de reais. A desproporção tem base legal. A Lei da Biodiversidade, de 2015, fixou a contribuição em 1% da receita líquida do produto acabado, mas permite reduzi-la a 0,1% por acordo setorial e isenta os produtos intermediários, categoria em que se enquadram os óleos, as manteigas e os extratos que saem das florestas e do cerrado para as fábricas. As empresas do setor utilizam a origem dos ingredientes nos biomas brasileiros, a exemplo da Amazônia, do Cerrado e da Mata Atlântica, como diferencial de venda de seus produtos.O valor que devolvem à conservação e às comunidades fornecedoras é mínimo diante do que faturam com eles.</p>
+<p>O terceiro grupo atua dentro do país e começa na beira do rio. Um estudo do Idesam sobre as cadeias da castanha e do cacau, publicado em 2024, descreve extrativistas que vendem a maior parte da produção a intermediários, os atravessadores. Sem capital para financiar a própria safra, o coletor depende do adiantamento oferecido pelo comprador e entrega o produto pelo preço que este estabelece. O mecanismo tem mais de um século e é o mesmo que sustentou o ciclo da borracha. Acima do atravessador estão as empresas comerciais e exportadoras, que compram a matéria-prima barata e a revendem sem transformação. Para esse segmento do empresariado, a industrialização local não é um objetivo. É uma ameaça à margem obtida com a diferença entre o preço pago na floresta e o preço cobrado no porto.</p>
+<p>A indústria nacional ocupa nesse quadro uma posição ambígua. A Abifina, associação das indústrias de química fina e biotecnologia, reconheceu em julho de 2026, por meio de sua área de propriedade intelectual, que o país segue exportando sobretudo matérias-primas quando poderia vender medicamentos, cosméticos e tecnologia. Na conferência de outubro, porém, a confederação que representa a indústria brasileira defendeu uma modalidade de contribuição ao Fundo de Cali calculada apenas sobre a receita dos produtos que efetivamente utilizaram informação genética digital, e não sobre o faturamento das empresas. A proposta é apresentada como busca de proporcionalidade. Na prática, estreita a base de cobrança e aproxima o empresariado nacional do argumento das corporações estrangeiras. O setor reclama, com razão, da condição de exportador de matéria-prima, mas resiste a pagar pelo uso do patrimônio que pretende industrializar.</p>
+<p>Há ainda um movimento de apropriação do próprio termo. O Dieese, que tem assento na Comissão Nacional de Bioeconomia como representante dos trabalhadores, trata a bioeconomia como um conceito em disputa, usado para designar projetos opostos. Em uma acepção, ela corresponde à economia da sociobiodiversidade, feita por extrativistas, ribeirinhos, quebradeiras de coco e agricultores familiares que vivem da floresta em pé. Em outra, abrange qualquer atividade baseada em biomassa, o que inclui a produção em larga escala de grãos, cana e biocombustíveis. Setores do agronegócio adotaram a segunda acepção e passaram a se apresentar como parte da bioeconomia. A consequência é prática. As linhas de crédito, os incentivos e os programas criados em nome da bioeconomia têm recursos limitados. Se a definição incluir essas atividades, o agronegócio passa a disputar os mesmos recursos com as cooperativas extrativistas. Como dispõe de escala, garantias e assessoria técnica, tende a ficar com a maior parte. Além do dinheiro, recebe o rótulo de atividade sustentável, mesmo quando sua expansão está entre as causas do desmatamento.</p>
+<p>O estudo do Dieese, publicado em novembro de 2025 a partir de histórias de vida colhidas no Pará, descreve quem está na base dessas cadeias. São trabalhadoras e trabalhadores em sua maioria informais, pagos por diária, sem proteção social, não assalariados ou em regime de trabalho familiar. São as pessoas que colhem o açaí, quebram a castanha e extraem o óleo que depois aparece nos catálogos internacionais como ingrediente sustentável. A bioeconomia anunciada como alternativa ao desmatamento repousa, em sua base, sobre relações de trabalho que nenhum relatório de sustentabilidade descreve. Sem contrato, sem previdência e sem poder de negociação, esses trabalhadores assumem o risco da atividade e recebem a menor parte do resultado.</p>
+<p>Um levantamento da Rede Pan-Amazônica pela Bioeconomia, divulgado em outubro de 2026, identificou 232 políticas públicas voltadas ao tema em nove países e territórios da região e mapeou 141 mecanismos de financiamento. Os recursos existem, e o obstáculo apontado é o acesso. Cooperativas, associações e empreendimentos locais encontram dificuldade para alcançar programas concebidos para organizações estruturadas. A política pública criada para corrigir a desigualdade da cadeia corre o risco de reproduzi-la. Se os programas continuarem fora do alcance das cooperativas e associações, o crédito poderá se concentrar nas empresas que já ocupam o topo. Nesse cenário, a cooperativa sem financiamento seguiria vendendo matéria-prima ao intermediário, enquanto a empresa financiada ampliaria sua vantagem sobre ela. A desigualdade que se pretendia reduzir poderia crescer com dinheiro público.</p>
+<p>O país dispõe, pela primeira vez, de um instrumento nacional para mudar esse quadro. O Plano Nacional de Desenvolvimento da Bioeconomia, lançado em abril de 2026 após dois anos de elaboração com ministérios, universidades, empresas e organizações da sociedade civil, assume a agregação de valor como objetivo e fixa a meta de apoiar seis mil negócios comunitários até 2030. Planos dessa natureza continuam em disputa depois de publicados, na regulamentação, no orçamento e na escolha de quem recebe o crédito, e é nessa etapa que os grupos descritos aqui costumam prevalecer. O contrapeso está em um fato político recente. A eleição de outubro foi marcada por uma mobilização social ampla, que recolocou a sociedade organizada no centro da vida pública. Sindicatos, cooperativas, associações de extrativistas, movimentos de mulheres e universidades têm agora condição de acompanhar a execução do plano, exigir que as compras públicas priorizem os produtos processados nos territórios e cobrar do Parlamento a revisão das brechas que reduzem a repartição de benefícios a valores simbólicos.</p>
+<p>A bioeconomia pode ser a primeira experiência brasileira de uso de um recurso natural que não repita a história da borracha e do minério de ferro. Para isso, três condições precisam ser impostas, porque nenhuma delas virá por adesão voluntária. As corporações que lucram com a informação genética da biodiversidade devem pagar por ela, em regra obrigatória e não em doação. As empresas que usam os biomas brasileiros como marca devem instalar nas regiões produtoras as fábricas e os laboratórios que hoje mantêm no exterior ou em outros estados. E as comunidades que conservam esse patrimônio devem ser sócias do resultado, e não fornecedoras de ocasião. Sem essas condições, a bioeconomia será apenas o nome mais recente de uma prática antiga. Os donos do valor já são conhecidos. Cabe à sociedade brasileira decidir se continuarão sendo os mesmos.</p>
+
+<p><strong>Fontes consultadas</strong></p>
+<p>ABIHPEC. Biodiversidade em beleza e cuidados pessoais brasileiros. 2026.</p>
+<p>AGÊNCIA BRASIL. Produto da Amazônia precisa agregar valor na região, diz especialista. dez. 2024. / Governo apresenta plano para desenvolver bioeconomia no país. abr. 2026. / Plataforma pan-amazônica reúne 232 políticas públicas para bioeconomia. out. 2026.</p>
+<p>BRASIL. Lei nº 13.123, de 20 de maio de 2015. Lei da Biodiversidade.</p>
+<p>CONFEDERAÇÃO NACIONAL DA INDÚSTRIA. Visão da Indústria sobre a COP17 da Biodiversidade. out. 2026.</p>
+<p>DESMOG. How Big Pharma Tried to Weaken the Rules of the UN’s Nature Fund. out. 2026.</p>
+<p>DIEESE. Bioeconomia na Amazônia: uma perspectiva a partir da realidade paraense. nov. 2025.</p>
+<p>ESG INSIDE. Biodiversidade brasileira pode transformar o país em potência global de inovação, apontam especialistas. jul. 2026.</p>
+<p>EXAME. Estudo mapeia soluções para o fortalecimento de cadeias produtivas da Amazônia. maio 2024. / Sem indústria, não há bioeconomia: o papel do setor na COP17. out. 2026.</p>
+<p>IDESAM. Caminhos para o fortalecimento de cadeias produtivas da sociobiodiversidade amazônica: melhores práticas nos elos das cadeias produtivas da castanha-do-brasil e do cacau. 2024.</p>
+<p>INSTITUTO ESCOLHAS. Fitoterápicos: o que o Brasil precisa fazer para liderar esse mercado? jan. 2026.</p>
+<p>INSTITUTO NACIONAL DA MATA ATLÂNTICA. Estudo inédito mostra que 92% das patentes com a flora da Mata Atlântica foram desenvolvidas e depositadas fora do Brasil. jun. 2024.</p>
+<p>MINISTÉRIO DO MEIO AMBIENTE E MUDANÇA DO CLIMA. Plano Nacional de Desenvolvimento da Bioeconomia 2026-2035. abr. 2026.</p>
+<p>NEO MONDO. Fundo com US$ 10 mil e 22 metas atrasadas: o que a COP17 decidiu em Yerevan. nov. 2026.</p>
+<p>O ALTO ACRE. Governo define preços mínimos da safra extrativista de 2026. dez. 2025.</p>
+<p>PORTAL AMAZÔNIA. Soluções para cadeias de produtos da Amazônia são mapeadas por estudo. abril.2024</p>
+<p>ZERO CARBON ANALYTICS. Safeguarding biodiversity for pharmaceutical innovation costs a fraction of shareholder payouts. out. 2026.</p>
+<p><em>Outras Palavras é feito por muitas mãos. Se você valoriza nossa produção, seja nosso apoiador e fortaleça o jornalismo crítico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/terraeantropoceno/o-saque-verde-da-biodiversidade-brasileira/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

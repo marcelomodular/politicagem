@@ -167,9 +167,9 @@ politicagem/
 ├── update_snapshot_cid.sh    # Script para atualizar metadata com CID após upload
 ├── static_snapshots/         # Diretório para snapshots estáticos gerados
 └── templates/
-    ├── index.html            # Interface estilo jornal com 4 colunas
+    ├── index.html            # Interface estilo jornal em masonry cronológico; matérias expandem in-place
     ├── arquivo.html          # Linha do tempo das edições
-    └── visualizar.html       # Página para visualização completa de artigos
+    └── visualizar.html       # Visualizador avulso (rota /visualizar do app dinâmico)
 ```
 
 ---
@@ -182,7 +182,7 @@ mostra o horário, contagem de despachos e matérias arquivadas, além do CID do
 
 - `/arquivo` — hemeroteca com calendário mensal navegável e linha do tempo
 - `/api/arquivo` — dados completos do arquivo e agrupamento de calendário em JSON
-- `/arquivo/<slug>` e `/arquivo/<slug>/visualizar/...` — navegação completa da edição estática arquivada
+- `/arquivo/<slug>` — navegação da edição estática arquivada (edições novas são autocontidas: todo o conteúdo das matérias vai embutido no `index.html`, sem páginas `visualizar/` separadas)
 
 
 Para registrar o CID de uma edição no acervo:

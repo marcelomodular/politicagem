@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Gerador de snapshots estáticos do Politicagem para IPFS.
-Gera HTML estático com as notícias atuais do RSS e páginas de artigos.
+Gera um único HTML autocontido com as notícias atuais do RSS e o
+conteúdo dos artigos embutido (expansão in-place).
 """
 
 import json
@@ -13,7 +14,7 @@ from urllib.parse import urlencode, unquote_plus, urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from readability import Document
 
 from scraper import get_all_news
@@ -145,6 +146,11 @@ def fetch_public_url(url):
     raise ValueError("Redirecionamentos excessivos.")
 
 
+def _content_has_any_image(content_html):
+    """Verifica se o conteúdo extraído já traz imagens próprias."""
+    return '<img' in (content_html or '')
+
+
 def extract_article_content(url):
     """Extrai o conteúdo de um artigo para versão estática."""
     try:
@@ -192,6 +198,11 @@ def extract_article_content(url):
         if len(safe_content) > 80000:
             safe_content = safe_content[:80000]
 
+        # Se o conteúdo já traz imagens, a imagem de destaque separada
+        # ficaria duplicada visualmente; só exibimos quando não há nenhuma.
+        if image_url and _content_has_any_image(safe_content):
+            image_url = None
+
         plain_text = BeautifulSoup(safe_content, 'html.parser').get_text(separator=' ', strip=True)
         if len(plain_text) < 100:
             return {
@@ -223,7 +234,7 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
     Args:
         output_dir: Diretório de saída (default: static_snapshots/YYYY-MM-DD-HHMMSS)
         limit_per_source: Limite de notícias por fonte RSS
-        extract_articles: Se deve extrair conteúdo dos artigos para páginas estáticas
+        extract_articles: Se deve extrair e embutir o conteúdo dos artigos no index.html
     
     Returns:
         tuple: (caminho_do_snapshot, caminho_do_index_html)
@@ -259,58 +270,54 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
     
     # Configurar Jinja2
     template_dir = Path(__file__).parent / "templates"
-    env = Environment(loader=FileSystemLoader(template_dir))
-    
-    # Criar diretório para páginas de artigos se necessário
+    env = Environment(
+        loader=FileSystemLoader(template_dir),
+        autoescape=select_autoescape(["html"]),
+    )
+
+    # Processar cada notícia para extrair conteúdo (embutido no index.html)
+    extracted_count = 0
+    og_image = None
     if extract_articles:
-        articles_dir = output_dir / "visualizar"
-        articles_dir.mkdir(exist_ok=True)
-        
-        # Mapeamento de links para arquivos estáticos
-        link_to_file = {}
-        
-        # Processar cada notícia para extrair conteúdo
         for i, noticia in enumerate(noticias):
             print(f"Processando artigo {i+1}/{len(noticias)}: {noticia['titulo'][:50]}...")
-            
-            # Extrair conteúdo
+
             article_data = extract_article_content(noticia['link'])
-            
-            # Gerar nome de arquivo seguro
-            safe_filename = f"artigo-{i}.html"
-            article_file_path = articles_dir / safe_filename
-            
-            # Renderizar template de visualização
-            visualizar_template = env.get_template('visualizar.html')
-            
-            # Adaptar template para modo estático
-            html_content = visualizar_template.render(
-                url=noticia['link'],
-                titulo=noticia['titulo'],
-                fonte=noticia['fonte'],
-                static_mode=True,
-                article_data=article_data
-            )
-            
-            # Salvar página do artigo
-            article_file_path.write_text(html_content, encoding='utf-8')
-            
-            # Mapear link original para arquivo estático
-            link_to_file[noticia['link']] = f"visualizar/{safe_filename}"
-            
-            # Adicionar dados extraídos à notícia
-            noticia['static_url'] = f"visualizar/{safe_filename}"
             noticia['extracted_data'] = article_data
-        
-        print(f"[OK] {len(noticias)} artigos processados e salvos em visualizar/")
-    
+            if article_data.get('sucesso'):
+                extracted_count += 1
+                if not og_image:
+                    candidate = article_data.get('imagem')
+                    if not candidate:
+                        first_img = BeautifulSoup(
+                            article_data.get('conteudo') or '', 'html.parser'
+                        ).find('img')
+                        if first_img:
+                            candidate = first_img.get('src')
+                    if candidate:
+                        og_image = candidate
+
+        print(f"[OK] {extracted_count} artigos extraidos e embutidos no index.html")
+
+    # Metadados OpenGraph da edição (título da manchete + trecho do resumo)
+    og_title = None
+    og_description = None
+    if noticias:
+        top = noticias[0]
+        resumo = BeautifulSoup(top.get('resumo') or '', 'html.parser').get_text(' ', strip=True)
+        og_title = f"Politicagem — {top['titulo']}"
+        og_description = resumo[:200] if resumo else f"{len(noticias)} notícias em destaque."
+
     # Renderizar template principal
     template = env.get_template('index.html')
     html_content = template.render(
         noticias=noticias,
         busca='',
         static_mode=True,  # Flag para modo estático
-        extract_articles=extract_articles
+        extract_articles=extract_articles,
+        og_title=og_title,
+        og_description=og_description,
+        og_image=og_image,
     )
     
     # Salvar HTML principal
@@ -322,10 +329,11 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
         "timestamp": datetime.now().isoformat(),
         "news_count": len(noticias),
         "limit_per_source": limit_per_source,
-        "snapshot_version": "2.0",
+        "snapshot_version": "3.0",
         "extract_articles": extract_articles,
-        "articles_generated": len(noticias) if extract_articles else 0,
-        "note": "Para fazer upload para IPFS, use: ipfs add -r <snapshot_dir>",
+        "articles_generated": extracted_count if extract_articles else 0,
+        "self_contained": True,
+        "note": "Snapshot autocontido: todo o conteúdo das matérias está embutido no index.html. Para fazer upload para IPFS, use: ipfs add -r <snapshot_dir>",
         "correct_cid": "Será preenchido após upload para IPFS"
     }
     
@@ -352,8 +360,6 @@ def generate_static_snapshot(output_dir=None, limit_per_source=5, extract_articl
     print(f"[OK] Snapshot gerado em: {output_dir}")
     print(f"{len(noticias)} notícias processadas")
     print(f"Index HTML: {index_path}")
-    if extract_articles:
-        print(f"Artigos estáticos: {articles_dir}")
 
     
     return str(output_dir), str(index_path)

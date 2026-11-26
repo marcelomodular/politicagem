@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>States Are Playing Serious Games on Virtual Battlefields - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">States Are Playing Serious Games on Virtual Battlefields</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Foreign Policy</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://foreignpolicy.com/2026/11/20/grand-theft-auto-power-play-osborn-review-geopolitics-video-games/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://foreignpolicy.com/wp-content/uploads/2026/11/PowerPlay-1-GettyImages-2305163039.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Video Games, Politics, and the Battle for Global Influence' by George E. Osborn
+                            </p>
+                            
+<p>The biggest single media event of the decade took place on Thursday, and most of Washington missed it. <em>Grand Theft Auto VI</em>, the latest installment of the most popular video game series in the world, racked up nearly <a href="https://www.vice.com/en/article/how-many-people-pre-ordered-gta-6/" rel="noopener noreferrer" target="_blank">$1.5 billion</a> in sales even before it launched, already making back what may have been a more-than-a-billion dollar budget. In the next week, total sales are <a href="https://www.wsj.com/business/media/just-how-big-is-grand-theft-auto-vi-the-multibillion-dollar-frenzy-in-charts-7c6a3893" rel="noopener noreferrer" target="_blank">projected</a> to hit over $3 billion. The previous game in the series still makes <a href="https://www.thedailyupside.com/industries/media-entertainment/grand-theft-auto-revs-up-big-revenue/" rel="noopener noreferrer" target="_blank">half a billion dollars</a> a year through its online version alone. (For comparison purposes, Taylor Swift’s Eras tour, the biggest concert tour of all time, took in just over $2 billion, while <em>Avengers: Endgame </em>grossed roughly $2.9 billion.)</p>
+<p>Video games are <a href="https://www.nytimes.com/2026/11/18/arts/grand-theft-auto-vi-review.html" rel="noopener noreferrer" target="_blank">cultural juggernauts</a>, and governments have noticed. As industry consultant George Osborn points out in his new book, <em>Power Play: Video Games, Politics, and the Battle for Global Influence</em>, video gaming, once a solitary activity, has become a largely communal one. Online play creates a “third place” where people, especially the young, can mingle. As Osborn puts it, “what happens in video games communities bleeds out into reality—all the way into our political discourse.”</p> 
+
+
+<p>The biggest single media event of the decade took place on Thursday, and most of Washington missed it. <em>Grand Theft Auto VI</em>, the latest installment of the most popular video game series in the world, racked up nearly <a href="https://www.vice.com/en/article/how-many-people-pre-ordered-gta-6/" rel="noopener noreferrer" target="_blank">$1.5 billion</a> in sales even before it launched, already making back what may have been a more-than-a-billion dollar budget. In the next week, total sales are <a href="https://www.wsj.com/business/media/just-how-big-is-grand-theft-auto-vi-the-multibillion-dollar-frenzy-in-charts-7c6a3893" rel="noopener noreferrer" target="_blank">projected</a> to hit over $3 billion. The previous game in the series still makes <a href="https://www.thedailyupside.com/industries/media-entertainment/grand-theft-auto-revs-up-big-revenue/" rel="noopener noreferrer" target="_blank">half a billion dollars</a> a year through its online version alone. (For comparison purposes, Taylor Swift’s Eras tour, the biggest concert tour of all time, took in just over $2 billion, while <em>Avengers: Endgame </em>grossed roughly $2.9 billion.)</p>
+<a href="https://www.amazon.com/dp/B0FLNBYBYB?plpRedirect=mhFallback&amp;ref=clp_hp_h_pc" rel="noopener noreferrer" target="_blank"> 
+<img alt="Power Play: Video Games, Politics, and the Battle for Global Influence, George E. Osborn, Prometheus, 376 pp., July 2026, .95" src="https://foreignpolicy.com/wp-content/uploads/2026/11/Power-play-george-osborn.jpg?w=800"/>
+
+Power Play: Video Games, Politics, and the Battle for Global Influence, George E. Osborn, Prometheus, 376 pp., July 2026, .95
+</a><p><a href="https://www.amazon.com/dp/B0FLNBYBYB?plpRedirect=mhFallback&amp;ref=clp_hp_h_pc" rel="noopener noreferrer" target="_blank"><em><strong>Power Play: Video Games, Politics, and the Battle for Global Influence</strong></em></a>, George E. Osborn, Prometheus, 376 pp., July 2026, $34.95 </p>
+
+<p>Video games are <a href="https://www.nytimes.com/2026/11/18/arts/grand-theft-auto-vi-review.html" rel="noopener noreferrer" target="_blank">cultural juggernauts</a>, and governments have noticed. As industry consultant George Osborn points out in his new book, <em>Power Play: Video Games, Politics, and the Battle for Global Influence</em>, video gaming, once a solitary activity, has become a largely communal one. Online play creates a “third place” where people, especially the young, can mingle. As Osborn puts it, “what happens in video games communities bleeds out into reality—all the way into our political discourse.”</p>
+<p>Under Crown Prince Mohammed bin Salman, for instance, Saudi Arabia has become a major force in video games, mostly through the power of capital. The prince, himself a keen gamer, is trying to encourage the creation of a <a href="https://www.wsj.com/world/middle-east/saudi-arabia-once-banned-videogames-now-it-wants-to-export-them-ec61f7e1" rel="noopener noreferrer" target="_blank">domestic industry</a>. He’s had little success so far, but Saudi money has succeeded in buying up existing companies, such as the <a href="https://www.theguardian.com/games/2026/aug/05/video-game-maker-ea-bought-by-saudi-led-group" rel="noopener noreferrer" target="_blank">giant Electronic Arts</a> for $55 billion and the company that <a href="https://www.bbc.com/news/articles/cz61yxv6evjo" rel="noopener noreferrer" target="_blank">created Pokémon Go</a> for $3.5 billion.</p>
+<p>Mohammed bin Salman wants to make money. But, as Osborn points out, he also wants to get gullible or greedy Westerners to help whitewash his corrupt, misogynistic autocracy. Buying gaming companies may be a more expensive route than donating to D.C. think tanks, but also perhaps a more effective one. Some industry insiders have already flagged worries about Saudi <a href="https://www.thegamer.com/mass-effect-lgbtq-pride-flag-removed-ea/" rel="noopener noreferrer" target="_blank">censorship</a> in their games.</p>
+ 
+<img alt="An architectural rendering depicts massive, geometric, futuristic metallic structures towering over an elevated green park with walking paths, trees, and people, overlooking a desert coastline and sea." src="https://foreignpolicy.com/wp-content/uploads/2026/11/Power-Play-2-220727085238-10-saudi-arabia-the-line-neom.png?w=800"/>
+
+An architectural rendering depicts massive, geometric, futuristic metallic structures towering over an elevated green park with walking paths, trees, and people, overlooking a desert coastline and sea.
+<p>An artist rendering of “The Line” in an undated image. NEOM </p>
+<p>But if the Saudi government is shaping video games, the influence is going the other way as well. Consider some of the crown prince’s grandiose projects. His plan for The Line, a 106-mile-long and 650-foot-wide city, appeared to be inspired by the futuristic cities that appear in games like <em>Cyberpunk 2077 </em>and <em>Deus Ex</em>. The difference, of course, was that in reality The Line project was suspended after only 1.5 miles of foundation were dug.</p>
+<p>That feedback loop between gaming and reality is also evident when looking at another of Osborn’s case studies, Russia. Especially since the invasion of Ukraine in 2022, Russian studios have churned out propaganda games such as <em>Squad 22: ZOV</em>, which Osborn describes as an “objectively bad video game” but also a hub for anti-Ukrainian memes and a gathering place for ultranationalists.</p>
+<p>The fantasies of Russian games hook back into wider influence efforts. With the help of influencers such as <a href="https://www.pcgamer.com/bizarre-propaganda-stunt-sees-teenager-stream-russia-vs-nato-grand-strategy-game-from-notorious-mercenary-groups-hq/" rel="noopener noreferrer" target="_blank">streamer GrishaPutin</a>, these games aim to boost morale and recruitment while also luring in foreign fighters, roughly 11,000 of whom <a href="https://www.bloomberg.com/news/articles/2026-11-11/over-11-000-foreign-military-deaths-recorded-by-russia-in-war-on-ukraine" rel="noopener noreferrer" target="_blank">have died fighting</a> on the Russian side. Australian <a href="https://www.abc.net.au/news/2026-11-10/australian-daryl-fladung-feared-dead-fighting-for-russia/107365110" rel="noopener noreferrer" target="_blank">Daryl Fladung</a> has been missing, believed dead, for several months after being recruited to come and fight for Russia (and post propaganda videos) through online war games. His last videos show him terrified and in pain.</p>
+ 
+<img alt='Three smiling men pose together indoors in front of a beige tiled wall with a green sign reading "Customs Control Zone" in Russian and English. The man on the left wears a camouflage cap and olive jacket, the man in the center wears a beige jacket and makes a peace sign, and the man on the right wears a wide-brimmed hat, a yellow banana-patterned shirt, and a large backpack.' src="https://foreignpolicy.com/wp-content/uploads/2026/11/PowerPlay-3-DarylFladung-eb78eb9a7444d870eb992917ef3df502.png?w=800"/>
+
+Three smiling men pose together indoors in front of a beige tiled wall with a green sign reading "Customs Control Zone" in Russian and English. The man on the left wears a camouflage cap and olive jacket, the man in the center wears a beige jacket and makes a peace sign, and the man on the right wears a wide-brimmed hat, a yellow banana-patterned shirt, and a large backpack.
+<p>Australian Daryl Fladung (right) and two fellow Russia-supporting British nationals on arrival in Moscow in an undated photo. Telegram: Ben Stimson </p>
+<p>Russia’s reactionary politics are also attractive to some gamers. The gender split in gaming is <a href="https://www.gamesindustry.biz/esa-48-of-video-game-players-are-women" rel="noopener noreferrer" target="_blank">roughly equal</a> nowadays but the third place of popular games has a habit of becoming dominated by the loudest young men. It’s not uncommon for female players to conceal their gender, or even use a voice changer, to avoid harassment.</p>
+<p>That too has bled back into politics. Video game writers are generally liberal progressives, and there was a big push toward broadening representation in games in the 2010s, with female protagonists and people of color becoming more normalized. This was welcomed by many gamers but prompted a reactionary fury from others. The movement that resulted was Gamergate, which became part of the far-right’s attempt to woo younger male voters, with the encouragement of <a href="https://www.cnn.com/2025/03/23/us/gamergate-harassment-reddit-twitter-cec" rel="noopener noreferrer" target="_blank">Steve Bannon</a>. While it may have helped tip elections toward Donald Trump, it failed to produce any good games of its own.</p>
+<p>Despite being the biggest video game market in the world, compared to Moscow, Beijing is far more reluctant to throw its weight around in gaming propaganda overseas. That’s in part because of a puritan communist dislike of any form of fun, leading to repeated crackdowns on minors playing games online and long delays before new games are officially approved.</p>
+<p>Censorship at home is massive but, as Osborn notes, “Chinese games businesses invested billions of dollars in games businesses across the world to soften the blows landing on them from the CCP.” (pg. 151). Apart from some policing around Hong Kong and Taiwanese representation in games, those investments have mostly remained business-focused rather than trying to impose political limits. As with much else, China’s focus has been domestic control first, and foreign influence second.</p>
+ 
+<img alt="A wide-angle shot of a darkened indoor arena shows a glowing stage below a massive suspended four-sided screen displaying live video game gameplay and a trophy graphic." src="https://foreignpolicy.com/wp-content/uploads/2026/11/PowerPlay-4-HonorofKings.png?w=800"/>
+
+A wide-angle shot of a darkened indoor arena shows a glowing stage below a massive suspended four-sided screen displaying live video game gameplay and a trophy graphic.
+<p>The <em>Honor of Kings</em> International Championship in Shenzhen, China, on Dec. 3, 2022. <em>Honor of Kings</em>, a multiplayer online battle arena game, is operated by Tencent, China’s largest video game publisher.Honor of Kings/Tencent </p>
+<p>But perhaps gaming’s biggest global influence lies in its role driving the AI industry, a story Osborn doesn’t cover in depth because much of it is so recent. Gaming depends on video cards, which are built with the high-end chips that also fuel the AI revolution. In fiscal year 2018, for instance, Nvidia made roughly <a href="https://www.midgardfinance.com/research/nvidia/" rel="noopener noreferrer" target="_blank">57 percent</a> of its income from gaming. Last year, that figure was 7 percent, with roughly 90 percent coming from AI data centers.</p>
+<p>Osborn highlights the role gaming played in driving forward the innovation needed for newer and better technology, especially in chip design. But the shift of the industry toward AI has left gamers deeply angry at Nvidia, a company they once adored. (As a result, some of the best investigative reporting on Jensen Huang’s fall and Nvidia’s role in evading U.S. sanctions on China has come out of the <a href="https://www.youtube.com/watch?v=YYU_geUwQoA" rel="noopener noreferrer" target="_blank">games media</a>.) Gaming hardware used to be getting cheaper and cheaper; the same setup would be half the price two years later. Thanks to the AI race, the reverse is now true. The gaming PC I bought for $1,600 the week Trump was elected for a second time, anticipating tariff rises, now retails at $2,600. It might seem a little silly to care deeply about your toys getting more expensive. But the contestation between gamers and AI companies is a microcosm of a wider issue: Who controls technological power?</p>
+ 
+<img alt='A split-screen video game comparison image separated by a vertical green line shows a blonde woman in a brown leather jacket standing on a rainy city street. The left side is labeled "DLSS 5 Off" and the right side, showing sharper textures and lighting, is labeled "DLSS 5 On" with a "Resident Evil Requiem" logo in the upper right corner.' src="https://foreignpolicy.com/wp-content/uploads/2026/11/PowerPlay-nvidia-dlss-5.png?w=800"/>
+
+A split-screen video game comparison image separated by a vertical green line shows a blonde woman in a brown leather jacket standing on a rainy city street. The left side is labeled "DLSS 5 Off" and the right side, showing sharper textures and lighting, is labeled "DLSS 5 On" with a "Resident Evil Requiem" logo in the upper right corner.
+<p>Screen captures of the survival horror game <em>Resident Evil Requiem</em>, released in February, showing Nvidia’s new graphics rendering model DLSS 5. It uses AI to infuse pixels with photorealistic lighting and materials. NVIDIA </p>
+<p>Personal computers have been the domain of tinkerers and inventors since they were first introduced at home. Now Sam Altman has put forward, then <a href="https://www.theverge.com/ai-artificial-intelligence/1034787/sam-altman-ram-shortage-semafor" rel="noopener noreferrer" target="_blank">rapidly retracted</a>, the idea that having RAM sitting in your own PC is “terrible” because it should be used by mega-corporations instead. In this context, the growing revolt against AI in video games—with players boycotting games that use AI art, AI writing, or even AI code—feels like part of something bigger.</p>
+<p>Osborn’s final chapters are dedicated to promoting games that educate citizens and support the fight for democracy worldwide, from <a href="https://foreignpolicy.com/2024/11/29/s-t-a-l-k-e-r-2-ukrainewar-russia-bugs-chornobyl/" rel="noopener noreferrer" target="_blank">pro-Ukrainian stories</a> to “green game jams” to promote climate awareness. But as long as the industry, and the technology that powers it, is in the hands of autocrats and tech tycoons, these aren’t the games we’ll be playing.</p>
+<p></p>
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://foreignpolicy.com/2026/11/20/grand-theft-auto-power-play-osborn-review-geopolitics-video-games/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

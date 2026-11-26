@@ -120,6 +120,11 @@ def sanitize_article_html(content_html, base_url):
     return str(soup)
 
 
+def _content_has_any_image(content_html):
+    """Verifica se o conteúdo extraído já traz imagens próprias."""
+    return '<img' in (content_html or '')
+
+
 def fetch_public_url(url):
     current_url = url
     headers = {"User-Agent": USER_AGENT}
@@ -168,11 +173,21 @@ def index():
         noticias.pop(headline_index)
         noticias.insert(0, headline)
 
+    og_title = None
+    og_description = None
+    if noticias:
+        top = noticias[0]
+        resumo = BeautifulSoup(top.get('resumo') or '', 'html.parser').get_text(' ', strip=True)
+        og_title = f"Politicagem — {top['titulo']}"
+        og_description = resumo[:200] if resumo else f"{len(noticias)} notícias em destaque."
+
     return render_template(
         'index.html',
         noticias=noticias,
         busca=busca,
         arquivo=list_snapshots(),
+        og_title=og_title,
+        og_description=og_description,
     )
 
 
@@ -298,6 +313,11 @@ def extrair_conteudo():
         safe_content = sanitize_article_html(content_html, base_url=final_url)
         if len(safe_content) > 80000:
             safe_content = safe_content[:80000]
+
+        # Se o conteúdo já traz imagens, a imagem de destaque separada
+        # ficaria duplicada visualmente; só exibimos quando não há nenhuma.
+        if image_url and _content_has_any_image(safe_content):
+            image_url = None
 
         plain_text = BeautifulSoup(safe_content, 'html.parser').get_text(separator=' ', strip=True)
         if len(plain_text) < 100:

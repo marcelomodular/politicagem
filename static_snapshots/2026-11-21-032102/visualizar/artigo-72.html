@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A universidade na era do conhecimento aberto - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">A universidade na era do conhecimento aberto</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Outras Palavras</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://outraspalavras.net/alemdamercadoria/a-universidade-na-era-do-conhecimento-aberto/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/CAPA-2.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: A universidade na era do conhecimento aberto
+                            </p>
+                            
+<img alt="" src="https://outraspalavras.nyc3.cdn.digitaloceanspaces.com/media/2026/11/Screenshot-2026-11-19-at-18-00-10-250.avif-imagem-AVIF-768-%C3%97-768-pixels-Redimensionada-77.png"/>Arte:  Christian Gralingen / 3×3 Magazine
+
+
+
+
+
+
+<h4>Boletim Outras Palavras</h4>
+<p>Receba por email, diariamente, todas as publicaÃ§Ãµes do site</p>
+
+
+
+
+<h4>Agradecemos!</h4>
+<p>VocÃª jÃ¡ estÃ¡ inscrito e comeÃ§arÃ¡ a receber os boletins em breve. Boa leitura!</p>
+
+
+
+
+
+<img alt="." src="https://track.mailerlite.com/webforms/o/5648451/z3h6l4?v1693074564"/>
+<p>Por <strong>Ladislau Dowbor</strong>, no <a href="https://www.meer.com/en/112184-the-university-in-the-age-of-open-knowledge" rel="noopener noreferrer" target="_blank"><em>Meer</em></a> | TraduÃ§Ã£o: <strong>RÃ´ney Rodrigues</strong></p>
+<p>Boa parte do conhecimento acumulado no mundo estÃ¡ hoje disponÃ­vel online, a poucos cliques de distÃ¢ncia. Isso transforma profundamente o nosso ambiente cientÃ­fico e o papel das universidades.</p>
+<p>As universidades podem ampliar radicalmente seu papel na construÃ§Ã£o de um enriquecimento cientÃ­fico para a sociedade como um todo, indo muito alÃ©m de ajudar indivÃ­duos a ascender socialmente por meio de diplomas. Todos nÃ³s estamos tentando nos adaptar e explorar o potencial das novas tecnologias, em particular da IA, o que representa um aprendizado em serviÃ§o para as prÃ³prias instituiÃ§Ãµes que as promovem.</p>
+<p>A revoluÃ§Ã£o digital Ã© uma revoluÃ§Ã£o na criaÃ§Ã£o e na disseminaÃ§Ã£o do conhecimento como um todo. Ela deixou de ser, em grande medida, uma questÃ£o de transmitir conteÃºdo e passou a ser, sobretudo, uma questÃ£o de ensinar (e aprender) a navegar em alto-mar, em meio ao acesso online instantÃ¢neo e global. O mundo imaterial do conhecimento mudou, e o conhecimento Ã© a matÃ©ria-prima com que as universidades trabalham. Tenho 85 anos e mais de 50 de experiÃªncia docente, e preciso de ajuda tanto quanto meus alunos. Mas, acima de tudo, acredito que, como instituiÃ§Ãµes, podemos aprender uns com os outros em um ambiente colaborativo e em rede. De certo modo, trata-se de usar as novas tecnologias para aprender, de forma criativa, a usÃ¡-las. Temos um desafio em comum.</p>
+<p>A adaptaÃ§Ã£o da universidade ao novo contexto tecnolÃ³gico, econÃ´mico, polÃ­tico, social e cultural precisa ser dimensionada de forma concreta, ou seja, em termos do que essas mudanÃ§as representam nas vÃ¡rias Ã¡reas em que atuamos. O mundo do conhecimento mudou, mas continuamos muito presos Ã s rotinas do passado. Resgatar a missÃ£o mais ampla da universidade implica mudanÃ§as concretas na atividade dos professores, nos currÃ­culos, nas polÃ­ticas de gestÃ£o, na organizaÃ§Ã£o dos intercÃ¢mbios, no conceito de biblioteca universitÃ¡ria, na organizaÃ§Ã£o das publicaÃ§Ãµes e nas relaÃ§Ãµes com as diferentes comunidades. Vivemos tambÃ©m em uma sociedade em rede, em que o conhecimento pode se espalhar instantaneamente pelo mundo com um clique. Com o conhecimento se tornando o principal fator de produÃ§Ã£o da economia, reorganizar a forma como trabalhamos tornou-se um desafio sistÃªmico fundamental. As universidades tÃªm um papel ainda mais importante a desempenhar, mas em um novo contexto.</p>
+<p>O conhecimento, disponÃ­vel online, com conectividade global e acesso inteligente, pode se tornar um enorme fator de enriquecimento social. Os custos de transmissÃ£o sÃ£o extremamente baixos: Ã© a Sociedade de Custo Marginal Zero, como a chama Jeremy Rifkin. Proponho que nÃ³s, universidades, professores e pesquisadores, ampliemos nosso papel como comunicadores, levando a ciÃªncia a todos de maneira muito mais dinÃ¢mica. As tecnologias correm velozes, mas nossas torres de marfim permanecem de pÃ©, poderosas e imÃ³veis. Pior: grupos comerciais voltados Ã  maximizaÃ§Ã£o do lucro estÃ£o construindo uma indÃºstria de diplomas, enquanto editoras cientÃ­ficas aristocrÃ¡ticas, de elite, enriquecem com publicaÃ§Ãµes ârevisadas por pares em dobroâ para uns poucos privilegiados. Ã hora de refletir sobre como esses enormes avanÃ§os tecnolÃ³gicos podem tornar a ciÃªncia acessÃ­vel, com um alcance muito mais amplo. Como as universidades estÃ£o enfrentando a revoluÃ§Ã£o digital?</p>
+<p>A discussÃ£o e a pesquisa a serem desenvolvidas consistem justamente em identificar e comunicar as possÃ­veis linhas de mudanÃ§a, os atrasos mais constrangedores e os Ãªxitos jÃ¡ alcanÃ§ados em diferentes instituiÃ§Ãµes. Em certa medida, trata-se do estado da arte das transformaÃ§Ãµes em curso, dos obstÃ¡culos e das oportunidades. Trata-se de identificar as transformaÃ§Ãµes mais significativas, entendendo que estamos diante de um ambiente em mudanÃ§a permanente, e nÃ£o de uma simples situaÃ§Ã£o nova. HÃ¡ pouca dÃºvida de que as novas tecnologias, a conectividade planetÃ¡ria e a centralidade geral do conhecimento abrem oportunidades que ainda sÃ£o, em grande parte, subutilizadas. Os pontos a seguir, em ordem aleatÃ³ria, podem ajudar a orientar a discussÃ£o e a pesquisa. Mais do que soluÃ§Ãµes imediatas, sÃ£o Ã¡reas que poderÃ­amos explorar.</p>
+<p>Uma delas Ã© aprendermos uns com os outros, buscando exemplos de como diferentes universidades, no Brasil e no mundo, estÃ£o se adaptando aos novos desafios. RÃ³tulos como âsistema hÃ­bridoâ, que apenas sugerem possÃ­veis combinaÃ§Ãµes de atividades online e presenciais, sÃ£o claramente insuficientes. Ã preciso, antes, identificar experiÃªncias que vÃ£o alÃ©m do ensino a distÃ¢ncia ou do <em>e-learning</em> e gerar uma tipologia das mudanÃ§as adotadas. E, certamente, muito alÃ©m dos experimentos de IA sem professores, a 40 mil dÃ³lares por ano, realizados no Texas. Fazer uma avaliaÃ§Ã£o preliminar dos resultados, Ã  luz das questÃµes sociais relevantes, serÃ¡ certamente Ãºtil. Isso pressupÃµe uma rede de colaboraÃ§Ã£o entre universidades.</p>
+<p>Precisamos superar a expansÃ£o do modelo mercantil que transforma o conhecimento em mercadoria, acessÃ­vel apenas por meio de intermediÃ¡rios e de seus pedÃ¡gios. Na Ã¡rea do conhecimento, a colaboraÃ§Ã£o Ã© muito mais produtiva do que a competiÃ§Ã£o. <em>Understanding Knowledge as a Commons</em> (2006), organizado por Elinor Ostrom e Charlotte Hess, Ã© um bom ponto de partida. Alguns dos pressupostos bÃ¡sicos da OrganizaÃ§Ã£o Mundial da Propriedade Intelectual (OMPI/WIPO) podem ser colocados em discussÃ£o. De certa forma, as universidades devem reorientar a prÃ³pria pesquisa sobre universidades e reconsiderar as bases legais do acesso ao conhecimento. A atual selva de direitos autorais e patentes Ã© uma bagunÃ§a: encarece o acesso e gera rentismo, em vez de promover o progresso e a criatividade.</p>
+<p>Na mesma linha, tambÃ©m Ã© preciso repensar a publicaÃ§Ã£o e a comunicaÃ§Ã£o cientÃ­ficas. Na pesquisa, o universo das publicaÃ§Ãµes indexadas, em particular a indÃºstria dos periÃ³dicos de referÃªncia, hoje um oligopÃ³lio que gera lucros da ordem de 25 bilhÃµes de dÃ³lares por ano para grupos como a Elsevier, tornou-se um oligopÃ³lio prÃ©-histÃ³rico. Como podemos aproveitar melhor a facilidade de acesso e de comunicaÃ§Ã£o? O que podemos aprender com o que vem sendo feito pelas inÃºmeras instituiÃ§Ãµes que promovem o Acesso Aberto, o Creative Commons, a PLOS ONE, o arXiv, o OCW (OpenCourseWare), o China Open Resources for Education e iniciativas semelhantes? Precisamos nos inserir na busca de novos rumos, que estÃ£o se tornando globais. Afinal, o conhecimento Ã© global, imaterial e pode ser acessado instantaneamente. Ele se multiplica pela colaboraÃ§Ã£o aberta.</p>
+<p>Devemos tambÃ©m repensar o universo do que hoje chamamos de estudantes. A facilidade do acesso online permite ter alunos de qualquer lugar do Brasil e do mundo. AlÃ©m disso, com o ritmo atual das transformaÃ§Ãµes tecnolÃ³gicas, econÃ´micas e sociais, podemos enxergar o estudante como um colaborador permanente, que retorna sucessivamente Ã  universidade em diversos momentos da vida profissional. Essa orientaÃ§Ã£o vai alÃ©m da noÃ§Ã£o de âegressosâ e busca identificar espaÃ§os para a âeducaÃ§Ã£o ao longo da vidaâ, tanto em termos de demanda potencial quanto de formas internas de organizaÃ§Ã£o.</p>
+<p>Devemos pesquisar os projetos inovadores que jÃ¡ vÃªm sendo desenvolvidos por grupos ou indivÃ­duos que buscam vÃ­nculos profissionais mais diversificados, livres e autÃ´nomos. Para alÃ©m das festas comemorativas com ex-alunos, Ã© preciso considerar o potencial de uma rede de contatos com eles, jÃ¡ que atuam em instituiÃ§Ãµes muito diversas e podem trazer perspectivas, por exemplo, sobre a distÃ¢ncia entre o que estudaram e o que encontraram na vida profissional. A universidade como uma organizaÃ§Ã£o que aprende por si mesma.</p>
+<p>NÃ£o deverÃ­amos repensar a maneira como nos organizamos enquanto professores? Numerosas universidades ensinam a ergonomia do trabalho intelectual, formas de organizar o conhecimento acumulado e de gerar e disponibilizar um acervo de saberes que permita superar o uso prÃ©-histÃ³rico de cÃ³pias xerox de capÃ­tulos. O universo do professor universitÃ¡rio estÃ¡ mudando, mas a cultura herdada Ã© rÃ­gida. Como estÃ¡ sendo organizado o apoio Ã s transformaÃ§Ãµes necessÃ¡rias? Na minha universidade, temos discussÃµes tÃ©cnicas sobre como lidar com a IA e, de modo mais geral, com as mudanÃ§as na forma de enfrentar o dilÃºvio de informaÃ§Ã£o. O interessante desse ambiente Ã© que todos estamos aprendendo nessa Ã¡rea, professores e alunos igualmente. De certa forma, ainda estamos acendendo as luzes. A tecnologia evolui muito mais rÃ¡pido do que a mudanÃ§a institucional.</p>
+<p>Os centros de apoio tecnolÃ³gico das universidades passaram a desempenhar um papel central. Nosso material de trabalho Ã© a informaÃ§Ã£o, e Ã© justamente aÃ­ que as novas tecnologias estÃ£o mudando mais profundamente as coisas. Os tÃ©cnicos de apoio que contratamos vÃªm, com frequÃªncia, de Ã¡reas comerciais, com foco em automaÃ§Ã£o, simplificaÃ§Ã£o e robotizaÃ§Ã£o, quando o que precisamos nas universidades Ã© diferente. A tecnologia deve contribuir para enriquecer nossas escolhas, e nÃ£o para simplificar a realidade. As prÃ³prias equipes de suporte tecnolÃ³gico das nossas universidades precisam ser requalificadas. As inovaÃ§Ãµes nessa Ã¡rea devem ser compartilhadas entre as universidades, simplesmente porque isso Ã© sistemicamente mais produtivo. Uma nova cultura digital precisa ser apropriada pela universidade, simplificando e facilitando, em vez de burocratizar. Como as universidades do Brasil e do mundo estÃ£o enfrentando essa transiÃ§Ã£o?</p>
+<p>Como repensar o conceito de biblioteca universitÃ¡ria? Bibliotecas do mundo inteiro estÃ£o migrando acervos gigantescos para o formato digital, com destaque para a BibliothÃ¨que Nationale de France. Ã um serviÃ§o pÃºblico gratuito que, simplesmente, funciona melhor. O que temos diante de nÃ³s nÃ£o Ã© uma alternativa rÃ­gida entre os livros tradicionais, que posso ler no papel, e as versÃµes online. Publico meus livros no formato tradicional, mas tambÃ©m os disponibilizo online, em acesso livre sob licenÃ§a Creative Commons, no meu site. Os usos sÃ£o complementares: os pesquisadores precisam percorrer inÃºmeras publicaÃ§Ãµes online, confrontando tantos pontos de vista sobre assuntos diversos; farÃ£o isso online, e nÃ£o comprando cada livro ou artigo. Precisamos de muito mais liberdade para circular pelo conhecimento, se quisermos uma ciÃªncia de ponta. Cada um de nÃ³s constrÃ³i ideias sobre as ideias dos outros; a colaboraÃ§Ã£o Ã© central. O potencial de trabalho em rede Ã© amplo e subutilizado. Sistemas de pedÃ¡gio sobre o conhecimento geram fortunas, nÃ£o progresso.</p>
+<p>Na prÃ¡tica, um professor nÃ£o recomendarÃ¡ que os alunos comprem todos os livros que comenta em suas aulas. Os professores do ensino mÃ©dio enfrentam desafios semelhantes. Meus livros estÃ£o disponÃ­veis gratuitamente online, mas as versÃµes impressas continuam vendendo: sÃ£o usos e formatos complementares. O funcionamento da biblioteca universitÃ¡ria faz parte dessa transformaÃ§Ã£o planetÃ¡ria, mas ela tambÃ©m deve ajudar a organizar os diferentes subsistemas de acesso e a forma como os professores trabalham com seus alunos, o que lhe permitiria acompanhar as inovaÃ§Ãµes e pesquisas emergentes no mundo.</p>
+<p>Lawrence Lessig, em <em>The Future of Ideas: The Fate of the Commons in a Connected World</em> (2004), continua muito Ãºtil, mas a IA trouxe uma nova revoluÃ§Ã£o. Estudos recentes, como <em>This Is for Everyone: The Unfinished Story of the World Wide Web</em> (2025), de Tim Berners-Lee, sÃ£o particularmente ricos ao mostrar como evolui a luta pelo livre fluxo de informaÃ§Ã£o, enquanto Mustafa Suleyman, em <em>The Coming Wave: AI, Power and Our Future</em> (2025), revela a profundidade das transformaÃ§Ãµes tecnolÃ³gicas e culturais em curso. Ã essa mudanÃ§a profunda no mundo do conhecimento que nos leva a repensar o papel das universidades em um sentido mais amplo. O prÃ³prio conceito de acessibilidade ao conhecimento precisa ser reconsiderado.</p>
+<p>Nessa linha, sugiro que nÃ³s, universidades, criemos um ambiente de discussÃ£o sobre as questÃµes-chave, entre as quais:</p>
+<ul>
+<li>Repensar o conceito de extensÃ£o, na medida em que a disponibilidade de conhecimento online pode ser generalizada, envolvendo capacitaÃ§Ã£o, mas tambÃ©m apoio cientÃ­fico em torno de problemas locais. As periferias sociais mais pobres dificilmente chegam Ã  universidade, mas, com sistemas online, Ã© possÃ­vel conceber formas de a universidade chegar Ã s comunidades de maneira muito mais ampla e com uma visÃ£o interativa. Podemos democratizar radicalmente o acesso ao conhecimento. A ciÃªncia que construÃ­mos pode gerar importantes efeitos multiplicadores para a sociedade como um todo, em vez de ser apropriada comercialmente por corporaÃ§Ãµes de alta tecnologia.<br/></li>
+<li>Articular o conceito de Ã¡reas cientÃ­ficas e disciplinas para a geraÃ§Ã£o de pesquisas interdisciplinares integradas sobre problemas-chave, que exigem uma compreensÃ£o sistÃªmica dos principais desafios. OrganizaÃ§Ã£o urbana, desafios sociais e ambientais, desigualdade, questÃµes de economia social, futuro do trabalho e muitos outros temas podem constituir linhas de pesquisa capazes de gerar um conhecimento mais rico e tambÃ©m maior sinergia entre as vÃ¡rias Ã¡reas. Sou economista, o que significa que preciso compreender muitas questÃµes alÃ©m da economia.<br/></li>
+<li>Repensar a articulaÃ§Ã£o entre professores, estudantes e gestÃ£o universitÃ¡ria, uma vez que o acompanhamento das atividades online pode ocorrer de maneiras mais inteligentes e menos burocrÃ¡ticas ou, ao contrÃ¡rio, pode prender os diversos agentes do universo universitÃ¡rio em uma rigidez administrativa esterilizante. O prÃ³prio conceito de monitoramento da produtividade e dos resultados precisa ser repensado no contexto das novas tecnologias e das novas formas de trabalho. Democratizar a gestÃ£o universitÃ¡ria pode gerar interaÃ§Ãµes ricas e saudavelmente caÃ³ticas.<br/></li>
+<li>Devemos estudar o potencial que o universo do conhecimento compartilhado abre para a colaboraÃ§Ã£o e o apoio das universidades aos nÃ­veis inferiores de ensino, como as escolas de ensino mÃ©dio. Parcerias e organizaÃ§Ã£o em rede podem assegurar um enriquecimento cientÃ­fico do territÃ³rio como um todo, gerando um ambiente colaborativo para todos os profissionais de ensino, pesquisa e extensÃ£o. Nesse ambiente de revoluÃ§Ã£o digital, com a facilidade de conectividade e de trabalho em rede, o universo da educaÃ§Ã£o pode se tornar muito mais interativo.<br/></li>
+<li>Definir linhas prioritÃ¡rias de cooperaÃ§Ã£o interuniversitÃ¡ria, por exemplo com paÃ­ses vizinhos, que frequentemente enfrentam desafios semelhantes, ou com os paÃ­ses de lÃ­ngua portuguesa (PALOP), em particular Angola e MoÃ§ambique, buscando o enriquecimento recÃ­proco e assegurando a capilaridade dos acordos interinstitucionais, de modo que se transformem em projetos conjuntos concretos entre professores e faculdades. A AmÃ©rica Latina Ã© um universo privilegiado para o trabalho colaborativo em rede. Com a conectividade online, a dimensÃ£o internacional do ensino e da pesquisa pode ser amplamente expandida, e a criaÃ§Ã£o de currÃ­culos transnacionais promovidos entre universidades latino-americanas pode servir de inspiraÃ§Ã£o. Com as atuais capacidades de traduÃ§Ã£o instantÃ¢nea, atÃ© mesmo a questÃ£o das diferenÃ§as de idioma tornou-se mais fÃ¡cil de superar.<br/></li>
+<li>Devemos ampliar a pesquisa sobre como evoluem a polÃ­tica salarial e as formas de contrataÃ§Ã£o nas instituiÃ§Ãµes universitÃ¡rias do Brasil e do mundo. Hoje, o uso de aulas gravadas e difundidas online em muitas unidades de ensino, no contexto da privatizaÃ§Ã£o acelerada do sistema educacional, centrada em resultados financeiros, estÃ¡ alterando as relaÃ§Ãµes de trabalho e fragilizando-as no setor como um todo. Ã necessÃ¡ria a articulaÃ§Ã£o em rede das associaÃ§Ãµes de professores sobre o tema.<br/></li>
+<li>Devemos estudar os impactos da internacionalizaÃ§Ã£o do sistema educacional, em particular no nÃ­vel universitÃ¡rio, com grandes empresas listadas em bolsa e a padronizaÃ§Ã£o dos programas: na era do conhecimento, controlar o sistema de sua produÃ§Ã£o e disseminaÃ§Ã£o representa um grande negÃ³cio, que vai do endividamento estudantil ao mercado de publicaÃ§Ãµes acadÃªmicas, passando pela oferta de serviÃ§os administrativos compartilhados e por uma padronizaÃ§Ã£o que busca ganhos de escala. Esses estudos tÃªm a perspectiva de realinhar as universidades com sua missÃ£o original, âuniversalâ. A estrutura corporativa global de maximizaÃ§Ã£o de lucros, com um controle absurdo de direitos autorais e proprietÃ¡rios ausentes pressionando por mais dividendos, estÃ¡ em profunda contradiÃ§Ã£o com a nossa missÃ£o. Como isso estÃ¡ evoluindo? O controle da educaÃ§Ã£o pode se tornar uma enorme mina de ouro para as corporaÃ§Ãµes.<br/></li>
+<li>A visÃ£o de uma educaÃ§Ã£o pÃºblica, gratuita e universal representa um ideal que precisa nÃ£o apenas ser defendido, mas tambÃ©m estudado a fundo, assegurando-se o estudo comparado das formas de organizaÃ§Ã£o na FinlÃ¢ndia, na China, no CanadÃ¡ e em outros paÃ­ses que assumiram que a educaÃ§Ã£o, em sentido amplo, constitui um investimento fundamental na era do conhecimento, e nÃ£o uma âdespesaâ a ser controlada, muito menos um privilÃ©gio que reproduz elites e desigualdade. Esta Ã© uma Ã¡rea em que precisamos da contribuiÃ§Ã£o da UNESCO, pois as mudanÃ§as e as ameaÃ§as sÃ£o globais.</li>
+</ul>
+<p><br/>A visÃ£o que sustenta essas sugestÃµes consiste, em particular, em organizar informaÃ§Ãµes sobre como as instituiÃ§Ãµes estÃ£o inovando no Brasil e no mundo, como as tecnologias inovadoras estÃ£o sendo aproveitadas e qual Ã© o impacto da centralidade do conhecimento sobre o progresso econÃ´mico e social, bem como o imenso potencial da conectividade e do acesso aberto universal. Trata-se de enriquecer a discussÃ£o sobre as transformaÃ§Ãµes de nossas instituiÃ§Ãµes no universo cientÃ­fico em mudanÃ§a que enfrentamos. Pensar o nosso futuro como universidade deve fazer parte do nosso trabalho como educadores, e os resultados podem irradiar-se para um conjunto de instituiÃ§Ãµes que buscam novos rumos. NÃ£o haverÃ¡ uma nova âsituaÃ§Ã£oâ, mas um processo de mudanÃ§a sobre o qual devemos construir.</p>
+<p>AlÃ©m da necessÃ¡ria reorganizaÃ§Ã£o do sentido do conhecimento e de sua produÃ§Ã£o e disseminaÃ§Ã£o no Ã¢mbito das universidades, devemos tambÃ©m destacar os desafios crÃ­ticos que a sociedade enfrenta nas dimensÃµes econÃ´mica, tecnolÃ³gica e polÃ­tica. A convergÃªncia das crises sociais, ambientais e polÃ­ticas exige uma intensificaÃ§Ã£o do debate sobre as questÃµes globais, nÃ£o apenas dentro das universidades, mas tambÃ©m porque elas podem levar informaÃ§Ã£o cientÃ­fica sÃ©ria a um pÃºblico mais amplo.</p>
+<p>NÃ£o podemos ignorar a enorme manipulaÃ§Ã£o de informaÃ§Ã£o em escala mundial, e temos, como universidades, tanto a responsabilidade quanto a possibilidade de ir alÃ©m de nossos muros, usando todas as capacidades de comunicaÃ§Ã£o que as tecnologias oferecem. Mas, acima de tudo, precisamos pesquisar o prÃ³prio papel das universidades neste ambiente novo e em transformaÃ§Ã£o. O conhecimento Ã© o nosso domÃ­nio, e o conhecimento tornou-se o fator-chave da transformaÃ§Ã£o social como um todo.</p>
+<p><em>Outras Palavras Ã© feito por muitas mÃ£os. Se vocÃª valoriza nossa produÃ§Ã£o, seja nosso apoiador e fortaleÃ§a o jornalismo crÃ­tico: <strong><a href="https://apoia.se/outraspalavras" rel="noopener noreferrer" target="_blank">apoia.se/outraspalavras</a></strong></em></p>
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://outraspalavras.net/alemdamercadoria/a-universidade-na-era-do-conhecimento-aberto/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

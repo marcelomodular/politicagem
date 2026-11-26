@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apocalipse global mais próximo com colapso da Nvidia - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Apocalipse global mais próximo com colapso da Nvidia</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Revista Forum - Forum</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://revistaforum.com.br/global/apocalipse-global-mais-proximo-com-colapso-da-nvidia/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://revistaforum.com.br/wp-content/uploads/2026/11/Captura-de-Tela-2026-11-20-as-20.57.09.png" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Apocalipse global mais próximo com colapso da Nvidia
+                            </p>
+                            
+
+
+
+<p>00:00</p>
+
+
+<img alt="Modo claro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconSun.svg"/>
+
+
+<img alt="Modo escuro" src="https://revistaforum.com.br/wp-content/plugins/oknaudio/application/assets/img/iconMoon.svg"/>
+
+<p>
+A+
+A-
+</p>
+
+
+<p>Outro apocalipse global, nos moldes de 2008?</p><p>
+</p>
+<p>As ações da Nvidia perderam mais de 14% de seu valor nesta sexta-feira, 20, reaquecendo o temor de um apocalipse dos mercados financeiros igual ou maior à crise de 2008.</p><p>
+</p>
+<p>O temor se espalhou com a notícia de que o órgão regulador dos Estados Unidos, a Securities and Exchange Commission (SEC), decidiu investigar a contabilidade da empresa.</p><p>
+</p>
+<p>Fabricante dos chips que abastecem o crescimento da indústria da Inteligência Artificial, a Nvidia já perdeu U$ 2,5 trilhões em valor de mercado desde o pico de suas ações. É o novo recorde de perdas em 45 dias.</p>
+<p></p>
+<p>A NASDAQ, bolsa de tecnologia dos Estados Unidos, perdeu mais de 5% nesta sexta-feira em função da desconfiança de investidores quanto a uma bolha em torno dos investimentos em IA.</p>
+<p>A queda aconteceu um dia depois de a Anthropic ter feito uma oferta pública de ações recordista. Ao final do primeiro dia, a empresa de IA atingiu valorização de U$ 1,7 trilhão.</p>
+<p>As ações da empresa perderam 8,5% do valor no segundo dia de negociações, sublinhando uma preocupação mais geral de que o setor da IA está sobrevalorizado.</p>
+<h3><strong>Meses de alerta</strong></h3>
+<p>Em julho deste ano, escrevendo na <em>New Left Review</em>, Frédéric Lordon resumiu:</p>
+<blockquote>
+<h4>À espera de um crash?</h4>
+</blockquote>
+<p>O autor relembrou que o colapso de uma bolha é o colapso de uma crença. A crença? De que a Inteligência Artificial vai gerar lucros compatíveis com o investimento extraordinário feito no setor.</p>
+<p>Lordon escreveu:</p>
+<blockquote>
+<p>Desde 2020, as “Cinco Grandes” — Microsoft, Google, Oracle, Meta e Amazon — despejaram US$ 1,9 trilhão no caldeirão. Agora, porém, é preciso gerar retorno — se não em breve, o que não está nos planos, então eventualmente, e em uma escala proporcional ao investimento. Aqueles que expressaram ceticismo a respeito disso foram inicialmente descartados como reclamões, estraga-prazeres incapazes de sentir a emoção do milagroso, de vislumbrar o grande avanço civilizatório de nossa época. Por quanto tempo a crença coletiva na IA resistirá às evidências em contrário? A resposta: por muito tempo, mas não para sempre — especialmente quando os sinais de alerta começam a se multiplicar, como está acontecendo agora.</p>
+</blockquote>
+<p>O autor, de bom humor, informou que os trilhões investidos na IA ainda não renderam “um copeque” de retorno, em referência à moeda da União Soviética que é o troco do rublo — ainda utilizado na Rússia.</p>
+<p>A opinião dele não é única entre os analistas menos submissos ao mercado:</p>
+<blockquote>
+<p>Se o prédio ruir, os efeitos serão de fato catastróficos. E como poderiam ser diferentes? A equação do modelo de negócios é fundamentalmente insustentável: todo o investimento se baseia nas premissas mais rebuscadas sobre a demanda. O mundo financeiro está lentamente começando a perceber isso, como ilustram algumas abstenções cautelosas por parte dos bancos e, inversamente, a corrida desenfreada para territórios obscuros, onde as finanças neoliberais não demonstram falta de entusiasmo ou imaginação. O acordo proposto à Anthropic por dois fundos de crédito privados, Apollo e Blackstone, para ocultar sua dívida será lembrado como um clássico do gênero. O projeto “Big Sky”, como é conhecido – esses caras têm um toque poético –, oferece à Anthropic acesso aos chips da Broadcom por meio de um contrato de leasing de US$ 35 bilhões que mantém a dívida fora de seu balanço patrimonial. Chegamos ao ponto em que devemos evitar dar a impressão de superaquecimento, para não assustarmos o mercado.</p>
+</blockquote>
+<p>Ou seja, subjacente ao bem sucedido lançamento das ações da Anthropic existem manobras contábeis no mínimo duvidosas.</p>
+<h3><strong>Castelo de cartas</strong></h3>
+<p>Como também acontece no Brasil, os comentaristas submissos ao mercado costumam apontar para fatos políticos como “desculpa”: a instabilidade de agora seria causada pela vitória dos democratas nas eleições de meio de mandato. O partido tem uma plataforma que fala em regulamentar a IA e aumentar o escrutínio sobre a expansão de <em>data centers </em>que provocam poluição sonora e aumento dos preços de energia.</p>
+<p>Porém, existem questões de fundo sobre a qual eles não são tão francos. Lordon escreveu que já existem fósforos para torrar o barril de pólvora construído eminentemente sobre dívida, que pode ficar mais cara se os juros subirem nos EUA:</p>
+<blockquote>
+<p>Há uma crescente preocupação com o endividamento utilizado para financiar a compra de ações, concedido com facilidade pelas corretoras por meio das quais os investidores realizam suas transações. A chamada “dívida de margem” está longe de ser insignificante: atingiu um recorde histórico de US$ 1,4 trilhão. O que acontece se os mercados de ações inverterem sua trajetória? Os investidores enfrentarão as infames chamadas de margem – a solicitação de uma corretora para que o cliente deposite garantias adicionais para assegurar um empréstimo quando os ativos que o lastreiam estiverem perdendo valor. Devemos, portanto, revisar nossa premissa inicial: as bolhas do mercado de ações não são particularmente perigosas enquanto permanecerem desconectadas do sistema de crédito. Elas se tornam perigosas quando criam o potencial para inadimplências e uma corrida frenética por liquidez. Para atender às necessidades de financiamento em um segmento do mercado, os investidores vendem ativos em outro. Esse mercado, por sua vez, sofre com a falta de liquidez, desencadeando novas vendas em outros lugares, e assim por diante. Se o sistema financeiro já estiver à beira de um ponto crítico de instabilidade estrutural, essa reação em cadeia pode levá-lo ao colapso.</p>
+</blockquote>
+
+
+
+
+<h2>O Brasil precisa da Fórum. E nós precisamos de você </h2>
+<p>Fórum tem 25 anos, é o veículo mais antigo da mídia progressista. Sempre do mesmo lado. Nos momentos mais
+            difíceis você e o campo popular sempre puderam contar com a Fórum. <strong>Agora precisamos de
+                você.</strong> Neste período
+            eleitoral as publicidades diminuem e os custos aumentam. Inclusive com processos judiciais.
+            <strong>Se você doar
+                ou
+                assinar a Fórum você nos ajuda a passar esse momento turbulento e lutar pela democracia nesta hora
+                decisiva
+                de nossa história.</strong> Contamos muito com você. Pode contar com a gente!
+        </p>
+
+ 
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://revistaforum.com.br/global/apocalipse-global-mais-proximo-com-colapso-da-nvidia/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Em defesa de Victor Serge - Politicagem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --paper: #1a1a1a;
+            --paper2: #252525;
+            --ink: #e0e0e0;
+            --ink-mid: #b0b0b0;
+            --ink-faint: #808080;
+            --rule: #404040;
+            --red: #6a6a6a;
+        }
+
+        body {
+            background: #0a0a0a;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255, 255, 255, 0.03) 28px, rgba(255, 255, 255, 0.03) 29px);
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 8px 48px;
+        }
+
+        .viewer-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--paper);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, #1a1a1a 0%, #252525 100%);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45), inset 0 0 80px rgba(0, 0, 0, 0.06);
+            padding: 0 0 40px;
+        }
+
+        .top-rule {
+            height: 6px;
+            background: var(--rule);
+        }
+
+        .top-rule-thin {
+            height: 2px;
+            background: var(--rule);
+            margin-top: 3px;
+        }
+
+        .viewer-header {
+            padding: 18px 32px;
+            border-bottom: 3px double var(--rule);
+            background: var(--paper2);
+        }
+
+        .viewer-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .viewer-image {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 600px !important;
+            object-fit: contain !important;
+            object-position: center top !important;
+            margin: 0 auto 16px !important;
+            border: 1px solid var(--rule) !important;
+            background: var(--paper2) !important;
+        }
+
+        .viewer-image.visible {
+            display: block;
+        }
+
+        .viewer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            color: var(--ink-mid);
+            letter-spacing: 0.06em;
+        }
+
+        .source-tag {
+            background: var(--red);
+            color: var(--paper);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .viewer-controls {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--rule);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 6px 16px;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--red);
+            text-decoration: none;
+            color: var(--paper);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewer-content {
+            padding: 24px 32px;
+            min-height: 400px;
+        }
+
+        .content-loading {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            color: var(--ink-faint);
+            font-size: 1.1rem;
+        }
+
+        .content-error {
+            text-align: center;
+            padding: 60px 32px;
+            font-family: 'IM Fell English', serif;
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .content-text {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--ink);
+            text-align: justify;
+            white-space: pre-wrap;
+        }
+
+        .content-text img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            margin: 16px auto !important;
+            border-radius: 4px;
+        }
+
+        .content-text p {
+            margin-bottom: 1.2em;
+            text-indent: 1.5em;
+        }
+
+        .content-text p:first-child {
+            text-indent: 0;
+        }
+
+        .content-text p:first-of-type::first-letter {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 2.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            color: var(--red);
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--rule);
+            background: #1a1a1a;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .toggle-btn {
+            padding: 4px 12px;
+            background: transparent;
+            border: 1px solid var(--ink-mid);
+            cursor: pointer;
+            font-family: 'IM Fell English SC', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ink-faint);
+            border-top: 2px solid var(--ink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .viewer-header,
+            .viewer-controls,
+            .viewer-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .viewer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .iframe-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="viewer-container">
+        <div class="top-rule"></div>
+        <div class="top-rule-thin"></div>
+
+        <div class="viewer-header">
+            <img id="article-image" class="viewer-image" style="display: none;">
+            <h1 class="viewer-title">Em defesa de Victor Serge</h1>
+            <div class="viewer-meta">
+                <span class="source-tag">Jacobin Brasil</span>
+                <span>Visualizador de Notícias</span>
+            </div>
+        </div>
+
+        <div class="viewer-controls">
+            <a href="../index.html" class="btn btn-secondary">← Voltar ao Politicagem</a>
+            
+            <a href="https://jacobin.com.br/2026/11/em-defesa-de-victor-serge/" target="_blank" rel="noopener noreferrer" class="btn">Abrir no Site Original →</a>
+            
+
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showExtracted()">Texto Extraído</button>
+                <button class="toggle-btn" onclick="showIframe()">Site Original</button>
+            </div>
+        </div>
+
+        <div class="viewer-content">
+            
+            <div id="extracted-view">
+                
+                    <div id="extracted-content" class="content-text">
+                        
+                            
+                            <img src="https://jacobin.com.br/wp-content/uploads/2026/11/186945690167.jpg" class="viewer-image visible" alt="Imagem do artigo">
+                            
+                            <p style="font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 16px;">
+                                Título extraído: Em defesa de Victor Serge
+                            </p>
+                            
+<p>Durante décadas, qualquer pessoa que escrevesse sobre Victor Serge tinha que começar explicando quem era e por que deveríamos nos importar com ele. Apesar de um enorme legado literário, ele havia sido literalmente apagado da história soviética, uma figura esquecida até mesmo por grande parte da esquerda. A história raramente é benevolente com os vencidos, e Serge estava do lado dos derrotados, daqueles que se recusavam a fazer concessões ao capitalismo ou a se render ao stalinismo. O preço foi alto, mas a voz eloquente e a pena poderosa de Serge não puderam impedir que ele fosse marginalizado pela história, ignorado ou mal compreendido, relegado a uma vida de pobreza. Quatro de seus livros foram confiscados pela censura soviética (<em>Glavlit</em>), e outros escritos permaneceram inéditos, embora o estabeleçam como um homem que pertence ao nosso futuro.</p>
+<p>Quem foi Serge? Operário, militante, intelectual, internacionalista por experiência e convicção, e sempre pobre, Serge viveu de 1890 a 1947. Participou de três revoluções, passou uma década em diversas prisões e atuou politicamente em sete países. Publicou mais de trinta livros e deixou milhares de páginas de trabalhos inéditos. Nasceu Victor Kibalchich na Bélgica, filho de pais russos anarcopopulistas exilados, e morreu no exílio no México como um pensador e escritor socialista independente e não doutrinário. Passou a maior parte dos anos de 1919 a 1936 na União Soviética, integrando uma geração revolucionária que buscava criar uma sociedade socialista.</p>
+<p>Eles foram superados em manobras políticas e derrotados por Josef Stalin, que estabeleceu uma ditadura burocrática autoritária governando em nome do comunismo. Serge dedicou o resto de sua vida a compreender a promessa e o fracasso da experiência soviética — não para renunciar ao socialismo, mas para resgatá-lo da catástrofe do stalinismo.</p>
+<p>“Para Serge, a democracia não era um acessório do socialismo, mas sua condição indispensável.”</p>
+<p>Ele se opôs ao capitalismo primeiro como anarquista, depois como bolchevique. Opôs-se às práticas antidemocráticas do bolchevismo e, posteriormente, a Stalin como oposicionista de esquerda. Debateu com Leon Trotsky dentro da esquerda antiestalinista e opôs-se tanto ao fascismo quanto à Guerra Fria emergente como um marxista revolucionário convicto. Suas convicções frequentemente o colocavam em desacordo com seus correligionários no Ocidente, causando-lhe grande sofrimento e isolando-o do próprio movimento ao qual dedicara tantos anos, correndo tantos riscos.</p>
+<p>Contudo, ele não sucumbiu ao pessimismo. Jamais vacilou em seu compromisso com a criação de uma sociedade que defenda a liberdade humana, promova a dignidade humana e melhore a condição humana. Para Serge, a democracia não era um acessório do socialismo, mas sua condição indispensável. Por meio de seus ensaios, memórias, cadernos, romances e artigos jornalísticos, ele buscou compreender as derrotas do século XX para iluminar as possibilidades do futuro, clamando por uma renovação do pensamento e da prática socialista.</p>
+<p>Escrevendo do exílio no México nos últimos anos de sua vida, ele fez um alerta aos “dogmáticos fossilizados” que acreditavam que a revolução europeia era inevitável após a guerra.</p>
+<blockquote>
+<p>Uma era das trevas se abre diante da Europa e do mundo. Os melhores revolucionários foram destruídos por derrotas passadas e pela guerra. Será necessário aguardar o surgimento de novos quadros. Os antigos programas e rotinas socialistas foram superados e precisam ser renovados. O stalinismo, vitorioso graças ao apoio incondicional e às concessões dos Aliados, será mais perigoso do que nunca. Se quisermos salvar a Europa, precisamos começar unindo todas as forças democráticas livres, simplesmente para praticar a arte de não desaparecer.</p>
+</blockquote>
+<p>A advertência de Serge capta o pensamento revolucionário, mas resolutamente independente, de um homem que insistia, acima de tudo, que o socialismo sem liberdade e democracia não é e não pode ser socialismo. Como ele próprio afirmou em 1942:</p>
+<blockquote>
+<p>Queremos participar na construção de um socialismo restaurado à sua dignidade e aos seus objetivos reais, o que só pode ser alcançado através de uma organização de homens livres. Queremos ideias honestas e claras dentro de um movimento operário saudável, revigorado pela competição fraterna e pelo debate livre. Do coração da democracia ameaçada, do socialismo e do movimento operário, defendemos acima de tudo a liberdade de opinião e a dignidade humana do militante, os direitos das minorias e um espírito crítico. Lutamos incansavelmente, e não cessaremos de lutar, contra o pensamento controlado, o culto ao líder, a obediência passiva e as manobras desprezíveis de partidos sujeitos à disciplina cega, bem como o uso sistemático de mentiras, calúnias e assassinatos.</p>
+</blockquote>
+<p>Redescobrir Serge não é mais uma operação de resgate. O impasse foi rompido: a publicação de seus <em>Carnets</em> (<em>Cadernos, 1936–1947</em>) pela Agone, as novas edições de <em>Memórias de um Revolucionário</em> e de seus romances pela New York Review Books, e agora duas novas biografias importantes — <em>Victor Serge: Unruly revolutionary</em> [Victor Serge: Revolucionário indisciplinado], de Mitchell Abidor, e<em> Le jeune Victor Serge</em> [O jovem Victor Serge], de Claudio Albertani , o primeiro volume de uma biografia ainda não traduzida para o inglês — marcam uma espécie de renascimento de Serge. Entramos em um período em que a tarefa não é mais simplesmente apresentar seu legado literário e revolucionário, mas defendê-lo.</p>
+<p>Escrevemos a partir de diferentes tradições políticas — anarquismo, Oposição de Esquerda, socialismo revolucionário — mas estamos unidos pela convicção de que a biografia de Abidor, apesar de toda a sua profundidade documental, interpreta mal o seu biografado. O legado de Serge não é o de um homem que abandonou o socialismo para defender o anticomunismo na Guerra Fria. É o de um pensador socialista que recusou todas as capitulações — ao stalinismo, ao liberalismo, ao desespero — e que pagou o preço integral dessa recusa.</p>
+<p></p>
+<h2>Não rotule Serge</h2>
+<p>O fato de virmos de tradições políticas e intelectuais distintas nos liberta da tentação de confinar Victor Serge a uma única interpretação tendenciosa e de submetê-lo ao veredito da retrospectiva, como se cada etapa de sua vida apontasse inevitavelmente para seu suposto anticomunismo posterior. Quer venhamos do anarquismo, do trotskismo, do socialismo revolucionário ou de outras correntes da esquerda, uma coisa deve permanecer comum: a recusa em transformar uma vida definida por lutas, derrotas e resistência em um julgamento por insinuações. É a partir dessa preocupação compartilhada — e não da concordância em todas as questões políticas — que abordamos a biografia de Abidor.</p>
+<p>No entanto, é exatamente isso que Abidor faz com muita frequência. O livro contém material valioso, incluindo documentos importantes e relatos comoventes — como, por exemplo, dos anos de Serge na França. O problema não é que Abidor seja severo com Serge; é que sua abordagem interpretativa central nos parece profundamente falha.</p>
+<p>Ele psicologiza Serge, lança dúvidas sobre sua sinceridade e caráter moral, e exagera anedotas e frases retiradas de contexto. O uso tendencioso de material real acaba produzindo uma imagem distorcida de Serge. A falsificação não implica necessariamente a invenção de fatos; pode consistir em organizá-los de forma que não correspondam mais ao seu contexto original.</p>
+<p>Como anarquista, seria razoável esperar que a crítica de Abidor se concentrasse na decisão de Serge de se juntar ao Partido Bolchevique em 1919, marcando a ruptura com o anarquismo de sua juventude. Mas não é esse o caso. Em seu relato sobre a juventude de Serge, Abidor trata o movimento anarco-individualista, do qual Serge foi um participante ativo por quase uma década, com pouca simpatia. Mais grave ainda, ao discutir o papel de Serge no caso <a href="https://fr.wikipedia.org/wiki/Jean-Jacques_Liabeuf" rel="noopener noreferrer" target="_blank">Liabeuf</a>, a campanha política de 1910 em torno da execução do operário Jean-Jacques Liabeuf, Abidor observa que o jornalista socialista Gustave Hervé foi processado por declarações públicas, enquanto Serge não foi. Embora reconheça que não há provas documentais que expliquem por que Serge escapou da acusação, ele convida o leitor a inferir que sua imunidade refletia negociações duvidosas com a polícia. A falta de provas funciona menos como um motivo para cautela histórica do que como um convite à suspeita.</p>
+<p>“Victor Serge jamais vacilou em seu compromisso com a criação de uma sociedade que defenda a liberdade humana, promova a dignidade humana e melhore a condição humana.”</p>
+<p>Abidor reserva suas críticas mais contundentes a Serge para os últimos anos de vida deste. Nessa época, trabalhando em crescente isolamento, Serge havia aprofundado sua análise do stalinismo. Alguns dos julgamentos expressos em sua correspondência, anotações em cadernos e escritos posteriores são passíveis de debate e carregam a marca inconfundível das circunstâncias extraordinárias em que foram escritos. A violência do stalinismo, a memória dos Julgamentos de Moscou, a catástrofe da Segunda Guerra Mundial, o assassinato de Trotsky e o próprio isolamento político de Serge durante seu exílio final no México influenciaram profundamente seu pensamento.</p>
+<p>Reconhecer esse endurecimento do tom, contudo, não justifica a interpretação de Abidor. Isso equivale a uma conversão de Serge a um anticomunismo grosseiro e vulgar? Não acreditamos que sim.</p>
+<p>Abidor interpreta Serge através de sua própria perspectiva — que ele chama de seu “paradigma interno” — e suspeita de insinceridade por parte dele, como se Serge estivesse expressando opiniões que não compartilhava. Seu argumento central é que Serge se tornou um anticomunista convicto em seus últimos anos. Ele baseia essa afirmação em uma premissa falha: a ideia de que a União Soviética sob Stalin ainda representava, por mais distorcida que fosse, o projeto socialista.</p>
+<p>De fato, Abidor aceita que a URSS era um Estado comunista — uma posição surpreendente para alguém que professa afinidade com a tradição anarquista. Ele chega a chamá-la de “o único Estado socialista”, sem considerar seriamente a análise de Serge de que o stalinismo representava um sistema antitético ao socialismo, em última análise antissocialista e anti-humano. Nas páginas finais de sua biografia, Abidor escreve que a insistência de Serge na proteção da liberdade política e da democracia “o transformou em um inimigo intransigente do comunismo”. Não poderia haver declaração mais clara da aceitação, por parte de Abidor, da própria definição de Stalin sobre seu sistema como comunista — uma definição que faria Karl Marx estremecer, e que Serge passou a vida refutando.</p><a href="https://autonomialiteraria.com.br/loja/america-latina/o-fantasma-do-comunismo-no-brasil-13-ensaios-contos-e-causos-sobre-o-espectro-que-assombra-os-poderosos/" rel="noopener noreferrer" target="_blank"><img alt="" src="https://jacobin.com.br/wp-content/uploads/2021/09/01_quotes_O-Fantasma-do-Comunismo-no-Brasil.jpg"/></a>
+<p>Felizmente, não precisamos especular: as ideias de Serge estão claramente documentadas em seus ensaios e artigos, notadamente em “Por uma renovação do socialismo” (<em>Pour une rénovation du socialisme</em>), escrito no México na década de 1940 e publicado em francês em <em>Masses: Socialisme et Liberté</em> (junho de 1946). Nele, Serge afirma que “o coletivismo não é, como se poderia supor, sinônimo de socialismo, podendo inclusive assumir formas antissocialistas de exploração do trabalho e desprezo pela humanidade”. A definição de socialismo de Serge enfatiza menos a estrutura econômica da sociedade do que sua organização política e jurídica — ou seja, os direitos humanos, a liberdade e a democracia.</p>
+<p>“Trabalhando isolado, privado da geração revolucionária que havia compreendido o marxismo e o stalinismo por dentro, Serge se debruçava sobre os contornos do mundo pós-guerra.”</p>
+<p>Em seu manuscrito inédito “Économie dirigée et démocratie” (<em>Economia dirigida e democracia</em>), Serge analisa o “planejamento” soviético como a antítese da democracia e do próprio planejamento: não a regulação consciente da sociedade por produtores livremente associados, como Marx a definiu, mas ordens peremptórias (<em>ukases</em>) emitidas de cima para baixo, impossíveis de cumprir, exceto no papel. Ele descreve a URSS pelo que ela era: um sistema que operava através do terror contra sua própria população, governado pela ditadura stalinista do secretariado e da polícia secreta. Nada tinha em comum com os ideais de Outubro.</p>
+<p>Uma carta de Serge para René Lefeuvre, incluída na edição de 1984 de <em>16 fusillés à Moscou</em> (<em>16 tiros em Moscou</em>), mostra um homem preocupado com a publicação, por Lefeuvre, de um relatório que não é suficientemente crítico do imperialismo estadunidense — um contraste gritante com a visão redutiva de Abidor: “Entendo que a ameaça stalinista o alarme. Mas isso não deve nos fazer perder de vista nossa visão geral. Não devemos fazer o jogo do bloco anticomunista; e, a julgar pelas primeiras edições de <em>Masses</em>, merecemos ser criticados por fazê-lo.”</p>
+<p>Um sentimento semelhante aparece nos <em>Cadernos</em> de Serge. Em setembro de 1944, ele escreveu que “a batalha está aberta entre o Partido Comunista totalitário e a democracia socialista”. Ele esclareceu imediatamente que a oposição decisiva não se situava mais, como em 1917-1918, entre a revolução socialista e a reação capitalista, mas também entre o totalitarismo stalinista e o socialismo democrático. Em 1942, a respeito da Espanha, ele escreve que os objetivos da revolução democrática “só podem ser alcançados pelas massas socialistas” e devem ser superados por meio de medidas abrangentes de “nacionalização que exigem planejamento”. Em setembro de 1944, ao contrastar o “Partido Comunista totalitário” com a “democracia socialista”, Serge formula a alternativa em termos de “totalitarismo stalinista” versus “socialismo democrático”, sem fazer qualquer concessão ao liberalismo ocidental.</p>
+<p>Em uma entrevista concedida à revista <em>Protean</em> em dezembro de 2025, Abidor declara: “[Serge] queria ser um intelectual nova-iorquino. No fim da vida, se pudesse ter sido qualquer coisa no mundo, teria sido um intelectual judeu nova-iorquino.” Essa é uma argumentação forçada e impossível de comprovar. Serge não estava trilhando a trajetória do meio intelectual nova-iorquino — o arco de Max Eastman e Max Shachtman, a história conhecida de ex-trotskistas se movendo para a direita em direção ao Congresso para a Liberdade Cultural. Essa é uma trajetória histórica real, mas não é a de Serge.</p>
+<p></p>
+<h2>Enriquecer o socialismo, não denunciá-lo.</h2>
+<p>Abidor interpreta erroneamente o respeito que Serge nutria pelo indivíduo como antimarxista, o que significa ler tanto Marx quanto Serge erroneamente, pois ambos tomaram esse valor como ponto de partida e conclusão. Marx argumentava que a liberdade humana e a autorrealização só seriam possíveis com a abolição do capitalismo, que reduz o indivíduo a uma mercadoria. Rosa Luxemburgo insistia na liberdade de pensamento individual, especialmente em relação aos inimigos. O mesmo fazia Serge.</p>
+<p>A experiência política de Serge não o levou a renunciar ao socialismo após o triunfo de Stalin, mas sim a enriquecê-lo com uma declaração de direitos humanos. Em “Por uma renovação do socialismo”, publicado na <em>Masses</em> (junho de 1946), Serge defende a atualização do pensamento marxista à luz da psicologia, da ciência e das novas formações sociais. Tratava-se de uma renovação, não de uma rejeição.</p>
+<p>Trabalhando isolado, privado da geração revolucionária que havia compreendido o marxismo e o stalinismo por dentro, Serge se debruçava sobre os contornos do mundo pós-guerra, tentando analisar uma formação em processo de desbravamento. Ele conseguia vislumbrar as tendências, mas morreu justamente quando a Guerra Fria começava a tomar forma, antes que suas implicações se tornassem plenamente evidentes.</p>
+<p>Serge morreu em novembro de 1947. A Doutrina Truman havia sido proclamada em março daquele ano; o Congresso para a Liberdade Cultural, o aparato cultural da CIA, data de 1950. A arquitetura ideológica completa do anticomunismo do pós-guerra só emergiu após a sua morte. Projetar essa estrutura em Serge não é interpretação. É um anacronismo tendencioso, assim como é anacrônico supor, como Abidor faz em voz baixa na entrevista à <em>Protean</em>, que Serge “teria” apoiado os estadunidenses no Vietnã.</p>
+<p>“O Serge de seus últimos anos não era um anticomunista nem um defensor da Guerra Fria, mas um pensador socialista que buscava renovar a tradição em condições extremamente adversas.”</p>
+<p>Abidor atribui grande importância ao fato de Serge ter trabalhado como correspondente no México para o jornal <em>The New Leader</em>, considerando isso uma prova de sua convergência ideológica com a social-democracia de direita. A verdade é mais prosaica: Serge não tinha dinheiro e quase nenhum meio de ganhar a vida no México. Ele vivia da escrita, mas o Estado soviético sistematicamente bloqueava suas opções de publicação. Manuel Alemán, futuro presidente do México, admitiu que havia intensa pressão soviética para negar a Serge qualquer meio de expressão pública. Assim, Serge escrevia onde quer que conseguisse publicar e, no caso do <em>The New Leader</em>, era pago para isso. Ele também se recusava a submeter-se à censura: disse a Nancy e Dwight Macdonald que a revista permitia um pluralismo que a própria imprensa trotskista não tolerava. Ao mesmo tempo, Serge escrevia para a revista <em>Politics</em>, o periódico socialista libertário editado por Dwight Macdonald.</p>
+<p>Eis, então, o Serge de seus últimos anos: não um anticomunista nem um defensor da Guerra Fria, mas um pensador socialista que buscava renovar a tradição em condições extremamente adversas. Acima de tudo, Serge foi um grande escritor. Ele evoca a atmosfera das décadas de 1920 e 1930 dentro da União Soviética e do movimento comunista, e expõe os dilemas da década de 1940 com um senso de imediatismo e clareza. É surpreendente que Abidor não aborde a importância dos romances e poemas de Serge para a compreensão da tragédia de uma revolução que se autodestrói.</p>
+<p>Cinco meses antes de sua morte, em uma carta datada de 22 de junho de 1947, endereçada a “Podoliak”, pseudônimo do escritor ucraniano Hryhory Kostiuk, Serge declarou: “Permaneço — inabalavelmente — um socialista, um partidário do socialismo democrático. O sistema contra o qual lutei e continuo a lutar — e que você conhece bem — considero uma forma de totalitarismo; ou seja, algo novo, porém profundamente desumano e antissocialista”. Kostiuk não era um liberal ocidental nem um anticomunista da Guerra Fria; era um intelectual revolucionário ucraniano que havia vivenciado o terror soviético em primeira mão, editor da <em>Vaplite</em>, revista na qual Serge havia publicado. Este não é o retrato de um homem que se acomodava ao anticomunismo da Guerra Fria. É o de um homem que lutava para fazer sua voz ser ouvida contra o isolamento, afirmando inabalavelmente a necessidade do compromisso socialista contra o totalitarismo stalinista.</p>
+<p>Ficamos surpresos com a resenha de Ian Birchall na <a href="https://jacobin.com/2026/04/victor-serge-biography-literature-russian-revolution" rel="noopener noreferrer" target="_blank"><em>Jacobin</em></a>, dada a alta consideração que temos por ele como historiador. Sem dúvida, sua resenha é mais ponderada do que o texto de Abidor, mas continua sendo preocupante que Birchall considere convincente a conclusão de Abidor de que “em seus últimos anos, Serge via o comunismo como o principal inimigo”. Birchall reconhece que só podemos especular sobre o que Serge teria pensado a respeito da Coreia ou do Vietnã, mas, mesmo assim, sugere uma trajetória política para Serge que seus escritos não corroboram.</p>
+<p>Este ponto é ainda mais surpreendente, visto que o próprio Birchall havia citado anteriormente a carta de Serge a Lefeuvre como prova em contrário. Essa carta revela um Serge alarmado com o stalinismo, mas que se recusa explicitamente a fazer o jogo de um bloco anticomunista. Ela nos obriga a resistir a interpretações simplistas demais: Serge não deixa de ser socialista por identificar o stalinismo como uma ameaça central. Ele tenta, em circunstâncias trágicas, manter uma posição revolucionária independente entre o regime burocrático autoritário stalinista e o bloco capitalista ocidental.</p>
+<p>Abidor, por sua vez, confunde retórica com análise. A polêmica de um exilado não constitui um programa político. A amargura de um marginalizado não é uma doutrina. Um homem perseguido pelo stalinismo na Cidade do México, vivendo em um mundo de assassinatos, ameaças e acertos de contas, pode produzir declarações terríveis. Mas nada se ganha transformando essas declarações em um certificado de pertencimento a uma família política definitivamente estabelecida. Victor Serge era um homem de paixão e complexidade, um dissidente político, mas nunca um renegado. Uma biografia não deve condená-lo nem absolvê-lo, mas sim buscar compreendê-lo, ler sua vida e obra em seus próprios termos. Há uma diferença entre escrever história e conduzir uma acusação.</p>
+<p>Serge, como qualquer ser humano, era capaz de errar e se contradizer. Testado por tantas adversidades, tentando repensar o que a democracia socialista poderia significar no mundo pós-guerra, Serge foi um oposicionista de esquerda crítico que jamais abandonou o socialismo, ao contrário daqueles que sucumbiram à retórica do “deus que falhou”. Ele não converteu o fracasso do stalinismo no fracasso do socialismo. Não renunciou à emancipação coletiva. Pelo contrário, buscou libertar o socialismo de sua deformação burocrática e totalitária.</p>
+<p>Por essa razão, devemos, em conclusão, contrapor a lógica inquisitorial de <em>Unruly revolutionary</em> ao testemunho do poeta Octavio Paz, que conheceu Serge no México em 1942:</p>
+<blockquote>
+<p>Senti-me imediatamente atraído por Serge. Conversei longamente com ele e ainda guardo duas de suas cartas. Nada poderia estar mais distante do pedantismo dos dialéticos do que o calor humano de Serge, sua simplicidade e sua generosidade. Uma inteligência sensível e viva. Apesar de seus sofrimentos, seus reveses e seus longos anos de áridas disputas políticas, ele conseguiu preservar sua humanidade. Devia isso, sem dúvida, às suas raízes anarquistas; também ao seu grande coração. Para mim, Victor Serge era o epítome da fusão de duas qualidades opostas: intransigência moral e intelectual combinada com tolerância e compaixão.</p>
+</blockquote>
+<p></p>
+
+
+
+
+<p>
+</p>
+
+
+
+<p>é a autora de "Victor Serge: A Political Biography".</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Christian Dubucq				
+</h5>
+</p>
+
+<p>é o tradutor francês da biografia do jovem Victor Serge, escrita por Claudio Albertani.</p>
+
+
+
+<p></p>
+
+
+<p>
+</p>
+
+
+<p>
+<h5>
+
+				Claudio Albertani				
+</h5>
+</p>
+
+<p>é historiador e professor da Universidade Autônoma do México. Ele é o autor de Rebelión y anarquía: El joven Victor Serge (1890–1919). Juntamente com Claude Rioux, preparou Carnets de Victor Serge (1936–1947).</p>
+
+
+
+<p></p>
+
+
+
+
+
+
+
+
+
+                            
+                        
+                    </div>
+                
+            </div>
+
+            <div id="iframe-view" style="display: none;">
+                <div class="iframe-container">
+                    <iframe src="https://jacobin.com.br/2026/11/em-defesa-de-victor-serge/" sandbox="allow-scripts allow-forms"
+                        referrerpolicy="no-referrer"
+                        onload="hideIframeLoading()"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+        <script>
+        let currentView = 'extracted';
+
+        function showExtracted() {
+            currentView = 'extracted';
+            document.getElementById('extracted-view').style.display = 'block';
+            document.getElementById('iframe-view').style.display = 'none';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+
+            if (!document.getElementById('extracted-content').style.display ||
+                document.getElementById('extracted-content').style.display === 'none') {
+                loadExtractedContent();
+            }
+        }
+
+        function showIframe() {
+            currentView = 'iframe';
+            document.getElementById('extracted-view').style.display = 'none';
+            document.getElementById('iframe-view').style.display = 'block';
+
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+        }
+
+        function showExtractError(message) {
+            const loadingDiv = document.querySelector('.content-loading');
+            loadingDiv.innerHTML = `
+                <div class="content-error">
+                    <p>Falha ao extrair o conteudo.</p>
+                    <p id="extract-error-msg" style="font-size: 0.9rem; margin-top: 12px;"></p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">
+                        <a href="#" onclick="showIframe(); return false;" style="color: var(--red);">
+                            Tente visualizar o site original
+                        </a>
+                    </p>
+                </div>
+            `;
+            const errorNode = document.getElementById('extract-error-msg');
+            if (errorNode) {
+                errorNode.textContent = message || 'Erro desconhecido';
+            }
+        }
+
+        function loadExtractedContent() {
+            
+                // Em modo estático, o conteúdo já está renderizado no HTML
+                return;
+            
+        }
+
+        function hideIframeLoading() {
+            return;
+        }
+
+        
+    </script>
+</body>
+
+</html>
